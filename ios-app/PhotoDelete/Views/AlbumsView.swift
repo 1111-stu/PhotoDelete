@@ -51,7 +51,9 @@ struct AlbumsView: View {
     @State private var navigationPath = NavigationPath()
     @State private var searchText = ""
     @State private var activeSheet: AlbumSheet?
+    @AppStorage(AppConstants.albumDisplayStyleKey) private var albumDisplayStyleValue = AlbumDisplayStyle.cover.rawValue
     @State private var sortMode: AlbumSortMode = .custom
+    @State private var showsDisplayStyle = false
     @State private var editMode: EditMode = .inactive
     @State private var albumToast: PhotoDeleteToast?
     @State private var displayedRows: [AlbumListRowModel] = []
@@ -73,21 +75,20 @@ struct AlbumsView: View {
                 }
                 .navigationTitle(L10n.string("相册"))
                 .navigationBarTitleDisplayMode(.large)
-                .searchable(
-                    text: $searchText,
-                    placement: .navigationBarDrawer(displayMode: .automatic),
-                    prompt: Text(L10n.string("搜索相册"))
-                )
                 .toolbar {
                     if dataManager.photoLibraryManager.hasPhotoLibraryAccess {
-                        ToolbarItemGroup(placement: .topBarTrailing) {
+                        ToolbarItem(placement: .navigationBarTrailing) {
                             if editMode == .active {
                                 Button(L10n.string("完成"), action: toggleReordering)
                                     .font(.body.weight(.semibold))
                             } else {
-                                sortMenu
-                                albumActionsMenu
-                                createAlbumButton
+                                Button {
+                                    showsDisplayStyle = true
+                                } label: {
+                                    Image(systemName: "square.grid.2x2")
+                                }
+                                .accessibilityLabel(L10n.string("显示方式"))
+                                .accessibilityIdentifier("album-display-style")
                             }
                         }
                     }
@@ -97,8 +98,31 @@ struct AlbumsView: View {
                     case .swipeAlbum(let selectedSwipeAlbum):
                         SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: selectedSwipeAlbum)
                             .environmentObject(dataManager)
+                    case .browser(let album):
+                        AlbumPhotoBrowserView(album: album) {
+                            navigationPath.append(AlbumNavigationDestination.swipeAlbum(album))
+                        }
+                        .environmentObject(dataManager)
                     }
                 }
+                .overlay(alignment: .bottomTrailing) {
+                    if dataManager.photoLibraryManager.hasPhotoLibraryAccess && editMode != .active {
+                        createAlbumButton
+                            .padding(.trailing, 20)
+                            .padding(.bottom, 24)
+                    }
+                }
+        }
+        .sheet(isPresented: $showsDisplayStyle) {
+            AlbumDisplayStyleSheet(
+                style: displayStyleBinding,
+                sortMode: $sortMode,
+                onReorder: beginReorderingFromDisplaySheet,
+                onDeleteEmpty: {
+                    showsDisplayStyle = false
+                    presentEmptyAlbumCleanup()
+                }
+            )
         }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
@@ -139,52 +163,40 @@ struct AlbumsView: View {
         }
     }
 
-    private var sortMenu: some View {
-        Menu {
-            Picker(L10n.string("排序"), selection: $sortMode) {
-                ForEach(AlbumSortMode.allCases) { mode in
-                    Label(mode.title, systemImage: mode.icon).tag(mode)
-                }
-            }
-
-            if sortMode == .custom {
-                Button(action: toggleReordering) {
-                    Label(L10n.string("调整顺序"), systemImage: "line.3.horizontal")
-                }
-            }
-        } label: {
-            Label(L10n.string("排序"), systemImage: "arrow.up.arrow.down")
-                .labelStyle(.iconOnly)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(PhotoDeleteStyle.accent)
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(L10n.string("排序"))
+    private var displayStyle: AlbumDisplayStyle {
+        AlbumDisplayStyle(rawValue: albumDisplayStyleValue) ?? .cover
     }
 
-    private var albumActionsMenu: some View {
-        Menu {
-            Button(action: presentEmptyAlbumCleanup) {
-                Label(L10n.string("删除空相册"), systemImage: "folder.badge.minus")
-            }
-        } label: {
-            Label(L10n.string("相册操作"), systemImage: "ellipsis.circle")
-                .labelStyle(.iconOnly)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(PhotoDeleteStyle.accent)
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(L10n.string("相册操作"))
+    private var displayStyleBinding: Binding<AlbumDisplayStyle> {
+        Binding(
+            get: { displayStyle },
+            set: { albumDisplayStyleValue = $0.rawValue }
+        )
     }
 
     private var createAlbumButton: some View {
         Button(action: createAlbum) {
-            Label(L10n.string("创建相册"), systemImage: "plus")
-                .labelStyle(.iconOnly)
-                .font(.system(size: 19, weight: .semibold))
-                .foregroundStyle(PhotoDeleteStyle.accent)
+            Image(systemName: "plus")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(PhotoDeleteStyle.primaryText)
+                .frame(width: 56, height: 56)
+                .background(PhotoDeleteStyle.surface, in: Circle())
+                .shadow(color: PhotoDeleteStyle.floatingShadow.opacity(0.18), radius: 10, y: 4)
         }
         .accessibilityLabel(L10n.string("创建相册"))
+    }
+
+    private var albumSearchField: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+            TextField(L10n.string("搜索相册"), text: $searchText)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+        }
+        .padding(.horizontal, 14)
+        .frame(minHeight: 44)
+        .background(PhotoDeleteStyle.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func createAlbum() {
@@ -227,6 +239,87 @@ struct AlbumsView: View {
     // MARK: - 相册列表
     @ViewBuilder
     private var albumsList: some View {
+        if editMode == .active || displayStyle == .list {
+            albumRowsList
+        } else {
+            albumCoverBrowser
+        }
+    }
+
+    private var albumCoverBrowser: some View {
+        let columnCount = displayStyle == .compact
+            ? (horizontalSizeClass == .regular ? 5 : 3)
+            : (horizontalSizeClass == .regular ? 4 : 2)
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: columnCount)
+
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(albumHeaderSubtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(PhotoDeleteStyle.secondaryText)
+
+                albumSearchField
+
+                if isLoadingAlbums {
+                    loadingRow
+                } else if displayedRows.isEmpty {
+                    emptyRow
+                } else {
+                    LazyVGrid(columns: columns, spacing: 18) {
+                        ForEach(displayedRows) { row in
+                            albumCoverButton(row)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+            .padding(.top, 4)
+            .padding(.bottom, 108)
+        }
+        .scrollDismissesKeyboard(.immediately)
+        .refreshable {
+            dataManager.loadAlbums(showLoading: false)
+        }
+    }
+
+    private func albumCoverButton(_ row: AlbumListRowModel) -> some View {
+        Button {
+            openAlbum(id: row.id)
+        } label: {
+            AlbumCoverTile(
+                title: row.title,
+                photosCount: row.photosCount,
+                thumbnailAssetID: row.thumbnailAssetID,
+                photoLibraryManager: dataManager.photoLibraryManager,
+                isCompact: displayStyle == .compact
+            )
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            if row.photosCount > 0 {
+                Button {
+                    openAlbumSwipe(id: row.id)
+                } label: {
+                    Label(L10n.string("整理"), systemImage: "hand.draw")
+                }
+            }
+            if row.canEdit {
+                Button {
+                    editAlbum(id: row.id)
+                } label: {
+                    Label(L10n.string("编辑"), systemImage: "pencil")
+                }
+                Button(role: .destructive) {
+                    deleteAlbum(id: row.id)
+                } label: {
+                    Label(L10n.string("删除"), systemImage: "trash")
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var albumRowsList: some View {
         List {
             if isLoadingAlbums {
                 Section {
@@ -244,6 +337,11 @@ struct AlbumsView: View {
                 // Keep count in the section header (not its own Section) so insetGrouped
                 // does not leave a large empty gap under "N 个相册".
                 Section {
+                    albumSearchField
+                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+
                     if shouldShowAlbumSwipeHint {
                         AlbumSwipeHintRow {
                             hasDismissedAlbumSwipeHint = true
@@ -497,7 +595,21 @@ struct AlbumsView: View {
             return albums.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
         case .count:
             return albums.sorted { $0.photosCount > $1.photosCount }
+        case .recent:
+            return albums.sorted { lhs, rhs in
+                let left = lhs.thumbnailAsset?.creationDate ?? .distantPast
+                let right = rhs.thumbnailAsset?.creationDate ?? .distantPast
+                return left > right
+            }
         }
+    }
+
+    private func beginReorderingFromDisplaySheet() {
+        sortMode = .custom
+        showsDisplayStyle = false
+        albumDisplayStyleValue = AlbumDisplayStyle.list.rawValue
+        guard editMode != .active else { return }
+        toggleReordering()
     }
 
     private func toggleReordering() {
@@ -541,7 +653,14 @@ struct AlbumsView: View {
             return
         }
 
-        guard currentAlbumInfo.photosCount > 0 else {
+        HapticManager.impact(.light)
+        navigationPath.append(AlbumNavigationDestination.browser(currentAlbumInfo))
+    }
+
+    private func openAlbumSwipe(id: String) {
+        guard let albumInfo = albumsByID[id] ?? dataManager.userAlbums.first(where: { $0.id == id }),
+              let currentAlbumInfo = dataManager.currentUserAlbumInfo(for: albumInfo),
+              currentAlbumInfo.photosCount > 0 else {
             HapticManager.impact(.light)
             showAlbumToast(L10n.string("这个相册还没有照片"), icon: "photo", style: .warning)
             return
@@ -613,11 +732,16 @@ struct AlbumsView: View {
 
 enum AlbumNavigationDestination: Hashable {
     case swipeAlbum(AlbumInfo)
+    case browser(AlbumInfo)
 
     static func == (lhs: AlbumNavigationDestination, rhs: AlbumNavigationDestination) -> Bool {
         switch (lhs, rhs) {
         case (.swipeAlbum(let lhsAlbum), .swipeAlbum(let rhsAlbum)):
             return lhsAlbum.id == rhsAlbum.id
+        case (.browser(let lhsAlbum), .browser(let rhsAlbum)):
+            return lhsAlbum.id == rhsAlbum.id
+        default:
+            return false
         }
     }
 
@@ -625,6 +749,9 @@ enum AlbumNavigationDestination: Hashable {
         switch self {
         case .swipeAlbum(let album):
             hasher.combine("swipeAlbum")
+            hasher.combine(album.id)
+        case .browser(let album):
+            hasher.combine("browser")
             hasher.combine(album.id)
         }
     }
@@ -643,36 +770,6 @@ private enum AlbumSheet: Identifiable {
             return "edit-\(album.localIdentifier)"
         case .deleteEmpty(let albums):
             return "deleteEmpty-\(albums.map(\.id).joined(separator: "|"))"
-        }
-    }
-}
-
-private enum AlbumSortMode: String, CaseIterable, Identifiable {
-    case custom
-    case name
-    case count
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .custom:
-            return L10n.string("自定义")
-        case .name:
-            return L10n.string("名称")
-        case .count:
-            return L10n.string("数量")
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .custom:
-            return "line.3.horizontal"
-        case .name:
-            return "textformat"
-        case .count:
-            return "number"
         }
     }
 }

@@ -41932,6 +41932,139 @@
         }
       }
     },
+    "显示方式" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Display" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示方式" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示方式" } }
+      }
+    },
+    "紧凑" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Compact" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "紧凑" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "緊湊" } }
+      }
+    },
+    "封面" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Covers" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "封面" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "封面" } }
+      }
+    },
+    "列表" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "List" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "列表" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "列表" } }
+      }
+    },
+    "最近更新" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recently updated" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最近更新" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "最近更新" } }
+      }
+    },
+    "数量最多" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Most items" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数量最多" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "數量最多" } }
+      }
+    },
+    "筛选与排序" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Filter and sort" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "筛选与排序" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "篩選與排序" } }
+      }
+    },
+    "重置" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重置" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "重置" } }
+      }
+    },
+    "当前是默认显示" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Showing the default view" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前是默认显示" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "目前是預設顯示" } }
+      }
+    },
+    "内容" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Content" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "内容" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "內容" } }
+      }
+    },
+    "时间分组" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Group by time" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "时间分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "時間分組" } }
+      }
+    },
+    "不分组" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "None" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "不分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "不分組" } }
+      }
+    },
+    "按日" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Day" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "按日" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "按日" } }
+      }
+    },
+    "按月" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Month" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "按月" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "按月" } }
+      }
+    },
+    "网格密度" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Grid density" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "网格密度" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "網格密度" } }
+      }
+    },
+    "舒展" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Relaxed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "舒展" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "舒展" } }
+      }
+    },
+    "最新" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Newest" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最新" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "最新" } }
+      }
+    },
+    "最早" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Oldest" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最早" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "最早" } }
+      }
+    },
+    "昨天" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Yesterday" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "昨天" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "昨天" } }
+      }
+    },
     "调整顺序" : {
       "localizations" : {
         "ar" : {

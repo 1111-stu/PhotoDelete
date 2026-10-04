@@ -225,6 +225,10 @@ final class PhotoDeleteUITests: XCTestCase {
         }
         targetAlbumButton.tap()
 
+        let organizeAlbum = app.descendants(matching: .any)["album-start-review"]
+        XCTAssertTrue(organizeAlbum.waitForExistence(timeout: 10))
+        organizeAlbum.tap()
+
         let reviewCard = app.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier == %@", "review-photo-card"))
             .firstMatch
@@ -1111,7 +1115,7 @@ final class PhotoDeleteUITests: XCTestCase {
     @MainActor
     private func openAlbumsTab(in app: XCUIApplication) {
         returnToTabRootIfNeeded(in: app)
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.38, dy: 0.96)).tap()
+        tapTabItem(in: app, labels: ["相册", "Albums"], fallbackOffset: CGVector(dx: 0.5, dy: 0.96))
     }
 
     @MainActor

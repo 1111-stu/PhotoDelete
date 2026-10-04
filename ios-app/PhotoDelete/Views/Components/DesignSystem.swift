@@ -424,6 +424,7 @@ enum AppConstants {
     static let customAlbumOrderKey = "photoDeleteCustomAlbumOrder"
     static let hasSeenAlbumSwipeHintKey = "photoDeleteHasSeenAlbumSwipeHint"
     static let hasDismissedAlbumSwipeHintKey = "photoDeleteHasDismissedAlbumSwipeHintV3"
+    static let albumDisplayStyleKey = "photoDeleteAlbumDisplayStyle"
     static let appLanguageKey = "photoDeleteAppLanguage"
     static let anonymousUserIDKey = "photoDeleteAnonymousUserID"
     static let leftSwipeActionKey = "photoDeleteLeftSwipeAction"
@@ -448,7 +449,7 @@ enum AppConstants {
     static let appAppearanceKey = "photoDeleteAppAppearance"
     static let appThemeKey = "photoDeleteAppTheme"
     static let openAlbumsTabNotificationName = Notification.Name("photoDeleteOpenAlbumsTab")
-    static let showsAlbumsTab = false
+    static let showsAlbumsTab = true
     static let advancedPaywallEnabled = false
     static let achievementsEnabled = false
     static let supporterAnnualProductID = "com.01mvp.photodelete.pro.annual"
