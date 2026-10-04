@@ -1,174 +1,174 @@
 {
-  "sourceLanguage": "zh-Hans",
-  "strings": {
-    "CFBundleDisplayName": {
-      "comment": "Bundle display name",
-      "extractionState": "manual",
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto"
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "CFBundleDisplayName" : {
+      "comment" : "Bundle display name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto"
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "删图"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "删图"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刪圖"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪圖"
           }
         }
       }
     },
-    "CFBundleName": {
-      "comment": "Bundle name",
-      "extractionState": "extracted_with_value",
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto"
+    "CFBundleName" : {
+      "comment" : "Bundle name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "OnePhoto"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto"
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "OnePhoto"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto"
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "OnePhoto"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "OnePhoto"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "删图"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "OnePhoto"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刪圖"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "刪圖"
           }
         }
       }
     },
-    "NSPhotoLibraryAddUsageDescription": {
-      "comment": "Privacy - Photo Library Additions Usage Description",
-      "extractionState": "extracted_with_value",
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "يحتاج OnePhoto إلى إذن لتمييز الصور كمفضلة وإضافتها إلى الألبومات وحفظ نسخ مضغوطة وتطبيق التغييرات بعد تأكيدك."
+    "NSPhotoLibraryAddUsageDescription" : {
+      "comment" : "Privacy - Photo Library Additions Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحتاج OnePhoto إلى إذن لتمييز الصور كمفضلة وإضافتها إلى الألبومات وحفظ نسخ مضغوطة وتطبيق التغييرات بعد تأكيدك."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto benötigt die Berechtigung, um Fotos als Favoriten zu markieren, zu Alben hinzuzufügen, komprimierte Kopien zu sichern und Änderungen nach Ihrer Bestätigung anzuwenden."
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto benötigt die Berechtigung, um Fotos als Favoriten zu markieren, zu Alben hinzuzufügen, komprimierte Kopien zu sichern und Änderungen nach Ihrer Bestätigung anzuwenden."
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto needs permission to favorite photos, add them to albums, save compressed copies, and apply changes after you confirm."
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto needs permission to favorite photos, add them to albums, save compressed copies, and apply changes after you confirm."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhotoは、写真をお気に入りに追加し、アルバムへ追加し、圧縮コピーを保存し、確認後に変更を適用するために権限が必要です。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhotoは、写真をお気に入りに追加し、アルバムへ追加し、圧縮コピーを保存し、確認後に変更を適用するために権限が必要です。"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "删图需要权限来收藏照片、加入相册、保存压缩副本，并在您确认后执行选择的更改。"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "删图需要权限来收藏照片、加入相册、保存压缩副本，并在您确认后执行选择的更改。"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刪圖需要權限來收藏照片、加入相簿、保存壓縮副本，並在你確認後執行選擇的更改。"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪圖需要權限來收藏照片、加入相簿、保存壓縮副本，並在你確認後執行選擇的更改。"
           }
         }
       }
     },
-    "NSPhotoLibraryUsageDescription": {
-      "comment": "Privacy - Photo Library Usage Description",
-      "extractionState": "extracted_with_value",
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "يحتاج OnePhoto إلى الوصول إلى مكتبة الصور لقراءة الصور المحددة وتنظيمها وتمييزها كمفضلة وحذفها بعد تأكيدك. لا نرفع صورك؛ ولا تتم مشاركة الصورة المحددة إلا عندما تضغط على مشاركة وتختار تطبيقًا."
+    "NSPhotoLibraryUsageDescription" : {
+      "comment" : "Privacy - Photo Library Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحتاج OnePhoto إلى الوصول إلى مكتبة الصور لقراءة الصور المحددة وتنظيمها وتمييزها كمفضلة وحذفها بعد تأكيدك. لا نرفع صورك؛ ولا تتم مشاركة الصورة المحددة إلا عندما تضغط على مشاركة وتختار تطبيقًا."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto benötigt Zugriff auf Ihre Fotomediathek, um ausgewählte Fotos nach Ihrer Bestätigung zu lesen, zu organisieren, als Favoriten zu markieren und zu löschen. Wir laden Ihre Fotos nicht hoch; das ausgewählte Foto wird nur geteilt, wenn Sie auf Teilen tippen und eine App auswählen."
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto benötigt Zugriff auf Ihre Fotomediathek, um ausgewählte Fotos nach Ihrer Bestätigung zu lesen, zu organisieren, als Favoriten zu markieren und zu löschen. Wir laden Ihre Fotos nicht hoch; das ausgewählte Foto wird nur geteilt, wenn Sie auf Teilen tippen und eine App auswählen."
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhoto needs access to read, organize, favorite, and delete selected photos after you confirm. We never upload your photos; a selected photo is shared only when you tap Share and choose an app."
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto needs access to read, organize, favorite, and delete selected photos after you confirm. We never upload your photos; a selected photo is shared only when you tap Share and choose an app."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OnePhotoは、確認後に選択した写真を読み込み、整理し、お気に入りに追加し、削除するために写真ライブラリへのアクセスが必要です。写真をアップロードすることはなく、共有をタップしてAppを選んだ場合にのみ選択した写真を共有します。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhotoは、確認後に選択した写真を読み込み、整理し、お気に入りに追加し、削除するために写真ライブラリへのアクセスが必要です。写真をアップロードすることはなく、共有をタップしてAppを選んだ場合にのみ選択した写真を共有します。"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "删图需要访问照片库来读取、整理、收藏，并在您确认后删除选择的照片。我们不会上传您的照片；只有在您主动点击分享并选择目标 App 时，系统才会分享所选照片。"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "删图需要访问照片库来读取、整理、收藏，并在您确认后删除选择的照片。我们不会上传您的照片；只有在您主动点击分享并选择目标 App 时，系统才会分享所选照片。"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刪圖需要訪問照片庫來讀取、整理、收藏，並在你確認後刪除選擇的照片。我們不會上傳你的照片；只有在你主動點擊分享並選擇目標 App 時，系統才會分享所選照片。"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪圖需要訪問照片庫來讀取、整理、收藏，並在你確認後刪除選擇的照片。我們不會上傳你的照片；只有在你主動點擊分享並選擇目標 App 時，系統才會分享所選照片。"
           }
         }
       }
     }
   },
-  "version": "1.2"
+  "version" : "1.2"
 }

@@ -454,10 +454,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 202607292328;
-				DEVELOPMENT_TEAM = PCJ84YD7HQ;
+				DEVELOPMENT_TEAM = SGRUVK542K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Config/PhotoDelete-Info.plist;
+				INFOPLIST_FILE = "Config/PhotoDelete-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -478,10 +478,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 202607292328;
-				DEVELOPMENT_TEAM = PCJ84YD7HQ;
+				DEVELOPMENT_TEAM = SGRUVK542K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Config/PhotoDelete-Info.plist;
+				INFOPLIST_FILE = "Config/PhotoDelete-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
