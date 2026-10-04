@@ -424,10 +424,6 @@ enum AppConstants {
     static let albumDisplayStyleKey = "photoDeleteAlbumDisplayStyle"
     static let appLanguageKey = "photoDeleteAppLanguage"
     static let anonymousUserIDKey = "photoDeleteAnonymousUserID"
-    static let leftSwipeActionKey = "photoDeleteLeftSwipeAction"
-    static let rightSwipeActionKey = "photoDeleteRightSwipeAction"
-    static let upSwipeActionKey = "photoDeleteUpSwipeAction"
-    static let gestureDefaultMigrationKey = "photoDeleteGestureDefaultMigration"
     static let reviewVideoAutoPlayKey = "photoDeleteReviewMediaAutoPlay"
     static let reviewMediaAutoPlayKey = reviewVideoAutoPlayKey
     static let reviewLivePhotoAutoPlayKey = "photoDeleteReviewLivePhotoAutoPlay"
@@ -441,7 +437,6 @@ enum AppConstants {
     static let hasSeenAlbumShortcutHintKey = "photoDeleteHasSeenAlbumShortcutHintV2"
     static let hasSeenAlbumDownSwipeHintKey = "photoDeleteHasSeenAlbumDownSwipeHint"
     static let hasSeenDeleteButtonTipKey = "photoDeleteHasSeenDeleteButtonTip"
-    static let gestureUpdateNoticePendingKey = "photoDeleteGestureUpdateNoticePendingV1"
     static let reviewProgressByScopeKey = "photoDeleteReviewProgressByScope"
     static let appAppearanceKey = "photoDeleteAppAppearance"
     static let appThemeKey = "photoDeleteAppTheme"

@@ -167,112 +167,6 @@ struct PhotoDeleteTests {
         #expect(!plainText.contains("https://makerjackie.com"))
     }
 
-    // MARK: - Gesture settings tests
-
-    @Test func swipeGestureStandardPresetMatchesDefaultActions() async throws {
-        #expect(SwipeGesturePreferences.defaultAction(for: .left) == .delete)
-        #expect(SwipeGesturePreferences.defaultAction(for: .right) == .keep)
-        #expect(SwipeGesturePreferences.defaultAction(for: .up) == .favorite)
-    }
-
-    @Test func swipeGesturePresetsCoverRequestedLayouts() async throws {
-        #expect(SwipeGesturePreset.standard.leftAction == .delete)
-        #expect(SwipeGesturePreset.standard.rightAction == .keep)
-        #expect(SwipeGesturePreset.standard.upAction == .favorite)
-
-        #expect(SwipeGesturePreset.browse.leftAction == .next)
-        #expect(SwipeGesturePreset.browse.rightAction == .previous)
-        #expect(SwipeGesturePreset.browse.upAction == .delete)
-
-        #expect(SwipeGesturePreset.leftKeepRightDelete.leftAction == .keep)
-        #expect(SwipeGesturePreset.leftKeepRightDelete.rightAction == .delete)
-        #expect(SwipeGesturePreset.leftKeepRightDelete.upAction == .favorite)
-    }
-
-    @Test func swipeGestureActionNormalizationFallsBackForUnknownValues() async throws {
-        #expect(SwipeGesturePreferences.normalizedAction("favorite", fallback: .delete) == .favorite)
-        #expect(SwipeGesturePreferences.normalizedAction("unknown", fallback: .keep) == .keep)
-    }
-
-    @Test func swipeGestureMigrationMovesLegacyDefaultToLeftDelete() async throws {
-        let suiteName = "PhotoDeleteGestureMigration-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-
-        defaults.set(SwipeGestureAction.keep.rawValue, forKey: AppConstants.leftSwipeActionKey)
-        defaults.set(SwipeGestureAction.delete.rawValue, forKey: AppConstants.rightSwipeActionKey)
-        defaults.set(SwipeGestureAction.favorite.rawValue, forKey: AppConstants.upSwipeActionKey)
-
-        SwipeGesturePreferences.migrateStoredDefaultsIfNeeded(defaults: defaults)
-
-        #expect(defaults.string(forKey: AppConstants.leftSwipeActionKey) == SwipeGestureAction.delete.rawValue)
-        #expect(defaults.string(forKey: AppConstants.rightSwipeActionKey) == SwipeGestureAction.keep.rawValue)
-        #expect(defaults.string(forKey: AppConstants.upSwipeActionKey) == SwipeGestureAction.favorite.rawValue)
-        #expect(defaults.bool(forKey: AppConstants.gestureUpdateNoticePendingKey) == false)
-    }
-
-    @Test func swipeGestureMigrationMovesPreviousBrowseDefaultToLeftDelete() async throws {
-        let suiteName = "PhotoDeleteGestureMigrationPreviousBrowse-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-
-        defaults.set(SwipeGestureAction.next.rawValue, forKey: AppConstants.leftSwipeActionKey)
-        defaults.set(SwipeGestureAction.previous.rawValue, forKey: AppConstants.rightSwipeActionKey)
-        defaults.set(SwipeGestureAction.delete.rawValue, forKey: AppConstants.upSwipeActionKey)
-
-        SwipeGesturePreferences.migrateStoredDefaultsIfNeeded(defaults: defaults)
-
-        #expect(defaults.string(forKey: AppConstants.leftSwipeActionKey) == SwipeGestureAction.delete.rawValue)
-        #expect(defaults.string(forKey: AppConstants.rightSwipeActionKey) == SwipeGestureAction.keep.rawValue)
-        #expect(defaults.string(forKey: AppConstants.upSwipeActionKey) == SwipeGestureAction.favorite.rawValue)
-        #expect(defaults.bool(forKey: AppConstants.gestureUpdateNoticePendingKey) == false)
-    }
-
-    @Test func swipeGestureMigrationDoesNotOverwriteCustomLayout() async throws {
-        let suiteName = "PhotoDeleteGestureMigrationCustom-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-
-        defaults.set(SwipeGestureAction.favorite.rawValue, forKey: AppConstants.leftSwipeActionKey)
-        defaults.set(SwipeGestureAction.delete.rawValue, forKey: AppConstants.rightSwipeActionKey)
-        defaults.set(SwipeGestureAction.keep.rawValue, forKey: AppConstants.upSwipeActionKey)
-
-        SwipeGesturePreferences.migrateStoredDefaultsIfNeeded(defaults: defaults)
-
-        #expect(defaults.string(forKey: AppConstants.leftSwipeActionKey) == SwipeGestureAction.favorite.rawValue)
-        #expect(defaults.string(forKey: AppConstants.rightSwipeActionKey) == SwipeGestureAction.delete.rawValue)
-        #expect(defaults.string(forKey: AppConstants.upSwipeActionKey) == SwipeGestureAction.keep.rawValue)
-        #expect(defaults.bool(forKey: AppConstants.gestureUpdateNoticePendingKey) == false)
-    }
-
-    @Test func swipeGestureMigrationDoesNotShowNoticeForExistingImplicitLegacyDefault() async throws {
-        let suiteName = "PhotoDeleteGestureMigrationImplicit-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-
-        defaults.set(true, forKey: AppConstants.hasCompletedOnboardingKey)
-
-        SwipeGesturePreferences.migrateStoredDefaultsIfNeeded(defaults: defaults)
-
-        #expect(defaults.string(forKey: AppConstants.leftSwipeActionKey) == SwipeGestureAction.delete.rawValue)
-        #expect(defaults.string(forKey: AppConstants.rightSwipeActionKey) == SwipeGestureAction.keep.rawValue)
-        #expect(defaults.string(forKey: AppConstants.upSwipeActionKey) == SwipeGestureAction.favorite.rawValue)
-        #expect(defaults.bool(forKey: AppConstants.gestureUpdateNoticePendingKey) == false)
-    }
-
-    @Test func swipeGestureMigrationDoesNotShowNoticeForFreshInstall() async throws {
-        let suiteName = "PhotoDeleteGestureMigrationFresh-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-
-        SwipeGesturePreferences.migrateStoredDefaultsIfNeeded(defaults: defaults)
-
-        #expect(defaults.string(forKey: AppConstants.leftSwipeActionKey) == nil)
-        #expect(defaults.string(forKey: AppConstants.rightSwipeActionKey) == nil)
-        #expect(defaults.string(forKey: AppConstants.upSwipeActionKey) == nil)
-        #expect(defaults.bool(forKey: AppConstants.gestureUpdateNoticePendingKey) == false)
-    }
-
     @Test func reviewPlaybackLaunchDefaultsInitializeButDoNotOverrideVideoMute() async throws {
         let suiteName = "PhotoDeletePlaybackDefaults-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
@@ -1142,10 +1036,6 @@ struct PhotoDeleteTests {
         defaults.set(AppLanguage.zhHans.rawValue, forKey: AppConstants.appLanguageKey)
         #expect(achievement.title == "第一次清理")
         #expect(achievement.subtitle == "完成第一轮照片整理")
-        #expect(SwipeGesturePreset.standard.title == "左删右留")
-        #expect(SwipeGesturePreset.standard.subtitle == "左滑删除，右滑保留，上滑收藏")
-        #expect(SwipeGesturePreset.leftKeepRightDelete.title == "左留右删")
-        #expect(SwipeGesturePreset.leftKeepRightDelete.subtitle == "左滑保留，右滑删除，上滑收藏")
         #expect(AdvancedCleanupKind.similarPhotos.title == "相似照片")
         #expect(PhotoCategory.unclassified.title == "未归类照片")
         #expect(L10n.string("保留首张") == "保留首张")
@@ -1154,10 +1044,6 @@ struct PhotoDeleteTests {
         defaults.set(AppLanguage.en.rawValue, forKey: AppConstants.appLanguageKey)
         #expect(achievement.title == "First Cleanup")
         #expect(achievement.subtitle == "Complete your first photo cleanup")
-        #expect(SwipeGesturePreset.standard.title == "Delete left, keep right")
-        #expect(SwipeGesturePreset.standard.subtitle == "Swipe left to delete, right to keep, up to favorite")
-        #expect(SwipeGesturePreset.leftKeepRightDelete.title == "Keep left, delete right")
-        #expect(SwipeGesturePreset.leftKeepRightDelete.subtitle == "Swipe left to keep, right to delete, up to favorite")
         #expect(AdvancedCleanupKind.similarPhotos.title == "Similar Photos")
         #expect(PhotoCategory.unclassified.title == "Unfiled Photos")
         #expect(L10n.string("保留首张") == "Keep First")

@@ -181,8 +181,6 @@ struct HomeView: View {
                     }
                 }
             }
-            .navigationTitle(L10n.string("整理"))
-            .navigationBarTitleDisplayMode(.large)
             .navigationDestination(for: SwipeViewDestination.self) { destination in
                 switch destination {
                 case .category(let category):
@@ -545,7 +543,11 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(Color(red: 0.76, green: 0.34, blue: 0.24))
+                    .fill(PhotoDeleteStyle.surface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .fill(Color(red: 0.76, green: 0.34, blue: 0.24).opacity(0.22))
+                    )
             )
         }
         .buttonStyle(.plain)
@@ -577,7 +579,11 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(historicalCardFill)
+                    .fill(PhotoDeleteStyle.surface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .fill(historicalCardFill.opacity(colorScheme == .dark ? 0.42 : 0.28))
+                    )
             )
         }
         .buttonStyle(.plain)

@@ -61,10 +61,6 @@ enum SwipeGestureAction: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    static var configurableCases: [SwipeGestureAction] {
-        [.previous, .next, .delete, .keep, .favorite]
-    }
-
     var title: String {
         switch self {
         case .previous: return L10n.string("上一张")
@@ -129,114 +125,6 @@ enum SwipeGestureDirection: String, CaseIterable, Identifiable {
         case .right: return "arrow.right"
         case .up: return "arrow.up"
         }
-    }
-}
-
-struct SwipeGesturePreset: Identifiable, Equatable {
-    let id: String
-    let titleKey: String
-    let subtitleKey: String
-    let leftAction: SwipeGestureAction
-    let rightAction: SwipeGestureAction
-    let upAction: SwipeGestureAction
-
-    var title: String {
-        L10n.key(titleKey)
-    }
-
-    var subtitle: String {
-        L10n.key(subtitleKey)
-    }
-
-    func action(for direction: SwipeGestureDirection) -> SwipeGestureAction {
-        switch direction {
-        case .left: return leftAction
-        case .right: return rightAction
-        case .up: return upAction
-        }
-    }
-
-    static let standard = SwipeGesturePreset(
-        id: "standard",
-        titleKey: "左删右留",
-        subtitleKey: "左滑删除，右滑保留，上滑收藏",
-        leftAction: .delete,
-        rightAction: .keep,
-        upAction: .favorite
-    )
-
-    static let browse = SwipeGesturePreset(
-        id: "browse",
-        titleKey: "左右浏览，上滑删除",
-        subtitleKey: "左滑下一张，右滑上一张，上滑删除",
-        leftAction: .next,
-        rightAction: .previous,
-        upAction: .delete
-    )
-
-    static let leftKeepRightDelete = SwipeGesturePreset(
-        id: "leftKeepRightDelete",
-        titleKey: "左留右删",
-        subtitleKey: "左滑保留，右滑删除，上滑收藏",
-        leftAction: .keep,
-        rightAction: .delete,
-        upAction: .favorite
-    )
-
-    static let presets: [SwipeGesturePreset] = [
-        .standard,
-        .browse,
-        .leftKeepRightDelete
-    ]
-}
-
-enum SwipeGesturePreferences {
-    private static let gestureMigrationVersion = "left-delete-v2"
-
-    static func defaultAction(for direction: SwipeGestureDirection) -> SwipeGestureAction {
-        SwipeGesturePreset.standard.action(for: direction)
-    }
-
-    static func normalizedAction(_ rawValue: String, fallback: SwipeGestureAction) -> SwipeGestureAction {
-        SwipeGestureAction(rawValue: rawValue) ?? fallback
-    }
-
-    static func migrateStoredDefaultsIfNeeded(defaults: UserDefaults = .standard) {
-        guard defaults.string(forKey: AppConstants.gestureDefaultMigrationKey) != gestureMigrationVersion else {
-            return
-        }
-
-        let leftValue = defaults.string(forKey: AppConstants.leftSwipeActionKey)
-        let rightValue = defaults.string(forKey: AppConstants.rightSwipeActionKey)
-        let upValue = defaults.string(forKey: AppConstants.upSwipeActionKey)
-
-        let hasStoredGestureValues = leftValue != nil || rightValue != nil || upValue != nil
-        let hasExistingReviewState = !(defaults.stringArray(forKey: AppConstants.reviewedAssetIDsKey) ?? []).isEmpty
-        let hasCompletedFirstRun = defaults.bool(forKey: AppConstants.hasCompletedOnboardingKey) ||
-            defaults.bool(forKey: AppConstants.hasSeenIntroKey)
-        let matchesImplicitLegacyDefault = !hasStoredGestureValues &&
-            (hasExistingReviewState || hasCompletedFirstRun)
-
-        let matchesOlderRightDeleteDefault = leftValue == SwipeGestureAction.keep.rawValue &&
-            rightValue == SwipeGestureAction.delete.rawValue &&
-            (upValue == nil || upValue == SwipeGestureAction.favorite.rawValue)
-
-        let matchesPreviousBrowseDefault = leftValue == SwipeGestureAction.next.rawValue &&
-            rightValue == SwipeGestureAction.previous.rawValue &&
-            upValue == SwipeGestureAction.delete.rawValue
-
-        let shouldMigrateToLeftDeleteDefault = matchesOlderRightDeleteDefault ||
-            matchesPreviousBrowseDefault ||
-            matchesImplicitLegacyDefault
-
-        if shouldMigrateToLeftDeleteDefault {
-            defaults.set(SwipeGesturePreset.standard.leftAction.rawValue, forKey: AppConstants.leftSwipeActionKey)
-            defaults.set(SwipeGesturePreset.standard.rightAction.rawValue, forKey: AppConstants.rightSwipeActionKey)
-            defaults.set(SwipeGesturePreset.standard.upAction.rawValue, forKey: AppConstants.upSwipeActionKey)
-        }
-        defaults.set(false, forKey: AppConstants.gestureUpdateNoticePendingKey)
-
-        defaults.set(gestureMigrationVersion, forKey: AppConstants.gestureDefaultMigrationKey)
     }
 }
 

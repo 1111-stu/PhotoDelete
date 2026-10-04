@@ -94,9 +94,6 @@ struct SettingsView: View {
     @AppStorage(AppConstants.hasCompletedOnboardingKey) private var hasCompletedOnboarding = false
     @AppStorage(AppConstants.hapticsEnabledKey) private var hapticsEnabled = true
     @AppStorage(AppConstants.appLanguageKey) private var appLanguageValue = AppLanguage.system.rawValue
-    @AppStorage(AppConstants.leftSwipeActionKey) private var leftSwipeActionValue = SwipeGesturePreset.standard.leftAction.rawValue
-    @AppStorage(AppConstants.rightSwipeActionKey) private var rightSwipeActionValue = SwipeGesturePreset.standard.rightAction.rawValue
-    @AppStorage(AppConstants.upSwipeActionKey) private var upSwipeActionValue = SwipeGesturePreset.standard.upAction.rawValue
     @AppStorage(AppConstants.reviewVideoAutoPlayKey) private var reviewVideoAutoPlay = true
     @AppStorage(AppConstants.reviewLivePhotoAutoPlayKey) private var reviewLivePhotoAutoPlay = false
     @AppStorage(AppConstants.reviewSortOrderKey) private var reviewSortOrderValue = PhotoReviewSortOrder.newestFirst.rawValue
@@ -461,12 +458,9 @@ struct SettingsView: View {
     }
 
     private var gestureSettingsSubtitle: String {
-        let left = "\(shortDirectionTitle(.left))\(shortActionTitle(currentGestureAction(for: .left)))"
-        let right = "\(shortDirectionTitle(.right))\(shortActionTitle(currentGestureAction(for: .right)))"
-        let up = "\(shortDirectionTitle(.up))\(shortActionTitle(currentGestureAction(for: .up)))"
         let videoPlayback = reviewVideoAutoPlay ? L10n.string("视频自动") : L10n.string("视频手动")
         let livePhotoPlayback = reviewLivePhotoAutoPlay ? L10n.string("实况自动") : L10n.string("实况手动")
-        return "\(left) · \(right) · \(up) · \(videoPlayback) · \(livePhotoPlayback)"
+        return "\(videoPlayback) · \(livePhotoPlayback)"
     }
 
     private var usesChineseCompactText: Bool {
@@ -491,62 +485,6 @@ struct SettingsView: View {
         return L10n.string("\(compactPlainCount(count)) photos")
     }
 
-    private func shortDirectionTitle(_ direction: SwipeGestureDirection) -> String {
-        if usesChineseCompactText {
-            switch direction {
-            case .left:
-                return L10n.string("左")
-            case .right:
-                return L10n.string("右")
-            case .up:
-                return L10n.string("上")
-            }
-        }
-
-        switch direction {
-        case .left:
-            return "L"
-        case .right:
-            return "R"
-        case .up:
-            return "Up"
-        }
-    }
-
-    private func shortActionTitle(_ action: SwipeGestureAction) -> String {
-        if usesChineseCompactText {
-            switch action {
-            case .previous:
-                return L10n.string("上张")
-            case .next:
-                return L10n.string("下张")
-            case .close:
-                return L10n.string("返回")
-            case .delete:
-                return L10n.string("删")
-            case .keep:
-                return L10n.string("留")
-            case .favorite:
-                return L10n.string("收藏")
-            }
-        }
-
-        switch action {
-        case .previous:
-            return "Prev"
-        case .next:
-            return "Next"
-        case .close:
-            return "Back"
-        case .delete:
-            return "Delete"
-        case .keep:
-            return "Keep"
-        case .favorite:
-            return "Favorite"
-        }
-    }
-
     private func compactPlainCount(_ count: Int) -> String {
         if count >= 1_000_000 {
             return "\(oneDecimalTrimmed(Double(count) / 1_000_000))M"
@@ -563,17 +501,6 @@ struct SettingsView: View {
             return String(Int(rounded))
         }
         return rounded.formatted(.number.grouping(.never).precision(.fractionLength(1)))
-    }
-
-    private func currentGestureAction(for direction: SwipeGestureDirection) -> SwipeGestureAction {
-        switch direction {
-        case .left:
-            return SwipeGesturePreferences.normalizedAction(leftSwipeActionValue, fallback: SwipeGesturePreferences.defaultAction(for: .left))
-        case .right:
-            return SwipeGesturePreferences.normalizedAction(rightSwipeActionValue, fallback: SwipeGesturePreferences.defaultAction(for: .right))
-        case .up:
-            return SwipeGesturePreferences.normalizedAction(upSwipeActionValue, fallback: SwipeGesturePreferences.defaultAction(for: .up))
-        }
     }
 
     private func handleMailAction() {
@@ -929,9 +856,6 @@ private struct AppPromotionRow: View {
 struct GestureSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @AppStorage(AppConstants.leftSwipeActionKey) private var leftSwipeActionValue = SwipeGesturePreset.standard.leftAction.rawValue
-    @AppStorage(AppConstants.rightSwipeActionKey) private var rightSwipeActionValue = SwipeGesturePreset.standard.rightAction.rawValue
-    @AppStorage(AppConstants.upSwipeActionKey) private var upSwipeActionValue = SwipeGesturePreset.standard.upAction.rawValue
     @AppStorage(AppConstants.reviewVideoAutoPlayKey) private var reviewVideoAutoPlay = true
     @AppStorage(AppConstants.reviewLivePhotoAutoPlayKey) private var reviewLivePhotoAutoPlay = false
     @AppStorage(AppConstants.reviewVideoMutedKey) private var reviewVideoMuted = true
@@ -951,11 +875,6 @@ struct GestureSettingsView: View {
                         reviewSortOrderSection
                         randomReviewSection
                         mediaPlaybackSection
-                        currentGesturePreview
-                        downSwipeNoteSection
-                        presetSection
-                        customGestureSection
-                        resetButton
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
                     .padding(.top, 16)
@@ -1046,258 +965,6 @@ struct GestureSettingsView: View {
             }
             .settingsGroupedCard()
         }
-    }
-
-    private var currentGesturePreview: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("当前手势"))
-                .settingsSectionHeading()
-
-            HStack(spacing: 12) {
-                ForEach(SwipeGestureDirection.allCases) { direction in
-                    GesturePreviewTile(
-                        direction: direction,
-                        action: currentAction(for: direction)
-                    )
-                }
-            }
-        }
-    }
-
-    private var downSwipeNoteSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("下滑动作"))
-                .settingsSectionHeading()
-
-            VStack(spacing: 0) {
-                FixedGestureNoteRow(
-                    title: L10n.string("普通整理"),
-                    detail: L10n.string("下滑返回列表")
-                )
-
-                SettingsHairline()
-
-                FixedGestureNoteRow(
-                    title: L10n.string("相册整理"),
-                    detail: L10n.string("下滑移出相册，不删除照片")
-                )
-            }
-            .settingsGroupedCard()
-        }
-    }
-
-    private var presetSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("快速方案"))
-                .settingsSectionHeading()
-
-            VStack(spacing: 8) {
-                ForEach(SwipeGesturePreset.presets) { preset in
-                    GesturePresetButton(
-                        preset: preset,
-                        isSelected: matches(preset)
-                    ) {
-                        applyPreset(preset)
-                    }
-                }
-            }
-        }
-    }
-
-    private var customGestureSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("自定义"))
-                .settingsSectionHeading()
-
-            VStack(spacing: 0) {
-                ForEach(SwipeGestureDirection.allCases) { direction in
-                    GestureActionPickerRow(
-                        direction: direction,
-                        selectedAction: currentAction(for: direction),
-                        onSelect: { action in
-                            setAction(action, for: direction)
-                        }
-                    )
-
-                    if direction != .up {
-                        SettingsHairline()
-                    }
-                }
-            }
-            .settingsGroupedCard()
-        }
-    }
-
-    private var resetButton: some View {
-        Button(action: {
-            applyPreset(.standard)
-        }) {
-            HStack(spacing: 8) {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.body.weight(.semibold))
-                Text(L10n.string("恢复默认"))
-            }
-            .font(.body.weight(.semibold))
-            .foregroundStyle(SettingsChrome.ink)
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: 52)
-            .background(SettingsChrome.surface, in: Capsule())
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func currentAction(for direction: SwipeGestureDirection) -> SwipeGestureAction {
-        switch direction {
-        case .left:
-            return SwipeGesturePreferences.normalizedAction(leftSwipeActionValue, fallback: SwipeGesturePreferences.defaultAction(for: .left))
-        case .right:
-            return SwipeGesturePreferences.normalizedAction(rightSwipeActionValue, fallback: SwipeGesturePreferences.defaultAction(for: .right))
-        case .up:
-            return SwipeGesturePreferences.normalizedAction(upSwipeActionValue, fallback: SwipeGesturePreferences.defaultAction(for: .up))
-        }
-    }
-
-    private func setAction(_ action: SwipeGestureAction, for direction: SwipeGestureDirection) {
-        switch direction {
-        case .left:
-            leftSwipeActionValue = action.rawValue
-        case .right:
-            rightSwipeActionValue = action.rawValue
-        case .up:
-            upSwipeActionValue = action.rawValue
-        }
-        HapticManager.impact(.light)
-    }
-
-    private func applyPreset(_ preset: SwipeGesturePreset) {
-        leftSwipeActionValue = preset.leftAction.rawValue
-        rightSwipeActionValue = preset.rightAction.rawValue
-        upSwipeActionValue = preset.upAction.rawValue
-        HapticManager.impact(.light)
-    }
-
-    private func matches(_ preset: SwipeGesturePreset) -> Bool {
-        currentAction(for: .left) == preset.leftAction &&
-            currentAction(for: .right) == preset.rightAction &&
-            currentAction(for: .up) == preset.upAction
-    }
-}
-
-private struct GesturePreviewTile: View {
-    let direction: SwipeGestureDirection
-    let action: SwipeGestureAction
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(direction.title.appLocalized)
-                .settingsRowTitle()
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-
-            Text(action.title.appLocalized)
-                .settingsRowValue()
-                .lineLimit(2)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, minHeight: SettingsChrome.rowMinHeight, alignment: .leading)
-        .settingsGroupedCard()
-        .accessibilityElement(children: .combine)
-    }
-}
-
-private struct FixedGestureNoteRow: View {
-    let title: String
-    let detail: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title.appLocalized)
-                .settingsRowTitle()
-                .lineLimit(1)
-
-            Text(detail.appLocalized)
-                .settingsRowValue()
-                .lineLimit(2)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 16)
-        .frame(maxWidth: .infinity, minHeight: SettingsChrome.rowMinHeight, alignment: .leading)
-        .accessibilityElement(children: .combine)
-    }
-}
-
-private struct GesturePresetButton: View {
-    let preset: SwipeGesturePreset
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                Text(preset.title.appLocalized)
-                    .settingsRowTitle()
-                    .lineLimit(1)
-
-                Spacer()
-
-                SettingsSelectionMark(isSelected: isSelected)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-            .frame(minHeight: SettingsChrome.rowMinHeight)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .settingsGroupedCard()
-        .accessibilityHint(Text(preset.subtitle.appLocalized))
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityValue(Text(isSelected ? L10n.string("已选") : L10n.string("未选择")))
-    }
-}
-
-private struct GestureActionPickerRow: View {
-    let direction: SwipeGestureDirection
-    let selectedAction: SwipeGestureAction
-    let onSelect: (SwipeGestureAction) -> Void
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Text(direction.title.appLocalized)
-                .settingsRowTitle()
-                .lineLimit(1)
-
-            Spacer(minLength: 12)
-
-            Menu {
-                ForEach(SwipeGestureAction.configurableCases) { action in
-                    Button {
-                        onSelect(action)
-                    } label: {
-                        Label(action.detailTitle, systemImage: action == selectedAction ? "checkmark" : action.icon)
-                    }
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    Text(selectedAction.title.appLocalized)
-                        .font(.subheadline.weight(.semibold))
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 10, weight: .bold))
-                }
-                .foregroundStyle(SettingsChrome.ink)
-                .padding(.horizontal, 16)
-                .frame(height: 36)
-                .background(Capsule().fill(SettingsChrome.pill))
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(Rectangle())
-            }
-            .accessibilityLabel(Text("\(direction.title.appLocalized) \(L10n.string("手势"))"))
-            .accessibilityValue(Text(selectedAction.title.appLocalized))
-            .accessibilityHint(Text(selectedAction.detailTitle.appLocalized))
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .frame(minHeight: SettingsChrome.rowMinHeight)
     }
 }
 

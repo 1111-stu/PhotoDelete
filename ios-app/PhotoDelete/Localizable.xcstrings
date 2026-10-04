@@ -3439,6 +3439,7 @@
       }
     },
     "上" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3593,6 +3594,7 @@
       }
     },
     "上张" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3977,6 +3979,7 @@
       }
     },
     "下张" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4114,6 +4117,7 @@
       }
     },
     "下滑动作" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4257,6 +4261,7 @@
       }
     },
     "下滑移出相册，不删除照片" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4779,6 +4784,7 @@
       }
     },
     "主题与外观" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -8431,6 +8437,7 @@
       }
     },
     "关于删图" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -9888,6 +9895,7 @@
       }
     },
     "删" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -15053,6 +15061,7 @@
       }
     },
     "右" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -16418,6 +16427,7 @@
       }
     },
     "外观" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -17817,6 +17827,7 @@
       }
     },
     "左" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -19238,6 +19249,7 @@
       }
     },
     "已复制微信号 %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -22906,6 +22918,7 @@
       }
     },
     "当前手势" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -24164,6 +24177,7 @@
       }
     },
     "快速方案" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -24424,6 +24438,7 @@
       }
     },
     "恢复默认" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -27293,6 +27308,7 @@
       }
     },
     "支持者版可切换更多主题。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -29648,6 +29664,7 @@
       }
     },
     "普通整理" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -37419,6 +37436,7 @@
       }
     },
     "界面色调" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -37459,6 +37477,7 @@
       }
     },
     "留" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -37900,6 +37919,7 @@
       }
     },
     "相册整理" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -41231,6 +41251,7 @@
       }
     },
     "色调会影响背景、图标、按钮和选中状态。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -41495,6 +41516,7 @@
       }
     },
     "解锁后可用" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -45579,6 +45601,7 @@
       }
     },
     "选择界面色调，以及日间、夜间或跟随系统外观。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

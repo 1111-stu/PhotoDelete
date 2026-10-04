@@ -36,7 +36,7 @@ final class PhotoDeleteUITests: XCTestCase {
         _ = allowFullPhotoLibraryAccessIfNeeded(app: app)
 
         XCTAssertTrue(
-            app.staticTexts["整理"].waitForExistence(timeout: 10) ||
+            app.tabBars.buttons["整理"].waitForExistence(timeout: 10) ||
                 app.staticTexts["需要访问照片库"].waitForExistence(timeout: 2) ||
                 app.staticTexts["随机整理"].waitForExistence(timeout: 2) ||
                 app.staticTexts["照片库概览"].waitForExistence(timeout: 2) ||
@@ -49,7 +49,7 @@ final class PhotoDeleteUITests: XCTestCase {
         let app = makeApp(completedOnboarding: true)
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["整理"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tabBars.buttons["整理"].waitForExistence(timeout: 10))
         XCTAssertTrue(
             app.staticTexts["需要访问照片库"].exists ||
                 app.staticTexts["随机整理"].exists ||
@@ -64,7 +64,7 @@ final class PhotoDeleteUITests: XCTestCase {
         let app = makeApp(completedOnboarding: true)
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["整理"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tabBars.buttons["整理"].waitForExistence(timeout: 10))
         openSettingsTab(in: app)
 
         guard let proEntry = waitForHittableButtonLabelContaining(

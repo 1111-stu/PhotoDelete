@@ -22,7 +22,6 @@ struct PhotoDeleteApp: App {
     @StateObject private var purchaseManager = PurchaseManager()
 
     init() {
-        SwipeGesturePreferences.migrateStoredDefaultsIfNeeded()
         ReviewPlaybackPreferences.applyLaunchDefaults()
     }
 
@@ -116,17 +115,12 @@ private enum PhotoDeleteUITestDefaults {
             AppConstants.reviewedAssetIDsKey,
             AppConstants.pendingDeleteCandidateIDsKey,
             AppConstants.pendingFavoriteCandidateIDsKey,
-            AppConstants.leftSwipeActionKey,
-            AppConstants.rightSwipeActionKey,
-            AppConstants.upSwipeActionKey,
-            AppConstants.gestureDefaultMigrationKey,
             AppConstants.reviewMediaAutoPlayKey,
             AppConstants.reviewLivePhotoAutoPlayKey,
             AppConstants.reviewVideoMutedKey,
             AppConstants.reviewModeKey,
             AppConstants.reviewSortOrderKey,
             AppConstants.reviewAlbumShortcutsExpandedKey,
-            AppConstants.gestureUpdateNoticePendingKey,
             AppConstants.hasSeenAlbumShortcutHintKey,
             AppConstants.hasSeenDeleteButtonTipKey,
             AppConstants.hasDismissedAlbumSwipeHintKey,

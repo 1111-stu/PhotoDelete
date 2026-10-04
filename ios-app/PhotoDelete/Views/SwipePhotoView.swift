@@ -375,9 +375,6 @@ struct SwipePhotoView: View {
     @Environment(\.displayScale) private var displayScale
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @AppStorage(AppConstants.leftSwipeActionKey) private var leftSwipeActionValue = SwipeGesturePreset.standard.leftAction.rawValue
-    @AppStorage(AppConstants.rightSwipeActionKey) private var rightSwipeActionValue = SwipeGesturePreset.standard.rightAction.rawValue
-    @AppStorage(AppConstants.upSwipeActionKey) private var upSwipeActionValue = SwipeGesturePreset.standard.upAction.rawValue
     @AppStorage(AppConstants.reviewVideoAutoPlayKey) private var reviewVideoAutoPlay = true
     @AppStorage(AppConstants.reviewLivePhotoAutoPlayKey) private var reviewLivePhotoAutoPlay = false
     @AppStorage(AppConstants.reviewVideoMutedKey) private var defaultReviewVideoMuted = true
@@ -979,11 +976,30 @@ struct SwipePhotoView: View {
                 Spacer()
 
                 Button(action: handleDeleteAction) {
-                    Image(systemName: "trash")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.destructive)
-                        .frame(width: 40, height: 40)
-                        .background(Circle().fill(PhotoDeleteStyle.destructive.opacity(0.12)))
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(PhotoDeleteStyle.destructive)
+                            .frame(width: 40, height: 40)
+                            .background(Circle().fill(PhotoDeleteStyle.destructive.opacity(0.12)))
+
+                        if pendingDeleteCount > 0 {
+                            Text(pendingDeleteCount.formatted(.number.grouping(.automatic)))
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white)
+                                .monospacedDigit()
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                                .padding(.horizontal, 5)
+                                .frame(minWidth: 18, minHeight: 18)
+                                .background(Capsule(style: .continuous).fill(PhotoDeleteStyle.destructive))
+                                .overlay(
+                                    Capsule(style: .continuous)
+                                        .stroke(PhotoDeleteStyle.background, lineWidth: 2)
+                                )
+                                .offset(x: 4, y: -4)
+                        }
+                    }
                 }
                 .buttonStyle(.plain)
                 .disabled(!canPerformPhotoAction)
@@ -1479,6 +1495,12 @@ struct SwipePhotoView: View {
 
                 Text(L10n.string("待删除 \(pendingDeleteCount) 张"))
                     .foregroundColor(pendingDeleteCount > 0 ? PhotoDeleteStyle.destructive : PhotoDeleteStyle.secondaryText)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule(style: .continuous)
+                            .fill((pendingDeleteCount > 0 ? PhotoDeleteStyle.destructive : PhotoDeleteStyle.secondaryText).opacity(0.12))
+                    )
             }
             .font(.system(size: 12, weight: .semibold))
         }
@@ -1955,7 +1977,13 @@ struct SwipePhotoView: View {
                 resetCardPosition()
             }
             Spacer(minLength: 0)
-            ActionButton(icon: "checkmark", title: "完成整理", color: PhotoDeleteStyle.positive, style: .solid) {
+            ActionButton(
+                icon: "checkmark",
+                title: "完成整理",
+                color: PhotoDeleteStyle.positive,
+                style: .solid,
+                badgeText: pendingDeleteCount > 0 ? pendingDeleteCount.formatted(.number.grouping(.automatic)) : nil
+            ) {
                 handleFinishAction()
                 resetCardPosition()
             }
@@ -1971,7 +1999,6 @@ struct SwipePhotoView: View {
                         .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
                 )
         )
-        .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 8, x: 0, y: 3)
         .padding(.horizontal, 18)
         .disabled(!canPerformPhotoAction)
         .opacity(canPerformPhotoAction ? 1 : 0.45)
@@ -2976,11 +3003,11 @@ struct SwipePhotoView: View {
     private func configuredAction(for direction: SwipeGestureDirection) -> SwipeGestureAction {
         switch direction {
         case .left:
-            return SwipeGesturePreferences.normalizedAction(leftSwipeActionValue, fallback: SwipeGesturePreferences.defaultAction(for: .left))
+            return .next
         case .right:
-            return SwipeGesturePreferences.normalizedAction(rightSwipeActionValue, fallback: SwipeGesturePreferences.defaultAction(for: .right))
+            return .previous
         case .up:
-            return SwipeGesturePreferences.normalizedAction(upSwipeActionValue, fallback: SwipeGesturePreferences.defaultAction(for: .up))
+            return .delete
         }
     }
 
@@ -5340,6 +5367,7 @@ struct ActionButton: View {
     let title: String
     let color: Color
     var style: PhotoDeleteActionButtonStyle = .soft
+    var badgeText: String? = nil
     let action: () -> Void
 
     var body: some View {
@@ -5351,6 +5379,24 @@ struct ActionButton: View {
                     .foregroundColor(iconColor)
                     .frame(width: buttonSize, height: buttonSize)
                     .background(buttonBackground)
+                    .overlay(alignment: .topTrailing) {
+                        if let badgeText {
+                            Text(badgeText)
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white)
+                                .monospacedDigit()
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                                .padding(.horizontal, 5)
+                                .frame(minWidth: 18, minHeight: 18)
+                                .background(Capsule(style: .continuous).fill(PhotoDeleteStyle.destructive))
+                                .overlay(
+                                    Capsule(style: .continuous)
+                                        .stroke(PhotoDeleteStyle.surface, lineWidth: 2)
+                                )
+                                .offset(x: 5, y: -5)
+                        }
+                    }
 
                 Text(title.appLocalized)
                     .font(.system(size: 11, weight: .medium))
