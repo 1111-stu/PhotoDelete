@@ -20764,6 +20764,7 @@
       }
     },
     "已获得 %lld/%lld 枚徽章 · %lld 次清理" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -39802,6 +39803,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "給自己的整理報告一點個人標記"
+          }
+        }
+      }
+    },
+    "统计" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stats"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "统计"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "統計"
           }
         }
       }

@@ -755,8 +755,7 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
         openSettingsTab(in: app)
 
-        XCTAssertTrue(app.staticTexts["使用统计"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["偏好设置"].exists)
+        XCTAssertTrue(app.staticTexts["偏好设置"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["数据与权限"].exists)
         XCTAssertTrue(app.staticTexts["关于与支持"].exists)
         XCTAssertTrue(app.staticTexts["照片访问权限"].exists)
@@ -1031,27 +1030,15 @@ final class PhotoDeleteUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
 
-        openSettingsTab(in: app)
-        let achievementsTitle = appLanguage.hasPrefix("en") ? "Achievements & History" : "成就与历史"
-        let settingsUsageTitle = appLanguage.hasPrefix("en") ? "Usage stats" : "使用统计"
-        XCTAssertTrue(app.staticTexts[settingsUsageTitle].waitForExistence(timeout: 10))
-        guard let achievementsButton = waitForHittableButtonLabelContaining(
-            in: app,
-            substring: achievementsTitle,
-            timeout: 10
-        ) else {
-            XCTFail("Expected achievements entry for marketing capture")
-            return
-        }
-        achievementsButton.tap()
-        XCTAssertTrue(app.staticTexts[achievementsTitle].waitForExistence(timeout: 10))
+        openStatsTab(in: app)
+        let statsUsageTitle = appLanguage.hasPrefix("en") ? "Usage stats" : "使用统计"
+        let historyTitle = appLanguage.hasPrefix("en") ? "Cleanup History" : "清理历史"
+        XCTAssertTrue(app.staticTexts[statsUsageTitle].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts[historyTitle].waitForExistence(timeout: 10))
         sleep(2)
-        try capture("09-achievements", in: outputDirectory, app: app)
+        try capture("09-stats", in: outputDirectory, app: app)
 
-        let doneButton = firstExistingButton(in: app, labels: ["完成", "Done"])
-        XCTAssertTrue(doneButton.waitForExistence(timeout: 5))
-        doneButton.tap()
-
+        openSettingsTab(in: app)
         let privacyTitle = appLanguage.hasPrefix("en") ? "Privacy Notes" : "隐私说明"
         var privacyButton = waitForHittableButton(in: app, label: privacyTitle, timeout: 2)
         for _ in 0..<5 where privacyButton == nil {
@@ -1094,6 +1081,11 @@ final class PhotoDeleteUITests: XCTestCase {
     }
 
     @MainActor
+    @MainActor
+    private func openStatsTab(in app: XCUIApplication) {
+        tapTabItem(in: app, labels: ["统计", "Stats"], fallbackOffset: CGVector(dx: 0.62, dy: 0.96))
+    }
+
     private func openSettingsTab(in app: XCUIApplication) {
         tapTabItem(in: app, labels: ["设置", "Settings"], fallbackOffset: CGVector(dx: 0.88, dy: 0.96))
     }

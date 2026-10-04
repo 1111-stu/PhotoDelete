@@ -439,7 +439,9 @@ private struct BatchCleanupCompletionView: View {
                     celebrationVisual
                     completionHeader
                     cleanupSummarySection
-                    progressSnapshotSection
+                    if AppConstants.achievementsEnabled {
+                        progressSnapshotSection
+                    }
                     completionActions
                 }
                 .padding(.horizontal, 20)
@@ -596,22 +598,24 @@ private struct BatchCleanupCompletionView: View {
 
     private var completionActions: some View {
         VStack(spacing: 10) {
-            Button(action: onViewAchievements) {
-                Label(L10n.string("查看成就"), systemImage: "seal.fill")
-                    .font(.system(size: 15, weight: .semibold))
-                    .frame(maxWidth: .infinity)
+            if AppConstants.achievementsEnabled {
+                Button(action: onViewAchievements) {
+                    Label(L10n.string("查看成就"), systemImage: "seal.fill")
+                        .font(.system(size: 15, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(PhotoDeleteStyle.surface)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
+                        )
+                )
             }
-            .buttonStyle(.plain)
-            .foregroundColor(PhotoDeleteStyle.primaryText)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(PhotoDeleteStyle.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
-                    )
-            )
 
             Button(action: onContinue) {
                 Text(L10n.string("继续整理"))

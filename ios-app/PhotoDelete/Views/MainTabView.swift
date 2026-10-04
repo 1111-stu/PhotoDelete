@@ -79,6 +79,13 @@ struct MainTabView: View {
                     Text(PhotoDeleteMainTab.advanced.title)
                 }
                 .tag(PhotoDeleteMainTab.advanced)
+
+            tabContent(for: .stats)
+                .tabItem {
+                    Image(systemName: PhotoDeleteMainTab.stats.systemImage)
+                    Text(PhotoDeleteMainTab.stats.title)
+                }
+                .tag(PhotoDeleteMainTab.stats)
             
             tabContent(for: .settings)
                 .tabItem {
@@ -102,6 +109,9 @@ struct MainTabView: View {
             AdvancedView()
                 .environmentObject(dataManager)
                 .environmentObject(purchaseManager)
+        case .stats:
+            StatsView()
+                .environmentObject(dataManager)
         case .settings:
             SettingsView()
                 .environmentObject(dataManager)
@@ -139,6 +149,7 @@ private enum PhotoDeleteMainTab: CaseIterable, Identifiable, Hashable {
     case organize
     case albums
     case advanced
+    case stats
     case settings
 
     var id: Self { self }
@@ -151,6 +162,8 @@ private enum PhotoDeleteMainTab: CaseIterable, Identifiable, Hashable {
             return L10n.string("相册")
         case .advanced:
             return L10n.string("进阶")
+        case .stats:
+            return L10n.string("统计")
         case .settings:
             return L10n.string("设置")
         }
@@ -164,6 +177,8 @@ private enum PhotoDeleteMainTab: CaseIterable, Identifiable, Hashable {
             return "photo.on.rectangle"
         case .advanced:
             return "chart.bar.xaxis"
+        case .stats:
+            return "chart.bar.doc.horizontal"
         case .settings:
             return "gearshape"
         }

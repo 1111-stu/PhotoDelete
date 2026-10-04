@@ -42,9 +42,6 @@ struct SettingsView: View {
                     VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
                         supporterBanner
 
-                        // 使用统计
-                        statsSection
-
                         if AppConstants.advancedPaywallEnabled {
                             supporterSection
                         }
@@ -101,14 +98,6 @@ struct SettingsView: View {
                 SupporterView()
                     .environmentObject(dataManager)
                     .environmentObject(purchaseManager)
-            case .cleanupActivity:
-                NavigationStack {
-                    CleanupAchievementsView(
-                        statsStore: dataManager.cleanupStatsStore,
-                        showsDoneButton: true,
-                        showsHistory: true
-                    )
-                }
             case .gestureSettings:
                 GestureSettingsView()
             case .languageSettings:
@@ -117,81 +106,6 @@ struct SettingsView: View {
                 AppearanceSettingsView()
             }
         }
-    }
-
-    // MARK: - 使用统计
-    private var statsSection: some View {
-        let stats = dataManager.makeSettingsStatsSummary()
-
-        return VStack(spacing: 16) {
-            HStack {
-                Text(L10n.string("使用统计"))
-                    .photoDeleteSectionHeading()
-                Spacer()
-            }
-
-            VStack(spacing: 0) {
-                HStack(spacing: 8) {
-                    StatCard(
-                        value: "\(stats.totalAssets)",
-                        label: L10n.string("照片"),
-                        color: PhotoDeleteStyle.accent
-                    )
-
-                    StatCard(
-                        value: "\(stats.organizedAssets)",
-                        label: L10n.string("已整理"),
-                        color: PhotoDeleteStyle.positive
-                    )
-
-                    StatCard(
-                        value: "\(stats.deletedAssets)",
-                        label: L10n.string("已删除"),
-                        color: PhotoDeleteStyle.destructive
-                    )
-
-                    StatCard(
-                        value: stats.formattedSpaceSaved,
-                        label: L10n.string("删除内容"),
-                        color: PhotoDeleteStyle.warning
-                    )
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 18)
-
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
-
-                SettingsStorageSummaryRow(storage: stats.storageSnapshot)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 14)
-
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
-
-                SettingRow(
-                    icon: "seal.fill",
-                    iconColor: PhotoDeleteStyle.warning,
-                    title: L10n.string("成就与历史"),
-                    subtitle: cleanupActivitySubtitle,
-                    action: {
-                        activeSheet = .cleanupActivity
-                    }
-                )
-            }
-            .photoDeleteCard()
-        }
-    }
-
-    private var cleanupActivitySubtitle: String {
-        String(
-            format: L10n.string("已获得 %lld/%lld 枚徽章 · %lld 次清理"),
-            Int64(dataManager.cleanupStatsStore.unlockedAchievements.count),
-            Int64(dataManager.cleanupStatsStore.achievementProgresses.count),
-            Int64(dataManager.cleanupStatsStore.summary.sessions)
-        )
     }
 
     private var supporterBanner: some View {
@@ -773,7 +687,6 @@ private enum SettingsSheet: Identifiable {
     case author
     case privacy
     case supporter
-    case cleanupActivity
     case gestureSettings
     case languageSettings
     case appearanceSettings
@@ -785,7 +698,6 @@ private enum SettingsSheet: Identifiable {
         case .author: return "author"
         case .privacy: return "privacy"
         case .supporter: return "supporter"
-        case .cleanupActivity: return "cleanupActivity"
         case .gestureSettings: return "gestureSettings"
         case .languageSettings: return "languageSettings"
         case .appearanceSettings: return "appearanceSettings"
@@ -818,41 +730,6 @@ struct StatCard: View {
         }
         .frame(maxWidth: .infinity, minHeight: 44)
         .accessibilityElement(children: .combine)
-    }
-}
-
-private struct SettingsStorageSummaryRow: View {
-    let storage: DeviceStorageSnapshot
-
-    var body: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) {
-                Image(systemName: "internaldrive")
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(PhotoDeleteStyle.accent)
-                    .frame(width: 22)
-
-                Text(L10n.string("手机存储空间"))
-                    .photoDeletePrimaryLabel(.body.weight(.semibold))
-
-                Spacer()
-
-                Text("\(Int(storage.usedFraction * 100))%")
-                    .photoDeleteSecondaryLabel(.subheadline.weight(.semibold))
-            }
-
-            ProgressView(value: storage.usedFraction)
-                .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
-                .clipShape(Capsule(style: .continuous))
-
-            HStack {
-                Text(L10n.string("已用 \(storage.formattedUsed)"))
-                Spacer()
-                Text(L10n.string("可用 \(storage.formattedFree)"))
-            }
-            .font(.caption)
-            .foregroundStyle(PhotoDeleteStyle.tertiaryText)
-        }
     }
 }
 

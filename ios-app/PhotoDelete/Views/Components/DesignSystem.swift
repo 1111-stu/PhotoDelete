@@ -450,6 +450,7 @@ enum AppConstants {
     static let openAlbumsTabNotificationName = Notification.Name("photoDeleteOpenAlbumsTab")
     static let showsAlbumsTab = false
     static let advancedPaywallEnabled = false
+    static let achievementsEnabled = false
     static let supporterAnnualProductID = "com.01mvp.photodelete.pro.annual"
     static let supporterLifetimeProductID = "com.01mvp.photodelete.supporter.stats"
     static let supporterProductIDs: Set<String> = [

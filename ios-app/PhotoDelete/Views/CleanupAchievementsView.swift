@@ -116,10 +116,11 @@ struct CleanupAchievementsView: View {
 
             ScrollView {
                 VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
-                    archiveSummarySection
-                    nextBadgeSection
-
-                    badgeWallSection
+                    if AppConstants.achievementsEnabled {
+                        archiveSummarySection
+                        nextBadgeSection
+                        badgeWallSection
+                    }
 
                     if showsHistory {
                         historySection
@@ -301,7 +302,7 @@ struct CleanupAchievementsView: View {
     }
 }
 
-private struct RecentOrganizedPhotosSection: View {
+struct RecentOrganizedPhotosSection: View {
     @ObservedObject var dataManager: DataManager
     @State private var previewAsset: CandidatePreviewAsset?
     @State private var showingClearConfirmation = false
