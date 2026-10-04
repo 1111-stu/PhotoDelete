@@ -170,7 +170,7 @@ struct OneAppsPromotionSection: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text(L10n.string("更多 App"))
-                    .photoDeleteSectionHeading()
+                    .settingsSectionHeading()
                 Spacer()
             }
 
@@ -185,17 +185,17 @@ struct OneAppsPromotionSection: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         .overlay(
                             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                                .stroke(SettingsChrome.divider, lineWidth: 1)
                         )
                         .accessibilityHidden(true)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(L10n.string("One Apps Studio"))
-                            .photoDeletePrimaryLabel()
+                            .settingsRowTitle()
                             .lineLimit(1)
 
                         Text(L10n.string("系列简洁好用的 App"))
-                            .photoDeleteSecondaryLabel(.subheadline)
+                            .settingsRowValue()
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -203,17 +203,18 @@ struct OneAppsPromotionSection: View {
                     Spacer(minLength: 8)
 
                     Image(systemName: "chevron.right")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(PhotoDeleteStyle.tertiaryText)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(SettingsChrome.muted)
+                        .accessibilityHidden(true)
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 14)
-                .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
+                .frame(minHeight: SettingsChrome.rowMinHeight)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .photoDeleteCard()
+            .settingsGroupedCard()
             .accessibilityIdentifier("settings-oneapps-catalog-entry")
             .accessibilityHint(L10n.string("打开完整的 App 列表"))
         }

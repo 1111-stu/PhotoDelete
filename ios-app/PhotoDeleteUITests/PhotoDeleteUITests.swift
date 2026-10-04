@@ -142,7 +142,7 @@ final class PhotoDeleteUITests: XCTestCase {
         }
         startCleanupButton.tap()
 
-        let doneButton = firstExistingButton(in: app, labels: ["完成"])
+        let doneButton = firstExistingButton(in: app, labels: ["完成整理", "完成"])
         XCTAssertTrue(doneButton.waitForExistence(timeout: 30))
 
         let dismissHintButton = app.buttons["知道了"]
@@ -153,22 +153,12 @@ final class PhotoDeleteUITests: XCTestCase {
         var attemptedAlbumTitles: [String] = []
         var successfulFilingTitles: Set<String> = []
         for title in albumTitles {
-            guard let albumShortcutButton = waitForHittableButton(
-                in: app,
-                label: "归类到 \(title)",
-                timeout: 5
-            ) else {
+            let filed = fileCurrentReviewPhoto(into: title, in: app)
+            if !filed && app.buttons["归类到 \(title)"].exists == false && app.staticTexts["放进哪个相册?"].exists == false {
                 continue
             }
-
             attemptedAlbumTitles.append(title)
-            albumShortcutButton.tap()
-
-            if waitForAnyElementLabelContaining(
-                in: app,
-                substring: "已归类到 \(title)",
-                timeout: 4
-            ) != nil {
+            if filed {
                 successfulFilingTitles.insert(title)
             }
 
@@ -177,7 +167,7 @@ final class PhotoDeleteUITests: XCTestCase {
                 "The app must remain in the foreground after filing into \(title)"
             )
             XCTAssertNotNil(
-                waitForHittableButton(in: app, label: "完成", timeout: 5),
+                waitForReviewDoneButton(in: app, timeout: 5),
                 "The review controls should remain interactive after filing into \(title)"
             )
         }
@@ -266,7 +256,7 @@ final class PhotoDeleteUITests: XCTestCase {
         }
         startCleanupButton.tap()
 
-        let doneButton = firstExistingButton(in: app, labels: ["完成"])
+        let doneButton = firstExistingButton(in: app, labels: ["完成整理", "完成"])
         XCTAssertTrue(doneButton.waitForExistence(timeout: 30))
 
         let dismissHintButton = app.buttons["知道了"]
@@ -274,31 +264,18 @@ final class PhotoDeleteUITests: XCTestCase {
             dismissHintButton.tap()
         }
 
-        guard let albumShortcutButton = waitForHittableButtonLabelContaining(
-            in: app,
-            substring: "归类到 ",
-            timeout: 15
-        ) else {
-            XCTFail("Expected the album shortcut strip to appear")
-            return
-        }
+        let addToAlbumButton = firstExistingButton(in: app, labels: ["加入相册", "Add to Album"])
+        XCTAssertTrue(addToAlbumButton.waitForExistence(timeout: 15))
+        addToAlbumButton.tap()
 
-        let visibilityButton = app.buttons["album-shortcut-visibility-button"].firstMatch
-        let manageButton = app.buttons["album-shortcut-manage-button"].firstMatch
-        XCTAssertTrue(visibilityButton.waitForExistence(timeout: 5))
-        XCTAssertTrue(manageButton.waitForExistence(timeout: 5))
-        XCTAssertEqual(manageButton.frame.midX, visibilityButton.frame.midX, accuracy: 2)
-        XCTAssertLessThan(manageButton.frame.midY, visibilityButton.frame.midY)
-        XCTAssertEqual(visibilityButton.label, "隐藏相册归类")
-        visibilityButton.tap()
-
-        XCTAssertTrue(albumShortcutButton.waitForNonExistence(timeout: 5))
-        XCTAssertTrue(visibilityButton.waitForExistence(timeout: 5))
-        XCTAssertEqual(visibilityButton.label, "显示相册归类")
-        visibilityButton.tap()
-
-        XCTAssertNotNil(waitForHittableButtonLabelContaining(in: app, substring: "归类到 ", timeout: 8))
-        XCTAssertEqual(visibilityButton.label, "隐藏相册归类")
+        XCTAssertTrue(app.staticTexts["放进哪个相册?"].waitForExistence(timeout: 8))
+        XCTAssertTrue(
+            app.staticTexts["快捷相册"].exists || app.staticTexts["暂未添加快捷相册"].exists
+        )
+        XCTAssertNotNil(
+            waitForHittableButtonLabelContaining(in: app, substring: "归类到 ", timeout: 15),
+            "Album filing should list albums without opening the albums tab"
+        )
     }
 
     @MainActor
@@ -347,7 +324,7 @@ final class PhotoDeleteUITests: XCTestCase {
         }
         startCleanupButton.tap()
 
-        let doneButton = firstExistingButton(in: app, labels: ["完成"])
+        let doneButton = firstExistingButton(in: app, labels: ["完成整理", "完成"])
         XCTAssertTrue(doneButton.waitForExistence(timeout: 30))
 
         let dismissHintButton = app.buttons["知道了"]
@@ -361,36 +338,19 @@ final class PhotoDeleteUITests: XCTestCase {
         // belong to its target album when the simulator is reused, so the
         // final count reconciliation below is intentionally no-op-safe.
         var completedFilings = 0
-        for (index, title) in albumTitles.enumerated() {
-            guard let albumShortcutButton = waitForHittableButton(
-                in: app,
-                label: "归类到 \(title)",
-                timeout: 10
-            ) else {
-                XCTFail("Expected a writable album shortcut for \(title)")
-                return
-            }
-
-            albumShortcutButton.tap()
-
-            // Do not wait for the transient success token here. The next
-            // shortcut (or the completion control on the final card) is the
-            // readiness signal that lets this test keep the filing burst
-            // moving while queued Photos writes drain in the background.
+        for title in albumTitles {
+            XCTAssertTrue(
+                fileCurrentReviewPhoto(into: title, in: app),
+                "Expected to file the current photo into \(title)"
+            )
             XCTAssertTrue(
                 app.wait(for: .runningForeground, timeout: 2),
                 "The review must stay in the foreground after filing into \(title)"
             )
             XCTAssertTrue(
-                waitForHittableButton(in: app, label: "完成", timeout: 3) != nil,
+                waitForReviewDoneButton(in: app, timeout: 5) != nil,
                 "The review controls should remain interactive after filing into \(title)"
             )
-            if index < albumTitles.count - 1 {
-                XCTAssertNotNil(
-                    waitForHittableButtonLabelContaining(in: app, substring: "归类到 ", timeout: 3),
-                    "The next card should expose album shortcuts after filing into \(title)"
-                )
-            }
             completedFilings += 1
         }
 
@@ -413,7 +373,7 @@ final class PhotoDeleteUITests: XCTestCase {
             "The next review card should support a favorite toggle without leaving review"
         )
         XCTAssertNotNil(
-            waitForHittableButton(in: app, label: "完成", timeout: 5),
+            waitForReviewDoneButton(in: app, timeout: 5),
             "The review completion control should remain interactive after the favorite round trip"
         )
 
@@ -625,7 +585,7 @@ final class PhotoDeleteUITests: XCTestCase {
         }
         videosButton.tap()
 
-        let doneButton = firstExistingButton(in: app, labels: ["完成"])
+        let doneButton = firstExistingButton(in: app, labels: ["完成整理", "完成"])
         XCTAssertTrue(doneButton.waitForExistence(timeout: 30))
 
         let dismissHintButton = app.buttons["知道了"]
@@ -656,14 +616,14 @@ final class PhotoDeleteUITests: XCTestCase {
             "Playback controls should auto-hide after scrubbing when the video resumes playback."
         )
 
-        let leftStart = videoPlayer.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.48))
-        let leftEnd = videoPlayer.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.48))
-        leftStart.press(forDuration: 0.15, thenDragTo: leftEnd)
+        let upStart = videoPlayer.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.72))
+        let upEnd = videoPlayer.coordinate(withNormalizedOffset: CGVector(dx: 0.72, dy: 0.18))
+        upStart.press(forDuration: 0.15, thenDragTo: upEnd)
 
         XCTAssertTrue(
             app.staticTexts["已加入待删除"].waitForExistence(timeout: 5) ||
                 app.staticTexts["待删除 1 张"].waitForExistence(timeout: 2),
-            "Horizontal swipe from the video body should still reach the review card."
+            "Swipe up from the video body should stage it for deletion."
         )
     }
 
@@ -688,7 +648,7 @@ final class PhotoDeleteUITests: XCTestCase {
         }
         videosButton.tap()
 
-        let doneButton = firstExistingButton(in: app, labels: ["完成"])
+        let doneButton = firstExistingButton(in: app, labels: ["完成整理", "完成"])
         XCTAssertTrue(doneButton.waitForExistence(timeout: 30))
 
         let dismissHintButton = app.buttons["知道了"]
@@ -727,29 +687,6 @@ final class PhotoDeleteUITests: XCTestCase {
         let closeButton = app.buttons["关闭"]
         XCTAssertTrue(closeButton.waitForExistence(timeout: 5))
         closeButton.tap()
-        XCTAssertTrue(doneButton.waitForExistence(timeout: 8))
-
-        let reviewModeButton = firstExistingButton(in: app, labels: ["整理模式"])
-        XCTAssertTrue(reviewModeButton.waitForExistence(timeout: 5))
-        reviewModeButton.tap()
-        XCTAssertTrue(app.staticTexts["左右浏览"].waitForExistence(timeout: 5))
-
-        let currentVideoCell = app.descendants(matching: .any).matching(
-            NSPredicate(
-                format: "label == %@ AND value CONTAINS %@ AND value CONTAINS %@",
-                "浏览照片",
-                "当前照片",
-                "视频"
-            )
-        ).firstMatch
-        XCTAssertTrue(currentVideoCell.waitForExistence(timeout: 8))
-        currentVideoCell.tap()
-
-        let browserExpandButton = app.buttons["browser-video-full-preview-button"]
-        XCTAssertTrue(browserExpandButton.waitForExistence(timeout: 8))
-        browserExpandButton.tap()
-        XCTAssertTrue(app.navigationBars["视频预览"].waitForExistence(timeout: 8))
-        app.buttons["关闭"].tap()
         XCTAssertTrue(doneButton.waitForExistence(timeout: 8))
     }
 
@@ -934,25 +871,24 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertTrue(startCleanupButton.waitForExistence(timeout: 10))
         startCleanupButton.tap()
 
-        let doneButton = firstExistingButton(in: app, labels: ["完成", "Done"])
+        let doneButton = firstExistingButton(in: app, labels: ["完成整理", "Finish Organizing", "完成", "Done"])
         XCTAssertTrue(doneButton.waitForExistence(timeout: 30))
         sleep(2)
         try capture("02-review-card", in: outputDirectory, app: app)
 
-        dragCardLeft(in: app)
-        sleep(1)
+        let addToAlbumButton = firstExistingButton(in: app, labels: ["加入相册", "Add to Album", "review-add-to-album"])
+        if addToAlbumButton.waitForExistence(timeout: 5), addToAlbumButton.isHittable {
+            addToAlbumButton.tap()
+            sleep(1)
+            try capture("03-album-filing-sheet", in: outputDirectory, app: app)
+            app.swipeDown()
+        }
 
-        let reviewModeButton = firstExistingButton(in: app, labels: ["整理模式", "Review Mode"])
-        XCTAssertTrue(reviewModeButton.waitForExistence(timeout: 5))
-        reviewModeButton.tap()
-        XCTAssertTrue(app.staticTexts["左右浏览"].waitForExistence(timeout: 5) ||
-            app.staticTexts["Browse left or right"].waitForExistence(timeout: 5))
-        sleep(2)
-        try capture("03-two-row-browser", in: outputDirectory, app: app)
+        dragCardUp(in: app)
 
         ensurePendingDeleteCandidateForMarketing(in: app)
 
-        let finishButton = firstExistingButton(in: app, labels: ["完成", "Done"])
+        let finishButton = firstExistingButton(in: app, labels: ["完成整理", "Finish Organizing", "完成", "Done"])
         if finishButton.waitForExistence(timeout: 3) {
             finishButton.tap()
             _ = app.staticTexts["确认删除"].waitForExistence(timeout: 5) ||
@@ -1204,6 +1140,55 @@ final class PhotoDeleteUITests: XCTestCase {
     }
 
     @MainActor
+    private func waitForReviewDoneButton(in app: XCUIApplication, timeout: TimeInterval) -> XCUIElement? {
+        let labels = ["完成整理", "Finish Organizing", "完成", "Done"]
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if let button = labels.compactMap({ label -> XCUIElement? in
+                let button = app.buttons[label]
+                return button.exists && button.isHittable ? button : nil
+            }).first {
+                return button
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        return nil
+    }
+
+    @MainActor
+    @discardableResult
+    private func fileCurrentReviewPhoto(into title: String, in app: XCUIApplication) -> Bool {
+        if !app.staticTexts["放进哪个相册?"].exists {
+            let addButton = firstExistingButton(in: app, labels: ["加入相册", "Add to Album"])
+            guard addButton.waitForExistence(timeout: 8), addButton.isHittable else { return false }
+            addButton.tap()
+        }
+
+        guard let albumButton = waitForHittableButton(in: app, label: "归类到 \(title)", timeout: 8) else {
+            return false
+        }
+        albumButton.tap()
+
+        let filed = waitForAnyElementLabelContaining(
+            in: app,
+            substring: "已归类到 \(title)",
+            timeout: 6
+        ) != nil
+        let continueButton = firstExistingButton(in: app, labels: ["完成并继续", "Done and Continue"])
+        guard continueButton.waitForExistence(timeout: 5), continueButton.isHittable else { return false }
+        continueButton.tap()
+        return filed
+    }
+
+    @MainActor
+    private func dragCardUp(in app: XCUIApplication) {
+        if usesWideMarketingLayout(app) {
+            drag(in: app, from: CGVector(dx: 0.52, dy: 0.72), to: CGVector(dx: 0.68, dy: 0.28))
+        } else {
+            drag(in: app, from: CGVector(dx: 0.5, dy: 0.62), to: CGVector(dx: 0.72, dy: 0.22))
+        }
+    }
+
     private func dragCardLeft(in app: XCUIApplication) {
         if usesWideMarketingLayout(app) {
             drag(in: app, from: CGVector(dx: 0.52, dy: 0.58), to: CGVector(dx: 0.16, dy: 0.58))

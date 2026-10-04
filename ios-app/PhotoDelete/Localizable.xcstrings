@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "zh-Hans",
   "strings" : {
+    "" : {
+
+    },
     "·" : {
 
     },
@@ -4088,6 +4091,28 @@
         }
       }
     },
+    "下滑加入相册" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe down to add"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下滑加入相册"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下滑加入相簿"
+          }
+        }
+      }
+    },
     "下滑动作" : {
       "localizations" : {
         "ar" : {
@@ -4151,6 +4176,7 @@
       }
     },
     "下滑可移出当前相册，不会删除照片" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -11305,6 +11331,28 @@
         }
       }
     },
+    "加入相册" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to Album"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加入相册"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加入相簿"
+          }
+        }
+      }
+    },
     "勾选这张照片" : {
       "localizations" : {
         "ar" : {
@@ -16990,6 +17038,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "完成一次清理後會點亮第一枚徽章。"
+          }
+        }
+      }
+    },
+    "完成并继续" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done and Continue"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成并继续"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成並繼續"
           }
         }
       }
@@ -23938,6 +24008,28 @@
         }
       }
     },
+    "快捷相册" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shortcuts"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快捷相册"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快捷相簿"
+          }
+        }
+      }
+    },
     "快速上手" : {
       "localizations" : {
         "ar" : {
@@ -24147,6 +24239,7 @@
       }
     },
     "总体进度 %@/%@ · 当前位置 %@/%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -24187,6 +24280,7 @@
       }
     },
     "总体进度 0/0" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -25366,6 +25460,7 @@
       }
     },
     "按“待删除”可连续加入待删除" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -25652,6 +25747,7 @@
       }
     },
     "按底部“删除”可连续加入待删除" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -27691,6 +27787,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "放大的照片"
+          }
+        }
+      }
+    },
+    "放进哪个相册?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Which album?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "放进哪个相册?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "放進哪個相簿？"
           }
         }
       }
@@ -30068,6 +30186,28 @@
         }
       }
     },
+    "暂未添加快捷相册" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No shortcut albums yet"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂未添加快捷相册"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未加入快捷相簿"
+          }
+        }
+      }
+    },
     "暖砂色" : {
       "localizations" : {
         "ar" : {
@@ -31839,6 +31979,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本次節省"
+          }
+        }
+      }
+    },
+    "本轮待整理 %lld 张" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld left this round"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本轮待整理 %lld 张"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本輪待整理 %lld 張"
           }
         }
       }
@@ -43616,6 +43778,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "還有 %lld 條壓縮明細"
+          }
+        }
+      }
+    },
+    "还未选择" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing selected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还未选择"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未選擇"
           }
         }
       }

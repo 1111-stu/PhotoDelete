@@ -13,6 +13,79 @@ import UIKit
 import MessageUI
 #endif
 
+enum SettingsChrome {
+    static let canvas = Color(settingsRGB: 0x17181F)
+    static let surface = Color(settingsRGB: 0x22242A)
+    static let ink = Color.white
+    static let muted = Color(settingsRGB: 0xC8C9CD)
+    static let faint = Color(settingsRGB: 0x8E9098)
+    static let accent = Color(settingsRGB: 0xF3B14C)
+    static let divider = Color.white.opacity(0.10)
+    static let pill = Color.white.opacity(0.10)
+    static let pageInset: CGFloat = 16
+    static let cardRadius: CGFloat = 16
+    static let sectionSpacing: CGFloat = 16
+    static let rowMinHeight: CGFloat = 44
+}
+
+private extension Color {
+    init(settingsRGB hex: UInt32) {
+        self.init(
+            red: Double((hex >> 16) & 0xFF) / 255,
+            green: Double((hex >> 8) & 0xFF) / 255,
+            blue: Double(hex & 0xFF) / 255
+        )
+    }
+}
+
+private struct SettingsHairline: View {
+    var body: some View {
+        SettingsChrome.divider
+            .frame(height: 1)
+            .padding(.horizontal, 16)
+    }
+}
+
+private struct SettingsSelectionMark: View {
+    let isSelected: Bool
+
+    var body: some View {
+        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+            .font(.body.weight(.semibold))
+            .foregroundStyle(isSelected ? SettingsChrome.accent : SettingsChrome.muted)
+            .accessibilityHidden(true)
+    }
+}
+
+extension View {
+    func settingsGroupedCard() -> some View {
+        background(
+            RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous)
+                .fill(SettingsChrome.surface)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous))
+    }
+
+    func settingsSectionHeading() -> some View {
+        font(.title2.weight(.bold))
+            .foregroundStyle(SettingsChrome.ink)
+    }
+
+    func settingsRowTitle() -> some View {
+        font(.body.weight(.semibold))
+            .foregroundStyle(SettingsChrome.ink)
+    }
+
+    func settingsRowValue() -> some View {
+        font(.subheadline)
+            .foregroundStyle(SettingsChrome.muted)
+    }
+
+    func settingsNavigationChrome() -> some View {
+        toolbarColorScheme(.dark, for: .navigationBar)
+    }
+}
+
 struct SettingsView: View {
     @EnvironmentObject var dataManager: DataManager
     @EnvironmentObject var purchaseManager: PurchaseManager
@@ -36,10 +109,11 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                PhotoDeleteScreenBackground()
+                SettingsChrome.canvas
+                    .ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+                    VStack(spacing: SettingsChrome.sectionSpacing) {
                         supporterBanner
 
                         if AppConstants.advancedPaywallEnabled {
@@ -65,7 +139,7 @@ struct SettingsView: View {
                         Spacer()
                             .frame(height: 100)
                     }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, SettingsChrome.pageInset)
                     .padding(.top, PhotoDeleteStyle.rootContentTopSpacing)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
@@ -77,6 +151,7 @@ struct SettingsView: View {
             }
             .navigationTitle(L10n.string("设置"))
             .navigationBarTitleDisplayMode(.large)
+            .settingsNavigationChrome()
         }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
@@ -113,34 +188,30 @@ struct SettingsView: View {
             activeSheet = .supporter
         } label: {
             HStack(spacing: 12) {
-                Image(systemName: "crown.fill")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-                    .frame(width: 36, height: 36)
-                    .background(Color.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(supporterRowTitle)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
+                        .settingsRowTitle()
+                        .multilineTextAlignment(.leading)
                     Text(supporterRowSubtitle)
-                        .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.72))
+                        .settingsRowValue()
                         .multilineTextAlignment(.leading)
                 }
 
                 Spacer(minLength: 8)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.7))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(SettingsChrome.muted)
+                    .accessibilityHidden(true)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
+            .frame(minHeight: SettingsChrome.rowMinHeight)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.black, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .settingsGroupedCard()
         .accessibilityHint(Text(L10n.string("查看购买信息和功能区别")))
     }
 
@@ -149,14 +220,12 @@ struct SettingsView: View {
         VStack(spacing: 16) {
             HStack {
                 Text(L10n.string("购买与恢复"))
-                    .photoDeleteSectionHeading()
+                    .settingsSectionHeading()
                 Spacer()
             }
 
             VStack(spacing: 0) {
                 SettingRow(
-                    icon: supporterRowIcon,
-                    iconColor: supporterRowIconColor,
                     title: supporterRowTitle,
                     subtitle: supporterRowSubtitle,
                     action: {
@@ -164,28 +233,8 @@ struct SettingsView: View {
                     }
                 )
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
-    }
-
-    private var supporterRowIcon: String {
-        if purchaseManager.hasPaidSupporterAccess {
-            return "seal"
-        }
-
-        if purchaseManager.isUsingTrialSupporterAccess {
-            return "timer"
-        }
-
-        return "sparkles"
-    }
-
-    private var supporterRowIconColor: Color {
-        if purchaseManager.hasPaidSupporterAccess {
-            return PhotoDeleteStyle.positive
-        }
-
-        return PhotoDeleteStyle.accent
     }
 
     private var supporterRowTitle: String {
@@ -233,63 +282,46 @@ struct SettingsView: View {
         VStack(spacing: 16) {
             HStack {
                 Text(L10n.string("关于与支持"))
-                    .photoDeleteSectionHeading()
+                    .settingsSectionHeading()
                 Spacer()
             }
 
             VStack(spacing: 0) {
                 SettingRow(
-                    icon: "star",
-                    iconColor: PhotoDeleteStyle.warning,
                     title: L10n.string("给删图评分"),
                     showsChevron: false,
                     action: requestAppReview
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingRow(
-                    icon: "envelope",
-                    iconColor: PhotoDeleteStyle.secondaryText,
                     title: L10n.string("邮件反馈"),
                     subtitle: AppConstants.feedbackEmail,
                     action: handleMailAction
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingRow(
-                    icon: "person.text.rectangle",
                     title: L10n.string("关于创作者"),
                     action: {
                         activeSheet = .author
                     }
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingRow(
-                    icon: "lock.shield",
-                    iconColor: PhotoDeleteStyle.positive,
                     title: L10n.string("隐私说明"),
                     action: {
                         activeSheet = .privacy
                     }
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingRow(
-                    icon: "info.circle",
-                    iconColor: PhotoDeleteStyle.secondaryText,
                     title: L10n.string("关于删图"),
                     subtitle: L10n.string("版本 \(AppConstants.displayVersion)"),
                     action: {
@@ -297,7 +329,7 @@ struct SettingsView: View {
                     }
                 )
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
     }
 
@@ -311,13 +343,12 @@ struct SettingsView: View {
         VStack(spacing: 16) {
             HStack {
                 Text(L10n.string("偏好设置"))
-                    .photoDeleteSectionHeading()
+                    .settingsSectionHeading()
                 Spacer()
             }
 
             VStack(spacing: 0) {
                 SettingRow(
-                    icon: "hand.draw",
                     title: L10n.string("手势与播放"),
                     subtitle: gestureSettingsSubtitle,
                     action: {
@@ -325,18 +356,13 @@ struct SettingsView: View {
                     }
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 ReviewSortOrderSettingRow(selectedValue: $reviewSortOrderValue)
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingRow(
-                    icon: "globe",
                     title: L10n.string("语言"),
                     subtitle: selectedLanguage.title,
                     action: {
@@ -344,13 +370,9 @@ struct SettingsView: View {
                     }
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingRow(
-                    icon: selectedTheme.icon,
-                    iconColor: selectedTheme.primaryAccent,
                     title: L10n.string("主题与外观"),
                     subtitle: "\(selectedTheme.title) · \(selectedAppearance.title)",
                     action: {
@@ -358,18 +380,15 @@ struct SettingsView: View {
                     }
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingToggleRow(
-                    icon: "hand.tap",
                     title: L10n.string("触感反馈"),
                     subtitle: L10n.string("滑动、撤销和归类时提供轻微反馈"),
                     isOn: $hapticsEnabled
                 )
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
     }
 
@@ -378,14 +397,12 @@ struct SettingsView: View {
         VStack(spacing: 16) {
             HStack {
                 Text(L10n.string("数据与权限"))
-                    .photoDeleteSectionHeading()
+                    .settingsSectionHeading()
                 Spacer()
             }
 
             VStack(spacing: 0) {
                 SettingRow(
-                    icon: "tray.full",
-                    iconColor: PhotoDeleteStyle.positive,
                     title: L10n.string("本机整理数据"),
                     subtitle: localDataSubtitle,
                     showsChevron: false,
@@ -406,12 +423,9 @@ struct SettingsView: View {
                     Text(L10n.string("待删除、待收藏和已整理进度会被清空，不会删除照片库中的任何照片。"))
                 }
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingRow(
-                    icon: "photo.badge.checkmark",
                     title: L10n.string("照片访问权限"),
                     subtitle: photoAccessSubtitle,
                     action: {
@@ -419,18 +433,15 @@ struct SettingsView: View {
                     }
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingRow(
-                    icon: "questionmark.circle",
                     title: L10n.string("重新查看引导"),
                     showsChevron: false,
                     action: resetIntro
                 )
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
     }
 
@@ -438,12 +449,12 @@ struct SettingsView: View {
     private var versionInfo: some View {
         VStack(spacing: 8) {
             Text("\(AppConstants.appDisplayName) v\(AppConstants.displayVersion)")
-                .font(.system(size: 14, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .font(.subheadline)
+                .foregroundStyle(SettingsChrome.muted)
 
             Text(L10n.string("让照片整理变得简单"))
-                .font(.system(size: 12, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .font(.footnote)
+                .foregroundStyle(SettingsChrome.faint)
         }
     }
 
@@ -735,8 +746,6 @@ struct StatCard: View {
 
 // MARK: - 设置行
 struct SettingRow: View {
-    let icon: String
-    var iconColor: Color? = nil
     let title: String
     var subtitle = ""
     var showsChevron = true
@@ -745,31 +754,22 @@ struct SettingRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                PhotoDeleteIconTile(icon: icon, tint: iconColor)
-
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 12) {
-                        titleLabel
-                        Spacer(minLength: 8)
-                        subtitleLabel
-                    }
-
-                    VStack(alignment: .leading, spacing: 3) {
-                        titleLabel
-                        subtitleLabel
-                    }
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    subtitleLabel
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 if showsChevron {
                     Image(systemName: "chevron.right")
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(PhotoDeleteStyle.tertiaryText)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(SettingsChrome.muted)
+                        .accessibilityHidden(true)
                 }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .frame(minHeight: SettingsChrome.rowMinHeight)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
@@ -781,51 +781,43 @@ struct SettingRow: View {
 
     private var titleLabel: some View {
         Text(title.appLocalized)
-            .photoDeletePrimaryLabel()
-            .lineLimit(1)
+            .settingsRowTitle()
+            .multilineTextAlignment(.leading)
     }
 
     @ViewBuilder
     private var subtitleLabel: some View {
         if !subtitle.isEmpty {
             Text(subtitle.appLocalized)
-                .photoDeleteSecondaryLabel()
-                .lineLimit(1)
-                .minimumScaleFactor(0.84)
-                .multilineTextAlignment(.trailing)
-                .truncationMode(.tail)
+                .settingsRowValue()
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
         }
     }
 }
 
 struct SettingToggleRow: View {
-    @Environment(\.photoDeleteTheme) private var theme
-    let icon: String
-    var iconColor: Color? = nil
     let title: String
     let subtitle: String
     @Binding var isOn: Bool
 
     var body: some View {
         Toggle(isOn: $isOn) {
-            HStack(spacing: 12) {
-                PhotoDeleteIconTile(icon: icon, tint: iconColor)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title.appLocalized)
+                    .settingsRowTitle()
+                    .multilineTextAlignment(.leading)
 
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title.appLocalized)
-                        .photoDeletePrimaryLabel()
-                        .lineLimit(1)
-
-                    Text(subtitle.appLocalized)
-                        .photoDeleteSecondaryLabel(.caption)
-                        .lineLimit(2)
-                }
+                Text(subtitle.appLocalized)
+                    .settingsRowValue()
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
             }
         }
-        .tint(theme.selectionTint)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
+        .tint(SettingsChrome.accent)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+        .frame(minHeight: SettingsChrome.rowMinHeight)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -851,27 +843,26 @@ struct ReviewSortOrderSettingRow: View {
             }
         } label: {
             HStack(spacing: 12) {
-                PhotoDeleteIconTile(icon: "arrow.up.arrow.down")
-
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.string("照片顺序"))
-                        .photoDeletePrimaryLabel()
-                        .lineLimit(1)
+                        .settingsRowTitle()
+                        .multilineTextAlignment(.leading)
 
                     Text(selectedOrder.title)
-                        .photoDeleteSecondaryLabel(.caption)
+                        .settingsRowValue()
                         .lineLimit(1)
                 }
 
                 Spacer(minLength: 12)
 
                 Image(systemName: "chevron.up.chevron.down")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(PhotoDeleteStyle.tertiaryText)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(SettingsChrome.muted)
+                    .accessibilityHidden(true)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .frame(minHeight: SettingsChrome.rowMinHeight)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
@@ -903,27 +894,26 @@ struct RandomReviewBatchSizeSettingRow: View {
             }
         } label: {
             HStack(spacing: 12) {
-                PhotoDeleteIconTile(icon: "photo.stack")
-
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.string("每轮照片数量"))
-                        .photoDeletePrimaryLabel()
-                        .lineLimit(1)
+                        .settingsRowTitle()
+                        .multilineTextAlignment(.leading)
 
                     Text(selectedSize.subtitle)
-                        .photoDeleteSecondaryLabel(.caption)
-                        .lineLimit(1)
+                        .settingsRowValue()
+                        .lineLimit(2)
                 }
 
                 Spacer(minLength: 12)
 
                 Image(systemName: "chevron.up.chevron.down")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(PhotoDeleteStyle.tertiaryText)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(SettingsChrome.muted)
+                    .accessibilityHidden(true)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .frame(minHeight: SettingsChrome.rowMinHeight)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
@@ -1005,10 +995,11 @@ struct GestureSettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                PhotoDeleteScreenBackground()
+                SettingsChrome.canvas
+                    .ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+                    VStack(spacing: SettingsChrome.sectionSpacing) {
                         reviewSortOrderSection
                         randomReviewSection
                         mediaPlaybackSection
@@ -1018,8 +1009,8 @@ struct GestureSettingsView: View {
                         customGestureSection
                         resetButton
                     }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                    .padding(.top, 20)
+                    .padding(.horizontal, SettingsChrome.pageInset)
+                    .padding(.top, 16)
                     .padding(.bottom, 24)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
@@ -1027,110 +1018,94 @@ struct GestureSettingsView: View {
             }
             .navigationTitle(L10n.string("手势与播放"))
             .navigationBarTitleDisplayMode(.inline)
+            .settingsNavigationChrome()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(L10n.string("完成")) {
                         dismiss()
                     }
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundStyle(SettingsChrome.accent)
                 }
             }
         }
     }
 
     private var reviewSortOrderSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.string("浏览顺序"))
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .settingsSectionHeading()
 
             ReviewSortOrderSettingRow(selectedValue: $reviewSortOrderValue)
-                .photoDeleteCard()
+                .settingsGroupedCard()
         }
     }
 
     private var randomReviewSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.string("随机浏览"))
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .settingsSectionHeading()
 
             VStack(spacing: 0) {
                 RandomReviewBatchSizeSettingRow(selectedValue: $randomReviewBatchSizeValue)
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingToggleRow(
-                    icon: "rectangle.stack.badge.minus",
                     title: L10n.string("隐藏已归类照片"),
                     subtitle: L10n.string("默认不再显示已加入用户相册的照片"),
                     isOn: $randomReviewHideFiledPhotos
                 )
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
     }
 
     private var mediaPlaybackSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.string("播放"))
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .settingsSectionHeading()
 
             VStack(spacing: 0) {
                 SettingToggleRow(
-                    icon: "play.circle",
                     title: L10n.string("视频自动播放"),
                     subtitle: L10n.string("只播放当前视频，切换后会自动停止"),
                     isOn: $reviewVideoAutoPlay
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingToggleRow(
-                    icon: "livephoto",
                     title: L10n.string("实况照片自动播放"),
                     subtitle: L10n.string("进入当前照片时只播放一次，也可点右上角手动控制"),
                     isOn: $reviewLivePhotoAutoPlay
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingToggleRow(
-                    icon: reviewVideoMuted ? "speaker.slash" : "speaker.wave.2",
                     title: L10n.string("视频和实况照片静音播放"),
                     subtitle: L10n.string("开启后每次进入整理页默认静音；整理页可临时打开声音"),
                     isOn: $reviewVideoMuted
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.horizontal, 16)
+                SettingsHairline()
 
                 SettingToggleRow(
-                    icon: "hand.tap",
                     title: L10n.string("触感反馈"),
                     subtitle: L10n.string("滑动、撤销和归类时提供轻微反馈"),
                     isOn: $hapticsEnabled
                 )
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
     }
 
     private var currentGesturePreview: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.string("当前手势"))
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .settingsSectionHeading()
 
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 ForEach(SwipeGestureDirection.allCases) { direction in
                     GesturePreviewTile(
                         direction: direction,
@@ -1142,40 +1117,33 @@ struct GestureSettingsView: View {
     }
 
     private var downSwipeNoteSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.string("下滑动作"))
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .settingsSectionHeading()
 
             VStack(spacing: 0) {
                 FixedGestureNoteRow(
-                    icon: "arrow.down",
                     title: L10n.string("普通整理"),
                     detail: L10n.string("下滑返回列表")
                 )
 
-                Divider()
-                    .background(PhotoDeleteStyle.hairline)
-                    .padding(.leading, 60)
+                SettingsHairline()
 
                 FixedGestureNoteRow(
-                    icon: "rectangle.stack.badge.minus",
                     title: L10n.string("相册整理"),
-                    detail: L10n.string("下滑移出相册，不删除照片"),
-                    color: PhotoDeleteStyle.warning
+                    detail: L10n.string("下滑移出相册，不删除照片")
                 )
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
     }
 
     private var presetSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.string("快速方案"))
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .settingsSectionHeading()
 
-            VStack(spacing: 10) {
+            VStack(spacing: 8) {
                 ForEach(SwipeGesturePreset.presets) { preset in
                     GesturePresetButton(
                         preset: preset,
@@ -1189,10 +1157,9 @@ struct GestureSettingsView: View {
     }
 
     private var customGestureSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.string("自定义"))
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .settingsSectionHeading()
 
             VStack(spacing: 0) {
                 ForEach(SwipeGestureDirection.allCases) { direction in
@@ -1205,13 +1172,11 @@ struct GestureSettingsView: View {
                     )
 
                     if direction != .up {
-                        Divider()
-                            .background(PhotoDeleteStyle.hairline)
-                            .padding(.leading, 60)
+                        SettingsHairline()
                     }
                 }
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
     }
 
@@ -1221,11 +1186,16 @@ struct GestureSettingsView: View {
         }) {
             HStack(spacing: 8) {
                 Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.body.weight(.semibold))
                 Text(L10n.string("恢复默认"))
             }
+            .font(.body.weight(.semibold))
+            .foregroundStyle(SettingsChrome.ink)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 52)
+            .background(SettingsChrome.surface, in: Capsule())
         }
-        .photoDeleteSecondaryButton()
+        .buttonStyle(.plain)
     }
 
     private func currentAction(for direction: SwipeGestureDirection) -> SwipeGestureAction {
@@ -1270,55 +1240,40 @@ private struct GesturePreviewTile: View {
     let action: SwipeGestureAction
 
     var body: some View {
-        VStack(spacing: 8) {
-            PhotoDeleteIconTile(
-                icon: direction.icon,
-                tint: action.tint,
-                size: 34,
-                cornerRadius: 10
-            )
+        VStack(alignment: .leading, spacing: 4) {
+            Text(direction.title.appLocalized)
+                .settingsRowTitle()
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
 
-            VStack(spacing: 3) {
-                Text(direction.title.appLocalized)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-
-                Text(action.title.appLocalized)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-            }
+            Text(action.title.appLocalized)
+                .settingsRowValue()
+                .lineLimit(2)
         }
-        .padding(.vertical, 14)
-        .frame(maxWidth: .infinity)
-        .photoDeleteCard()
+        .padding(16)
+        .frame(maxWidth: .infinity, minHeight: SettingsChrome.rowMinHeight, alignment: .leading)
+        .settingsGroupedCard()
+        .accessibilityElement(children: .combine)
     }
 }
 
 private struct FixedGestureNoteRow: View {
-    let icon: String
     let title: String
     let detail: String
-    var color = PhotoDeleteStyle.accent
 
     var body: some View {
-        HStack(spacing: 12) {
-            PhotoDeleteIconTile(icon: icon, tint: color, size: 36, cornerRadius: 10)
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title.appLocalized)
+                .settingsRowTitle()
+                .lineLimit(1)
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title.appLocalized)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-                    .lineLimit(1)
-
-                Text(detail.appLocalized)
-                    .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-                    .lineLimit(2)
-            }
-
-            Spacer()
+            Text(detail.appLocalized)
+                .settingsRowValue()
+                .lineLimit(2)
         }
-        .padding(16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity, minHeight: SettingsChrome.rowMinHeight, alignment: .leading)
         .accessibilityElement(children: .combine)
     }
 }
@@ -1332,27 +1287,21 @@ private struct GesturePresetButton: View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Text(preset.title.appLocalized)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .settingsRowTitle()
                     .lineLimit(1)
 
                 Spacer()
 
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 19, weight: .semibold))
-                    .foregroundColor(isSelected ? PhotoDeleteStyle.positive : PhotoDeleteStyle.tertiaryText)
+                SettingsSelectionMark(isSelected: isSelected)
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
-                    .fill(PhotoDeleteStyle.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
-                            .stroke(isSelected ? PhotoDeleteStyle.positive.opacity(0.38) : PhotoDeleteStyle.hairline, lineWidth: 1)
-                    )
-            )
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .frame(minHeight: SettingsChrome.rowMinHeight)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .settingsGroupedCard()
         .accessibilityHint(Text(preset.subtitle.appLocalized))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityValue(Text(isSelected ? L10n.string("已选") : L10n.string("未选择")))
@@ -1366,19 +1315,11 @@ private struct GestureActionPickerRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(
-                icon: direction.icon,
-                tint: selectedAction.tint,
-                size: 36,
-                cornerRadius: 10
-            )
-
             Text(direction.title.appLocalized)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .settingsRowTitle()
                 .lineLimit(1)
 
-            Spacer()
+            Spacer(minLength: 12)
 
             Menu {
                 ForEach(SwipeGestureAction.configurableCases) { action in
@@ -1391,28 +1332,24 @@ private struct GestureActionPickerRow: View {
             } label: {
                 HStack(spacing: 6) {
                     Text(selectedAction.title.appLocalized)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.subheadline.weight(.semibold))
                     Image(systemName: "chevron.down")
                         .font(.system(size: 10, weight: .bold))
                 }
-                .foregroundColor(PhotoDeleteStyle.primaryText)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule(style: .continuous)
-                        .fill(PhotoDeleteStyle.elevatedSurface)
-                        .overlay(
-                            Capsule(style: .continuous)
-                                .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
-                        )
-                    )
-                .photoDeleteMinimumTapTarget()
+                .foregroundStyle(SettingsChrome.ink)
+                .padding(.horizontal, 16)
+                .frame(height: 36)
+                .background(Capsule().fill(SettingsChrome.pill))
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
             }
             .accessibilityLabel(Text("\(direction.title.appLocalized) \(L10n.string("手势"))"))
             .accessibilityValue(Text(selectedAction.title.appLocalized))
             .accessibilityHint(Text(selectedAction.detailTitle.appLocalized))
         }
-        .padding(16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(minHeight: SettingsChrome.rowMinHeight)
     }
 }
 
@@ -1426,18 +1363,18 @@ private struct LanguageSettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                PhotoDeleteScreenBackground()
+                SettingsChrome.canvas
+                    .ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(L10n.string("显示语言"))
-                                .font(.system(size: 24, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.primaryText)
+                                .settingsSectionHeading()
 
                             Text(L10n.string("默认跟随 iPhone 系统语言。也可以在这里固定删图的显示语言。"))
-                                .font(.system(size: 15, weight: .regular))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .font(.body)
+                                .foregroundStyle(SettingsChrome.muted)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
@@ -1445,8 +1382,8 @@ private struct LanguageSettingsView: View {
 
                         languageList
                     }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                    .padding(.top, 20)
+                    .padding(.horizontal, SettingsChrome.pageInset)
+                    .padding(.top, 16)
                     .padding(.bottom, 24)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
@@ -1454,12 +1391,13 @@ private struct LanguageSettingsView: View {
             }
             .navigationTitle(L10n.string("语言"))
             .navigationBarTitleDisplayMode(.inline)
+            .settingsNavigationChrome()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(L10n.string("完成")) {
                         dismiss()
                     }
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundStyle(SettingsChrome.accent)
                 }
             }
         }
@@ -1489,15 +1427,20 @@ private struct LanguageSettingsView: View {
     private var searchField: some View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(SettingsChrome.muted)
 
-            TextField(L10n.string("搜索语言"), text: $searchText)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .font(.system(size: 16, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
-                .submitLabel(.search)
+            TextField(
+                "",
+                text: $searchText,
+                prompt: Text(L10n.string("搜索语言")).foregroundColor(SettingsChrome.muted)
+            )
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+            .font(.body)
+            .foregroundStyle(SettingsChrome.ink)
+            .submitLabel(.search)
+            .accessibilityLabel(Text(L10n.string("搜索语言")))
 
             if !searchText.isEmpty {
                 Button {
@@ -1505,22 +1448,19 @@ private struct LanguageSettingsView: View {
                     HapticManager.impact(.light)
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(SettingsChrome.muted)
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(L10n.string("清除搜索")))
             }
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
         .frame(minHeight: 44)
         .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
-                )
+            RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous)
+                .fill(SettingsChrome.surface)
         )
         .accessibilityHint(Text(L10n.string("按语言名称、地区或代码搜索")))
     }
@@ -1530,29 +1470,27 @@ private struct LanguageSettingsView: View {
         if visibleLanguages.isEmpty {
             VStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(SettingsChrome.muted)
 
                 Text(L10n.string("未找到匹配语言"))
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(SettingsChrome.muted)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 28)
-            .photoDeleteCard()
+            .settingsGroupedCard()
         } else {
             VStack(spacing: 0) {
                 ForEach(visibleLanguages) { language in
                     languageRow(language)
 
                     if language != visibleLanguages.last {
-                        Divider()
-                            .background(PhotoDeleteStyle.hairline)
-                            .padding(.leading, 16)
+                        SettingsHairline()
                     }
                 }
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
     }
 
@@ -1562,21 +1500,14 @@ private struct LanguageSettingsView: View {
             HapticManager.impact(.light)
         } label: {
             HStack(spacing: 12) {
-                Image(systemName: selectedLanguage == language ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(selectedLanguage == language ? PhotoDeleteStyle.positive : PhotoDeleteStyle.tertiaryText)
-                    .frame(width: 24, height: 24)
-
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(language.title)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .settingsRowTitle()
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
 
                     Text(language.detail)
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .settingsRowValue()
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
                 }
@@ -1585,17 +1516,18 @@ private struct LanguageSettingsView: View {
 
                 if language.isRightToLeft {
                     Text("RTL")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule(style: .continuous)
-                                .fill(PhotoDeleteStyle.elevatedSurface)
-                        )
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(SettingsChrome.ink)
+                        .padding(.horizontal, 8)
+                        .frame(height: 22)
+                        .background(Capsule().fill(SettingsChrome.pill))
                 }
+
+                SettingsSelectionMark(isSelected: selectedLanguage == language)
             }
-            .padding(16)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .frame(minHeight: SettingsChrome.rowMinHeight)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -1623,23 +1555,24 @@ private struct AppearanceSettingsView: View {
     @State private var showingSupporter = false
 
     private let themeColumns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
     ]
 
     var body: some View {
         NavigationStack {
             ZStack {
-                PhotoDeleteScreenBackground()
+                SettingsChrome.canvas
+                    .ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: 16) {
                         headerSection
                         themeSection
                         appearanceSection
                     }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                    .padding(.top, 20)
+                    .padding(.horizontal, SettingsChrome.pageInset)
+                    .padding(.top, 16)
                     .padding(.bottom, 24)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
@@ -1647,12 +1580,13 @@ private struct AppearanceSettingsView: View {
             }
             .navigationTitle(L10n.string("主题与外观"))
             .navigationBarTitleDisplayMode(.inline)
+            .settingsNavigationChrome()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(L10n.string("完成")) {
                         dismiss()
                     }
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundStyle(SettingsChrome.accent)
                 }
             }
         }
@@ -1670,27 +1604,27 @@ private struct AppearanceSettingsView: View {
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.string("主题与外观"))
-                .font(.system(size: 24, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .settingsSectionHeading()
 
             Text(L10n.string("选择界面色调，以及日间、夜间或跟随系统外观。"))
-                .font(.system(size: 15, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .font(.body)
+                .foregroundStyle(SettingsChrome.muted)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     private var themeSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(L10n.string("界面色调"))
-                    .photoDeleteSectionHeading()
+                    .settingsSectionHeading()
 
                 Text(canChooseThemes ? L10n.string("色调会影响背景、图标、按钮和选中状态。") : L10n.string("支持者版可切换更多主题。"))
-                    .photoDeleteSecondaryLabel(.subheadline)
+                    .settingsRowValue()
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
-            LazyVGrid(columns: themeColumns, spacing: 10) {
+            LazyVGrid(columns: themeColumns, spacing: 12) {
                 ForEach(PhotoDeleteTheme.allCases) { theme in
                     themeButton(theme)
                 }
@@ -1717,32 +1651,28 @@ private struct AppearanceSettingsView: View {
                     Spacer(minLength: 8)
                     Image(systemName: themeStatusImage(isSelected: isSelected, isLocked: isLocked))
                         .font(.body.weight(.semibold))
-                        .foregroundStyle(isSelected ? theme.selectionTint : PhotoDeleteStyle.tertiaryText)
+                        .foregroundStyle(isLocked || isSelected ? SettingsChrome.accent : SettingsChrome.muted)
+                        .accessibilityHidden(true)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(theme.title)
-                        .font(.body.weight(.semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .settingsRowTitle()
                         .lineLimit(1)
 
                     Text(theme.subtitle)
-                        .photoDeleteSecondaryLabel(.caption)
+                        .settingsRowValue()
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(14)
+            .padding(16)
             .frame(maxWidth: .infinity, minHeight: 138, alignment: .topLeading)
             .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(isSelected ? theme.primaryAccentSoftFill : PhotoDeleteStyle.surfaceFill(for: selectedTheme, elevated: true))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .stroke(isSelected ? theme.primaryAccentSoftStroke : PhotoDeleteStyle.strokeFill(for: selectedTheme), lineWidth: 1)
-                    )
+                RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous)
+                    .fill(SettingsChrome.surface)
             )
-            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous))
             .opacity(isLocked ? 0.76 : 1)
         }
         .buttonStyle(.plain)
@@ -1752,9 +1682,9 @@ private struct AppearanceSettingsView: View {
     }
 
     private var appearanceSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.string("外观"))
-                .photoDeleteSectionHeading()
+                .settingsSectionHeading()
 
             VStack(spacing: 0) {
                 ForEach(AppAppearance.allCases) { appearance in
@@ -1763,26 +1693,18 @@ private struct AppearanceSettingsView: View {
                         HapticManager.impact(.light)
                     } label: {
                         HStack(spacing: 12) {
-                            PhotoDeleteIconTile(
-                                icon: appearance.icon,
-                                tint: selectedAppearance == appearance ? selectedTheme.selectionTint : PhotoDeleteStyle.tertiaryText,
-                                size: 30,
-                                cornerRadius: 9
-                            )
-
                             Text(appearance.title)
-                                .font(.body.weight(.semibold))
-                                .foregroundColor(PhotoDeleteStyle.primaryText)
+                                .settingsRowTitle()
                                 .lineLimit(1)
 
                             Spacer()
 
-                            Image(systemName: selectedAppearance == appearance ? "checkmark.circle.fill" : "circle")
-                                .font(.body.weight(.semibold))
-                                .foregroundStyle(selectedAppearance == appearance ? selectedTheme.selectionTint : PhotoDeleteStyle.tertiaryText)
+                            SettingsSelectionMark(isSelected: selectedAppearance == appearance)
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 16)
+                        .frame(minHeight: SettingsChrome.rowMinHeight)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityHint(Text(appearance.detail))
@@ -1790,13 +1712,11 @@ private struct AppearanceSettingsView: View {
                     .accessibilityValue(Text(selectedAppearance == appearance ? L10n.string("已选") : L10n.string("未选择")))
 
                     if appearance != AppAppearance.allCases.last {
-                        Divider()
-                            .background(PhotoDeleteStyle.hairline)
-                            .padding(.leading, 58)
+                        SettingsHairline()
                     }
                 }
             }
-            .photoDeleteCard()
+            .settingsGroupedCard()
         }
     }
 
@@ -1835,7 +1755,7 @@ private struct PhotoDeleteThemeSwatches: View {
                     .frame(width: 22, height: 22)
                     .overlay(
                         Circle()
-                            .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
+                            .stroke(SettingsChrome.canvas, lineWidth: 1)
                     )
             }
         }
