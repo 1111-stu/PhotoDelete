@@ -428,22 +428,6 @@ struct PhotoDeleteTests {
         )
     }
 
-    @Test func photoReviewModeNormalizesStoredValues() async throws {
-        #expect(PhotoReviewMode.normalized("browser") == .browser)
-        #expect(PhotoReviewMode.normalized("card") == .card)
-        #expect(PhotoReviewMode.normalized("unknown") == .card)
-        #expect(PhotoReviewMode.normalized(nil) == .card)
-        #expect(PhotoReviewMode.card.toggled == .browser)
-        #expect(PhotoReviewMode.browser.toggled == .card)
-    }
-
-    @Test func photoReviewModeSyncRefreshesAnchorWhenEnteringBrowser() async throws {
-        #expect(PhotoReviewModeSyncPolicy.shouldRefreshBrowserAnchor(from: .card, to: .browser))
-        #expect(!PhotoReviewModeSyncPolicy.shouldRefreshBrowserAnchor(from: .browser, to: .card))
-        #expect(!PhotoReviewModeSyncPolicy.shouldRefreshBrowserAnchor(from: .browser, to: .browser))
-        #expect(!PhotoReviewModeSyncPolicy.shouldRefreshBrowserAnchor(from: .card, to: .card))
-    }
-
     @Test func photoCategoryIncludesLivePhotosQuickEntry() async throws {
         #expect(PhotoCategory.allCases == [.all, .unclassified, .videos, .screenshots, .livePhotos, .favorites])
         #expect(PhotoCategory.unclassified.rawValue == "未归类照片")
@@ -2337,15 +2321,6 @@ struct PhotoDeleteTests {
             isUndoInProgress: true,
             pendingFavoriteMutationCount: 0
         ))
-    }
-
-    @Test func twoRowBrowserSignatureDetectsMiddleReplacementAndReordering() async throws {
-        let original = TwoRowPhotoBrowserView.AssetSignature(identifiers: ["first", "middle", "last"])
-        let replaced = TwoRowPhotoBrowserView.AssetSignature(identifiers: ["first", "other", "last"])
-        let reordered = TwoRowPhotoBrowserView.AssetSignature(identifiers: ["first", "last", "middle"])
-
-        #expect(original != replaced)
-        #expect(original != reordered)
     }
 
     @Test func reviewSessionInitialTargetPrioritizesNewPhotosBeforeSavedProgress() async throws {

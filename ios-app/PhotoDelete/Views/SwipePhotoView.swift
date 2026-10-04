@@ -621,13 +621,6 @@ struct SwipePhotoView: View {
         randomReviewScope == .memories
     }
 
-    private var usesPersistedReviewedStateForSession: Bool {
-        PhotoReviewSessionReviewedStatePolicy.usesPersistedReviewedState(
-            isAlbumMode: isAlbumMode,
-            isRandomMemoriesMode: isRandomMemoriesMode
-        )
-    }
-
     private var shouldPageSessionPhotos: Bool {
         selectedAdvancedCleanup == nil
     }

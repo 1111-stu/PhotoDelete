@@ -109,7 +109,6 @@ private enum PhotoDeleteUITestDefaults {
             AppConstants.reviewMediaAutoPlayKey,
             AppConstants.reviewLivePhotoAutoPlayKey,
             AppConstants.reviewVideoMutedKey,
-            AppConstants.reviewModeKey,
             AppConstants.reviewSortOrderKey,
             AppConstants.reviewAlbumShortcutsExpandedKey,
             AppConstants.hasSeenAlbumShortcutHintKey,
