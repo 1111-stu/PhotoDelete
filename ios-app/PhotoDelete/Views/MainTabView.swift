@@ -50,6 +50,7 @@ struct MainTabView: View {
             purchaseManager.refreshEntitlementsAfterForegroundActivationIfNeeded()
         }
         .onReceive(NotificationCenter.default.publisher(for: AppConstants.openAlbumsTabNotificationName)) { _ in
+            guard AppConstants.showsAlbumsTab else { return }
             selectedTab = .albums
         }
     }
@@ -63,12 +64,14 @@ struct MainTabView: View {
                 }
                 .tag(PhotoDeleteMainTab.organize)
             
-            tabContent(for: .albums)
-                .tabItem {
-                    Image(systemName: PhotoDeleteMainTab.albums.systemImage)
-                    Text(PhotoDeleteMainTab.albums.title)
-                }
-                .tag(PhotoDeleteMainTab.albums)
+            if AppConstants.showsAlbumsTab {
+                tabContent(for: .albums)
+                    .tabItem {
+                        Image(systemName: PhotoDeleteMainTab.albums.systemImage)
+                        Text(PhotoDeleteMainTab.albums.title)
+                    }
+                    .tag(PhotoDeleteMainTab.albums)
+            }
 
             tabContent(for: .advanced)
                 .tabItem {

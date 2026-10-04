@@ -1796,7 +1796,9 @@ struct SwipePhotoView: View {
                 )
 
                 VStack(spacing: AlbumShortcutLayout.controlStackSpacing) {
-                    AlbumShortcutManageButton(action: openAlbumsTab)
+                    if AppConstants.showsAlbumsTab {
+                        AlbumShortcutManageButton(action: openAlbumsTab)
+                    }
 
                     AlbumShortcutVisibilityButton(isExpanded: true, showsTitle: false) {
                         toggleAlbumShortcutVisibility()
