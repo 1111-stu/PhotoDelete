@@ -48,6 +48,7 @@ enum PhotoDeleteStyle {
 
     #if canImport(UIKit)
     static var background: Color { PhotoDeleteTheme.current.backgroundBottom }
+    static let reviewCanvas = Color(red: 0.105, green: 0.108, blue: 0.115)
     static var backgroundTop: Color { PhotoDeleteTheme.current.backgroundTop }
     static var surface: Color { PhotoDeleteTheme.current.surface }
     static var elevatedSurface: Color { PhotoDeleteTheme.current.elevatedSurface }

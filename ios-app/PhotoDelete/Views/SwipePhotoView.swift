@@ -739,7 +739,8 @@ struct SwipePhotoView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PhotoDeleteStyle.reviewCanvas
+                .ignoresSafeArea()
 
             GeometryReader { geometry in
                 let usesSidebar = PhotoDeleteAdaptiveLayout.prefersReviewSidebar(
@@ -1012,7 +1013,7 @@ struct SwipePhotoView: View {
                                 .background(Capsule(style: .continuous).fill(PhotoDeleteStyle.destructive))
                                 .overlay(
                                     Capsule(style: .continuous)
-                                        .stroke(PhotoDeleteStyle.background, lineWidth: 2)
+                                        .stroke(PhotoDeleteStyle.reviewCanvas, lineWidth: 2)
                                 )
                                 .offset(x: 4, y: -4)
                         }
@@ -1028,13 +1029,7 @@ struct SwipePhotoView: View {
         .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
         .padding(.top, 16)
         .padding(.bottom, 12)
-        .background(PhotoDeleteStyle.background.opacity(0.86))
-        .overlay(
-            Rectangle()
-                .fill(PhotoDeleteStyle.hairline)
-                .frame(height: 1),
-            alignment: .bottom
-        )
+        .background(PhotoDeleteStyle.reviewCanvas)
     }
 
     // MARK: - 照片区域
@@ -1154,7 +1149,7 @@ struct SwipePhotoView: View {
 
     private func cardPhotoArea(asset: PHAsset, in containerSize: CGSize) -> some View {
         let cardSize = photoCardSize(in: containerSize)
-        let pageStride = (containerSize.width + cardSize.width) / 2
+        let pageStride = containerSize.width
 
         return ZStack {
             ForEach(horizontalPageEntries()) { page in
@@ -1217,21 +1212,12 @@ struct SwipePhotoView: View {
                         feedback: feedback,
                         downSwipeBehavior: .fileIntoAlbum
                     )
-                        .allowsHitTesting(false)
+                    .allowsHitTesting(false)
                 }
             }
             .overlay(alignment: isInlineVideoPlaying ? .topTrailing : .bottomTrailing) {
                 if isCurrent {
                 HStack(spacing: 8) {
-                    if InlineVideoPreviewControlVisibility.shouldShow(
-                        isVideo: asset.mediaType == .video,
-                        isVideoPlaying: isInlineVideoPlaying
-                    ) {
-                        VideoPreviewExpandButton {
-                            presentAssetPreview(asset)
-                        }
-                    }
-
                     if shouldShowSessionMuteButton {
                         SessionMuteToggleButton(isMuted: reviewVideoMuted, action: toggleSessionVideoMuted)
                     }
@@ -1521,19 +1507,15 @@ struct SwipePhotoView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 9)
         .background(
-            Capsule(style: .continuous)
-                .fill(PhotoDeleteStyle.surface)
-                .overlay(
-                    Capsule(style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
-                )
+                Capsule(style: .continuous)
+                    .fill(PhotoDeleteStyle.reviewCanvas)
         )
         .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
     }
 
     private var completionOverlay: some View {
         ZStack {
-            PhotoDeleteStyle.background.opacity(0.78)
+            PhotoDeleteStyle.reviewCanvas.opacity(0.96)
                 .ignoresSafeArea()
 
             VStack(spacing: 18) {
@@ -1668,17 +1650,7 @@ struct SwipePhotoView: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 8)
-        .background(
-            LinearGradient(
-                colors: [
-                    PhotoDeleteStyle.background.opacity(0.08),
-                    PhotoDeleteStyle.background.opacity(0.94)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .overlay(PhotoDeleteStyle.hairline.opacity(0.65).frame(height: 1), alignment: .top)
-        )
+        .background(PhotoDeleteStyle.reviewCanvas)
     }
 
     private var landscapeSidebar: some View {
@@ -1741,10 +1713,7 @@ struct SwipePhotoView: View {
         }
         .padding(.horizontal, 22)
         .padding(.vertical, 18)
-        .background(
-            PhotoDeleteStyle.background.opacity(0.92)
-                .overlay(PhotoDeleteStyle.hairline.frame(width: 1), alignment: .leading)
-        )
+        .background(PhotoDeleteStyle.reviewCanvas)
     }
 
     private var sessionSummaryPanel: some View {
@@ -2484,13 +2453,13 @@ struct SwipePhotoView: View {
     }
 
     private func photoCardSize(in containerSize: CGSize) -> CGSize {
-        let availableWidth = max(containerSize.width - 64, 180)
+        let availableWidth = max(containerSize.width, 180)
         let availableHeight = max(containerSize.height - 132, 220)
         let maxSize = PhotoDeleteAdaptiveLayout.reviewPhotoCardMaxSize(
             in: containerSize,
             horizontalSizeClass: horizontalSizeClass
         )
-        let width = min(availableWidth, maxSize.width)
+        let width = availableWidth
         let height = min(availableHeight, maxSize.height)
         return CGSize(width: width, height: height)
     }
@@ -4556,7 +4525,7 @@ struct RealPhotoCard: View {
                     onScrubbingChanged: { isScrubbingVideo = $0 }
                 )
                 .frame(width: displaySize.width, height: displaySize.height)
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .clipShape(Rectangle())
                 .overlay(
                     candidateOverlay,
                     alignment: .center
@@ -4579,7 +4548,7 @@ struct RealPhotoCard: View {
                 }
                 .frame(width: displaySize.width, height: displaySize.height)
                 .clipped()
-                .cornerRadius(20)
+                .cornerRadius(0)
                 .overlay(
                     overlayContent,
                     alignment: .topTrailing
@@ -4600,7 +4569,7 @@ struct RealPhotoCard: View {
                 }
                     .frame(width: displaySize.width, height: displaySize.height)
                     .clipped()
-                    .cornerRadius(20)
+                    .cornerRadius(0)
                     .overlay(
                         overlayContent,
                         alignment: .topTrailing
@@ -4666,12 +4635,6 @@ struct RealPhotoCard: View {
                     .allowsHitTesting(false)
             }
         }
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
-                .allowsHitTesting(false)
-        )
-        .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 18, x: 0, y: 10)
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier("review-photo-card")
         .accessibilityLabel(L10n.string("当前照片"))
@@ -5692,7 +5655,7 @@ private struct ReviewAlbumFilingSheet: View {
                 .padding(.vertical, 12)
                 .accessibilityIdentifier("review-album-filing-continue")
             }
-            .background(PhotoDeleteStyle.background)
+        .background(Color.black)
             .navigationTitle(L10n.string("放进哪个相册?"))
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: L10n.string("搜索相册"))

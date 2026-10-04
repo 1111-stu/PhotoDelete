@@ -754,10 +754,8 @@ private final class TwoRowPhotoBrowserCell: UICollectionViewCell, UIGestureRecog
         }
 
         updateVideoPlayback(isVideoPlaying: isVideoPlaying, asset: asset)
-        previewVideoButton.isHidden = !InlineVideoPreviewControlVisibility.shouldShow(
-            isVideo: isVideo,
-            isVideoPlaying: isVideoPlaying
-        )
+        // Full-screen preview is intentionally removed from the browser chrome.
+        previewVideoButton.isHidden = true
     }
 
     private func setupViews() {
