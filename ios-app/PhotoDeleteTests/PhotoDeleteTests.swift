@@ -1437,8 +1437,8 @@ struct PhotoDeleteTests {
         #expect(AppAppearance.allCases.map(\.rawValue) == ["system", "light", "dark"])
     }
 
-    @Test func defaultPhotoDeleteThemeIsSage() async throws {
-        #expect(PhotoDeleteTheme.defaultTheme == .sage)
+    @Test func defaultPhotoDeleteThemeIsMoonly() async throws {
+        #expect(PhotoDeleteTheme.defaultTheme == .moonly)
     }
 
     @Test func appLanguageIncludesTraditionalChinese() async throws {
@@ -2102,6 +2102,87 @@ struct PhotoDeleteTests {
         #expect(PhotoRandomReviewNavigationPolicy.previousIndex(currentIndex: 1, count: 50) == 0)
         #expect(PhotoRandomReviewNavigationPolicy.nextIndex(currentIndex: 48, count: 50) == 49)
         #expect(PhotoRandomReviewNavigationPolicy.nextIndex(currentIndex: 49, count: 50) == nil)
+    }
+
+    @Test func randomReviewNavigationSkipsConsecutiveDeleteCandidatesInBothDirections() async throws {
+        let deleteCandidateIndices: Set<Int> = [1, 2, 3]
+
+        #expect(PhotoRandomReviewNavigationPolicy.nextIndex(
+            currentIndex: 0,
+            count: 5,
+            isExcluded: { deleteCandidateIndices.contains($0) }
+        ) == 4)
+        #expect(PhotoRandomReviewNavigationPolicy.previousIndex(
+            currentIndex: 4,
+            count: 5,
+            isExcluded: { deleteCandidateIndices.contains($0) }
+        ) == 0)
+    }
+
+    @Test func randomReviewNavigationStopsWhenOnlyDeleteCandidatesRemain() async throws {
+        let deleteCandidateIndices: Set<Int> = [0, 1, 3, 4]
+
+        #expect(PhotoRandomReviewNavigationPolicy.nextIndex(
+            currentIndex: 2,
+            count: 5,
+            isExcluded: { deleteCandidateIndices.contains($0) }
+        ) == nil)
+        #expect(PhotoRandomReviewNavigationPolicy.previousIndex(
+            currentIndex: 2,
+            count: 5,
+            isExcluded: { deleteCandidateIndices.contains($0) }
+        ) == nil)
+    }
+
+    @Test func randomReviewNavigationIncludesPhotoAgainAfterUndoingDeletion() async throws {
+        var deleteCandidateIndices: Set<Int> = [2]
+
+        #expect(PhotoRandomReviewNavigationPolicy.nextIndex(
+            currentIndex: 1,
+            count: 4,
+            isExcluded: { deleteCandidateIndices.contains($0) }
+        ) == 3)
+        #expect(PhotoRandomReviewNavigationPolicy.previousIndex(
+            currentIndex: 3,
+            count: 4,
+            isExcluded: { deleteCandidateIndices.contains($0) }
+        ) == 1)
+
+        deleteCandidateIndices.remove(2)
+
+        #expect(PhotoRandomReviewNavigationPolicy.nextIndex(
+            currentIndex: 1,
+            count: 4,
+            isExcluded: { deleteCandidateIndices.contains($0) }
+        ) == 2)
+        #expect(PhotoRandomReviewNavigationPolicy.previousIndex(
+            currentIndex: 3,
+            count: 4,
+            isExcluded: { deleteCandidateIndices.contains($0) }
+        ) == 2)
+    }
+
+    @Test func randomReviewNavigationSkipsLocalPendingAndCommittedDeletionCandidates() async throws {
+        let assetIdentifiers = ["keep-a", "pending-delete", "committed-delete", "keep-b"]
+        let pendingDeleteIdentifiers: Set<String> = ["pending-delete"]
+        let committedDeleteIdentifiers: Set<String> = ["committed-delete"]
+        let isExcluded: (Int) -> Bool = { index in
+            let assetIdentifier = assetIdentifiers[index]
+            return pendingDeleteIdentifiers.contains(assetIdentifier) ||
+                committedDeleteIdentifiers.contains(assetIdentifier)
+        }
+
+        #expect(!committedDeleteIdentifiers.contains("pending-delete"))
+        #expect(PhotoRandomReviewNavigationPolicy.nextIndex(
+            currentIndex: 0,
+            count: assetIdentifiers.count,
+            isExcluded: isExcluded
+        ) == 3)
+        #expect(PhotoRandomReviewNavigationPolicy.previousIndex(
+            currentIndex: 3,
+            count: assetIdentifiers.count,
+            isExcluded: isExcluded
+        ) == 0)
     }
 
     @Test func randomReviewWaitsForTheCompleteLibraryEvenWhenPartialPhotosExist() async throws {

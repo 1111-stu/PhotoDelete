@@ -140,7 +140,7 @@ struct MainTabView: View {
         let appearance = UITabBarAppearance()
         appearance.configureWithTransparentBackground()
         appearance.backgroundColor = PhotoDeleteTabBarColors.barBackground
-        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+        appearance.backgroundEffect = nil
         appearance.selectionIndicatorTintColor = PhotoDeleteTabBarColors.selectionPlate
         PhotoDeleteTabBarColors.apply(to: appearance)
         return appearance
@@ -151,7 +151,7 @@ private enum PhotoDeleteTabBarColors {
     static let selectedIcon = UIColor(red: 243.0 / 255.0, green: 177.0 / 255.0, blue: 76.0 / 255.0, alpha: 1)
     static let selectedLabel = UIColor(white: 1, alpha: 0.96)
     static let unselected = UIColor(red: 142.0 / 255.0, green: 144.0 / 255.0, blue: 152.0 / 255.0, alpha: 1)
-    static let barBackground = UIColor(red: 23.0 / 255.0, green: 24.0 / 255.0, blue: 31.0 / 255.0, alpha: 0.92)
+    static let barBackground = UIColor(red: 23.0 / 255.0, green: 24.0 / 255.0, blue: 31.0 / 255.0, alpha: 1)
     static let selectionPlate = UIColor(red: 44.0 / 255.0, green: 46.0 / 255.0, blue: 54.0 / 255.0, alpha: 1)
 
     static var selectedIconColor: Color { Color(uiColor: selectedIcon) }

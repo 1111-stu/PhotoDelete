@@ -277,6 +277,60 @@ final class PhotoDeleteUITests: XCTestCase {
     }
 
     @MainActor
+    func testRandomReviewSkipsDeletedPhotosAndSupportsVerticalGestures() throws {
+        installPhotoLibraryInterruptionMonitor(allowDeletionConfirmation: true)
+        let app = makeApp(completedOnboarding: true, seedLibrary: true)
+        app.launchArguments += ["-photoDeleteRandomReviewHideFiledPhotos", "NO"]
+        app.launch()
+        _ = allowFullPhotoLibraryAccessIfNeeded(app: app)
+        dismissMarketingSystemPrompts(app: app, allowDeletionConfirmation: true)
+        XCTAssertTrue(waitForHomeReady(in: app, language: "zh-Hans", timeout: 30))
+
+        let randomReview = app.buttons["home-random-review"]
+        XCTAssertTrue(randomReview.waitForExistence(timeout: 30))
+        randomReview.tap()
+        XCTAssertNotNil(waitForReviewDoneButton(in: app, timeout: 30))
+        let dismissHintButton = app.buttons["知道了"]
+        if dismissHintButton.exists, dismissHintButton.isHittable {
+            dismissHintButton.tap()
+        }
+
+        func isAtPosition(_ position: Int) -> Bool {
+            app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "\(position) / "))
+                .firstMatch.waitForExistence(timeout: 5)
+        }
+
+        XCTAssertTrue(isAtPosition(1))
+        let firstCard = app.descendants(matching: .any).matching(identifier: "review-photo-card").firstMatch
+        XCTAssertTrue(firstCard.waitForExistence(timeout: 5))
+        let initialFrame = firstCard.frame
+        let shortDragStart = firstCard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        shortDragStart.press(forDuration: 0.15, thenDragTo: shortDragStart.withOffset(CGVector(dx: 0, dy: -18)))
+        XCTAssertTrue(isAtPosition(1), "A short upward drag must keep the current photo.")
+        let restoredFrame = firstCard.frame
+        XCTAssertEqual(restoredFrame.minX, initialFrame.minX, accuracy: 1)
+        XCTAssertEqual(restoredFrame.minY, initialFrame.minY, accuracy: 1)
+        XCTAssertEqual(restoredFrame.width, initialFrame.width, accuracy: 1)
+        XCTAssertEqual(restoredFrame.height, initialFrame.height, accuracy: 1)
+
+        dragCardLeft(in: app)
+        XCTAssertTrue(isAtPosition(2))
+        dragCardUp(in: app)
+        XCTAssertTrue(isAtPosition(3))
+        let trashButton = app.buttons["review-trash-button"]
+        XCTAssertEqual(trashButton.value as? String, "待删除 1 张")
+
+        dragCardRight(in: app)
+        XCTAssertTrue(isAtPosition(1), "Previous navigation must skip the deleted second photo.")
+        dragCardLeft(in: app)
+        XCTAssertTrue(isAtPosition(3), "Next navigation must skip the deleted second photo.")
+        XCTAssertEqual(trashButton.value as? String, "待删除 1 张")
+
+        dragCardDown(in: app)
+        XCTAssertTrue(app.staticTexts["放进哪个相册?"].waitForExistence(timeout: 8))
+    }
+
+    @MainActor
     func testSeededReviewCanRapidlyFileSeveralPhotosAcrossWritableAlbums() throws {
         installPhotoLibraryInterruptionMonitor(allowDeletionConfirmation: true)
 
@@ -618,8 +672,13 @@ final class PhotoDeleteUITests: XCTestCase {
         let upEnd = videoPlayer.coordinate(withNormalizedOffset: CGVector(dx: 0.72, dy: 0.18))
         upStart.press(forDuration: 0.15, thenDragTo: upEnd)
 
-        XCTAssertTrue(
-            app.staticTexts["待删除 1 张"].waitForExistence(timeout: 5),
+        let deleteQueued = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", "待删除 1 张"),
+            object: app.buttons["review-trash-button"]
+        )
+        XCTAssertEqual(
+            XCTWaiter.wait(for: [deleteQueued], timeout: 5),
+            .completed,
             "Swipe up from the video body should stage it for deletion."
         )
     }
@@ -1030,6 +1089,7 @@ final class PhotoDeleteUITests: XCTestCase {
         _ = tapFirstExistingButton(in: app, labels: ["统计", "Stats", "照片库概览", "Library overview"], timeout: 5)
     }
 
+    @MainActor
     private func openSettingsTab(in app: XCUIApplication) {
         tapTabItem(in: app, labels: ["设置", "Settings"], fallbackOffset: CGVector(dx: 0.88, dy: 0.96))
     }
@@ -1184,6 +1244,7 @@ final class PhotoDeleteUITests: XCTestCase {
         }
     }
 
+    @MainActor
     private func dragCardLeft(in app: XCUIApplication) {
         if usesWideMarketingLayout(app) {
             drag(in: app, from: CGVector(dx: 0.52, dy: 0.58), to: CGVector(dx: 0.16, dy: 0.58))
