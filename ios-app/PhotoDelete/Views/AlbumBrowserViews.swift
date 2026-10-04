@@ -326,10 +326,6 @@ struct AlbumDisplayStyleSheet: View {
     }
 }
 
-private final class AlbumThumbnailRequestBox: @unchecked Sendable {
-    var id: PHImageRequestID?
-}
-
 struct AlbumCoverTile: View {
     let title: String
     let photosCount: Int
@@ -378,6 +374,7 @@ struct AlbumAssetThumbnail: View {
 
     @State private var image: UIImage?
     @State private var requestID: PHImageRequestID?
+    @State private var loadGeneration = 0
 
     var body: some View {
         Color.clear
@@ -390,6 +387,7 @@ struct AlbumAssetThumbnail: View {
                         if let image {
                             Image(uiImage: image)
                                 .resizable()
+                                .interpolation(.high)
                                 .scaledToFill()
                                 .frame(width: proxy.size.width, height: proxy.size.height)
                         } else {
@@ -400,23 +398,25 @@ struct AlbumAssetThumbnail: View {
                     }
                     .frame(width: proxy.size.width, height: proxy.size.height)
                     .clipped()
+                    .task(id: "\(assetID ?? "")-\(Int(proxy.size.width.rounded()))") {
+                        load(side: proxy.size.width)
+                    }
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        .task(id: assetID) {
-            await load()
-        }
         .onDisappear {
             cancel()
         }
     }
 
     @MainActor
-    private func load() async {
+    private func load(side: CGFloat) {
         cancel()
-        guard let assetID else {
-            image = nil
+        guard let assetID, side > 1 else {
+            if assetID == nil {
+                image = nil
+            }
             return
         }
 
@@ -426,33 +426,18 @@ struct AlbumAssetThumbnail: View {
             return
         }
 
+        loadGeneration += 1
+        let generation = loadGeneration
         let scale = UIScreen.main.scale
-        let target = CGSize(width: 180 * scale, height: 180 * scale)
-        let requestBox = AlbumThumbnailRequestBox()
+        let pixels = side * scale
+        let target = CGSize(width: pixels, height: pixels)
         let manager = photoLibraryManager
-        let loaded: UIImage? = await withTaskCancellationHandler {
-            await withCheckedContinuation { continuation in
-                var hasResumed = false
-                let resume: (UIImage?) -> Void = { value in
-                    guard !hasResumed else { return }
-                    hasResumed = true
-                    continuation.resume(returning: value)
-                }
-                let id = manager.loadAlbumListThumbnail(for: asset, size: target) { image in
-                    resume(image)
-                }
-                requestBox.id = id
-                requestID = id
-            }
-        } onCancel: {
-            if let id = requestBox.id {
-                manager.cancelImageRequest(id)
+        requestID = manager.loadAlbumCoverThumbnail(for: asset, size: target) { loaded in
+            guard generation == loadGeneration else { return }
+            if let loaded {
+                image = loaded
             }
         }
-
-        guard !Task.isCancelled else { return }
-        image = loaded
-        requestID = nil
     }
 
     private func cancel() {

@@ -1454,6 +1454,47 @@ class PhotoLibraryManager: NSObject, ObservableObject {
         }
     }
 
+    /// Square cover loader. A fast preview may arrive first; the completion is called again with the full-size image.
+    @discardableResult
+    func loadAlbumCoverThumbnail(
+        for asset: PHAsset,
+        size: CGSize,
+        completion: @escaping (UIImage?) -> Void
+    ) -> PHImageRequestID? {
+        let cacheKey = imageCacheKey(for: asset, purpose: "albumCover", size: size)
+
+        if let cachedImage = imageCache.object(forKey: cacheKey) {
+            completion(cachedImage)
+            return nil
+        }
+
+        let options = PHImageRequestOptions()
+        options.deliveryMode = .opportunistic
+        options.resizeMode = .exact
+        options.isNetworkAccessAllowed = true
+        options.isSynchronous = false
+
+        return imageManager.requestImage(
+            for: asset,
+            targetSize: size,
+            contentMode: .aspectFill,
+            options: options
+        ) { [weak self] image, info in
+            DispatchQueue.main.async {
+                let isCancelled = (info?[PHImageCancelledKey] as? Bool) == true
+                let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) == true
+                guard !isCancelled else { return }
+
+                if let image {
+                    self?.cacheImage(image, forKey: cacheKey, isDegraded: isDegraded)
+                    completion(image)
+                } else if !isDegraded {
+                    completion(nil)
+                }
+            }
+        }
+    }
+
     @discardableResult
     func loadSwipePreview(for asset: PHAsset, size: CGSize, completion: @escaping (UIImage?) -> Void) -> PHImageRequestID? {
         let cacheKey = imageCacheKey(for: asset, purpose: "swipe", size: size)
