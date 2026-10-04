@@ -380,21 +380,30 @@ struct AlbumAssetThumbnail: View {
     @State private var requestID: PHImageRequestID?
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+        Color.clear
+            .aspectRatio(1, contentMode: .fit)
+            .overlay {
+                GeometryReader { proxy in
+                    ZStack {
+                        PhotoDeleteStyle.elevatedSurface
 
-            if let image {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } else {
-                Image(systemName: emptyIcon)
-                    .font(.title2.weight(.medium))
-                    .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        if let image {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: proxy.size.width, height: proxy.size.height)
+                        } else {
+                            Image(systemName: emptyIcon)
+                                .font(.title2.weight(.medium))
+                                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        }
+                    }
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .clipped()
+                }
             }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .task(id: assetID) {
             await load()
         }
