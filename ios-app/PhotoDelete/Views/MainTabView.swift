@@ -20,9 +20,11 @@ struct MainTabView: View {
     
     var body: some View {
         tabRoot
-        .tint(theme.navigationTint)
         .onAppear {
             configureTabBarAppearance()
+            DispatchQueue.main.async {
+                configureTabBarAppearance()
+            }
             dataManager.syncPhotoLibraryAuthorization()
             Task {
                 await purchaseManager.activateStoreKit()
@@ -58,6 +60,7 @@ struct MainTabView: View {
     private var tabRoot: some View {
         TabView(selection: $selectedTab) {
             tabContent(for: .organize)
+                .tint(theme.navigationTint)
                 .tabItem {
                     Image(systemName: PhotoDeleteMainTab.organize.systemImage)
                     Text(PhotoDeleteMainTab.organize.title)
@@ -66,6 +69,7 @@ struct MainTabView: View {
             
             if AppConstants.showsAlbumsTab {
                 tabContent(for: .albums)
+                    .tint(theme.navigationTint)
                     .tabItem {
                         Image(systemName: PhotoDeleteMainTab.albums.systemImage)
                         Text(PhotoDeleteMainTab.albums.title)
@@ -74,12 +78,15 @@ struct MainTabView: View {
             }
 
             tabContent(for: .settings)
+                .tint(theme.navigationTint)
                 .tabItem {
                     Image(systemName: PhotoDeleteMainTab.settings.systemImage)
                     Text(PhotoDeleteMainTab.settings.title)
                 }
                 .tag(PhotoDeleteMainTab.settings)
         }
+        .tint(PhotoDeleteTabBarColors.selectedIconColor)
+        .toolbarColorScheme(.dark, for: .tabBar)
     }
 
     @ViewBuilder
@@ -106,28 +113,84 @@ struct MainTabView: View {
     }
 
     private func configureTabBarAppearance() {
+        let customBackground = Self.customTabBarBackgroundAppearance()
+        let tabBarProxy = UITabBar.appearance()
+        if let customBackground {
+            tabBarProxy.standardAppearance = customBackground
+            tabBarProxy.scrollEdgeAppearance = customBackground
+        }
+        tabBarProxy.tintColor = PhotoDeleteTabBarColors.selectedIcon
+        tabBarProxy.unselectedItemTintColor = PhotoDeleteTabBarColors.unselected
+
+        for scene in UIApplication.shared.connectedScenes {
+            guard let windowScene = scene as? UIWindowScene else { continue }
+            for window in windowScene.windows {
+                window.rootViewController?.applyPhotoDeleteTabBarAppearance(customBackground)
+            }
+        }
+    }
+
+    /// Dark glass fill for system tab bars that still accept a custom background.
+    /// iOS 26 keeps Liquid Glass, so this returns nil and only item colors are applied.
+    private static func customTabBarBackgroundAppearance() -> UITabBarAppearance? {
         guard ProcessInfo.processInfo.operatingSystemVersion.majorVersion < 26 else {
-            return
+            return nil
         }
 
         let appearance = UITabBarAppearance()
         appearance.configureWithTransparentBackground()
-        appearance.backgroundColor = theme.uiBackground.withAlphaComponent(0.92)
-        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
-        appearance.selectionIndicatorTintColor = theme.uiTabSelected
+        appearance.backgroundColor = PhotoDeleteTabBarColors.barBackground
+        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+        appearance.selectionIndicatorTintColor = PhotoDeleteTabBarColors.selectionPlate
+        PhotoDeleteTabBarColors.apply(to: appearance)
+        return appearance
+    }
+}
 
-        appearance.stackedLayoutAppearance.normal.iconColor = theme.uiSecondaryText
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: theme.uiSecondaryText
-        ]
+private enum PhotoDeleteTabBarColors {
+    static let selectedIcon = UIColor(red: 243.0 / 255.0, green: 177.0 / 255.0, blue: 76.0 / 255.0, alpha: 1)
+    static let selectedLabel = UIColor(white: 1, alpha: 0.96)
+    static let unselected = UIColor(red: 142.0 / 255.0, green: 144.0 / 255.0, blue: 152.0 / 255.0, alpha: 1)
+    static let barBackground = UIColor(red: 23.0 / 255.0, green: 24.0 / 255.0, blue: 31.0 / 255.0, alpha: 0.92)
+    static let selectionPlate = UIColor(red: 44.0 / 255.0, green: 46.0 / 255.0, blue: 54.0 / 255.0, alpha: 1)
 
-        appearance.stackedLayoutAppearance.selected.iconColor = theme.uiTabSelected
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: theme.uiTabSelected
-        ]
+    static var selectedIconColor: Color { Color(uiColor: selectedIcon) }
 
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
+    static func apply(to appearance: UITabBarAppearance) {
+        apply(to: appearance.stackedLayoutAppearance)
+        apply(to: appearance.inlineLayoutAppearance)
+        apply(to: appearance.compactInlineLayoutAppearance)
+    }
+
+    static func apply(to item: UITabBarItemAppearance) {
+        item.normal.iconColor = unselected
+        item.normal.titleTextAttributes = [.foregroundColor: unselected]
+        item.selected.iconColor = selectedIcon
+        item.selected.titleTextAttributes = [.foregroundColor: selectedLabel]
+    }
+}
+
+private extension UIViewController {
+    func applyPhotoDeleteTabBarAppearance(_ customBackground: UITabBarAppearance?) {
+        if let tabBar = (self as? UITabBarController)?.tabBar {
+            if let customBackground {
+                tabBar.standardAppearance = customBackground
+                tabBar.scrollEdgeAppearance = customBackground
+            } else {
+                let standardAppearance = tabBar.standardAppearance
+                PhotoDeleteTabBarColors.apply(to: standardAppearance)
+                tabBar.standardAppearance = standardAppearance
+                if let scrollEdgeAppearance = tabBar.scrollEdgeAppearance {
+                    PhotoDeleteTabBarColors.apply(to: scrollEdgeAppearance)
+                    tabBar.scrollEdgeAppearance = scrollEdgeAppearance
+                }
+            }
+            tabBar.tintColor = PhotoDeleteTabBarColors.selectedIcon
+            tabBar.unselectedItemTintColor = PhotoDeleteTabBarColors.unselected
+        }
+
+        children.forEach { $0.applyPhotoDeleteTabBarAppearance(customBackground) }
+        presentedViewController?.applyPhotoDeleteTabBarAppearance(customBackground)
     }
 }
 
