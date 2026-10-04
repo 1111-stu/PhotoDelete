@@ -72,7 +72,7 @@ struct TimeOrganizeView: View {
                 }
                 .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
                 .padding(.top, PhotoDeleteStyle.rootContentTopSpacing)
-                .padding(.bottom, 96)
+                .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }

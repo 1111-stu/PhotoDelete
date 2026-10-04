@@ -14,18 +14,18 @@ import MessageUI
 #endif
 
 enum SettingsChrome {
-    static let canvas = Color(settingsRGB: 0x17181F)
-    static let surface = Color(settingsRGB: 0x22242A)
-    static let ink = Color.white
-    static let muted = Color(settingsRGB: 0xC8C9CD)
-    static let faint = Color(settingsRGB: 0x8E9098)
-    static let accent = Color(settingsRGB: 0xF3B14C)
-    static let divider = Color.white.opacity(0.10)
-    static let pill = Color.white.opacity(0.10)
-    static let pageInset: CGFloat = 16
-    static let cardRadius: CGFloat = 16
-    static let sectionSpacing: CGFloat = 16
-    static let rowMinHeight: CGFloat = 44
+    static let canvas = PhotoDeleteStyle.background
+    static let surface = PhotoDeleteStyle.surface
+    static let ink = PhotoDeleteStyle.primaryText
+    static let muted = PhotoDeleteStyle.secondaryText
+    static let faint = PhotoDeleteStyle.tertiaryText
+    static let accent = PhotoDeleteStyle.accent
+    static let divider = PhotoDeleteStyle.hairline
+    static let pill = PhotoDeleteStyle.elevatedSurface
+    static let pageInset: CGFloat = PhotoDeleteStyle.screenHorizontalPadding
+    static let cardRadius: CGFloat = PhotoDeleteStyle.cardRadius
+    static let sectionSpacing: CGFloat = PhotoDeleteStyle.sectionSpacing
+    static let rowMinHeight: CGFloat = PhotoDeleteStyle.rowMinHeight
 }
 
 private extension Color {
@@ -425,7 +425,7 @@ struct SettingsView: View {
         VStack {
             Spacer()
             PhotoDeleteToastView(toast: toast)
-                .padding(.bottom, 96)
+                .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
@@ -814,10 +814,10 @@ private struct AppPromotionRow: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 38, height: 38)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
+                            .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                     )
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -878,7 +878,7 @@ struct GestureSettingsView: View {
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
                     .padding(.top, 16)
-                    .padding(.bottom, 24)
+                    .padding(.bottom, PhotoDeleteStyle.Metrics.contentBottomPadding)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }
@@ -999,7 +999,7 @@ private struct LanguageSettingsView: View {
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
                     .padding(.top, 16)
-                    .padding(.bottom, 24)
+                    .padding(.bottom, PhotoDeleteStyle.Metrics.contentBottomPadding)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }

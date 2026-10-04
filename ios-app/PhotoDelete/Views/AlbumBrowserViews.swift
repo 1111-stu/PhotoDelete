@@ -298,7 +298,7 @@ struct AlbumDisplayStyleSheet: View {
             .frame(minHeight: 84)
             .foregroundStyle(isSelected ? PhotoDeleteStyle.accent : PhotoDeleteStyle.primaryText)
             .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
                     .fill(isSelected ? PhotoDeleteStyle.accent.opacity(0.16) : PhotoDeleteStyle.surface)
             )
         }
@@ -689,7 +689,7 @@ struct AlbumBrowserFilterSheet: View {
             .frame(minHeight: 78)
             .foregroundStyle(isSelected ? PhotoDeleteStyle.accent : PhotoDeleteStyle.primaryText)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
                     .fill(PhotoDeleteStyle.surface)
             )
             .overlay(

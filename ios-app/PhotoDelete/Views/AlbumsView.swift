@@ -109,7 +109,7 @@ struct AlbumsView: View {
                     if dataManager.photoLibraryManager.hasPhotoLibraryAccess && editMode != .active {
                         createAlbumButton
                             .padding(.trailing, 20)
-                            .padding(.bottom, 24)
+                            .padding(.bottom, PhotoDeleteStyle.Metrics.contentBottomPadding)
                     }
                 }
         }
@@ -196,7 +196,7 @@ struct AlbumsView: View {
         }
         .padding(.horizontal, 14)
         .frame(minHeight: 44)
-        .background(PhotoDeleteStyle.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(PhotoDeleteStyle.elevatedSurface, in: RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous))
     }
 
     private func createAlbum() {
@@ -274,7 +274,7 @@ struct AlbumsView: View {
             }
             .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
             .padding(.top, 4)
-            .padding(.bottom, 108)
+            .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
         }
         .scrollDismissesKeyboard(.immediately)
         .refreshable {
@@ -410,7 +410,7 @@ struct AlbumsView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 28)
+                .padding(.vertical, PhotoDeleteStyle.Metrics.contentBottomPadding)
         .listRowInsets(EdgeInsets(top: 0, leading: PhotoDeleteStyle.screenHorizontalPadding, bottom: 0, trailing: PhotoDeleteStyle.screenHorizontalPadding))
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
@@ -1065,7 +1065,7 @@ struct CreateAlbumView: View {
                                         .fill(PhotoDeleteStyle.surface)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                                                .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                                .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                                         )
                                 )
                         }

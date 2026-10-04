@@ -181,7 +181,7 @@ private struct LocationGroupThumbnail: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
                 .fill(PhotoDeleteStyle.elevatedSurface)
 
             if let image {
@@ -195,7 +195,7 @@ private struct LocationGroupThumbnail: View {
             }
         }
         .frame(width: 50, height: 50)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous))
         .onAppear(perform: loadImage)
         .onChange(of: asset?.localIdentifier) { _ in
             loadImage()

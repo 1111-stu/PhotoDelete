@@ -157,13 +157,13 @@ struct BatchConfirmView: View {
                                 )
                             }
                         }
-                        .padding(14)
+                        .padding(PhotoDeleteStyle.Metrics.contentBottomPadding)
                         .background(
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
                                 .fill(PhotoDeleteStyle.elevatedSurface)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                        .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
+                                        .stroke(PhotoDeleteStyle.cardStroke, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                                 )
                         )
                     } else {
@@ -191,7 +191,7 @@ struct BatchConfirmView: View {
                             .multilineTextAlignment(.center)
                     }
                 }
-                .padding(.vertical, 24)
+                .padding(.vertical, PhotoDeleteStyle.Metrics.contentBottomPadding)
             }
             .scrollIndicators(.hidden)
 
@@ -223,8 +223,8 @@ struct BatchConfirmView: View {
                     .frame(height: 1)
             }
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 18)
+        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+        .padding(.vertical, PhotoDeleteStyle.Metrics.contentBottomPadding)
         .photoDeleteCard()
         .frame(maxWidth: 620)
         .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)

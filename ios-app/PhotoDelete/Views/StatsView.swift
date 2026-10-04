@@ -110,10 +110,10 @@ private struct StatsScreen: View {
             }
             .padding(18)
             .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
                     .fill(PhotoDeleteStyle.surface)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
                             .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
                     )
             )
@@ -130,10 +130,10 @@ private struct StatsScreen: View {
                     .padding(18)
             }
             .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
                     .fill(PhotoDeleteStyle.surface)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
                             .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
                     )
             )
@@ -165,10 +165,10 @@ private struct StatsScreen: View {
         .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
         .padding(.horizontal, 14)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
                 .fill(PhotoDeleteStyle.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
                         .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
                 )
         )

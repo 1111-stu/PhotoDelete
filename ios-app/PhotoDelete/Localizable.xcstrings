@@ -4825,6 +4825,7 @@
       }
     },
     "主题切换" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -7306,6 +7307,7 @@
       }
     },
     "免费版保留随机整理、滑动整理和按时间整理；支持者版额外解锁完整时间列表、图片压缩、视频压缩、大文件清理、相似照片清理和主题切换。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -7344,6 +7346,9 @@
           }
         }
       }
+    },
+    "免费版保留随机整理、滑动整理和按时间整理；支持者版额外解锁完整时间列表、图片压缩、视频压缩、大文件清理和相似照片清理。" : {
+
     },
     "免费版保留随机整理、滑动整理和按时间整理；支持者版额外解锁完整时间列表、视频压缩、大文件清理、相似照片清理和主题切换。" : {
       "extractionState" : "stale",
@@ -21900,6 +21905,7 @@
       }
     },
     "年度 Pro 和永久 Pro 均可解锁完整时间列表、压缩、相似照片清理和主题切换。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -21938,6 +21944,9 @@
           }
         }
       }
+    },
+    "年度 Pro 和永久 Pro 均可解锁完整时间列表、压缩和相似照片清理。" : {
+
     },
     "年度 Pro 已启用" : {
       "localizations" : {
@@ -22060,6 +22069,7 @@
       }
     },
     "年度 Pro 解锁完整时间列表、大文件清理、视频压缩、相似照片清理和主题切换。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -22098,6 +22108,9 @@
           }
         }
       }
+    },
+    "年度 Pro 解锁完整时间列表、大文件清理、视频压缩和相似照片清理。" : {
+
     },
     "应用设置" : {
       "extractionState" : "stale",
@@ -30258,6 +30271,7 @@
       }
     },
     "暖砂色" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -30298,6 +30312,7 @@
       }
     },
     "更中性，突出照片内容。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -30611,6 +30626,7 @@
       }
     },
     "更温暖，适合长时间整理。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -32097,6 +32113,7 @@
       }
     },
     "柔和一点，减少纯白界面的工具感。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -35409,6 +35426,9 @@
         }
       }
     },
+    "深色照片画布，配合琥珀色操作反馈。" : {
+
+    },
     "深色背景，适合夜间整理" : {
       "localizations" : {
         "ar" : {
@@ -36045,6 +36065,7 @@
       }
     },
     "清透蓝" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -37186,6 +37207,9 @@
         }
       }
     },
+    "琥珀夜色" : {
+
+    },
     "生成压缩副本 %lld 个" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -38148,6 +38172,7 @@
       }
     },
     "石墨灰" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -43598,6 +43623,7 @@
       }
     },
     "还剩 %lld 天。试用期间可使用进阶清理、长期统计和主题切换。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -43636,6 +43662,9 @@
           }
         }
       }
+    },
+    "还剩 %lld 天。试用期间可使用进阶清理和长期统计。" : {
+
     },
     "还差 %@" : {
       "localizations" : {
@@ -47571,6 +47600,7 @@
       }
     },
     "青蓝背景，保持相册整理的清爽感。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -48493,6 +48523,7 @@
       }
     },
     "鼠尾草绿" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

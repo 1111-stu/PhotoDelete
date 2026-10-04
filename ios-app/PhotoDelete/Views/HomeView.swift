@@ -170,7 +170,7 @@ struct HomeView: View {
                                     horizontalSizeClass: horizontalSizeClass
                                 )
                             )
-                            .padding(.bottom, 112)
+                            .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
                             .frame(
                                 maxWidth: PhotoDeleteAdaptiveLayout.homeContentMaxWidth(
                                     in: geometry.size,
@@ -276,7 +276,7 @@ struct HomeView: View {
                     PhotoDeleteIconTile(
                         icon: "hand.draw",
                         size: 28,
-                        cornerRadius: 8
+                        cornerRadius: PhotoDeleteStyle.Metrics.compactRadius
                     )
 
                     VStack(alignment: .leading, spacing: 6) {
@@ -296,7 +296,7 @@ struct HomeView: View {
                         icon: "lock.shield",
                         tint: PhotoDeleteStyle.positive,
                         size: 28,
-                        cornerRadius: 8
+                        cornerRadius: PhotoDeleteStyle.Metrics.compactRadius
                     )
 
                     Text(L10n.string("隐私优先：\(AppConstants.privacyShortText)"))
@@ -405,7 +405,7 @@ struct HomeView: View {
                     .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
             }
         }
-        .padding(24)
+            .padding(PhotoDeleteStyle.Metrics.contentBottomPadding)
         .photoDeleteCard()
     }
 
@@ -608,7 +608,7 @@ struct HomeView: View {
                     .frame(width: 36, height: 36)
                     .background(
                         timelineAccent.opacity(colorScheme == .dark ? 0.18 : 0.12),
-                        in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        in: RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
                     )
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -738,7 +738,7 @@ struct HomeView: View {
                     .font(.system(size: 22, weight: .regular))
                     .foregroundColor(tint)
                     .frame(width: 42, height: 34)
-                    .background(tint.opacity(colorScheme == .dark ? 0.16 : 0.10), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+                    .background(tint.opacity(colorScheme == .dark ? 0.16 : 0.10), in: RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous))
                 Text(title)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(PhotoDeleteStyle.primaryText)

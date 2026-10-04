@@ -819,7 +819,7 @@ private struct AdvancedMiniMetric: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
                 .fill(PhotoDeleteStyle.elevatedSurface)
         )
     }
@@ -865,10 +865,10 @@ private struct AdvancedPeriodChip: View {
         .frame(width: 94, alignment: .leading)
         .padding(10)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
                 .fill(isSelected ? PhotoDeleteStyle.accent.opacity(0.16) : PhotoDeleteStyle.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
                         .stroke(isSelected ? PhotoDeleteStyle.accent.opacity(0.65) : PhotoDeleteStyle.hairline, lineWidth: 1)
                 )
         )
@@ -1089,10 +1089,10 @@ private struct AdvancedBottomPaywall: View {
         .padding(.bottom, 28)
         .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
                 .fill(PhotoDeleteStyle.background.opacity(0.98))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
                         .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
                 )
                 .ignoresSafeArea(edges: .bottom)
@@ -2498,7 +2498,7 @@ private struct AdvancedImageCompressionOptionsSheet: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
                             .fill(PhotoDeleteStyle.accent)
                     )
                 }
@@ -3119,7 +3119,7 @@ private struct AdvancedImageCompressionActionBar: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
                                 .fill(PhotoDeleteStyle.destructive.opacity(0.12))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -4934,7 +4934,7 @@ private struct AdvancedVideoCompressionActionBar: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
                                 .fill(PhotoDeleteStyle.destructive.opacity(0.12))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)

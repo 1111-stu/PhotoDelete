@@ -2002,14 +2002,15 @@ struct SwipePhotoView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .fill(PhotoDeleteStyle.surface.opacity(0.86))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 30, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
-                )
-        )
+        .background {
+            Capsule(style: .continuous)
+                .fill(PhotoDeleteStyle.surface.opacity(0.9))
+                .overlay {
+                    Capsule(style: .continuous)
+                        .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                }
+        }
+        .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 12, y: 6)
         .padding(.horizontal, 18)
         .disabled(!canPerformPhotoAction)
         .opacity(canPerformPhotoAction ? 1 : 0.45)
@@ -2030,11 +2031,11 @@ struct SwipePhotoView: View {
                             AlbumAssetThumbnail(
                                 assetID: asset.localIdentifier,
                                 photoLibraryManager: dataManager.photoLibraryManager,
-                                cornerRadius: 10
+                                cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius
                             )
                             .frame(width: 64, height: 64)
                             .overlay {
-                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
                                     .stroke(
                                         index == currentPhotoIndex ? PhotoDeleteStyle.accent : Color.clear,
                                         lineWidth: 2

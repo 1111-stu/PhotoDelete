@@ -67,7 +67,7 @@ struct SupporterView: View {
                     }
                     .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
                     .padding(.top, 20)
-                    .padding(.bottom, contentBottomPadding)
+            .padding(.bottom, max(contentBottomPadding, PhotoDeleteStyle.Metrics.bottomChromeSpacing))
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }
@@ -297,11 +297,11 @@ private struct SupporterBottomActionBar: View {
         }
         .frame(maxHeight: 360)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
                 .fill(PhotoDeleteStyle.background.opacity(0.98))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
+                        .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                 )
                 .ignoresSafeArea(edges: .bottom)
         )
@@ -378,10 +378,10 @@ private struct SupporterBottomActionBar: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
                     .fill(isSelected ? PhotoDeleteStyle.accent.opacity(0.1) : PhotoDeleteStyle.elevatedSurface)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
                             .stroke(isSelected ? PhotoDeleteStyle.accent : PhotoDeleteStyle.hairline, lineWidth: isSelected ? 1.5 : 1)
                     )
             )
@@ -430,10 +430,10 @@ struct SupporterPurchaseAuxiliaryActionsRow: View {
                 .minimumScaleFactor(0.85)
                 .frame(maxWidth: .infinity, minHeight: 40)
                 .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
                         .fill(PhotoDeleteStyle.elevatedSurface)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
                                 .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
                         )
                 )

@@ -30,6 +30,20 @@ enum PhotoDeleteStyle {
         static let toastVerticalPadding: CGFloat = 11
         static let toastIconSize: CGFloat = 15
         static let toastTextSize: CGFloat = 14
+        static let thumbnailRadius: CGFloat = 12
+        static let compactRadius: CGFloat = 16
+        static let capsuleHorizontalPadding: CGFloat = 14
+        static let bottomChromeSpacing: CGFloat = 96
+        static let contentBottomPadding: CGFloat = 24
+    }
+
+    enum Typography {
+        static let pageTitle: Font = .title2.weight(.semibold)
+        static let cardTitle: Font = .headline
+        static let body: Font = .body
+        static let secondary: Font = .subheadline
+        static let label: Font = .caption
+        static let metric: Font = .title.weight(.semibold)
     }
 
     #if canImport(UIKit)
@@ -79,6 +93,8 @@ enum PhotoDeleteStyle {
     static let rootContentTopSpacing = Metrics.rootContentTopSpacing
     static let rowIconSize = Metrics.rowIconSize
     static let rowMinHeight = Metrics.rowMinHeight
+
+    static var contentBottomPadding: CGFloat { Metrics.contentBottomPadding }
 
     static func iconTint(for key: String) -> Color {
         let theme = PhotoDeleteTheme.current
@@ -196,6 +212,53 @@ struct PhotoDeleteCardBackground: ViewModifier {
                             .stroke(PhotoDeleteStyle.strokeFill(for: theme), lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                     )
             )
+    }
+}
+
+struct PhotoDeleteFloatingSurface<Content: View>: View {
+    let radius: CGFloat
+    let content: Content
+
+    init(radius: CGFloat = PhotoDeleteStyle.cardRadius, @ViewBuilder content: () -> Content) {
+        self.radius = radius
+        self.content = content()
+    }
+
+    var body: some View {
+        content
+            .background {
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .fill(PhotoDeleteStyle.surface.opacity(0.9))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: radius, style: .continuous)
+                            .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                    }
+            }
+            .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 12, y: 6)
+    }
+}
+
+struct PhotoDeleteMetricCard: View {
+    let value: String
+    let label: String
+    let tint: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(value)
+                .font(PhotoDeleteStyle.Typography.metric)
+                .monospacedDigit()
+                .foregroundStyle(tint)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+
+            Text(label)
+                .font(PhotoDeleteStyle.Typography.secondary.weight(.medium))
+                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+        }
+        .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
+        .padding(.horizontal, 14)
+        .photoDeleteCard(radius: PhotoDeleteStyle.Metrics.compactRadius)
     }
 }
 
