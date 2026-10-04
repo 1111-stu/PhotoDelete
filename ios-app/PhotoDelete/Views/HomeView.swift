@@ -239,18 +239,6 @@ struct HomeView: View {
                         .environmentObject(dataManager)
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        navigationPath.append(SwipeViewDestination.stats)
-                    } label: {
-                        Image(systemName: "chart.bar.doc.horizontal")
-                            .font(.system(size: 16, weight: .semibold))
-                    }
-                    .accessibilityLabel(L10n.string("统计"))
-                    .accessibilityIdentifier("home-stats-entry")
-                }
-            }
         }
         .onAppear {
             dataManager.loadAlbumsIfNeeded()
@@ -529,14 +517,14 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(L10n.string("随机整理"))
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(randomReviewTitle)
                 Text(randomReviewDetail)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.82))
+                    .foregroundColor(randomReviewTitle.opacity(0.78))
                 Spacer(minLength: 0)
                 Image(systemName: "sparkles")
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundColor(randomReviewTitle.opacity(0.88))
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(14)
@@ -546,7 +534,7 @@ struct HomeView: View {
                     .fill(PhotoDeleteStyle.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: 22, style: .continuous)
-                            .fill(Color(red: 0.76, green: 0.34, blue: 0.24).opacity(0.22))
+                            .fill(randomReviewTint)
                     )
             )
         }
@@ -582,7 +570,7 @@ struct HomeView: View {
                     .fill(PhotoDeleteStyle.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: 22, style: .continuous)
-                            .fill(historicalCardFill.opacity(colorScheme == .dark ? 0.42 : 0.28))
+                            .fill(historicalCardFill.opacity(0.96))
                     )
             )
         }
@@ -616,17 +604,20 @@ struct HomeView: View {
             HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(Color(red: 0.96, green: 0.78, blue: 0.35))
+                    .foregroundColor(timelineAccent)
                     .frame(width: 36, height: 36)
-                    .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .background(
+                        timelineAccent.opacity(colorScheme == .dark ? 0.18 : 0.12),
+                        in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    )
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundColor(periodTextColor)
                     Text(String(format: L10n.string("共 %@ 项 · %@"), countText, summary.formattedEstimatedSize))
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(.white.opacity(0.62))
+                        .foregroundColor(periodTextColor.opacity(0.68))
                         .lineLimit(1)
                 }
 
@@ -635,11 +626,18 @@ struct HomeView: View {
                 VStack(alignment: .trailing, spacing: 1) {
                     Text(pendingText)
                         .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(periodTextColor)
                     Text(L10n.string("待整理"))
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.white.opacity(0.62))
+                        .foregroundColor(periodTextColor.opacity(0.68))
                 }
+
+                Rectangle()
+                    .fill(PhotoDeleteStyle.primaryText.opacity(colorScheme == .dark ? 0.18 : 0.14))
+                    .frame(width: 1, height: 48)
+                    .padding(.vertical, -14)
+                    .padding(.leading, 4)
+                    .padding(.trailing, 10)
 
                 HStack(spacing: 2) {
                     Text(L10n.string("更多"))
@@ -647,7 +645,7 @@ struct HomeView: View {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 11, weight: .semibold))
                 }
-                .foregroundColor(.white.opacity(0.78))
+                .foregroundColor(periodTextColor.opacity(0.84))
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 14)
@@ -655,6 +653,10 @@ struct HomeView: View {
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(periodCardFill)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .stroke(PhotoDeleteStyle.primaryText.opacity(colorScheme == .dark ? 0.22 : 0.16), lineWidth: 1)
+                    )
             )
         }
         .buttonStyle(.plain)
@@ -679,6 +681,7 @@ struct HomeView: View {
                 specialCleanupTile(
                     title: L10n.string("相似与重复"),
                     icon: "rectangle.on.rectangle",
+                    tint: Color(red: 0.86, green: 0.45, blue: 0.38),
                     identifier: "home-cleanup-similar"
                 ) {
                     navigationPath.append(SwipeViewDestination.cleanup(.similarPhotos))
@@ -687,6 +690,7 @@ struct HomeView: View {
                 specialCleanupTile(
                     title: L10n.string("视频"),
                     icon: "video",
+                    tint: Color(red: 0.46, green: 0.76, blue: 0.86),
                     identifier: "home-cleanup-videos"
                 ) {
                     navigationPath.append(SwipeViewDestination.category(.videos))
@@ -695,6 +699,7 @@ struct HomeView: View {
                 specialCleanupTile(
                     title: L10n.string("截图"),
                     icon: "iphone",
+                    tint: Color(red: 0.96, green: 0.72, blue: 0.30),
                     identifier: "home-cleanup-screenshots"
                 ) {
                     navigationPath.append(SwipeViewDestination.category(.screenshots))
@@ -703,6 +708,7 @@ struct HomeView: View {
                 specialCleanupTile(
                     title: L10n.string("大文件"),
                     icon: "internaldrive",
+                    tint: Color(red: 0.65, green: 0.55, blue: 0.92),
                     identifier: "home-cleanup-large-files"
                 ) {
                     navigationPath.append(SwipeViewDestination.cleanup(.largeFiles))
@@ -722,6 +728,7 @@ struct HomeView: View {
     private func specialCleanupTile(
         title: String,
         icon: String,
+        tint: Color,
         identifier: String,
         action: @escaping () -> Void
     ) -> some View {
@@ -729,8 +736,9 @@ struct HomeView: View {
             VStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.system(size: 22, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-                    .frame(height: 28)
+                    .foregroundColor(tint)
+                    .frame(width: 42, height: 34)
+                    .background(tint.opacity(colorScheme == .dark ? 0.16 : 0.10), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
                 Text(title)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
@@ -894,18 +902,40 @@ struct HomeView: View {
 
     private var periodCardFill: Color {
         colorScheme == .dark
-            ? Color(white: 0.16)
-            : Color(red: 0.12, green: 0.13, blue: 0.12)
+            ? Color(red: 0.09, green: 0.10, blue: 0.10)
+            : Color(red: 0.95, green: 0.95, blue: 0.93)
+    }
+
+    private var timelineAccent: Color {
+        colorScheme == .dark
+            ? Color(red: 1.00, green: 0.76, blue: 0.28)
+            : Color(red: 0.72, green: 0.46, blue: 0.08)
+    }
+
+    private var periodTextColor: Color {
+        colorScheme == .dark ? .white : PhotoDeleteStyle.primaryText
+    }
+
+    private var randomReviewTint: Color {
+        colorScheme == .dark
+            ? Color(red: 0.91, green: 0.43, blue: 0.35)
+            : Color(red: 0.91, green: 0.43, blue: 0.35)
+    }
+
+    private var randomReviewTitle: Color {
+        colorScheme == .dark
+            ? Color(red: 0.16, green: 0.07, blue: 0.05)
+            : Color(red: 0.18, green: 0.08, blue: 0.06)
     }
 
     private var historicalCardFill: Color {
         colorScheme == .dark
-            ? Color(red: 0.42, green: 0.34, blue: 0.24)
-            : Color(red: 0.93, green: 0.86, blue: 0.72)
+            ? Color(red: 0.88, green: 0.67, blue: 0.30)
+            : Color(red: 0.93, green: 0.72, blue: 0.36)
     }
 
     private var historicalCardTitle: Color {
-        colorScheme == .dark ? Color.white.opacity(0.92) : Color(red: 0.28, green: 0.2, blue: 0.12)
+        Color(red: 0.18, green: 0.12, blue: 0.06)
     }
 
 }
