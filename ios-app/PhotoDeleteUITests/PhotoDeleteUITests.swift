@@ -38,7 +38,8 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertTrue(
             app.staticTexts["整理"].waitForExistence(timeout: 10) ||
                 app.staticTexts["需要访问照片库"].waitForExistence(timeout: 2) ||
-                app.staticTexts["随机浏览"].waitForExistence(timeout: 2) ||
+                app.staticTexts["随机整理"].waitForExistence(timeout: 2) ||
+                app.staticTexts["照片库概览"].waitForExistence(timeout: 2) ||
                 app.staticTexts["没有可整理的照片"].waitForExistence(timeout: 2)
         )
     }
@@ -51,9 +52,10 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["整理"].waitForExistence(timeout: 10))
         XCTAssertTrue(
             app.staticTexts["需要访问照片库"].exists ||
-                app.staticTexts["随机浏览"].exists ||
+                app.staticTexts["随机整理"].exists ||
+                app.staticTexts["照片库概览"].exists ||
                 app.staticTexts["没有可整理的照片"].exists ||
-                app.staticTexts["整理全部照片"].exists
+                app.staticTexts["专项清理"].exists
         )
     }
 
@@ -132,7 +134,7 @@ final class PhotoDeleteUITests: XCTestCase {
         openOrganizeTab(in: app)
         guard let startCleanupButton = waitForFirstExistingButton(
             in: app,
-            labels: ["开始整理", "整理全部照片"],
+            labels: ["随机整理", "home-random-review"],
             timeout: 30
         ) else {
             XCTFail("Expected a review entry button after seeded library load")
@@ -252,7 +254,7 @@ final class PhotoDeleteUITests: XCTestCase {
         openOrganizeTab(in: app)
         guard let startCleanupButton = waitForFirstExistingButton(
             in: app,
-            labels: ["开始整理", "Start Cleanup", "整理全部照片", "Organize All Photos"],
+            labels: ["随机整理", "home-random-review", "Random"],
             timeout: 30
         ) else {
             XCTFail("Expected a review entry button after seeded library load")
@@ -472,7 +474,7 @@ final class PhotoDeleteUITests: XCTestCase {
         openOrganizeTab(in: app)
         guard let startCleanupButton = waitForFirstExistingButton(
             in: app,
-            labels: ["开始整理", "整理全部照片"],
+            labels: ["随机整理", "home-random-review"],
             timeout: 30
         ) else {
             XCTFail("Expected a review entry button after seeded library load")
@@ -532,10 +534,10 @@ final class PhotoDeleteUITests: XCTestCase {
         openAlbumsTab(in: app)
         XCTAssertTrue(app.staticTexts["旅行照片"].waitForExistence(timeout: 60))
 
-        openAdvancedTab(in: app)
+        openOrganizeTab(in: app)
         guard let similarPhotosButton = waitForButtonLabelPrefix(
             in: app,
-            prefix: "相似照片",
+            prefix: "相似与重复",
             timeout: 60,
             excluding: "0 项"
         ) else {
@@ -856,10 +858,10 @@ final class PhotoDeleteUITests: XCTestCase {
         }
         doneButton.tap()
 
-        openAdvancedTab(in: app)
+        openOrganizeTab(in: app)
 
-        XCTAssertTrue(app.staticTexts["Focused Cleanup"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.staticTexts["高效清理"].exists)
+        XCTAssertTrue(app.staticTexts["Special cleanup"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["专项清理"].exists)
     }
 
     @MainActor
@@ -923,7 +925,7 @@ final class PhotoDeleteUITests: XCTestCase {
 
         let startCleanupButton = firstExistingButton(
             in: app,
-            labels: ["开始整理", "Start Cleanup", "整理全部照片", "Organize All Photos"]
+            labels: ["随机整理", "home-random-review"]
         )
         XCTAssertTrue(startCleanupButton.waitForExistence(timeout: 10))
         startCleanupButton.tap()
@@ -965,13 +967,13 @@ final class PhotoDeleteUITests: XCTestCase {
         }
         navigateBack(in: app)
 
-        openAdvancedTab(in: app)
-        let focusedCleanupTitle = appLanguage.hasPrefix("en") ? "Focused Cleanup" : "高效清理"
+        openOrganizeTab(in: app)
+        let focusedCleanupTitle = appLanguage.hasPrefix("en") ? "Special cleanup" : "专项清理"
         XCTAssertTrue(app.staticTexts[focusedCleanupTitle].waitForExistence(timeout: 60))
         sleep(3)
         try capture("06-advanced-dashboard", in: outputDirectory, app: app)
 
-        let similarPhotosPrefix = appLanguage.hasPrefix("en") ? "Similar Photos" : "相似照片"
+        let similarPhotosPrefix = appLanguage.hasPrefix("en") ? "Similar" : "相似与重复"
         guard let similarPhotosButton = waitForButtonLabelPrefix(
             in: app,
             prefix: similarPhotosPrefix,
@@ -982,7 +984,8 @@ final class PhotoDeleteUITests: XCTestCase {
             return
         }
         similarPhotosButton.tap()
-        XCTAssertTrue(app.staticTexts[similarPhotosPrefix].waitForExistence(timeout: 10))
+        let similarPhotosTitle = appLanguage.hasPrefix("en") ? "Similar Photos" : "相似照片"
+        XCTAssertTrue(app.staticTexts[similarPhotosTitle].waitForExistence(timeout: 10))
         sleep(2)
         try capture("07-similar-photos", in: outputDirectory, app: app)
 
@@ -1081,9 +1084,14 @@ final class PhotoDeleteUITests: XCTestCase {
     }
 
     @MainActor
-    @MainActor
     private func openStatsTab(in app: XCUIApplication) {
-        tapTabItem(in: app, labels: ["统计", "Stats"], fallbackOffset: CGVector(dx: 0.62, dy: 0.96))
+        openOrganizeTab(in: app)
+        let statsEntry = app.descendants(matching: .any)["home-stats-entry"]
+        if statsEntry.waitForExistence(timeout: 5), statsEntry.isHittable {
+            statsEntry.tap()
+            return
+        }
+        _ = tapFirstExistingButton(in: app, labels: ["统计", "Stats", "照片库概览", "Library overview"], timeout: 5)
     }
 
     private func openSettingsTab(in app: XCUIApplication) {
@@ -1428,11 +1436,11 @@ final class PhotoDeleteUITests: XCTestCase {
 
     @MainActor
     private func waitForAllPhotosReviewEntry(in app: XCUIApplication, timeout: TimeInterval) -> XCUIElement? {
-        // The title is the stable scope marker; only after it appears do we
-        // resolve the generic action label used by the all-photos card.
-        let allPhotosTitle = app.staticTexts["整理全部照片"]
-        guard allPhotosTitle.waitForExistence(timeout: timeout) else { return nil }
-        return waitForHittableButton(in: app, label: "开始整理", timeout: timeout)
+        let identifier = app.descendants(matching: .any)["home-random-review"]
+        if identifier.waitForExistence(timeout: timeout), identifier.isHittable {
+            return identifier
+        }
+        return waitForHittableButton(in: app, label: "随机整理", timeout: 2)
     }
 
     @MainActor
@@ -1590,8 +1598,8 @@ final class PhotoDeleteUITests: XCTestCase {
     private func waitForHomeReady(in app: XCUIApplication, language: String, timeout: TimeInterval) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         let labels = language.hasPrefix("en")
-            ? ["Organize All Photos", "Start Cleanup", "Quick Entries", "All Photos"]
-            : ["整理全部照片", "开始整理", "快速入口", "全部照片"]
+            ? ["Library overview", "Special cleanup", "New this week", "On this day"]
+            : ["照片库概览", "专项清理", "本周新增", "随机整理"]
 
         while Date() < deadline {
             if app.descendants(matching: .any)["review-photo-card"].exists {

@@ -17,6 +17,8 @@ enum SwipeViewDestination: Hashable {
     case historicalToday
     case location(String)
     case period(AdvancedTimeScope, Date)
+    case stats
+    case cleanup(AdvancedCleanupKind)
 
     static func == (lhs: SwipeViewDestination, rhs: SwipeViewDestination) -> Bool {
         switch (lhs, rhs) {
@@ -38,6 +40,10 @@ enum SwipeViewDestination: Hashable {
             return lhsGroupID == rhsGroupID
         case (.period(let lhsScope, let lhsDate), .period(let rhsScope, let rhsDate)):
             return lhsScope == rhsScope && lhsDate == rhsDate
+        case (.stats, .stats):
+            return true
+        case (.cleanup(let lhsKind), .cleanup(let rhsKind)):
+            return lhsKind == rhsKind
         default:
             return false
         }
@@ -70,6 +76,11 @@ enum SwipeViewDestination: Hashable {
             hasher.combine("period")
             hasher.combine(scope)
             hasher.combine(date)
+        case .stats:
+            hasher.combine("stats")
+        case .cleanup(let kind):
+            hasher.combine("cleanup")
+            hasher.combine(kind)
         }
     }
 }
@@ -127,7 +138,9 @@ enum HomeCategoryCountDetailResolver {
 struct HomeView: View {
     @EnvironmentObject var dataManager: DataManager
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.colorScheme) private var colorScheme
     @AppStorage(AppConstants.hasSeenIntroKey) private var hasSeenPhotoDeleteIntro = false
+    @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
     @State private var navigationPath = NavigationPath()
 
     var body: some View {
@@ -220,40 +233,46 @@ struct HomeView: View {
                         selectedAdvancedTimeScope: scope
                     )
                     .environmentObject(dataManager)
+                case .stats:
+                    StatsView()
+                        .environmentObject(dataManager)
+                case .cleanup(let kind):
+                    AdvancedCleanupDestination(kind: kind)
+                        .environmentObject(dataManager)
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        navigationPath.append(SwipeViewDestination.stats)
+                    } label: {
+                        Image(systemName: "chart.bar.doc.horizontal")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    .accessibilityLabel(L10n.string("统计"))
+                    .accessibilityIdentifier("home-stats-entry")
                 }
             }
         }
         .onAppear {
             dataManager.loadAlbumsIfNeeded()
+            refreshHomeLibrarySummaries()
+        }
+        .onChange(of: dataManager.photoLibraryManager.hasLoadedPhotoLibrary) { loaded in
+            guard loaded else { return }
+            refreshHomeLibrarySummaries()
+        }
+        .onChange(of: dataManager.cleanupStatsRevision) { _ in
+            refreshHomeLibrarySummaries()
         }
     }
 
     @ViewBuilder
     private func homeContent(isLandscape: Bool) -> some View {
         if libraryContentState != .needsAuthorization {
-            if isLandscape {
-                HStack(alignment: .top, spacing: 22) {
-                    VStack(spacing: 18) {
-                        introSection(isCompact: true)
-                        primaryOrganizeSection(isCompact: true)
-                        locationOrganizeSection
-                    }
-                    .frame(maxWidth: .infinity)
-
-                    VStack(spacing: 18) {
-                        secondaryEntrySection
-                        timelineSection
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            } else {
-                VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
-                    introSection(isCompact: false)
-                    primaryOrganizeSection(isCompact: false)
-                    locationOrganizeSection
-                    secondaryEntrySection
-                    timelineSection
-                }
+            VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+                introSection(isCompact: isLandscape)
+                libraryDashboard
             }
         } else {
             VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
@@ -339,16 +358,25 @@ struct HomeView: View {
     }
 
     @ViewBuilder
-    private func primaryOrganizeSection(isCompact: Bool) -> some View {
+    private var libraryDashboard: some View {
         switch libraryContentState {
         case .preparing:
             libraryScanningSection
         case .empty:
             emptyLibrarySection
         case .available:
-            startOrganizingSection(isCompact: isCompact)
+            availableLibraryDashboard
         case .needsAuthorization:
             EmptyView()
+        }
+    }
+
+    private var availableLibraryDashboard: some View {
+        VStack(spacing: 22) {
+            spotlightRow
+            periodSection
+            specialCleanupSection
+            toolSection
         }
     }
 
@@ -395,39 +423,6 @@ struct HomeView: View {
         .photoDeleteCard()
     }
 
-    private var categorySkeletonSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text(L10n.string("快速入口"))
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-                Spacer()
-            }
-            .padding(.horizontal, 2)
-
-            VStack(spacing: 0) {
-                let skeletons: [(String, String)] = [
-                    (PhotoCategory.all.title, "photo.on.rectangle"),
-                    (PhotoCategory.unclassified.title, "tray"),
-                    (PhotoCategory.videos.title, "video"),
-                    (PhotoCategory.screenshots.title, "iphone"),
-                    (PhotoCategory.livePhotos.title, "livephoto")
-                ]
-
-                ForEach(Array(skeletons.enumerated()), id: \.offset) { index, item in
-                    CategorySkeletonCard(title: item.0, icon: item.1)
-
-                    if index != skeletons.count - 1 {
-                        Divider()
-                            .background(PhotoDeleteStyle.hairline)
-                            .padding(.leading, 62)
-                    }
-                }
-            }
-            .photoDeleteCard()
-        }
-    }
-
     // MARK: - 空照片库区域
     private var emptyLibrarySection: some View {
         VStack(spacing: 16) {
@@ -467,282 +462,446 @@ struct HomeView: View {
         .photoDeleteCard()
     }
 
-    // MARK: - 主整理入口
-    private func startOrganizingSection(isCompact: Bool) -> some View {
-        VStack(alignment: .leading, spacing: isCompact ? 16 : 18) {
-            HStack(alignment: .top, spacing: 14) {
-                PhotoDeleteIconTile(
-                    icon: "photo.on.rectangle",
-                    size: isCompact ? 42 : 48,
-                    cornerRadius: 13,
-                    filled: false
-                )
+    private var spotlightRow: some View {
+        HStack(alignment: .top, spacing: 10) {
+            libraryOverviewCard
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(L10n.string("整理全部照片"))
-                        .font(.system(size: isCompact ? 21 : 24, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+            VStack(spacing: 10) {
+                randomReviewCard
+                historicalTodayCard
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(height: 196)
+    }
 
-                    Text(L10n.string("从全部照片开始，按你的节奏逐张整理。"))
-                        .font(.system(size: 15, weight: .regular))
+    private var libraryOverviewCard: some View {
+        Button {
+            navigationPath.append(SwipeViewDestination.stats)
+        } label: {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(L10n.string("照片库概览"))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 4)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(PhotoDeleteStyle.tertiaryText)
                 }
-            }
 
-            Button {
-                navigationPath.append(SwipeViewDestination.category(.all))
-            } label: {
-                HStack(spacing: 9) {
-                    Image(systemName: "photo.on.rectangle")
-                        .font(.system(size: 15, weight: .semibold))
-                    Text(L10n.string("开始整理"))
-                }
-            }
-            .photoDeletePrimaryButton()
-
-            Button {
-                navigationPath.append(SwipeViewDestination.random(.memories))
-            } label: {
-                HStack(spacing: 9) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 14, weight: .semibold))
-                    Text(L10n.string("随机浏览"))
-                }
-            }
-            .photoDeleteSecondaryButton()
-        }
-        .padding(isCompact ? 18 : 20)
-        .photoDeleteCard()
-    }
-
-    // MARK: - 地点整理入口
-    private var locationOrganizeSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text(L10n.string("按地点整理"))
-                    .font(.system(size: 17, weight: .semibold))
+                Text(librarySizeText)
+                    .font(.system(size: 32, weight: .bold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
-                Spacer()
-            }
-            .padding(.horizontal, 2)
-
-            HomeEntryRow(
-                icon: "mappin.and.ellipse",
-                title: L10n.string("地点整理"),
-                detail: locationOrganizeDetail,
-                tint: PhotoDeleteStyle.accent
-            ) {
-                navigationPath.append(SwipeViewDestination.locationBrowser)
-            }
-            .photoDeleteCard()
-        }
-    }
-
-    private var locationOrganizeDetail: String {
-        if dataManager.isLoadingLocationGroups || dataManager.isResolvingLocationTitles {
-            return L10n.string("正在整理地点")
-        }
-
-        let count = dataManager.locatedAssetCount
-        if count > 0 {
-            return L10n.shortPhotoCount(count)
-        }
-
-        return L10n.string("按地点继续")
-    }
-
-    // MARK: - 快速入口区域
-    @ViewBuilder
-    private var secondaryEntrySection: some View {
-        if isLibraryPreparing {
-            categorySkeletonSection
-        } else {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text(L10n.string("快速入口"))
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
-                    Spacer()
-                }
-                .padding(.horizontal, 2)
-
-                VStack(spacing: 0) {
-                    ForEach(Array(PhotoCategory.allCases.enumerated()), id: \.element.rawValue) { index, category in
-                        HomeEntryRow(
-                            icon: category.icon,
-                            title: category.title,
-                            detail: getPhotoCountDetail(for: category),
-                            tint: iconTint(for: category)
-                        ) {
-                            navigationPath.append(SwipeViewDestination.category(category))
-                        }
-
-                        if index != PhotoCategory.allCases.count - 1 {
-                            Divider()
-                                .background(PhotoDeleteStyle.hairline)
-                                .padding(.leading, 62)
-                        }
-                    }
-                }
-                .photoDeleteCard()
-            }
-        }
-    }
-
-    // MARK: - 时间线浏览区域
-    @ViewBuilder
-    private var timelineSection: some View {
-        if !isLibraryPreparing && !dataManager.timeGroups.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text(L10n.string("按时间整理"))
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
-                    Spacer()
-                }
-                .padding(.horizontal, 2)
-
-                VStack(spacing: 0) {
-                    if dataManager.historicalTodayPhotoCount > 0 {
-                        HomeEntryRow(
-                            icon: "calendar.badge.clock",
-                            title: L10n.string("历史上的今天"),
-                            detail: L10n.shortPhotoCount(dataManager.historicalTodayPhotoCount),
-                            tint: PhotoDeleteStyle.warning
-                        ) {
-                            navigationPath.append(SwipeViewDestination.historicalToday)
-                        }
-
-                        Divider()
-                            .background(PhotoDeleteStyle.hairline)
-                            .padding(.leading, 62)
-                    }
-
-                    ForEach(Array(dataManager.timeGroups.enumerated()), id: \.element.id) { index, timeGroupInfo in
-                        HomeEntryRow(
-                            icon: timeGroupInfo.timeGroup.icon,
-                            title: timeGroupInfo.timeGroup.title,
-                            detail: L10n.shortPhotoCount(timeGroupInfo.photosCount),
-                            tint: PhotoDeleteStyle.accent
-                        ) {
-                            navigationPath.append(SwipeViewDestination.timeGroup(timeGroupInfo.timeGroup.rawValue))
-                        }
-
-                        if index != dataManager.timeGroups.count - 1 {
-                            Divider()
-                                .background(PhotoDeleteStyle.hairline)
-                                .padding(.leading, 62)
-                        }
-                    }
-                }
-                .photoDeleteCard()
-            }
-        }
-    }
-
-    // MARK: - 辅助方法
-    private func getPhotoCount(for category: PhotoCategory) -> Int {
-        switch category {
-        case .all:
-            return dataManager.photoLibraryManager.displayTotalPhotosCount
-        case .unclassified:
-            return dataManager.unclassifiedPhotosCount
-        case .videos:
-            return dataManager.photoLibraryManager.displayVideosCount
-        case .screenshots:
-            return dataManager.photoLibraryManager.displayScreenshotsCount
-        case .livePhotos:
-            return dataManager.photoLibraryManager.displayLivePhotosCount
-        case .favorites:
-            return dataManager.photoLibraryManager.displayFavoritesCount
-        }
-    }
-
-    private func getPhotoCountDetail(for category: PhotoCategory) -> String {
-        let count = getPhotoCount(for: category)
-
-        if HomeCategoryCountDetailResolver.shouldShowLibraryLoading(
-            category: category,
-            count: count,
-            isPreparingLibrary: dataManager.isPreparingLibrary,
-            isLoadingPhotoLibrary: dataManager.photoLibraryManager.isLoading,
-            hasLoadedPhotoLibrary: dataManager.photoLibraryManager.hasLoadedPhotoLibrary
-        ) {
-            return L10n.string("读取中 \(libraryLoadingProgressText)")
-        }
-
-        if category == .unclassified && !dataManager.hasLoadedAlbumMembership {
-            return L10n.string("读取中")
-        }
-
-        return L10n.shortPhotoCount(count)
-    }
-
-    private func iconTint(for category: PhotoCategory) -> Color {
-        switch category {
-        case .videos:
-            return PhotoDeleteStyle.iconTint(for: "video")
-        case .screenshots:
-            return PhotoDeleteStyle.iconTint(for: "screenshot")
-        case .livePhotos:
-            return PhotoDeleteStyle.iconTint(for: "livephoto")
-        case .favorites:
-            return PhotoDeleteStyle.iconTint(for: "favorite")
-        case .unclassified:
-            return PhotoDeleteStyle.warning
-        case .all:
-            return PhotoDeleteStyle.accent
-        }
-    }
-
-    private var libraryLoadingProgressText: String {
-        let progress = min(max(dataManager.photoLibraryManager.loadingProgress, 0), 1)
-        guard progress > 0.01 else { return "..." }
-        return L10n.percent(Int(progress * 100))
-    }
-
-}
-
-// MARK: - 首页组件
-struct HomeEntryRow: View {
-    let icon: String
-    let title: String
-    let detail: String
-    let tint: Color
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 12) {
-                PhotoDeleteIconTile(icon: icon, tint: tint)
-
-                Text(title.appLocalized)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .minimumScaleFactor(0.7)
                     .lineLimit(1)
 
-                Spacer()
+                Text(libraryCountLine)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
-                Text(detail.appLocalized)
+                Spacer(minLength: 0)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.string("累计清理"))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                    Text(cleanedSizeText)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .lineLimit(1)
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .photoDeleteCard(radius: 22)
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityIdentifier("home-library-overview")
+    }
+
+    private var randomReviewCard: some View {
+        Button {
+            navigationPath.append(SwipeViewDestination.random(.memories))
+        } label: {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(L10n.string("随机整理"))
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                Text(randomReviewDetail)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.82))
+                Spacer(minLength: 0)
+                Image(systemName: "sparkles")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.9))
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(Color(red: 0.76, green: 0.34, blue: 0.24))
+            )
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityLabel(L10n.string("随机整理"))
+        .accessibilityIdentifier("home-random-review")
+    }
+
+    private var historicalTodayCard: some View {
+        Button {
+            navigationPath.append(SwipeViewDestination.historicalToday)
+        } label: {
+            HStack(alignment: .center, spacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L10n.string("往年今日"))
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(historicalCardTitle)
+                    Text(historicalTodayDetail)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(historicalCardTitle.opacity(0.72))
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "calendar")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundColor(historicalCardTitle.opacity(0.85))
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(historicalCardFill)
+            )
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityLabel(L10n.string("往年今日"))
+        .accessibilityIdentifier("home-historical-today")
+    }
+
+    private var periodSection: some View {
+        VStack(spacing: 10) {
+            periodCard(scope: .week, title: L10n.string("本周新增"), icon: "calendar", identifier: "home-period-week")
+            periodCard(scope: .month, title: L10n.string("本月新增"), icon: "calendar", identifier: "home-period-month")
+            periodCard(scope: .year, title: L10n.string("本年新增"), icon: "calendar", identifier: "home-period-year")
+        }
+    }
+
+    private func periodCard(
+        scope: AdvancedTimeScope,
+        title: String,
+        icon: String,
+        identifier: String
+    ) -> some View {
+        let summary = currentPeriodSummary(for: scope)
+        let countText = summary.assetCount.formatted(.number.grouping(.automatic))
+        let pendingText = summary.remainingCount.formatted(.number.grouping(.automatic))
+
+        return Button {
+            navigationPath.append(SwipeViewDestination.period(scope, summary.intervalStart))
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(Color(red: 0.96, green: 0.78, blue: 0.35))
+                    .frame(width: 36, height: 36)
+                    .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                    Text(String(format: L10n.string("共 %@ 项 · %@"), countText, summary.formattedEstimatedSize))
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.white.opacity(0.62))
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 8)
+
+                VStack(alignment: .trailing, spacing: 1) {
+                    Text(pendingText)
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundColor(.white)
+                    Text(L10n.string("待整理"))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white.opacity(0.62))
+                }
+
+                HStack(spacing: 2) {
+                    Text(L10n.string("更多"))
+                        .font(.system(size: 13, weight: .medium))
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 11, weight: .semibold))
+                }
+                .foregroundColor(.white.opacity(0.78))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(periodCardFill)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
+    }
+
+    private var specialCleanupSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(L10n.string("专项清理"))
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                Spacer(minLength: 8)
+                Text(String(format: L10n.string("预计可清理 %@"), reclaimableSizeText))
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .lineLimit(1)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
+            .padding(.horizontal, 2)
+
+            HStack(spacing: 0) {
+                specialCleanupTile(
+                    title: L10n.string("相似与重复"),
+                    icon: "rectangle.on.rectangle",
+                    identifier: "home-cleanup-similar"
+                ) {
+                    navigationPath.append(SwipeViewDestination.cleanup(.similarPhotos))
+                }
+                specialCleanupDivider
+                specialCleanupTile(
+                    title: L10n.string("视频"),
+                    icon: "video",
+                    identifier: "home-cleanup-videos"
+                ) {
+                    navigationPath.append(SwipeViewDestination.category(.videos))
+                }
+                specialCleanupDivider
+                specialCleanupTile(
+                    title: L10n.string("截图"),
+                    icon: "iphone",
+                    identifier: "home-cleanup-screenshots"
+                ) {
+                    navigationPath.append(SwipeViewDestination.category(.screenshots))
+                }
+                specialCleanupDivider
+                specialCleanupTile(
+                    title: L10n.string("大文件"),
+                    icon: "internaldrive",
+                    identifier: "home-cleanup-large-files"
+                ) {
+                    navigationPath.append(SwipeViewDestination.cleanup(.largeFiles))
+                }
+            }
+            .padding(.vertical, 8)
+            .photoDeleteCard(radius: 22)
+        }
+    }
+
+    private var specialCleanupDivider: some View {
+        Rectangle()
+            .fill(PhotoDeleteStyle.hairline)
+            .frame(width: 1, height: 52)
+    }
+
+    private func specialCleanupTile(
+        title: String,
+        icon: String,
+        identifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 22, weight: .regular))
+                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .frame(height: 28)
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(title)
+        .accessibilityIdentifier(identifier)
     }
+
+    private var toolSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L10n.string("工具"))
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .padding(.horizontal, 2)
+
+            VStack(spacing: 0) {
+                if AppConstants.isImageCompressionVisible {
+                    toolRow(
+                        title: L10n.string("图片压缩"),
+                        count: cleanupQueue(for: .imageCompression)?.assetCount,
+                        identifier: "home-tool-image-compression"
+                    ) {
+                        navigationPath.append(SwipeViewDestination.cleanup(.imageCompression))
+                    }
+                    Divider()
+                        .background(PhotoDeleteStyle.hairline)
+                        .padding(.leading, 16)
+                }
+
+                toolRow(
+                    title: L10n.string("视频压缩"),
+                    count: cleanupQueue(for: .videoCompression)?.assetCount,
+                    identifier: "home-tool-video-compression"
+                ) {
+                    navigationPath.append(SwipeViewDestination.cleanup(.videoCompression))
+                }
+            }
+            .photoDeleteCard(radius: 22)
+        }
+    }
+
+    private func toolRow(
+        title: String,
+        count: Int?,
+        identifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                    Text(L10n.string("变小，不删除"))
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                }
+
+                Spacer(minLength: 8)
+
+                Text(countText(count))
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
+    }
+
+    private func refreshHomeLibrarySummaries() {
+        guard dataManager.photoLibraryManager.hasPhotoLibraryAccess else { return }
+        guard dataManager.photoLibraryManager.hasLoadedPhotoLibrary else { return }
+        dataManager.refreshPhotoPeriodSummaries(for: [.week, .month, .year])
+        dataManager.refreshAdvancedCleanupQueues()
+    }
+
+    private func currentPeriodSummary(for scope: AdvancedTimeScope) -> PhotoPeriodSummary {
+        let now = Date()
+        let summaries = dataManager.periodSummariesByScope[scope] ?? []
+        if let current = summaries.first(where: { now >= $0.intervalStart && now < $0.intervalEnd }) {
+            return current
+        }
+        return .empty(scope: scope, containing: now)
+    }
+
+    private func cleanupQueue(for kind: AdvancedCleanupKind) -> AdvancedCleanupQueue? {
+        dataManager.advancedCleanupQueues.first { $0.kind == kind }
+    }
+
+    private var libraryStats: AdvancedLibraryStats {
+        dataManager.makeSettingsStatsSummary()
+    }
+
+    private var librarySizeText: String {
+        let summaries = dataManager.periodSummariesByScope[.year] ?? []
+        let totalMB = summaries.reduce(0) { $0 + $1.estimatedSizeMB }
+        if totalMB <= 0 && (dataManager.isLoadingPeriodSummaries || !dataManager.photoLibraryManager.hasLoadedPhotoLibrary) {
+            return L10n.string("读取中")
+        }
+        return CleanupStatsFormatter.space(totalMB)
+    }
+
+    private var libraryCountLine: String {
+        let total = libraryStats.totalAssets
+        let reviewed = min(libraryStats.reviewedAssets, total)
+        let ratio = total > 0 ? Double(reviewed) / Double(total) * 100 : 0
+        let percent = ratio < 10
+            ? "\(ratio.formatted(.number.precision(.fractionLength(1))))%"
+            : "\(Int(ratio.rounded()))%"
+        let countText = total.formatted(.number.grouping(.automatic))
+        return String(format: L10n.string("共 %@ 项 · 已整理 %@"), countText, percent)
+    }
+
+    private var cleanedSizeText: String {
+        libraryStats.formattedSpaceSaved
+    }
+
+    private var randomReviewDetail: String {
+        let count = PhotoRandomReviewBatchSize.normalized(randomReviewBatchSizeValue).rawValue
+        return String(format: L10n.string("最多 %@ 项"), count.formatted(.number.grouping(.automatic)))
+    }
+
+    private var historicalTodayDetail: String {
+        let count = dataManager.historicalTodayPhotoCount
+        if count > 0 {
+            return L10n.shortPhotoCount(count)
+        }
+        return L10n.string("点按查看")
+    }
+
+    private var reclaimableSizeText: String {
+        let reclaimMB = [AdvancedCleanupKind.similarPhotos, .largeFiles].reduce(0.0) { total, kind in
+            total + (cleanupQueue(for: kind)?.estimatedSpaceMB ?? 0)
+        }
+        if reclaimMB <= 0 && dataManager.isLoadingAdvancedCleanupQueues {
+            return L10n.string("读取中")
+        }
+        return CleanupStatsFormatter.space(reclaimMB)
+    }
+
+    private func countText(_ count: Int?) -> String {
+        guard let count else { return L10n.string("读取中") }
+        return count.formatted(.number.grouping(.automatic))
+    }
+
+    private var periodCardFill: Color {
+        colorScheme == .dark
+            ? Color(white: 0.16)
+            : Color(red: 0.12, green: 0.13, blue: 0.12)
+    }
+
+    private var historicalCardFill: Color {
+        colorScheme == .dark
+            ? Color(red: 0.42, green: 0.34, blue: 0.24)
+            : Color(red: 0.93, green: 0.86, blue: 0.72)
+    }
+
+    private var historicalCardTitle: Color {
+        colorScheme == .dark ? Color.white.opacity(0.92) : Color(red: 0.28, green: 0.2, blue: 0.12)
+    }
+
 }
 
 // MARK: - 扫描态组件
@@ -799,35 +958,6 @@ struct ScanningSwipeGlyph: View {
                 animate = true
             }
         }
-    }
-}
-
-struct CategorySkeletonCard: View {
-    let title: String
-    let icon: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            PhotoDeleteIconTile(icon: icon, tint: PhotoDeleteStyle.secondaryText, filled: false)
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title.appLocalized)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                    .fill(PhotoDeleteStyle.elevatedSurface)
-                    .frame(width: 54, height: 6)
-            }
-
-            Spacer()
-
-            Text(L10n.string("准备中"))
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
-        }
-        .padding(14)
-        .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
     }
 }
 

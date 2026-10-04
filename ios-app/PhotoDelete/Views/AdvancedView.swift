@@ -6412,6 +6412,32 @@ private struct AdvancedFilterPills: View {
     }
 }
 
+struct AdvancedCleanupDestination: View {
+    @EnvironmentObject private var dataManager: DataManager
+    let kind: AdvancedCleanupKind
+
+    var body: some View {
+        switch kind {
+        case .similarPhotos:
+            AdvancedSimilarPhotoGroupsView()
+                .environmentObject(dataManager)
+        case .imageCompression:
+            if AppConstants.isImageCompressionVisible {
+                AdvancedImageCompressionView()
+                    .environmentObject(dataManager)
+            } else {
+                EmptyView()
+            }
+        case .videoCompression:
+            AdvancedVideoCompressionView()
+                .environmentObject(dataManager)
+        case .largeFiles, .videos:
+            AdvancedAssetListView(mode: .cleanup(kind))
+                .environmentObject(dataManager)
+        }
+    }
+}
+
 private extension View {
     func advancedDetailNavigation(title: String) -> some View {
         navigationTitle(title)

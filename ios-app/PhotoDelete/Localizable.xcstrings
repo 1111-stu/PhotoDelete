@@ -4645,6 +4645,28 @@
         }
       }
     },
+    "专项清理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Special cleanup"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "专项清理"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "專項清理"
+          }
+        }
+      }
+    },
     "严格" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5036,6 +5058,7 @@
       }
     },
     "从全部照片开始，按你的节奏逐张整理。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -7924,6 +7947,50 @@
         }
       }
     },
+    "共 %@ 项 · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ items · %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共 %@ 项 · %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共 %@ 項 · %@"
+          }
+        }
+      }
+    },
+    "共 %@ 项 · 已整理 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ items · %2$@ organized"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共 %@ 项 · 已整理 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共 %@ 項 · 已整理 %@"
+          }
+        }
+      }
+    },
     "共 %lld 个可压缩视频" : {
       "localizations" : {
         "ar" : {
@@ -8646,6 +8713,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "再隨機一組"
+          }
+        }
+      }
+    },
+    "最多 %@ 项" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up to %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最多 %@ 项"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最多 %@ 項"
           }
         }
       }
@@ -13685,6 +13774,28 @@
         }
       }
     },
+    "变小，不删除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smaller, not deleted"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "变小，不删除"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "變小，不刪除"
+          }
+        }
+      }
+    },
     "只会删除相册，不会删除相册里的照片。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -17455,6 +17566,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "盡量留在本機"
+          }
+        }
+      }
+    },
+    "工具" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tools"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工具"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工具"
           }
         }
       }
@@ -22082,6 +22215,7 @@
       }
     },
     "开始整理" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -23090,6 +23224,28 @@
         }
       }
     },
+    "往年今日" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On this day"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "往年今日"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "往年今日"
+          }
+        }
+      }
+    },
     "待下载" : {
       "localizations" : {
         "ar" : {
@@ -23320,7 +23476,6 @@
       }
     },
     "待整理" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -23642,6 +23797,7 @@
       }
     },
     "快速入口" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -25238,6 +25394,7 @@
       }
     },
     "按地点整理" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -25278,6 +25435,7 @@
       }
     },
     "按地点继续" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -27432,6 +27590,7 @@
       }
     },
     "整理全部照片" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -29680,6 +29839,28 @@
         }
       }
     },
+    "更多" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多"
+          }
+        }
+      }
+    },
     "更多 App" : {
       "localizations" : {
         "en" : {
@@ -30802,6 +30983,28 @@
         }
       }
     },
+    "本周新增" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New this week"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本周新增"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本週新增"
+          }
+        }
+      }
+    },
     "本周的照片" : {
       "localizations" : {
         "ar" : {
@@ -30859,6 +31062,28 @@
         }
       }
     },
+    "本年新增" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New this year"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本年新增"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本年新增"
+          }
+        }
+      }
+    },
     "本月" : {
       "localizations" : {
         "ar" : {
@@ -30895,6 +31120,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本月"
+          }
+        }
+      }
+    },
+    "本月新增" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New this month"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月新增"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月新增"
           }
         }
       }
@@ -35644,6 +35891,28 @@
         }
       }
     },
+    "点按查看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to view"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按查看"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點按查看"
+          }
+        }
+      }
+    },
     "点相册名归类当前照片" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -35883,6 +36152,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "照片資訊"
+          }
+        }
+      }
+    },
+    "照片库概览" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Library overview"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片库概览"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片庫概覽"
           }
         }
       }
@@ -36733,6 +37024,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "留"
+          }
+        }
+      }
+    },
+    "相似与重复" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Similar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相似与重复"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相似與重複"
           }
         }
       }
@@ -39447,6 +39760,28 @@
         }
       }
     },
+    "累计清理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleaned"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "累计清理"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "累計清理"
+          }
+        }
+      }
+    },
     "累计节省" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -41363,6 +41698,7 @@
       }
     },
     "读取中 %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -46967,6 +47303,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "預計可減少 %lld 張，逐組確認更穩妥。"
+          }
+        }
+      }
+    },
+    "预计可清理 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About %@ to clear"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "预计可清理 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "預計可清理 %@"
           }
         }
       }

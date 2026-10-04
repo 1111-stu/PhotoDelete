@@ -23,11 +23,10 @@ private struct StatsScreen: View {
     @State private var showingClearConfirmation = false
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                PhotoDeleteScreenBackground()
+        ZStack {
+            PhotoDeleteScreenBackground()
 
-                ScrollView {
+            ScrollView {
                     VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
                         usageSection
                         RecentOrganizedPhotosSection(dataManager: dataManager)
@@ -50,9 +49,8 @@ private struct StatsScreen: View {
                 }
                 .scrollIndicators(.hidden)
             }
-            .navigationTitle(L10n.string("统计"))
-            .navigationBarTitleDisplayMode(.large)
-        }
+        .navigationTitle(L10n.string("统计"))
+        .navigationBarTitleDisplayMode(.large)
         .confirmationDialog(L10n.string("清空本机统计记录？"), isPresented: $showingClearConfirmation, titleVisibility: .visible) {
             Button(L10n.string("清空统计记录"), role: .destructive) {
                 statsStore.clearAll()

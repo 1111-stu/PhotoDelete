@@ -73,20 +73,6 @@ struct MainTabView: View {
                     .tag(PhotoDeleteMainTab.albums)
             }
 
-            tabContent(for: .advanced)
-                .tabItem {
-                    Image(systemName: PhotoDeleteMainTab.advanced.systemImage)
-                    Text(PhotoDeleteMainTab.advanced.title)
-                }
-                .tag(PhotoDeleteMainTab.advanced)
-
-            tabContent(for: .stats)
-                .tabItem {
-                    Image(systemName: PhotoDeleteMainTab.stats.systemImage)
-                    Text(PhotoDeleteMainTab.stats.title)
-                }
-                .tag(PhotoDeleteMainTab.stats)
-            
             tabContent(for: .settings)
                 .tabItem {
                     Image(systemName: PhotoDeleteMainTab.settings.systemImage)
