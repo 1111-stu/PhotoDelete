@@ -40,11 +40,14 @@ struct SettingsView: View {
 
                 ScrollView {
                     VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+                        supporterBanner
+
                         // 使用统计
                         statsSection
 
-                        // 支持者版
-                        supporterSection
+                        if AppConstants.advancedPaywallEnabled {
+                            supporterSection
+                        }
 
                         // 偏好设置
                         preferencesSection
@@ -189,6 +192,42 @@ struct SettingsView: View {
             Int64(dataManager.cleanupStatsStore.achievementProgresses.count),
             Int64(dataManager.cleanupStatsStore.summary.sessions)
         )
+    }
+
+    private var supporterBanner: some View {
+        Button {
+            activeSheet = .supporter
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "crown.fill")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 36, height: 36)
+                    .background(Color.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(supporterRowTitle)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.white)
+                    Text(supporterRowSubtitle)
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.72))
+                        .multilineTextAlignment(.leading)
+                }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.black, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(Text(L10n.string("查看购买信息和功能区别")))
     }
 
     // MARK: - 支持者版

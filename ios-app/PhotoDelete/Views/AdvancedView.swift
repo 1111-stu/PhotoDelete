@@ -27,7 +27,7 @@ struct AdvancedView: View {
     @State private var visibleAdvancedPeriodLimit = 5
 
     private var isLocked: Bool {
-        !purchaseManager.isSupporter
+        AppConstants.advancedPaywallEnabled && !purchaseManager.isSupporter
     }
 
     private var isAwaitingPhotoLibraryAccess: Bool {
