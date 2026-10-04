@@ -14,11 +14,6 @@ struct PhotoDeleteApp: App {
             forKey: AppConstants.appLanguageKey,
             fallback: AppLanguage.system.rawValue
         )
-    @AppStorage(AppConstants.appAppearanceKey) private var appAppearanceValue =
-        PhotoDeleteLaunchDefaults.string(
-            forKey: AppConstants.appAppearanceKey,
-            fallback: AppAppearance.system.rawValue
-        )
     @AppStorage(AppConstants.appThemeKey) private var appThemeValue =
         PhotoDeleteLaunchDefaults.string(
             forKey: AppConstants.appThemeKey,
@@ -39,17 +34,13 @@ struct PhotoDeleteApp: App {
                 .modifier(AppLayoutDirectionModifier(language: selectedLanguage))
                 .environment(\.photoDeleteTheme, selectedTheme)
                 .tint(selectedTheme.navigationTint)
-                .preferredColorScheme(selectedAppearance.colorScheme)
+                .preferredColorScheme(.dark)
                 .statusBarHidden(false)
         }
     }
 
     private var selectedLanguage: AppLanguage {
         AppLanguage(rawValue: appLanguageValue) ?? .system
-    }
-
-    private var selectedAppearance: AppAppearance {
-        AppAppearance(rawValue: appAppearanceValue) ?? .system
     }
 
     private var selectedTheme: PhotoDeleteTheme {

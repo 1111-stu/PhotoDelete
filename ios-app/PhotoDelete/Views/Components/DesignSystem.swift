@@ -392,10 +392,7 @@ enum AppConstants {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     }
 
-    static let authorName = "MakerJackie"
     static let feedbackEmail = "contact@01mvp.com"
-    static let wechatID = "mvps01"
-    static let websiteURL = "https://01mvp.com"
     static let appStoreID = "6779493280"
     static let appStoreProductURL = URL(string: "https://apps.apple.com/app/id6779493280")!
     static let appStoreReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id6779493280?action=write-review")!

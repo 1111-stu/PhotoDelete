@@ -100,8 +100,6 @@ struct SettingsView: View {
     @AppStorage(AppConstants.reviewVideoAutoPlayKey) private var reviewVideoAutoPlay = true
     @AppStorage(AppConstants.reviewLivePhotoAutoPlayKey) private var reviewLivePhotoAutoPlay = false
     @AppStorage(AppConstants.reviewSortOrderKey) private var reviewSortOrderValue = PhotoReviewSortOrder.newestFirst.rawValue
-    @AppStorage(AppConstants.appAppearanceKey) private var appAppearanceValue = AppAppearance.system.rawValue
-    @AppStorage(AppConstants.appThemeKey) private var appThemeValue = PhotoDeleteTheme.defaultTheme.rawValue
     @State private var activeSheet: SettingsSheet?
     @State private var showingClearLocalDataConfirmation = false
     @State private var settingsToast: PhotoDeleteToast?
@@ -129,7 +127,6 @@ struct SettingsView: View {
                         // 关于与支持
                         aboutSection
 
-                        // 作者的更多 App
                         moreAppsSection
 
                         // 版本信息
@@ -163,10 +160,6 @@ struct SettingsView: View {
                     .foregroundColor(PhotoDeleteStyle.primaryText)
                     .padding()
             #endif
-            case .about:
-                AboutView()
-            case .author:
-                AuthorView()
             case .privacy:
                 PrivacyInfoView()
             case .supporter:
@@ -177,8 +170,6 @@ struct SettingsView: View {
                 GestureSettingsView()
             case .languageSettings:
                 LanguageSettingsView()
-            case .appearanceSettings:
-                AppearanceSettingsView()
             }
         }
     }
@@ -304,28 +295,9 @@ struct SettingsView: View {
                 SettingsHairline()
 
                 SettingRow(
-                    title: L10n.string("关于创作者"),
-                    action: {
-                        activeSheet = .author
-                    }
-                )
-
-                SettingsHairline()
-
-                SettingRow(
                     title: L10n.string("隐私说明"),
                     action: {
                         activeSheet = .privacy
-                    }
-                )
-
-                SettingsHairline()
-
-                SettingRow(
-                    title: L10n.string("关于删图"),
-                    subtitle: L10n.string("版本 \(AppConstants.displayVersion)"),
-                    action: {
-                        activeSheet = .about
                     }
                 )
             }
@@ -367,16 +339,6 @@ struct SettingsView: View {
                     subtitle: selectedLanguage.title,
                     action: {
                         activeSheet = .languageSettings
-                    }
-                )
-
-                SettingsHairline()
-
-                SettingRow(
-                    title: L10n.string("主题与外观"),
-                    subtitle: "\(selectedTheme.title) · \(selectedAppearance.title)",
-                    action: {
-                        activeSheet = .appearanceSettings
                     }
                 )
 
@@ -460,14 +422,6 @@ struct SettingsView: View {
 
     private var selectedLanguage: AppLanguage {
         AppLanguage(rawValue: appLanguageValue) ?? .system
-    }
-
-    private var selectedAppearance: AppAppearance {
-        AppAppearance(rawValue: appAppearanceValue) ?? .system
-    }
-
-    private var selectedTheme: PhotoDeleteTheme {
-        PhotoDeleteTheme.normalized(appThemeValue)
     }
 
     private func settingsToastView(_ toast: PhotoDeleteToast) -> some View {
@@ -694,24 +648,18 @@ struct SettingsView: View {
 
 private enum SettingsSheet: Identifiable {
     case mail
-    case about
-    case author
     case privacy
     case supporter
     case gestureSettings
     case languageSettings
-    case appearanceSettings
 
     var id: String {
         switch self {
         case .mail: return "mail"
-        case .about: return "about"
-        case .author: return "author"
         case .privacy: return "privacy"
         case .supporter: return "supporter"
         case .gestureSettings: return "gestureSettings"
         case .languageSettings: return "languageSettings"
-        case .appearanceSettings: return "appearanceSettings"
         }
     }
 }
@@ -1544,225 +1492,6 @@ private struct LanguageSettingsView: View {
     }
 }
 
-// MARK: - 外观设置
-private struct AppearanceSettingsView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @EnvironmentObject private var dataManager: DataManager
-    @EnvironmentObject private var purchaseManager: PurchaseManager
-    @AppStorage(AppConstants.appAppearanceKey) private var selectedAppearanceID = AppAppearance.system.rawValue
-    @AppStorage(AppConstants.appThemeKey) private var selectedThemeID = PhotoDeleteTheme.defaultTheme.rawValue
-    @State private var showingSupporter = false
-
-    private let themeColumns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
-
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                SettingsChrome.canvas
-                    .ignoresSafeArea()
-
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        headerSection
-                        themeSection
-                        appearanceSection
-                    }
-                    .padding(.horizontal, SettingsChrome.pageInset)
-                    .padding(.top, 16)
-                    .padding(.bottom, 24)
-                    .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .navigationTitle(L10n.string("主题与外观"))
-            .navigationBarTitleDisplayMode(.inline)
-            .settingsNavigationChrome()
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
-                        dismiss()
-                    }
-                    .foregroundStyle(SettingsChrome.accent)
-                }
-            }
-        }
-        .sheet(isPresented: $showingSupporter) {
-            SupporterView()
-                .environmentObject(dataManager)
-                .environmentObject(purchaseManager)
-        }
-        .onAppear(perform: ensureThemeAccess)
-        .onChange(of: purchaseManager.isSupporter) { _ in
-            ensureThemeAccess()
-        }
-    }
-
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(L10n.string("主题与外观"))
-                .settingsSectionHeading()
-
-            Text(L10n.string("选择界面色调，以及日间、夜间或跟随系统外观。"))
-                .font(.body)
-                .foregroundStyle(SettingsChrome.muted)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
-    private var themeSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.string("界面色调"))
-                    .settingsSectionHeading()
-
-                Text(canChooseThemes ? L10n.string("色调会影响背景、图标、按钮和选中状态。") : L10n.string("支持者版可切换更多主题。"))
-                    .settingsRowValue()
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            LazyVGrid(columns: themeColumns, spacing: 12) {
-                ForEach(PhotoDeleteTheme.allCases) { theme in
-                    themeButton(theme)
-                }
-            }
-        }
-    }
-
-    private func themeButton(_ theme: PhotoDeleteTheme) -> some View {
-        let isLocked = !canChooseThemes && theme != .defaultTheme
-        let isSelected = selectedTheme == theme
-
-        return Button {
-            guard !isLocked else {
-                showingSupporter = true
-                HapticManager.impact(.light)
-                return
-            }
-            selectedThemeID = theme.rawValue
-            HapticManager.impact(.light)
-        } label: {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    PhotoDeleteThemeSwatches(colors: theme.swatches)
-                    Spacer(minLength: 8)
-                    Image(systemName: themeStatusImage(isSelected: isSelected, isLocked: isLocked))
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(isLocked || isSelected ? SettingsChrome.accent : SettingsChrome.muted)
-                        .accessibilityHidden(true)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(theme.title)
-                        .settingsRowTitle()
-                        .lineLimit(1)
-
-                    Text(theme.subtitle)
-                        .settingsRowValue()
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity, minHeight: 138, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous)
-                    .fill(SettingsChrome.surface)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous))
-            .opacity(isLocked ? 0.76 : 1)
-        }
-        .buttonStyle(.plain)
-        .accessibilityHint(Text(isLocked ? L10n.string("支持者版可切换更多主题。") : theme.subtitle))
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityValue(Text(isSelected ? L10n.string("已选") : isLocked ? L10n.string("解锁后可用") : L10n.string("未选择")))
-    }
-
-    private var appearanceSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("外观"))
-                .settingsSectionHeading()
-
-            VStack(spacing: 0) {
-                ForEach(AppAppearance.allCases) { appearance in
-                    Button {
-                        selectedAppearanceID = appearance.rawValue
-                        HapticManager.impact(.light)
-                    } label: {
-                        HStack(spacing: 12) {
-                            Text(appearance.title)
-                                .settingsRowTitle()
-                                .lineLimit(1)
-
-                            Spacer()
-
-                            SettingsSelectionMark(isSelected: selectedAppearance == appearance)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 16)
-                        .frame(minHeight: SettingsChrome.rowMinHeight)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityHint(Text(appearance.detail))
-                    .accessibilityAddTraits(selectedAppearance == appearance ? .isSelected : [])
-                    .accessibilityValue(Text(selectedAppearance == appearance ? L10n.string("已选") : L10n.string("未选择")))
-
-                    if appearance != AppAppearance.allCases.last {
-                        SettingsHairline()
-                    }
-                }
-            }
-            .settingsGroupedCard()
-        }
-    }
-
-    private var selectedAppearance: AppAppearance {
-        AppAppearance(rawValue: selectedAppearanceID) ?? .system
-    }
-
-    private var selectedTheme: PhotoDeleteTheme {
-        guard canChooseThemes else { return .defaultTheme }
-        return PhotoDeleteTheme.normalized(selectedThemeID)
-    }
-
-    private var canChooseThemes: Bool {
-        purchaseManager.isSupporter
-    }
-
-    private func ensureThemeAccess() {
-        guard !canChooseThemes, selectedThemeID != PhotoDeleteTheme.defaultTheme.rawValue else { return }
-        selectedThemeID = PhotoDeleteTheme.defaultTheme.rawValue
-    }
-
-    private func themeStatusImage(isSelected: Bool, isLocked: Bool) -> String {
-        if isLocked { return "lock.fill" }
-        return isSelected ? "checkmark.circle.fill" : "circle"
-    }
-}
-
-private struct PhotoDeleteThemeSwatches: View {
-    let colors: [Color]
-
-    var body: some View {
-        HStack(spacing: -5) {
-            ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
-                Circle()
-                    .fill(color)
-                    .frame(width: 22, height: 22)
-                    .overlay(
-                        Circle()
-                            .stroke(SettingsChrome.canvas, lineWidth: 1)
-                    )
-            }
-        }
-        .accessibilityHidden(true)
-    }
-}
-
 // MARK: - 邮件编写视图
 #if canImport(MessageUI)
 struct MailComposeView: UIViewControllerRepresentable {
@@ -1797,159 +1526,6 @@ struct MailComposeView: UIViewControllerRepresentable {
     }
 }
 #endif
-
-// MARK: - 作者介绍视图
-struct AuthorView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var authorToast: PhotoDeleteToast?
-
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                PhotoDeleteScreenBackground()
-
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 22) {
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack(spacing: 14) {
-                                AuthorAvatar()
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(AppConstants.authorName)
-                                        .font(.system(size: 24, weight: .semibold))
-                                        .foregroundColor(PhotoDeleteStyle.primaryText)
-
-                                    Text(L10n.string("独立开发者 / 数字游民"))
-                                        .font(.system(size: 15, weight: .regular))
-                                        .foregroundColor(PhotoDeleteStyle.secondaryText)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                            }
-
-                            Text(L10n.attributedMarkdown(
-                                "喜欢旅行和探索世界，也用 AI 做一些有趣的小产品。博客和作品集在 [makerjackie.com](https://makerjackie.com)。"
-                            ))
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
-                            .lineSpacing(4)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .tint(PhotoDeleteStyle.accent)
-                        }
-
-                        if AppLanguage.current.showsSimplifiedChineseOnlyContent {
-                            HStack(alignment: .center, spacing: 12) {
-                                PhotoDeleteIconTile(icon: "bubble.left.and.bubble.right.fill", tint: PhotoDeleteStyle.positive, size: 38, cornerRadius: 11)
-                                    .accessibilityHidden(true)
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(L10n.string("联系作者微信"))
-                                        .font(.system(size: 17, weight: .semibold))
-                                        .foregroundColor(PhotoDeleteStyle.primaryText)
-
-                                    Text(AppConstants.wechatID)
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(PhotoDeleteStyle.secondaryText)
-                                }
-
-                                Spacer(minLength: 8)
-
-                                Button(action: copyWeChatID) {
-                                    Text(authorToast == nil ? L10n.string("复制") : L10n.string("已复制"))
-                                        .font(.system(size: 13, weight: .semibold))
-                                        .foregroundColor(PhotoDeleteStyle.primaryButtonText)
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 7)
-                                        .background(
-                                            Capsule(style: .continuous)
-                                                .fill(PhotoDeleteStyle.accent)
-                                        )
-                                        .photoDeleteMinimumTapTarget()
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(String(format: L10n.string("复制微信号 %@"), AppConstants.wechatID))
-                                .accessibilityHint(L10n.string("轻点复制"))
-                            }
-                            .padding(18)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .photoDeleteCard()
-                        }
-
-                        CreatorMVPGuideSection()
-
-                        Spacer(minLength: 24)
-                    }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                    .padding(.top, 20)
-                    .padding(.bottom, 24)
-                }
-
-                if let authorToast {
-                    authorToastView(authorToast)
-                }
-            }
-            .navigationTitle(L10n.string("关于创作者"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
-                        dismiss()
-                    }
-                    .foregroundColor(PhotoDeleteStyle.accent)
-                }
-            }
-        }
-    }
-
-    private func authorToastView(_ toast: PhotoDeleteToast) -> some View {
-        VStack {
-            Spacer()
-
-            PhotoDeleteToastView(toast: toast)
-                .padding(.bottom, 36)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-        .allowsHitTesting(false)
-    }
-
-    private func copyWeChatID() {
-        #if canImport(UIKit)
-        UIPasteboard.general.string = AppConstants.wechatID
-        showAuthorToast(L10n.string("已复制微信号 \(AppConstants.wechatID)"), icon: "checkmark.circle.fill", style: .positive)
-        #endif
-    }
-
-    private func showAuthorToast(_ message: String, icon: String, style: PhotoDeleteToastStyle) {
-        let toast = PhotoDeleteToast(message: message, icon: icon, style: style)
-
-        withAnimation(.easeInOut(duration: 0.18)) {
-            authorToast = toast
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-            guard authorToast?.id == toast.id else { return }
-            withAnimation(.easeInOut(duration: 0.18)) {
-                authorToast = nil
-            }
-        }
-    }
-}
-
-struct AuthorAvatar: View {
-    var body: some View {
-        Image("MakerJackieAvatar")
-            .resizable()
-            .scaledToFill()
-            .frame(width: 62, height: 62)
-            .clipShape(Circle())
-            .overlay(
-                Circle()
-                    .stroke(PhotoDeleteStyle.primaryText.opacity(0.22), lineWidth: 1)
-            )
-            .shadow(color: PhotoDeleteStyle.accent.opacity(0.2), radius: 18, x: 0, y: 10)
-            .accessibilityLabel(AppConstants.authorName)
-    }
-}
 
 // MARK: - 隐私说明视图
 struct PrivacyInfoView: View {

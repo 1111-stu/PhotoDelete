@@ -705,7 +705,7 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["触感反馈"].exists)
         XCTAssertTrue(app.staticTexts["给删图评分"].exists)
         XCTAssertTrue(app.staticTexts["邮件反馈"].exists)
-        XCTAssertTrue(app.staticTexts["关于创作者"].exists)
+        XCTAssertTrue(app.staticTexts["隐私说明"].exists)
         app.swipeUp()
         XCTAssertTrue(app.staticTexts["更多 App"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["One Apps Studio"].waitForExistence(timeout: 2))
@@ -762,7 +762,7 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Preferences"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Rate OnePhoto"].exists)
         XCTAssertTrue(app.staticTexts["Email Feedback"].exists)
-        XCTAssertTrue(app.staticTexts["About the Creator"].exists)
+        XCTAssertTrue(app.staticTexts["Privacy Notes"].exists)
         XCTAssertFalse(app.staticTexts["微信反馈"].exists)
     }
 
