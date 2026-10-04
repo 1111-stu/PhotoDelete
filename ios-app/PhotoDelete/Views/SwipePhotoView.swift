@@ -454,15 +454,16 @@ struct SwipePhotoView: View {
     @State private var isFlyingToTrash = false
     @State private var isSettlingHorizontalPage = false
     @State private var horizontalPageStride: CGFloat = 0
+    @State private var activeDragAxis: DragAxis?
     @State private var showsAlbumFilingSheet = false
     @State private var albumFilingSheetSelection: Set<String> = []
 
     private let reviewModeHintThreshold = 5
     private let deleteButtonTipThreshold = 3
     private enum SwipeMotion {
-        static let minimumDragDistance: CGFloat = 4
+        static let minimumDragDistance: CGFloat = 8
         static let previewStartDistance: CGFloat = 14
-        static let directionLockDistance: CGFloat = 12
+        static let directionLockDistance: CGFloat = 18
         static let commitDistance: CGFloat = 92
         static let predictedCommitDistance: CGFloat = 148
         static let minimumPredictedCommitDrag: CGFloat = 38
@@ -472,6 +473,10 @@ struct SwipePhotoView: View {
         static let actionDragResistance: CGFloat = 0.34
         static let maxCardTiltDegrees: CGFloat = 4
         static let inlineVideoScrubberReservedHeight: CGFloat = 78
+    }
+    private enum DragAxis {
+        case horizontal
+        case vertical
     }
     private static let countFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -2559,7 +2564,7 @@ struct SwipePhotoView: View {
         guard cardModeReviewActionCount >= reviewModeHintThreshold else { return }
 
         hasSeenReviewModeHint = true
-        withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
+        withAnimation(.easeOut(duration: 0.18)) {
             showReviewModeHint = true
         }
 
@@ -2590,7 +2595,7 @@ struct SwipePhotoView: View {
         sessionDeleteActionCount += 1
         guard sessionDeleteActionCount >= deleteButtonTipThreshold else { return }
 
-        withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
+        withAnimation(.easeOut(duration: 0.18)) {
             showDeleteButtonTip = true
         }
     }
@@ -2612,7 +2617,7 @@ struct SwipePhotoView: View {
             return
         }
 
-        withAnimation(.spring(response: 0.24, dampingFraction: 0.86)) {
+        withAnimation(.easeOut(duration: 0.18)) {
             showAlbumShortcutHint = true
         }
     }
@@ -2715,19 +2720,29 @@ struct SwipePhotoView: View {
                 guard !isFlyingToTrash, !isSettlingHorizontalPage else { return }
                 guard !shouldReserveInlineVideoScrubGesture(value: value, cardSize: cardSize) else {
                     isInlineVideoScrubGestureActive = true
+                    activeDragAxis = nil
                     dragOffset = .zero
                     return
                 }
                 isInlineVideoScrubGestureActive = false
-                if value.translation.width < 0,
-                   abs(value.translation.width) >= abs(value.translation.height) {
+                if activeDragAxis == nil,
+                   max(abs(value.translation.width), abs(value.translation.height)) >= SwipeMotion.directionLockDistance {
+                    activeDragAxis = abs(value.translation.width) >= abs(value.translation.height)
+                        ? .horizontal
+                        : .vertical
+                }
+                if activeDragAxis == .horizontal,
+                   value.translation.width < 0 {
                     _ = expandLoadedSessionPhotosIfNeeded(for: currentPhotoIndex, force: false)
                 }
-                dragOffset = visualDragOffset(for: value.translation)
+                dragOffset = visualDragOffset(for: value.translation, axis: activeDragAxis)
                 updateSwipeCommitFeedback(for: value.translation)
             }
             .onEnded { value in
-                guard !isFlyingToTrash, !isSettlingHorizontalPage else { return }
+                guard !isFlyingToTrash, !isSettlingHorizontalPage else {
+                    activeDragAxis = nil
+                    return
+                }
                 let shouldReserveScrubGesture = shouldReserveInlineVideoScrubGesture(
                     value: value,
                     cardSize: cardSize,
@@ -2736,6 +2751,7 @@ struct SwipePhotoView: View {
                 isInlineVideoScrubGestureActive = false
 
                 guard !shouldReserveScrubGesture else {
+                    activeDragAxis = nil
                     resetCardPosition()
                     return
                 }
@@ -2744,6 +2760,7 @@ struct SwipePhotoView: View {
                     predictedEndTranslation: value.predictedEndTranslation,
                     cardSize: cardSize
                 )
+                activeDragAxis = nil
             }
     }
 
@@ -2762,8 +2779,16 @@ struct SwipePhotoView: View {
         )
     }
 
-    private func visualDragOffset(for translation: CGSize) -> CGSize {
-        guard let direction = dominantSwipeDirection(for: translation, threshold: SwipeMotion.directionLockDistance) else {
+    private func visualDragOffset(for translation: CGSize, axis: DragAxis?) -> CGSize {
+        guard let axis else { return .zero }
+        let direction: SwipeDirection?
+        switch axis {
+        case .horizontal:
+            direction = translation.width < 0 ? .left : .right
+        case .vertical:
+            direction = translation.height < 0 ? .up : .down
+        }
+        guard let direction else {
             return translation
         }
 
@@ -2771,9 +2796,7 @@ struct SwipePhotoView: View {
         switch action {
         case .previous, .next:
             let step = direction == .left ? 1 : -1
-            let width = horizontalNeighborIndex(step: step) == nil
-                ? rubberBanded(translation.width, limit: 72, resistance: 0.28)
-                : translation.width
+            let width = horizontalNeighborIndex(step: step) == nil ? 0 : translation.width
             return CGSize(width: width, height: 0)
         case .close:
             return CGSize(width: 0, height: min(max(translation.height, -SwipeMotion.closeClamp), SwipeMotion.closeClamp))
@@ -2786,7 +2809,7 @@ struct SwipePhotoView: View {
                         limit: SwipeMotion.actionDragLimit,
                         resistance: SwipeMotion.actionDragResistance
                     ),
-                    height: translation.height * 0.35
+                    height: 0
                 )
             case .up, .down:
                 return CGSize(
@@ -2937,6 +2960,12 @@ struct SwipePhotoView: View {
             threshold: SwipeMotion.predictedCommitDistance
         ) else {
             return nil
+        }
+
+        if predictedDirection == .left || predictedDirection == .right {
+            return primaryDistance(for: predictedDirection, in: translation) >= SwipeMotion.commitDistance
+                ? predictedDirection
+                : nil
         }
 
         guard primaryDistance(for: predictedDirection, in: translation) >= SwipeMotion.minimumPredictedCommitDrag else {
@@ -3847,9 +3876,7 @@ struct SwipePhotoView: View {
 
     private func resetCardPosition() {
         hasPreparedSwipeCommit = false
-        let resetAnimation: Animation = reduceMotion
-            ? .easeOut(duration: 0.12)
-            : .interactiveSpring(response: 0.32, dampingFraction: 0.82)
+        let resetAnimation: Animation = .easeOut(duration: reduceMotion ? 0.12 : 0.18)
         withAnimation(resetAnimation) {
             dragOffset = .zero
             cardFlightScale = 1
@@ -4011,7 +4038,7 @@ struct SwipePhotoView: View {
         duration: TimeInterval = 3.0
     ) {
         let toast = PhotoDeleteToast(message: message, icon: icon, style: style, showsUndo: showsUndo)
-        withAnimation(.spring(response: 0.28, dampingFraction: 0.88)) {
+        withAnimation(.easeOut(duration: 0.18)) {
             feedbackToast = toast
         }
 
@@ -4052,7 +4079,11 @@ private struct CompletionStatPill: View {
         .padding(.vertical, 9)
         .background(
             RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(PhotoDeleteStyle.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
+                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                )
         )
     }
 }
@@ -4315,8 +4346,8 @@ private struct PhotoSwipeDragFeedbackView: View {
 
     private var glowColors: [Color] {
         [
-            feedback.action.tint.opacity(0.24 + feedback.progress * 0.42),
-            feedback.action.tint.opacity(0.08 + feedback.progress * 0.2),
+            feedback.action.tint.opacity(0.12 + feedback.progress * 0.24),
+            feedback.action.tint.opacity(0.04 + feedback.progress * 0.12),
             .clear
         ]
     }
@@ -4400,19 +4431,18 @@ private struct SwipeEdgeHint: View {
         .padding(.vertical, 10)
         .background(
             Capsule(style: .continuous)
-                .fill(color.opacity(0.96))
+                .fill(PhotoDeleteStyle.surface.opacity(0.96))
                 .overlay(
                     Capsule(style: .continuous)
-                        .stroke(Color.white.opacity(0.34), lineWidth: 1.2)
+                        .stroke(color.opacity(0.82), lineWidth: 1.2)
                 )
         )
-        .shadow(color: Color.black.opacity(0.28), radius: 12, x: 0, y: 5)
     }
 
     private var iconView: some View {
         Image(systemName: icon)
             .font(.system(size: 13, weight: .bold))
-            .foregroundColor(.white)
+            .foregroundColor(color)
     }
 }
 
@@ -5329,11 +5359,11 @@ private struct AlbumMicroButton: View {
             .frame(height: AlbumShortcutLayout.buttonVisualHeight)
             .background(
                 Capsule(style: .continuous)
-                    .fill(isRecentlyFiled ? PhotoDeleteStyle.positive.opacity(0.14) : PhotoDeleteStyle.surface.opacity(0.64))
+                    .fill(isRecentlyFiled ? PhotoDeleteStyle.positive.opacity(0.18) : PhotoDeleteStyle.elevatedSurface.opacity(0.82))
                     .overlay(
                         Capsule(style: .continuous)
                             .stroke(
-                                isRecentlyFiled ? PhotoDeleteStyle.positive.opacity(0.32) : PhotoDeleteStyle.hairline.opacity(0.78),
+                                isRecentlyFiled ? PhotoDeleteStyle.positive.opacity(0.68) : PhotoDeleteStyle.hairline,
                                 lineWidth: 1
                             )
                     )
@@ -5351,7 +5381,7 @@ private struct PhotoDeletePressScaleButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.94 : 1)
             .opacity(configuration.isPressed ? 0.78 : 1)
-            .animation(.interactiveSpring(response: 0.2, dampingFraction: 0.82), value: configuration.isPressed)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
