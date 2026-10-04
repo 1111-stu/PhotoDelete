@@ -99,108 +99,103 @@ struct BatchConfirmView: View {
         selectedFavoriteAssets: [PHAsset],
         deletedContentSizeSummary: DeletedContentSizeSummary
     ) -> some View {
-        VStack(spacing: 22) {
-            VStack(spacing: 16) {
-                Image(systemName: selectedDeleteAssets.isEmpty ? "checkmark.circle.fill" : "trash.circle.fill")
-                    .font(.system(size: 54, weight: .medium))
-                    .foregroundColor(selectedDeleteAssets.isEmpty ? PhotoDeleteStyle.positive : PhotoDeleteStyle.destructive)
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: 18) {
+                    VStack(spacing: 12) {
+                        Image(systemName: selectedDeleteAssets.isEmpty ? "checkmark.circle.fill" : "trash.circle.fill")
+                            .font(.system(size: 48, weight: .medium))
+                            .foregroundColor(selectedDeleteAssets.isEmpty ? PhotoDeleteStyle.positive : PhotoDeleteStyle.destructive)
 
-                Text(L10n.string("确认清理"))
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                        Text(L10n.string("确认清理"))
+                            .font(.system(size: 27, weight: .bold))
+                            .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                VStack(spacing: 8) {
-                    if !deleteAssets.isEmpty {
-                        Text(L10n.string("删除 \(selectedDeleteAssets.count) 张照片"))
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.destructive)
+                        Text(batchSummaryText(deleteCount: selectedDeleteAssets.count, favoriteCount: selectedFavoriteAssets.count))
+                            .font(.headline.weight(.semibold))
+                            .foregroundColor(selectedDeleteAssets.isEmpty ? PhotoDeleteStyle.positive : PhotoDeleteStyle.destructive)
+                            .multilineTextAlignment(.center)
 
-                        if selectedDeleteAssets.isEmpty {
-                            Text(L10n.string("未勾选的项目不会执行。"))
-                                .font(.system(size: 14, weight: .regular))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
-                        } else {
+                        if !selectedDeleteAssets.isEmpty {
                             deletedContentSizeText(deletedContentSizeSummary)
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.subheadline.weight(.semibold))
                                 .foregroundColor(PhotoDeleteStyle.positive)
                         }
                     }
 
-                    if !favoriteAssets.isEmpty {
-                        Text(L10n.string("收藏 \(selectedFavoriteAssets.count) 张照片"))
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.iconTint(for: "favorite"))
+                    if hasPendingOperations {
+                        VStack(alignment: .leading, spacing: 0) {
+                            if !deleteAssets.isEmpty {
+                                CandidatePreviewSection(
+                                    title: L10n.string("将删除 · 已选 \(selectedDeleteAssets.count)/\(deleteAssets.count)"),
+                                    assets: deleteAssets,
+                                    selectedCount: selectedDeleteAssets.count,
+                                    selectedAssetIDs: selectedDeleteIDs,
+                                    color: PhotoDeleteStyle.destructive,
+                                    icon: "trash.fill",
+                                    photoLibraryManager: dataManager.photoLibraryManager,
+                                    selectAccessibilityLabel: L10n.string("勾选这张照片"),
+                                    deselectAccessibilityLabel: L10n.string("取消勾选这张照片"),
+                                    onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
+                                    onToggleSelection: toggleDeleteSelection
+                                )
+                            }
+
+                            if !favoriteAssets.isEmpty {
+                                CandidatePreviewSection(
+                                    title: L10n.string("将收藏 · 已选 \(selectedFavoriteAssets.count)/\(favoriteAssets.count)"),
+                                    assets: favoriteAssets,
+                                    selectedCount: selectedFavoriteAssets.count,
+                                    selectedAssetIDs: selectedFavoriteIDs,
+                                    color: PhotoDeleteStyle.iconTint(for: "favorite"),
+                                    icon: "heart.fill",
+                                    photoLibraryManager: dataManager.photoLibraryManager,
+                                    selectAccessibilityLabel: L10n.string("勾选这张照片"),
+                                    deselectAccessibilityLabel: L10n.string("取消勾选这张照片"),
+                                    onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
+                                    onToggleSelection: toggleFavoriteSelection
+                                )
+                            }
+                        }
+                        .padding(14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .fill(PhotoDeleteStyle.elevatedSurface)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                        .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
+                                )
+                        )
+                    } else {
+                        Text(L10n.string("没有待执行的操作"))
+                            .font(.body)
+                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 24)
                     }
 
-                    if !hasPendingOperations {
-                        Text(L10n.string("没有待执行的操作"))
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    if hasPendingOperations {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label(L10n.string("默认已全部选中，取消选择后不会执行。"), systemImage: "checkmark.circle.fill")
+                            Label(L10n.string("删除后会进入系统“最近删除”，空间可能不会立即释放。"), systemImage: "info.circle")
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     if let errorMessage {
                         Text(errorMessage)
-                            .font(.system(size: 14, weight: .regular))
+                            .font(.subheadline)
                             .foregroundColor(PhotoDeleteStyle.warning)
                             .multilineTextAlignment(.center)
-                            .padding(.top, 8)
                     }
                 }
-
-                if hasPendingOperations {
-                    VStack(spacing: 6) {
-                        Label(L10n.string("默认已勾选，取消勾选后不会执行。"), systemImage: "checkmark.circle.fill")
-                        Label(L10n.string("删除后会进入系统“最近删除”，空间可能不会立即释放。"), systemImage: "info.circle")
-                    }
-                    .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-                    .multilineTextAlignment(.center)
-                    .labelStyle(.titleAndIcon)
-                }
+                .padding(.vertical, 24)
             }
+            .scrollIndicators(.hidden)
 
-            if hasPendingOperations {
-                ScrollView {
-                    VStack(spacing: 18) {
-                        if !deleteAssets.isEmpty {
-                            CandidatePreviewSection(
-                                title: L10n.string("将删除"),
-                                assets: deleteAssets,
-                                selectedCount: selectedDeleteAssets.count,
-                                selectedAssetIDs: selectedDeleteIDs,
-                                color: PhotoDeleteStyle.destructive,
-                                icon: "trash.fill",
-                                photoLibraryManager: dataManager.photoLibraryManager,
-                                selectAccessibilityLabel: L10n.string("勾选这张照片"),
-                                deselectAccessibilityLabel: L10n.string("取消勾选这张照片"),
-                                onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
-                                onToggleSelection: toggleDeleteSelection
-                            )
-                        }
-
-                        if !favoriteAssets.isEmpty {
-                            CandidatePreviewSection(
-                                title: L10n.string("将收藏"),
-                                assets: favoriteAssets,
-                                selectedCount: selectedFavoriteAssets.count,
-                                selectedAssetIDs: selectedFavoriteIDs,
-                                color: PhotoDeleteStyle.iconTint(for: "favorite"),
-                                icon: "heart.fill",
-                                photoLibraryManager: dataManager.photoLibraryManager,
-                                selectAccessibilityLabel: L10n.string("勾选这张照片"),
-                                deselectAccessibilityLabel: L10n.string("取消勾选这张照片"),
-                                onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
-                                onToggleSelection: toggleFavoriteSelection
-                            )
-                        }
-                    }
-                    .padding(.vertical, 2)
-                }
-                .scrollIndicators(.hidden)
-                .frame(maxHeight: 330)
-            }
-
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 Button(action: executeBatchOperations) {
                     Text(isProcessing ? L10n.string("正在执行...") : L10n.string("确认执行"))
                 }
@@ -216,15 +211,36 @@ struct BatchConfirmView: View {
                 Button(role: .destructive, action: cancelAllPendingOperations) {
                     Text(L10n.string("取消所有操作"))
                 }
-                .photoDeleteDestructiveButton()
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(PhotoDeleteStyle.destructive)
+                .frame(minHeight: 44)
                 .disabled(isProcessing || !hasPendingOperations)
             }
+            .padding(.top, 14)
+            .overlay(alignment: .top) {
+                Rectangle()
+                    .fill(PhotoDeleteStyle.hairline)
+                    .frame(height: 1)
+            }
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 30)
+        .padding(.horizontal, 22)
+        .padding(.vertical, 18)
         .photoDeleteCard()
         .frame(maxWidth: 620)
         .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+    }
+
+    private func batchSummaryText(deleteCount: Int, favoriteCount: Int) -> String {
+        if deleteCount > 0 && favoriteCount > 0 {
+            return L10n.string("删除 \(deleteCount) 张 · 收藏 \(favoriteCount) 张")
+        }
+        if deleteCount > 0 {
+            return L10n.string("删除 \(deleteCount) 张照片")
+        }
+        if favoriteCount > 0 {
+            return L10n.string("收藏 \(favoriteCount) 张照片")
+        }
+        return L10n.string("没有待执行的操作")
     }
 
     private func executeBatchOperations() {
@@ -472,7 +488,7 @@ private struct BatchCleanupCompletionView: View {
 
         try? await Task.sleep(nanoseconds: 80_000_000)
         guard !Task.isCancelled else { return }
-        withAnimation(.spring(response: 0.42, dampingFraction: 0.74)) {
+        withAnimation(.easeOut(duration: 0.28)) {
             animate = true
         }
         celebrationTrigger += 1
@@ -499,7 +515,7 @@ private struct BatchCleanupCompletionView: View {
             celebrationSymbol
         }
         .frame(height: 108)
-        .animation(.spring(response: 0.5, dampingFraction: 0.78), value: animate)
+        .animation(.easeOut(duration: 0.32), value: animate)
         .accessibilityHidden(true)
     }
 

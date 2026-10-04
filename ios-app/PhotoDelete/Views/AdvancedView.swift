@@ -1104,7 +1104,7 @@ private struct AdvancedBottomPaywall: View {
             return L10n.string("免费体验 3 天进阶功能，或开通年度 Pro；永久方案可在方案页选择。")
         }
 
-        return L10n.string("年度 Pro 解锁完整时间列表、大文件清理、视频压缩、相似照片清理和主题切换。")
+        return L10n.string("年度 Pro 解锁完整时间列表、大文件清理、视频压缩和相似照片清理。")
     }
 
     private var billingDisclosure: String {

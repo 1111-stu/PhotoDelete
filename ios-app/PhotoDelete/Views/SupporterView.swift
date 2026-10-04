@@ -149,7 +149,7 @@ private struct SupporterTrialContent: View {
                         .font(.system(size: 28, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(String(format: L10n.string("还剩 %lld 天。试用期间可使用进阶清理、长期统计和主题切换。"), remainingDays))
+                    Text(String(format: L10n.string("还剩 %lld 天。试用期间可使用进阶清理和长期统计。"), remainingDays))
                         .font(.system(size: 16, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .multilineTextAlignment(.center)
@@ -204,7 +204,7 @@ private struct SupporterPaywallContent: View {
             return L10n.string("免费体验 3 天进阶功能，之后可选择年度 Pro 或永久 Pro。")
         }
 
-        return L10n.string("年度 Pro 和永久 Pro 均可解锁完整时间列表、压缩、相似照片清理和主题切换。")
+        return L10n.string("年度 Pro 和永久 Pro 均可解锁完整时间列表、压缩和相似照片清理。")
     }
 }
 
@@ -768,7 +768,6 @@ struct SupporterPlanComparisonCard: View {
         .init(titleID: .imageCompression, free: .notIncluded, supporter: .included),
         .init(titleID: .videoCompression, free: .notIncluded, supporter: .included),
         .init(titleID: .similarPhotoCleanup, free: .notIncluded, supporter: .included),
-        .init(titleID: .themeSwitching, free: .notIncluded, supporter: .included)
     ]
 
     var body: some View {
@@ -825,7 +824,6 @@ enum SupporterPlanFeatureTitle: String {
     case imageCompression = "图片压缩"
     case videoCompression = "视频压缩"
     case similarPhotoCleanup = "相似照片清理"
-    case themeSwitching = "主题切换"
 
     var localizedTitle: String {
         switch self {
@@ -840,7 +838,6 @@ enum SupporterPlanFeatureTitle: String {
         case .imageCompression: return L10n.string("图片压缩")
         case .videoCompression: return L10n.string("视频压缩")
         case .similarPhotoCleanup: return L10n.string("相似照片清理")
-        case .themeSwitching: return L10n.string("主题切换")
         }
     }
 }
@@ -926,7 +923,7 @@ struct SupporterBenefitsSheet: View {
 
                 ScrollView {
                     VStack(spacing: 16) {
-                        Text(L10n.string("免费版保留随机整理、滑动整理和按时间整理；支持者版额外解锁完整时间列表、图片压缩、视频压缩、大文件清理、相似照片清理和主题切换。"))
+                        Text(L10n.string("免费版保留随机整理、滑动整理和按时间整理；支持者版额外解锁完整时间列表、图片压缩、视频压缩、大文件清理和相似照片清理。"))
                             .font(.system(size: 14, weight: .regular))
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
                             .frame(maxWidth: .infinity, alignment: .leading)

@@ -5826,6 +5826,7 @@
       }
     },
     "使用统计" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -8164,6 +8165,9 @@
           }
         }
       }
+    },
+    "共 %lld 张" : {
+
     },
     "共 %lld 张可压缩图片" : {
       "localizations" : {
@@ -17516,6 +17520,7 @@
       }
     },
     "将删除" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -17549,7 +17554,18 @@
         }
       }
     },
+    "将删除 · 已选 %lld/%lld" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "将删除 · 已选 %1$lld/%2$lld"
+          }
+        }
+      }
+    },
     "将收藏" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -17579,6 +17595,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "將收藏"
+          }
+        }
+      }
+    },
+    "将收藏 · 已选 %lld/%lld" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "将收藏 · 已选 %1$lld/%2$lld"
           }
         }
       }
@@ -18962,6 +18988,9 @@
           }
         }
       }
+    },
+    "已删除 %lld 张" : {
+
     },
     "已加入待删除" : {
       "localizations" : {
@@ -28303,6 +28332,9 @@
         }
       }
     },
+    "整理进度" : {
+
+    },
     "整理进度、候选列表和统计都围绕本机照片库工作。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -30916,6 +30948,7 @@
       }
     },
     "未勾选的项目不会执行。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -48375,7 +48408,11 @@
         }
       }
     },
+    "默认已全部选中，取消选择后不会执行。" : {
+
+    },
     "默认已勾选，取消勾选后不会执行。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

@@ -14,11 +14,6 @@ struct PhotoDeleteApp: App {
             forKey: AppConstants.appLanguageKey,
             fallback: AppLanguage.system.rawValue
         )
-    @AppStorage(AppConstants.appThemeKey) private var appThemeValue =
-        PhotoDeleteLaunchDefaults.string(
-            forKey: AppConstants.appThemeKey,
-            fallback: PhotoDeleteTheme.defaultTheme.rawValue
-        )
     @StateObject private var purchaseManager = PurchaseManager()
 
     init() {
@@ -31,8 +26,8 @@ struct PhotoDeleteApp: App {
                 .environmentObject(purchaseManager)
                 .environment(\.locale, selectedLanguage.locale)
                 .modifier(AppLayoutDirectionModifier(language: selectedLanguage))
-                .environment(\.photoDeleteTheme, selectedTheme)
-                .tint(selectedTheme.navigationTint)
+                .environment(\.photoDeleteTheme, PhotoDeleteTheme.defaultTheme)
+                .tint(PhotoDeleteTheme.defaultTheme.navigationTint)
                 .preferredColorScheme(.dark)
                 .statusBarHidden(false)
         }
@@ -42,10 +37,6 @@ struct PhotoDeleteApp: App {
         AppLanguage(rawValue: appLanguageValue) ?? .system
     }
 
-    private var selectedTheme: PhotoDeleteTheme {
-        guard purchaseManager.isSupporter else { return .defaultTheme }
-        return PhotoDeleteTheme.normalized(appThemeValue)
-    }
 }
 
 private enum PhotoDeleteLaunchDefaults {

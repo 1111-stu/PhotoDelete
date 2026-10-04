@@ -15,6 +15,23 @@ struct SystemShareSheet: UIViewControllerRepresentable {
 #endif
 
 enum PhotoDeleteStyle {
+    // Shared geometry follows the Moonly-inspired style guide.
+    enum Metrics {
+        static let minimumTapTarget: CGFloat = 44
+        static let screenHorizontalPadding: CGFloat = 20
+        static let cardRadius: CGFloat = 22
+        static let controlRadius: CGFloat = 14
+        static let sectionSpacing: CGFloat = 24
+        static let rootContentTopSpacing: CGFloat = 8
+        static let rowIconSize: CGFloat = 32
+        static let rowMinHeight: CGFloat = 58
+        static let cardStrokeWidth: CGFloat = 1
+        static let toastHorizontalPadding: CGFloat = 14
+        static let toastVerticalPadding: CGFloat = 11
+        static let toastIconSize: CGFloat = 15
+        static let toastTextSize: CGFloat = 14
+    }
+
     #if canImport(UIKit)
     static var background: Color { PhotoDeleteTheme.current.backgroundBottom }
     static var backgroundTop: Color { PhotoDeleteTheme.current.backgroundTop }
@@ -22,18 +39,9 @@ enum PhotoDeleteStyle {
     static var elevatedSurface: Color { PhotoDeleteTheme.current.elevatedSurface }
     static var hairline: Color { PhotoDeleteTheme.current.hairline }
     static var cardStroke: Color { PhotoDeleteTheme.current.cardStroke }
-    static let primaryText = Color(uiColor: dynamicUIColor(
-        light: UIColor.label,
-        dark: UIColor(white: 1, alpha: 0.96)
-    ))
-    static let secondaryText = Color(uiColor: dynamicUIColor(
-        light: UIColor.secondaryLabel,
-        dark: UIColor(white: 1, alpha: 0.62)
-    ))
-    static let tertiaryText = Color(uiColor: dynamicUIColor(
-        light: UIColor.tertiaryLabel,
-        dark: UIColor(white: 1, alpha: 0.42)
-    ))
+    static let primaryText = Color.white.opacity(0.96)
+    static let secondaryText = Color.white.opacity(0.62)
+    static let tertiaryText = Color.white.opacity(0.42)
     static var accent: Color { PhotoDeleteTheme.current.primaryAccent }
     static var destructive: Color { PhotoDeleteTheme.current.danger }
     static var positive: Color { PhotoDeleteTheme.current.success }
@@ -43,10 +51,7 @@ enum PhotoDeleteStyle {
 
     static var uiBackground: UIColor { PhotoDeleteTheme.current.uiBackground }
     static var uiAccent: UIColor { PhotoDeleteTheme.current.uiAccent }
-    static let uiSecondaryText = dynamicUIColor(
-        light: UIColor.secondaryLabel,
-        dark: UIColor(white: 1.0, alpha: 0.58)
-    )
+    static let uiSecondaryText = UIColor(white: 1.0, alpha: 0.58)
     static var floatingShadow: Color { PhotoDeleteTheme.current.floatingShadow }
     #else
     static var background: Color { PhotoDeleteTheme.current.backgroundBottom }
@@ -67,13 +72,13 @@ enum PhotoDeleteStyle {
     static var floatingShadow: Color { PhotoDeleteTheme.current.floatingShadow }
     #endif
 
-    static let screenHorizontalPadding: CGFloat = 20
-    static let cardRadius: CGFloat = 22
-    static let controlRadius: CGFloat = 14
-    static let sectionSpacing: CGFloat = 24
-    static let rootContentTopSpacing: CGFloat = 8
-    static let rowIconSize: CGFloat = 32
-    static let rowMinHeight: CGFloat = 58
+    static let screenHorizontalPadding = Metrics.screenHorizontalPadding
+    static let cardRadius = Metrics.cardRadius
+    static let controlRadius = Metrics.controlRadius
+    static let sectionSpacing = Metrics.sectionSpacing
+    static let rootContentTopSpacing = Metrics.rootContentTopSpacing
+    static let rowIconSize = Metrics.rowIconSize
+    static let rowMinHeight = Metrics.rowMinHeight
 
     static func iconTint(for key: String) -> Color {
         let theme = PhotoDeleteTheme.current
@@ -103,13 +108,6 @@ enum PhotoDeleteStyle {
         theme.hairline
     }
 
-    #if canImport(UIKit)
-    private static func dynamicUIColor(light: UIColor, dark: UIColor) -> UIColor {
-        UIColor { traits in
-            traits.userInterfaceStyle == .dark ? dark : light
-        }
-    }
-    #endif
 }
 
 enum PhotoDeleteAdaptiveLayout {
@@ -195,7 +193,7 @@ struct PhotoDeleteCardBackground: ViewModifier {
                     .fill(PhotoDeleteStyle.surfaceFill(for: theme))
                     .overlay(
                         RoundedRectangle(cornerRadius: radius, style: .continuous)
-                            .stroke(PhotoDeleteStyle.strokeFill(for: theme), lineWidth: 1)
+                            .stroke(PhotoDeleteStyle.strokeFill(for: theme), lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                     )
             )
     }
@@ -269,7 +267,7 @@ struct PhotoDeleteIconTile: View {
                 .fill(softFill)
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .stroke(softStroke, lineWidth: 1)
+                        .stroke(softStroke, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                 )
                 .overlay(symbol.foregroundColor(resolvedTint))
         case .solid:
@@ -323,7 +321,7 @@ struct PhotoDeleteSecondaryButtonStyle: ButtonStyle {
                     .fill(theme.buttonSecondaryFill)
                     .overlay(
                         RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                            .stroke(theme.buttonSecondaryStroke, lineWidth: 1)
+                            .stroke(theme.buttonSecondaryStroke, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                     )
             )
             .opacity(isEnabled ? (configuration.isPressed ? 0.74 : 1) : 0.42)
@@ -346,7 +344,7 @@ struct PhotoDeleteDestructiveButtonStyle: ButtonStyle {
                     .fill(PhotoDeleteStyle.destructive.opacity(configuration.isPressed ? 0.18 : 0.12))
                     .overlay(
                         RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                            .stroke(PhotoDeleteStyle.destructive.opacity(0.28), lineWidth: 1)
+                        .stroke(PhotoDeleteStyle.destructive.opacity(0.28), lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                     )
             )
             .opacity(isEnabled ? (configuration.isPressed ? 0.78 : 1) : 0.42)
@@ -356,8 +354,11 @@ struct PhotoDeleteDestructiveButtonStyle: ButtonStyle {
 }
 
 extension View {
-    func photoDeleteMinimumTapTarget(_ size: CGFloat = 44) -> some View {
-        frame(minWidth: size, minHeight: size)
+    func photoDeleteMinimumTapTarget(_ size: CGFloat = PhotoDeleteStyle.Metrics.minimumTapTarget) -> some View {
+        frame(
+            minWidth: max(size, PhotoDeleteStyle.Metrics.minimumTapTarget),
+            minHeight: max(size, PhotoDeleteStyle.Metrics.minimumTapTarget)
+        )
             .contentShape(Rectangle())
     }
 
@@ -536,12 +537,12 @@ struct PhotoDeleteToastView: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: toast.icon)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: PhotoDeleteStyle.Metrics.toastIconSize, weight: .semibold))
                 .foregroundColor(toastColor)
                 .frame(width: 22)
 
             Text(toast.message.appLocalized)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(size: PhotoDeleteStyle.Metrics.toastTextSize, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.primaryText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -552,13 +553,13 @@ struct PhotoDeleteToastView: View {
                     .background(PhotoDeleteStyle.hairline)
 
                 Button(L10n.string("撤销"), action: onUndo)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: PhotoDeleteStyle.Metrics.toastTextSize, weight: .semibold))
                     .foregroundColor(theme.toolbarAction)
                     .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 11)
+        .padding(.horizontal, PhotoDeleteStyle.Metrics.toastHorizontalPadding)
+        .padding(.vertical, PhotoDeleteStyle.Metrics.toastVerticalPadding)
         .background(
             Capsule(style: .continuous)
                 .fill(theme.elevatedSurface.opacity(0.94))

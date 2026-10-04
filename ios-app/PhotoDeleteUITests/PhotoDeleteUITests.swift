@@ -264,9 +264,7 @@ final class PhotoDeleteUITests: XCTestCase {
             dismissHintButton.tap()
         }
 
-        let addToAlbumButton = firstExistingButton(in: app, labels: ["加入相册", "Add to Album"])
-        XCTAssertTrue(addToAlbumButton.waitForExistence(timeout: 15))
-        addToAlbumButton.tap()
+        dragCardDown(in: app)
 
         XCTAssertTrue(app.staticTexts["放进哪个相册?"].waitForExistence(timeout: 8))
         XCTAssertTrue(
@@ -621,8 +619,7 @@ final class PhotoDeleteUITests: XCTestCase {
         upStart.press(forDuration: 0.15, thenDragTo: upEnd)
 
         XCTAssertTrue(
-            app.staticTexts["已加入待删除"].waitForExistence(timeout: 5) ||
-                app.staticTexts["待删除 1 张"].waitForExistence(timeout: 2),
+            app.staticTexts["待删除 1 张"].waitForExistence(timeout: 5),
             "Swipe up from the video body should stage it for deletion."
         )
     }
@@ -876,9 +873,8 @@ final class PhotoDeleteUITests: XCTestCase {
         sleep(2)
         try capture("02-review-card", in: outputDirectory, app: app)
 
-        let addToAlbumButton = firstExistingButton(in: app, labels: ["加入相册", "Add to Album", "review-add-to-album"])
-        if addToAlbumButton.waitForExistence(timeout: 5), addToAlbumButton.isHittable {
-            addToAlbumButton.tap()
+        dragCardDown(in: app)
+        if app.staticTexts["放进哪个相册?"].waitForExistence(timeout: 5) {
             sleep(1)
             try capture("03-album-filing-sheet", in: outputDirectory, app: app)
             app.swipeDown()
@@ -1159,9 +1155,8 @@ final class PhotoDeleteUITests: XCTestCase {
     @discardableResult
     private func fileCurrentReviewPhoto(into title: String, in app: XCUIApplication) -> Bool {
         if !app.staticTexts["放进哪个相册?"].exists {
-            let addButton = firstExistingButton(in: app, labels: ["加入相册", "Add to Album"])
-            guard addButton.waitForExistence(timeout: 8), addButton.isHittable else { return false }
-            addButton.tap()
+            dragCardDown(in: app)
+            guard app.staticTexts["放进哪个相册?"].waitForExistence(timeout: 8) else { return false }
         }
 
         guard let albumButton = waitForHittableButton(in: app, label: "归类到 \(title)", timeout: 8) else {

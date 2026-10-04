@@ -457,22 +457,30 @@ struct SwipePhotoView: View {
     @State private var activeDragAxis: DragAxis?
     @State private var showsAlbumFilingSheet = false
     @State private var albumFilingSheetSelection: Set<String> = []
+    @State private var pendingAlbumSuccessToastTitle: String?
 
     private let reviewModeHintThreshold = 5
     private let deleteButtonTipThreshold = 3
     private enum SwipeMotion {
         static let minimumDragDistance: CGFloat = 8
         static let previewStartDistance: CGFloat = 14
-        static let directionLockDistance: CGFloat = 18
-        static let commitDistance: CGFloat = 92
-        static let predictedCommitDistance: CGFloat = 148
-        static let minimumPredictedCommitDrag: CGFloat = 38
-        static let browseClamp: CGFloat = 120
-        static let closeClamp: CGFloat = 112
-        static let actionDragLimit: CGFloat = 210
-        static let actionDragResistance: CGFloat = 0.34
+        static let directionLockDistance: CGFloat = 12
+        /// Vertical action commit (up=delete stage, down=album). Kept a bit harder than paging.
+        static let commitDistance: CGFloat = 56
+        static let predictedCommitDistance: CGFloat = 96
+        static let minimumPredictedCommitDrag: CGFloat = 28
+        /// Horizontal browse/page commit. Slightly more sensitive than vertical actions.
+        static let browseCommitDistance: CGFloat = 46
+        static let browsePredictedCommitDistance: CGFloat = 80
+        static let browseMinimumPredictedCommitDrag: CGFloat = 22
+        static let browseClamp: CGFloat = 160
+        static let closeClamp: CGFloat = 188
+        static let actionDragLimit: CGFloat = 300
+        static let actionDragResistance: CGFloat = 0.78
         static let maxCardTiltDegrees: CGFloat = 4
         static let inlineVideoScrubberReservedHeight: CGFloat = 78
+        static let releaseSpring = Animation.spring(response: 0.18, dampingFraction: 0.86)
+        static let reduceMotionRelease = Animation.easeOut(duration: 0.12)
     }
     private enum DragAxis {
         case horizontal
@@ -810,7 +818,11 @@ struct SwipePhotoView: View {
             GestureSettingsView()
         }
         .sheet(isPresented: $showsAlbumFilingSheet, onDismiss: {
+            if let title = pendingAlbumSuccessToastTitle {
+                showAlbumFilingSuccessToast(albumTitle: title)
+            }
             albumFilingSheetSelection.removeAll()
+            pendingAlbumSuccessToastTitle = nil
         }) {
             ReviewAlbumFilingSheet(
                 albums: dataManager.getUserAlbumsSortedByCustomOrder(),
@@ -1155,6 +1167,12 @@ struct SwipePhotoView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Live finger tracking must never inherit an ambient SwiftUI animation.
+        .transaction { transaction in
+            if activeDragAxis != nil {
+                transaction.disablesAnimations = true
+            }
+        }
         .onAppear { horizontalPageStride = pageStride }
         .onChange(of: pageStride) { horizontalPageStride = $0 }
         .safeAreaInset(edge: .bottom, spacing: 8) {
@@ -1202,21 +1220,6 @@ struct SwipePhotoView: View {
                         .allowsHitTesting(false)
                 }
             }
-            .overlay(alignment: .bottom) {
-                if isCurrent, !isInlineVideoPlaying {
-                    Button(action: openAlbumFilingSheet) {
-                        Label(L10n.string("加入相册"), systemImage: "plus.rectangle.on.rectangle")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(.ultraThinMaterial, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.bottom, 16)
-                    .accessibilityIdentifier("review-add-to-album")
-                }
-            }
             .overlay(alignment: isInlineVideoPlaying ? .topTrailing : .bottomTrailing) {
                 if isCurrent {
                 HStack(spacing: 8) {
@@ -1257,6 +1260,9 @@ struct SwipePhotoView: View {
             .accessibilityAction(named: Text(L10n.string("加入待删除"))) {
                 handleDeleteAction()
                 resetCardPosition()
+            }
+            .accessibilityAction(named: Text(L10n.string("加入相册"))) {
+                openAlbumFilingSheet()
             }
             .accessibilityAction(named: Text(isCurrentPhotoFavorited ? L10n.string("取消收藏") : L10n.string("加入收藏"))) {
                 handleFavoriteAction()
@@ -2477,8 +2483,8 @@ struct SwipePhotoView: View {
     }
 
     private func photoCardSize(in containerSize: CGSize) -> CGSize {
-        let availableWidth = max(containerSize.width - 40, 180)
-        let availableHeight = max(containerSize.height - 108, 220)
+        let availableWidth = max(containerSize.width - 64, 180)
+        let availableHeight = max(containerSize.height - 132, 220)
         let maxSize = PhotoDeleteAdaptiveLayout.reviewPhotoCardMaxSize(
             in: containerSize,
             horizontalSizeClass: horizontalSizeClass
@@ -2720,22 +2726,25 @@ struct SwipePhotoView: View {
                 guard !isFlyingToTrash, !isSettlingHorizontalPage else { return }
                 guard !shouldReserveInlineVideoScrubGesture(value: value, cardSize: cardSize) else {
                     isInlineVideoScrubGestureActive = true
-                    activeDragAxis = nil
-                    dragOffset = .zero
+                    setLiveDragOffset(.zero, axis: nil)
                     return
                 }
                 isInlineVideoScrubGestureActive = false
-                if activeDragAxis == nil,
+                var nextAxis = activeDragAxis
+                if nextAxis == nil,
                    max(abs(value.translation.width), abs(value.translation.height)) >= SwipeMotion.directionLockDistance {
-                    activeDragAxis = abs(value.translation.width) >= abs(value.translation.height)
+                    nextAxis = abs(value.translation.width) >= abs(value.translation.height)
                         ? .horizontal
                         : .vertical
                 }
-                if activeDragAxis == .horizontal,
+                if nextAxis == .horizontal,
                    value.translation.width < 0 {
                     _ = expandLoadedSessionPhotosIfNeeded(for: currentPhotoIndex, force: false)
                 }
-                dragOffset = visualDragOffset(for: value.translation, axis: activeDragAxis)
+                setLiveDragOffset(
+                    visualDragOffset(for: value.translation, axis: nextAxis),
+                    axis: nextAxis
+                )
                 updateSwipeCommitFeedback(for: value.translation)
             }
             .onEnded { value in
@@ -2764,6 +2773,15 @@ struct SwipePhotoView: View {
             }
     }
 
+    private func setLiveDragOffset(_ offset: CGSize, axis: DragAxis?) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            activeDragAxis = axis
+            dragOffset = offset
+        }
+    }
+
     private func shouldReserveInlineVideoScrubGesture(
         value: DragGesture.Value,
         cardSize: CGSize,
@@ -2780,7 +2798,13 @@ struct SwipePhotoView: View {
     }
 
     private func visualDragOffset(for translation: CGSize, axis: DragAxis?) -> CGSize {
-        guard let axis else { return .zero }
+        guard let axis else {
+            // Follow the dominant axis 1:1 before lock so the card never dead-zones then snaps.
+            if abs(translation.width) >= abs(translation.height) {
+                return CGSize(width: translation.width, height: 0)
+            }
+            return CGSize(width: 0, height: translation.height)
+        }
         let direction: SwipeDirection?
         switch axis {
         case .horizontal:
@@ -2796,10 +2820,26 @@ struct SwipePhotoView: View {
         switch action {
         case .previous, .next:
             let step = direction == .left ? 1 : -1
-            let width = horizontalNeighborIndex(step: step) == nil ? 0 : translation.width
-            return CGSize(width: width, height: 0)
+            guard horizontalNeighborIndex(step: step) != nil else {
+                return CGSize(
+                    width: rubberBanded(
+                        translation.width,
+                        limit: SwipeMotion.browseClamp,
+                        resistance: SwipeMotion.actionDragResistance
+                    ),
+                    height: 0
+                )
+            }
+            return CGSize(width: translation.width, height: 0)
         case .close:
-            return CGSize(width: 0, height: min(max(translation.height, -SwipeMotion.closeClamp), SwipeMotion.closeClamp))
+            return CGSize(
+                width: 0,
+                height: rubberBanded(
+                    translation.height,
+                    limit: SwipeMotion.closeClamp,
+                    resistance: SwipeMotion.actionDragResistance
+                )
+            )
         case .delete, .keep, .favorite:
             switch direction {
             case .left, .right:
@@ -2813,7 +2853,7 @@ struct SwipePhotoView: View {
                 )
             case .up, .down:
                 return CGSize(
-                    width: translation.width * 0.22,
+                    width: 0,
                     height: rubberBanded(
                         translation.height,
                         limit: SwipeMotion.actionDragLimit,
@@ -2857,7 +2897,7 @@ struct SwipePhotoView: View {
     private func handleSwipeGesture(translation: CGSize, predictedEndTranslation: CGSize, cardSize: CGSize) {
         // 如果显示完成消息，允许滑动操作
         if showCompletionMessage {
-            if abs(translation.width) > SwipeMotion.commitDistance {
+            if abs(translation.width) > SwipeMotion.browseCommitDistance {
                 if translation.width < 0 {
                     // 左滑：显示批量确认
                     presentBatchConfirmation(dismissAfter: false)
@@ -2920,12 +2960,13 @@ struct SwipePhotoView: View {
         let stride = max(horizontalPageStride, cardSize.width)
         let targetX: CGFloat = direction == .left ? -stride : stride
         isSettlingHorizontalPage = true
-        let duration = reduceMotion ? 0.12 : 0.28
-        withAnimation(.easeOut(duration: duration)) {
+        let settleAnimation = reduceMotion ? SwipeMotion.reduceMotionRelease : SwipeMotion.releaseSpring
+        let settleDuration = reduceMotion ? 0.12 : 0.24
+        withAnimation(settleAnimation) {
             dragOffset = CGSize(width: targetX, height: 0)
             cardFlightScale = 1
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + settleDuration) {
             self.stopInlineVideoPlayback()
             var transaction = Transaction()
             transaction.disablesAnimations = true
@@ -2944,31 +2985,39 @@ struct SwipePhotoView: View {
 
     private func resetHorizontalPage() {
         hasPreparedSwipeCommit = false
-        withAnimation(reduceMotion ? .easeOut(duration: 0.12) : .easeOut(duration: 0.22)) {
+        withAnimation(reduceMotion ? SwipeMotion.reduceMotionRelease : SwipeMotion.releaseSpring) {
             dragOffset = .zero
             cardFlightScale = 1
         }
     }
 
     private func committedSwipeDirection(translation: CGSize, predictedEndTranslation: CGSize) -> SwipeDirection? {
-        if let direction = dominantSwipeDirection(for: translation, threshold: SwipeMotion.commitDistance) {
+        if let direction = dominantSwipeDirection(
+            for: translation,
+            horizontalThreshold: SwipeMotion.browseCommitDistance,
+            verticalThreshold: SwipeMotion.commitDistance
+        ) {
             return direction
         }
 
         guard let predictedDirection = dominantSwipeDirection(
             for: predictedEndTranslation,
-            threshold: SwipeMotion.predictedCommitDistance
+            horizontalThreshold: SwipeMotion.browsePredictedCommitDistance,
+            verticalThreshold: SwipeMotion.predictedCommitDistance
         ) else {
             return nil
         }
 
-        if predictedDirection == .left || predictedDirection == .right {
-            return primaryDistance(for: predictedDirection, in: translation) >= SwipeMotion.commitDistance
-                ? predictedDirection
-                : nil
+        // Allow a short, fast flick to commit; ignore accidental micro-drags.
+        // Horizontal paging uses a slightly lower floor so flicks feel snappier.
+        let minimumDrag: CGFloat
+        switch predictedDirection {
+        case .left, .right:
+            minimumDrag = SwipeMotion.browseMinimumPredictedCommitDrag
+        case .up, .down:
+            minimumDrag = SwipeMotion.minimumPredictedCommitDrag
         }
-
-        guard primaryDistance(for: predictedDirection, in: translation) >= SwipeMotion.minimumPredictedCommitDrag else {
+        guard primaryDistance(for: predictedDirection, in: translation) >= minimumDrag else {
             return nil
         }
 
@@ -3002,14 +3051,26 @@ struct SwipePhotoView: View {
     }
 
     private func dominantSwipeDirection(for translation: CGSize, threshold: CGFloat) -> SwipeDirection? {
+        dominantSwipeDirection(
+            for: translation,
+            horizontalThreshold: threshold,
+            verticalThreshold: threshold
+        )
+    }
+
+    private func dominantSwipeDirection(
+        for translation: CGSize,
+        horizontalThreshold: CGFloat,
+        verticalThreshold: CGFloat
+    ) -> SwipeDirection? {
         let horizontalDistance = abs(translation.width)
         let verticalDistance = abs(translation.height)
 
-        if horizontalDistance >= verticalDistance, horizontalDistance > threshold {
+        if horizontalDistance >= verticalDistance, horizontalDistance > horizontalThreshold {
             return translation.width < 0 ? .left : .right
         }
 
-        if verticalDistance > threshold {
+        if verticalDistance > verticalThreshold {
             return translation.height < 0 ? .up : .down
         }
 
@@ -3540,7 +3601,6 @@ struct SwipePhotoView: View {
             wasSessionReviewed: wasSessionReviewed
         ))
         HapticManager.impact(.medium)
-        showFeedback(L10n.string("已加入待删除"), icon: "trash", style: .destructive, showsUndo: true)
         recordDeleteButtonTipOpportunity()
         recordReviewModeHintOpportunity()
     }
@@ -3784,6 +3844,11 @@ struct SwipePhotoView: View {
                     self.recentlyFiledAlbumAssetIDs.insert(assetID)
                     self.dataManager.recordRecentOrganizedPhoto(asset, action: .filedToAlbum)
                     self.showAlbumShortcutSuccess(for: currentAlbumInfo.id)
+                    if advancesToNext || !self.showsAlbumFilingSheet {
+                        self.showAlbumFilingSuccessToast(albumTitle: currentAlbumInfo.title)
+                    } else {
+                        self.pendingAlbumSuccessToastTitle = currentAlbumInfo.title
+                    }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                         self.recentlyFiledAlbumAssetIDs.remove(assetID)
                     }
@@ -3876,8 +3941,7 @@ struct SwipePhotoView: View {
 
     private func resetCardPosition() {
         hasPreparedSwipeCommit = false
-        let resetAnimation: Animation = .easeOut(duration: reduceMotion ? 0.12 : 0.18)
-        withAnimation(resetAnimation) {
+        withAnimation(reduceMotion ? SwipeMotion.reduceMotionRelease : SwipeMotion.releaseSpring) {
             dragOffset = .zero
             cardFlightScale = 1
         }
@@ -4028,6 +4092,15 @@ struct SwipePhotoView: View {
         } else {
             return PhotoCategory.all.title
         }
+    }
+
+    private func showAlbumFilingSuccessToast(albumTitle: String) {
+        showFeedback(
+            String(format: L10n.string("已归类到 %@"), albumTitle),
+            icon: "checkmark.circle.fill",
+            style: .positive,
+            duration: 1.6
+        )
     }
 
     private func showFeedback(
@@ -4220,63 +4293,8 @@ private struct PhotoSwipeDragFeedbackView: View {
     let downSwipeBehavior: AlbumReviewDownSwipeBehavior
 
     var body: some View {
-        ZStack {
-            feedbackGlow
-            directionStripe
-            hint
-        }
+        hint
         .opacity(0.7 + feedback.progress * 0.3)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-    }
-
-    @ViewBuilder
-    private var feedbackGlow: some View {
-        switch feedback.direction {
-        case .left:
-            HStack(spacing: 0) {
-                Spacer(minLength: 0)
-
-                LinearGradient(
-                    colors: glowColors.reversed(),
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .frame(width: glowWidth)
-            }
-        case .right:
-            HStack(spacing: 0) {
-                LinearGradient(
-                    colors: glowColors,
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .frame(width: glowWidth)
-
-                Spacer(minLength: 0)
-            }
-        case .up:
-            VStack(spacing: 0) {
-                LinearGradient(
-                    colors: glowColors,
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 72 + feedback.progress * 34)
-
-                Spacer(minLength: 0)
-            }
-        case .down:
-            VStack(spacing: 0) {
-                Spacer(minLength: 0)
-
-                LinearGradient(
-                    colors: glowColors.reversed(),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 72 + feedback.progress * 34)
-            }
-        }
     }
 
     @ViewBuilder
@@ -4340,60 +4358,6 @@ private struct PhotoSwipeDragFeedbackView: View {
             .offset(y: placement == .bottom ? 10 - feedback.progress * 10 : -10 + feedback.progress * 10)
             if placement != .bottom {
                 Spacer()
-            }
-        }
-    }
-
-    private var glowColors: [Color] {
-        [
-            feedback.action.tint.opacity(0.12 + feedback.progress * 0.24),
-            feedback.action.tint.opacity(0.04 + feedback.progress * 0.12),
-            .clear
-        ]
-    }
-
-    private var glowWidth: CGFloat {
-        48 + feedback.progress * 58
-    }
-
-    @ViewBuilder
-    private var directionStripe: some View {
-        switch feedback.direction {
-        case .left:
-            HStack {
-                Spacer()
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                    .fill(feedback.action.tint)
-                    .frame(width: 5 + feedback.progress * 5)
-                    .padding(.vertical, 18)
-                    .padding(.trailing, 7)
-            }
-        case .right:
-            HStack {
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                    .fill(feedback.action.tint)
-                    .frame(width: 5 + feedback.progress * 5)
-                    .padding(.vertical, 18)
-                    .padding(.leading, 7)
-                Spacer()
-            }
-        case .up:
-            VStack {
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                    .fill(feedback.action.tint)
-                    .frame(height: 5 + feedback.progress * 5)
-                    .padding(.horizontal, 26)
-                    .padding(.top, 7)
-                Spacer()
-            }
-        case .down:
-            VStack {
-                Spacer()
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                    .fill(feedback.action.tint)
-                    .frame(height: 5 + feedback.progress * 5)
-                    .padding(.horizontal, 26)
-                    .padding(.bottom, 7)
             }
         }
     }

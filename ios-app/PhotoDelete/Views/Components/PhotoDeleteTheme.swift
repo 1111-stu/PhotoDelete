@@ -5,12 +5,10 @@ import UIKit
 #endif
 
 enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
-    case cleanBlue
-    case sage
-    case sand
-    case graphite
+    case moonly
 
-    static let defaultTheme: PhotoDeleteTheme = .sage
+    // Moonly-inspired default: warm amber highlights on a quiet dark canvas.
+    static let defaultTheme: PhotoDeleteTheme = .moonly
 
     var id: String { rawValue }
 
@@ -44,28 +42,19 @@ enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
 
     var title: String {
         switch self {
-        case .cleanBlue: return L10n.string("清透蓝")
-        case .sage: return L10n.string("鼠尾草绿")
-        case .sand: return L10n.string("暖砂色")
-        case .graphite: return L10n.string("石墨灰")
+        case .moonly: return L10n.string("琥珀夜色")
         }
     }
 
     var subtitle: String {
         switch self {
-        case .cleanBlue: return L10n.string("青蓝背景，保持相册整理的清爽感。")
-        case .sage: return L10n.string("柔和一点，减少纯白界面的工具感。")
-        case .sand: return L10n.string("更温暖，适合长时间整理。")
-        case .graphite: return L10n.string("更中性，突出照片内容。")
+        case .moonly: return L10n.string("深色照片画布，配合琥珀色操作反馈。")
         }
     }
 
     var icon: String {
         switch self {
-        case .cleanBlue: return "drop.fill"
-        case .sage: return "leaf.fill"
-        case .sand: return "sun.max.fill"
-        case .graphite: return "circle.lefthalf.filled"
+        case .moonly: return "sun.max.fill"
         }
     }
 
@@ -137,43 +126,7 @@ enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
 
     private var palette: PhotoDeleteThemePalette {
         switch self {
-        case .cleanBlue:
-            return PhotoDeleteThemePalette(
-                backgroundTop: .init(light: .init(0.965, 0.982, 0.996), dark: .init(0.046, 0.052, 0.066)),
-                backgroundBottom: .init(light: .init(0.926, 0.948, 0.978), dark: .init(0.034, 0.037, 0.046)),
-                surface: .init(light: .init(1, 1, 1, 0.86), dark: .init(1, 1, 1, 0.075)),
-                elevatedSurface: .init(light: .init(1, 1, 1, 0.94), dark: .init(1, 1, 1, 0.11)),
-                cardStroke: .init(light: .init(0.18, 0.33, 0.48, 0.10), dark: .init(1, 1, 1, 0.115)),
-                hairline: .init(light: .init(0.18, 0.33, 0.48, 0.13), dark: .init(1, 1, 1, 0.115)),
-                floatingShadow: .init(light: .init(0, 0, 0, 0.08), dark: .init(0, 0, 0, 0.24)),
-                primaryAccent: .init(light: .init(0.02, 0.45, 0.82), dark: .init(0.64, 0.78, 1)),
-                primaryAccentPressed: .init(light: .init(0.01, 0.36, 0.68), dark: .init(0.52, 0.68, 0.92)),
-                primaryAccentOnFill: .init(light: .init(1, 1, 1), dark: .init(0.03, 0.04, 0.05)),
-                secondaryAccent: .init(light: .init(0.16, 0.58, 0.68), dark: .init(0.58, 0.86, 0.94)),
-                success: .init(light: .init(0.06, 0.50, 0.22), dark: .init(0.50, 0.90, 0.64)),
-                warning: .init(light: .init(0.78, 0.45, 0.02), dark: .init(1.00, 0.79, 0.47)),
-                danger: .init(light: .init(0.86, 0.13, 0.12), dark: .init(1.00, 0.38, 0.34)),
-                favorite: .init(light: .init(0.82, 0.16, 0.38), dark: .init(1.00, 0.62, 0.72))
-            )
-        case .sage:
-            return PhotoDeleteThemePalette(
-                backgroundTop: .init(light: .init(0.982, 0.980, 0.944), dark: .init(0.044, 0.052, 0.047)),
-                backgroundBottom: .init(light: .init(0.900, 0.928, 0.886), dark: .init(0.032, 0.038, 0.035)),
-                surface: .init(light: .init(1, 1, 1, 0.82), dark: .init(1, 1, 1, 0.075)),
-                elevatedSurface: .init(light: .init(1, 1, 1, 0.92), dark: .init(1, 1, 1, 0.11)),
-                cardStroke: .init(light: .init(0.22, 0.42, 0.34, 0.11), dark: .init(1, 1, 1, 0.115)),
-                hairline: .init(light: .init(0.22, 0.42, 0.34, 0.14), dark: .init(1, 1, 1, 0.115)),
-                floatingShadow: .init(light: .init(0, 0, 0, 0.07), dark: .init(0, 0, 0, 0.24)),
-                primaryAccent: .init(light: .init(0.18, 0.39, 0.31), dark: .init(0.62, 0.84, 0.72)),
-                primaryAccentPressed: .init(light: .init(0.12, 0.30, 0.23), dark: .init(0.50, 0.72, 0.60)),
-                primaryAccentOnFill: .init(light: .init(1, 1, 1), dark: .init(0.03, 0.04, 0.035)),
-                secondaryAccent: .init(light: .init(0.62, 0.52, 0.30), dark: .init(0.86, 0.78, 0.52)),
-                success: .init(light: .init(0.13, 0.46, 0.26), dark: .init(0.58, 0.88, 0.66)),
-                warning: .init(light: .init(0.70, 0.48, 0.12), dark: .init(0.95, 0.78, 0.43)),
-                danger: .init(light: .init(0.78, 0.16, 0.13), dark: .init(1.00, 0.44, 0.40)),
-                favorite: .init(light: .init(0.76, 0.22, 0.42), dark: .init(1.00, 0.62, 0.74))
-            )
-        case .sand:
+        case .moonly:
             return PhotoDeleteThemePalette(
                 backgroundTop: .init(light: .init(0.994, 0.968, 0.930), dark: .init(0.056, 0.046, 0.039)),
                 backgroundBottom: .init(light: .init(0.956, 0.900, 0.820), dark: .init(0.040, 0.034, 0.030)),
@@ -182,32 +135,14 @@ enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
                 cardStroke: .init(light: .init(0.56, 0.38, 0.18, 0.11), dark: .init(1, 1, 1, 0.115)),
                 hairline: .init(light: .init(0.56, 0.38, 0.18, 0.14), dark: .init(1, 1, 1, 0.115)),
                 floatingShadow: .init(light: .init(0.22, 0.12, 0.03, 0.09), dark: .init(0, 0, 0, 0.26)),
-                primaryAccent: .init(light: .init(0.56, 0.38, 0.20), dark: .init(0.90, 0.72, 0.46)),
-                primaryAccentPressed: .init(light: .init(0.45, 0.29, 0.13), dark: .init(0.78, 0.60, 0.36)),
+                primaryAccent: .init(light: .init(0.72, 0.42, 0.10), dark: .init(0.953, 0.694, 0.298)),
+                primaryAccentPressed: .init(light: .init(0.58, 0.31, 0.06), dark: .init(0.788, 0.541, 0.196)),
                 primaryAccentOnFill: .init(light: .init(1, 1, 1), dark: .init(0.04, 0.035, 0.03)),
                 secondaryAccent: .init(light: .init(0.78, 0.45, 0.16), dark: .init(1.00, 0.78, 0.48)),
                 success: .init(light: .init(0.34, 0.46, 0.20), dark: .init(0.72, 0.86, 0.52)),
                 warning: .init(light: .init(0.80, 0.45, 0.08), dark: .init(1.00, 0.78, 0.45)),
                 danger: .init(light: .init(0.78, 0.18, 0.12), dark: .init(1.00, 0.46, 0.38)),
                 favorite: .init(light: .init(0.72, 0.25, 0.36), dark: .init(1.00, 0.64, 0.72))
-            )
-        case .graphite:
-            return PhotoDeleteThemePalette(
-                backgroundTop: .init(light: .init(0.960, 0.966, 0.976), dark: .init(0.038, 0.041, 0.047)),
-                backgroundBottom: .init(light: .init(0.895, 0.904, 0.922), dark: .init(0.030, 0.032, 0.038)),
-                surface: .init(light: .init(1, 1, 1, 0.84), dark: .init(1, 1, 1, 0.075)),
-                elevatedSurface: .init(light: .init(1, 1, 1, 0.94), dark: .init(1, 1, 1, 0.11)),
-                cardStroke: .init(light: .init(0.18, 0.22, 0.28, 0.11), dark: .init(1, 1, 1, 0.115)),
-                hairline: .init(light: .init(0.18, 0.22, 0.28, 0.14), dark: .init(1, 1, 1, 0.115)),
-                floatingShadow: .init(light: .init(0, 0, 0, 0.08), dark: .init(0, 0, 0, 0.25)),
-                primaryAccent: .init(light: .init(0.25, 0.34, 0.46), dark: .init(0.72, 0.80, 0.90)),
-                primaryAccentPressed: .init(light: .init(0.17, 0.25, 0.36), dark: .init(0.60, 0.69, 0.80)),
-                primaryAccentOnFill: .init(light: .init(1, 1, 1), dark: .init(0.03, 0.035, 0.04)),
-                secondaryAccent: .init(light: .init(0.43, 0.48, 0.55), dark: .init(0.78, 0.82, 0.88)),
-                success: .init(light: .init(0.18, 0.44, 0.28), dark: .init(0.60, 0.86, 0.68)),
-                warning: .init(light: .init(0.68, 0.48, 0.16), dark: .init(0.94, 0.76, 0.44)),
-                danger: .init(light: .init(0.78, 0.16, 0.14), dark: .init(1.00, 0.44, 0.40)),
-                favorite: .init(light: .init(0.68, 0.24, 0.42), dark: .init(0.95, 0.62, 0.76))
             )
         }
     }
