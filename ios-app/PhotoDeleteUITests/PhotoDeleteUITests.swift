@@ -280,7 +280,6 @@ final class PhotoDeleteUITests: XCTestCase {
     func testRandomReviewSkipsDeletedPhotosAndSupportsVerticalGestures() throws {
         installPhotoLibraryInterruptionMonitor(allowDeletionConfirmation: true)
         let app = makeApp(completedOnboarding: true, seedLibrary: true)
-        app.launchArguments += ["-photoDeleteRandomReviewHideFiledPhotos", "NO"]
         app.launch()
         _ = allowFullPhotoLibraryAccessIfNeeded(app: app)
         dismissMarketingSystemPrompts(app: app, allowDeletionConfirmation: true)
@@ -324,6 +323,13 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertTrue(isAtPosition(1), "Previous navigation must skip the deleted second photo.")
         dragCardLeft(in: app)
         XCTAssertTrue(isAtPosition(3), "Next navigation must skip the deleted second photo.")
+        XCTAssertEqual(trashButton.value as? String, "待删除 1 张")
+
+        app.buttons["撤销"].tap()
+        XCTAssertTrue(isAtPosition(2), "Undo must restore the deleted photo at its original position.")
+        XCTAssertEqual(trashButton.value as? String, "待删除 0 张")
+        dragCardUp(in: app)
+        XCTAssertTrue(isAtPosition(3))
         XCTAssertEqual(trashButton.value as? String, "待删除 1 张")
 
         dragCardDown(in: app)
@@ -520,10 +526,10 @@ final class PhotoDeleteUITests: XCTestCase {
             XCTFail("Expected the favorite button to become an unfavorite button")
             return
         }
-        dragCardDown(in: app)
+        app.buttons["取消收藏"].tap()
 
         guard waitForHittableButton(in: app, label: "收藏", timeout: 10) != nil else {
-            XCTFail("Expected swiping down to remove the favorite")
+            XCTFail("Expected the second favorite tap to remove the favorite")
             return
         }
     }
@@ -1069,6 +1075,9 @@ final class PhotoDeleteUITests: XCTestCase {
             AppLaunchEnvironmentKey.hasSeenIntro: completedOnboarding ? "1" : "0",
             AppLaunchEnvironmentKey.supporterTrialActive: supporterTrialActive ? "1" : "0"
         ]
+        if seedLibrary {
+            app.launchArguments += ["-photoDeleteRandomReviewHideFiledPhotos", "NO"]
+        }
         return app
     }
 
@@ -1537,10 +1546,8 @@ final class PhotoDeleteUITests: XCTestCase {
 
     @MainActor
     private func allowFullPhotoLibraryAccessIfNeeded(app: XCUIApplication) -> Bool {
-        let didInteract = tapFirstExistingButton(in: app, labels: ["继续", "Continue"], timeout: 3)
-        if didInteract {
-            sleep(1)
-        }
+        // Permission handling must not tap a library's unrelated Continue button.
+        let didInteract = false
 
         let labels = ["允许完全访问", "允许访问所有照片", "Allow Full Access", "Allow Full Access to Photos"]
         if tapFirstExistingButton(in: app, labels: labels, timeout: 2) {

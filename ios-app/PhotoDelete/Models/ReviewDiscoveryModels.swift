@@ -611,17 +611,6 @@ enum PhotoReviewSessionDecisionPolicy {
     }
 }
 
-enum PhotoReviewActionPolicy {
-    static func shouldAdvance(after action: SwipeGestureAction) -> Bool {
-        switch action {
-        case .delete, .keep:
-            return true
-        case .favorite, .previous, .next, .close:
-            return false
-        }
-    }
-}
-
 enum PhotoReviewMutationPolicy {
     static func canStartAction(
         isUndoInProgress: Bool,

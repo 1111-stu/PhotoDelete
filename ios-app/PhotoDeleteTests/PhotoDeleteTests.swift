@@ -2300,14 +2300,6 @@ struct PhotoDeleteTests {
         #expect(nextIndex == 80)
     }
 
-    @Test func favoriteIsAModifierThatDoesNotAdvanceOrCompleteReview() async throws {
-        #expect(!PhotoReviewActionPolicy.shouldAdvance(after: .favorite))
-        #expect(!PhotoReviewActionPolicy.shouldAdvance(after: .previous))
-        #expect(!PhotoReviewActionPolicy.shouldAdvance(after: .next))
-        #expect(PhotoReviewActionPolicy.shouldAdvance(after: .keep))
-        #expect(PhotoReviewActionPolicy.shouldAdvance(after: .delete))
-    }
-
     @Test func pendingFavoriteMutationBlocksAnotherReviewAction() async throws {
         #expect(PhotoReviewMutationPolicy.canStartAction(
             isUndoInProgress: false,
@@ -2998,57 +2990,6 @@ struct PhotoDeleteTests {
         ))
     }
 
-    @Test func inlineVideoCardHitRegionKeepsScrubberAreaInteractive() async throws {
-        let cardSize = CGSize(width: 320, height: 520)
-        let scrubberPoint = CGPoint(x: 160, y: 470)
-
-        #expect(InlineVideoScrubGestureRegion.contains(
-            startLocation: scrubberPoint,
-            cardSize: cardSize,
-            isVideoPlaying: true,
-            reservedBottomHeight: 78
-        ))
-        #expect(InlineVideoCardHitRegion.contains(
-            point: scrubberPoint,
-            cardSize: cardSize
-        ))
-    }
-
-    @Test func inlineVideoCardGestureRoutingOnlyReservesBottomScrubberDrags() async throws {
-        let cardSize = CGSize(width: 320, height: 520)
-
-        #expect(InlineVideoCardGestureRouting.shouldReserveForVideoScrubber(
-            startLocation: CGPoint(x: 160, y: 470),
-            cardSize: cardSize,
-            isVideoPlaying: true,
-            reservedBottomHeight: 78,
-            isCurrentVideoScrubbing: false,
-            isScrubGestureActive: false
-        ))
-        #expect(!InlineVideoCardGestureRouting.shouldReserveForVideoScrubber(
-            startLocation: CGPoint(x: 160, y: 260),
-            cardSize: cardSize,
-            isVideoPlaying: true,
-            reservedBottomHeight: 78,
-            isCurrentVideoScrubbing: true,
-            isScrubGestureActive: false
-        ))
-        #expect(InlineVideoCardGestureRouting.shouldReserveForVideoScrubber(
-            startLocation: CGPoint(x: 160, y: 260),
-            cardSize: cardSize,
-            isVideoPlaying: true,
-            reservedBottomHeight: 78,
-            isCurrentVideoScrubbing: false,
-            isScrubGestureActive: true
-        ))
-    }
-
-    @Test func inlineVideoPreviewControlOnlyAppearsDuringVideoPlayback() async throws {
-        #expect(InlineVideoPreviewControlVisibility.shouldShow(isVideo: true, isVideoPlaying: true))
-        #expect(!InlineVideoPreviewControlVisibility.shouldShow(isVideo: true, isVideoPlaying: false))
-        #expect(!InlineVideoPreviewControlVisibility.shouldShow(isVideo: false, isVideoPlaying: true))
-    }
-
     @Test func inlineVideoScrubGestureRegionIgnoresInactiveVideoAndInvalidSizes() async throws {
         let cardSize = CGSize(width: 320, height: 520)
 
@@ -3064,47 +3005,6 @@ struct PhotoDeleteTests {
             isVideoPlaying: true,
             reservedBottomHeight: 78
         ))
-    }
-
-    @Test func albumShortcutVisibilityRequiresAlbumsAndActionableReviewPhoto() async throws {
-        #expect(AlbumShortcutVisibility.shouldShow(
-            isAlbumMode: false,
-            canPerformPhotoAction: true,
-            albumCount: 1
-        ))
-        #expect(!AlbumShortcutVisibility.shouldShow(
-            isAlbumMode: true,
-            canPerformPhotoAction: true,
-            albumCount: 1
-        ))
-        #expect(!AlbumShortcutVisibility.shouldShow(
-            isAlbumMode: false,
-            canPerformPhotoAction: false,
-            albumCount: 1
-        ))
-        #expect(!AlbumShortcutVisibility.shouldShow(
-            isAlbumMode: false,
-            canPerformPhotoAction: true,
-            albumCount: 0
-        ))
-    }
-
-    @Test func albumShortcutLayoutUsesCompactTwoRowsFromFourAlbums() async throws {
-        #expect(!AlbumShortcutLayout.usesTwoRows(albumCount: 3))
-        #expect(AlbumShortcutLayout.usesTwoRows(albumCount: 4))
-        #expect(AlbumShortcutLayout.stripHeight(albumCount: 3) == 88)
-        #expect(AlbumShortcutLayout.stripHeight(albumCount: 4) == 88)
-        #expect(AlbumShortcutLayout.controlStackSpacing == 0)
-        #expect(AlbumShortcutLayout.rowSpacing <= 2)
-    }
-
-    @Test func albumShortcutPresentationCanCollapseWithoutRemovingItsRevealControl() async throws {
-        #expect(AlbumShortcutPresentationPolicy.showsStrip(isExpanded: true, isAvailable: true))
-        #expect(!AlbumShortcutPresentationPolicy.showsRevealButton(isExpanded: true, isAvailable: true))
-        #expect(!AlbumShortcutPresentationPolicy.showsStrip(isExpanded: false, isAvailable: true))
-        #expect(AlbumShortcutPresentationPolicy.showsRevealButton(isExpanded: false, isAvailable: true))
-        #expect(!AlbumShortcutPresentationPolicy.showsStrip(isExpanded: true, isAvailable: false))
-        #expect(!AlbumShortcutPresentationPolicy.showsRevealButton(isExpanded: false, isAvailable: false))
     }
 
     @Test func albumShortcutEligibilityOnlyIncludesWritableUserAlbums() async throws {
@@ -3128,74 +3028,6 @@ struct PhotoDeleteTests {
             hasAssetCollection: true,
             canAddContent: true
         ))
-    }
-
-    @Test func albumReviewDownSwipeOnlyRemovesFromWritableUserAlbums() async throws {
-        #expect(AlbumReviewDownSwipeBehavior.resolve(
-            isAlbumMode: true,
-            albumType: .userCreated,
-            hasAssetCollection: true,
-            canRemoveContent: true
-        ) == .removeFromAlbum)
-        #expect(AlbumReviewDownSwipeBehavior.resolve(
-            isAlbumMode: false,
-            albumType: .userCreated,
-            hasAssetCollection: true,
-            canRemoveContent: true
-        ) == .returnToList)
-        #expect(AlbumReviewDownSwipeBehavior.resolve(
-            isAlbumMode: true,
-            albumType: .userCreated,
-            hasAssetCollection: false,
-            canRemoveContent: true
-        ) == .returnToList)
-        #expect(AlbumReviewDownSwipeBehavior.resolve(
-            isAlbumMode: true,
-            albumType: .favorites,
-            hasAssetCollection: true,
-            canRemoveContent: true
-        ) == .returnToList)
-        #expect(AlbumReviewDownSwipeBehavior.resolve(
-            isAlbumMode: true,
-            albumType: .userCreated,
-            hasAssetCollection: true,
-            canRemoveContent: false
-        ) == .returnToList)
-        #expect(AlbumReviewDownSwipeBehavior.removeFromAlbum.detailTitle == L10n.string("移出相册，不删除照片"))
-        #expect(AlbumReviewDownSwipeBehavior.removeFromAlbum.feedbackTitle == L10n.string("下滑移出相册"))
-    }
-
-    @Test func downSwipeRemovesFavoriteUnlessWritableAlbumRemovalTakesPriority() async throws {
-        #expect(AlbumReviewDownSwipeBehavior.resolve(
-            isAlbumMode: false,
-            albumType: nil,
-            hasAssetCollection: false,
-            canRemoveContent: false,
-            isFavorite: true
-        ) == .removeFromFavorites)
-        #expect(AlbumReviewDownSwipeBehavior.resolve(
-            isAlbumMode: true,
-            albumType: .favorites,
-            hasAssetCollection: true,
-            canRemoveContent: false,
-            isFavorite: true
-        ) == .removeFromFavorites)
-        #expect(AlbumReviewDownSwipeBehavior.resolve(
-            isAlbumMode: true,
-            albumType: .userCreated,
-            hasAssetCollection: true,
-            canRemoveContent: true,
-            isFavorite: true
-        ) == .removeFromAlbum)
-        #expect(AlbumReviewDownSwipeBehavior.removeFromFavorites.detailTitle == L10n.string("取消收藏这张照片"))
-        #expect(AlbumReviewDownSwipeBehavior.removeFromFavorites.feedbackTitle == L10n.string("下滑取消收藏"))
-    }
-
-    @Test func photoSwipeDragFeedbackPlacesDownSwipeHintAtTop() async throws {
-        #expect(PhotoSwipeDragFeedbackHintPlacement.placement(for: .down) == .top)
-        #expect(PhotoSwipeDragFeedbackHintPlacement.placement(for: .up) == .top)
-        #expect(PhotoSwipeDragFeedbackHintPlacement.placement(for: .left) == .center)
-        #expect(PhotoSwipeDragFeedbackHintPlacement.placement(for: .right) == .center)
     }
 
     @Test func photoLibraryLoadingPublishesOnlyUsefulLaunchUpdates() async throws {
@@ -3353,11 +3185,6 @@ struct PhotoDeleteTests {
             isAlbumMode: true,
             persistedReviewedCount: persistedReviewedIDs.count
         ) == 0)
-        #expect(!PhotoReviewSessionReviewedStatePolicy.shouldShowCompletionAfterRefresh(
-            isAlbumMode: true,
-            hasPhotos: true,
-            firstUnreviewedIndex: nil
-        ))
 
         #expect(PhotoReviewSessionReviewedStatePolicy.reviewedAssetIdentifiers(
             isAlbumMode: false,
@@ -3367,66 +3194,12 @@ struct PhotoDeleteTests {
             isAlbumMode: false,
             persistedReviewedCount: persistedReviewedIDs.count
         ) == persistedReviewedIDs.count)
-        #expect(PhotoReviewSessionReviewedStatePolicy.shouldShowCompletionAfterRefresh(
-            isAlbumMode: false,
-            hasPhotos: true,
-            firstUnreviewedIndex: nil
-        ))
 
         #expect(PhotoReviewSessionReviewedStatePolicy.reviewedAssetIdentifiers(
             isAlbumMode: false,
             isRandomMemoriesMode: true,
             persistedReviewedAssetIdentifiers: persistedReviewedIDs
         ).isEmpty)
-        #expect(!PhotoReviewSessionReviewedStatePolicy.shouldShowCompletionAfterRefresh(
-            isAlbumMode: false,
-            isRandomMemoriesMode: true,
-            hasPhotos: true,
-            firstUnreviewedIndex: nil
-        ))
-    }
-
-    @Test func albumShortcutScrollRestorationDoesNotRunAfterCurrentPhotoChanges() async throws {
-        #expect(AlbumShortcutScrollRestorationPolicy.shouldRestore(anchorID: "album-a", reason: .appear))
-        #expect(AlbumShortcutScrollRestorationPolicy.shouldRestore(anchorID: "album-a", reason: .albumsChanged))
-        #expect(!AlbumShortcutScrollRestorationPolicy.shouldRestore(anchorID: "album-a", reason: .currentPhotoChanged))
-        #expect(!AlbumShortcutScrollRestorationPolicy.shouldRestore(anchorID: nil, reason: .appear))
-    }
-
-    @Test func albumShortcutVisibilityCanStayStableWhileAlbumFilingFinishes() async throws {
-        #expect(!AlbumShortcutVisibility.shouldShow(
-            isAlbumMode: false,
-            canPerformPhotoAction: false,
-            albumCount: 2
-        ))
-        #expect(AlbumShortcutVisibility.shouldShow(
-            isAlbumMode: false,
-            canPerformPhotoAction: false,
-            shouldKeepStableDuringFiling: true,
-            albumCount: 2
-        ))
-        #expect(!AlbumShortcutVisibility.shouldShow(
-            isAlbumMode: true,
-            canPerformPhotoAction: false,
-            shouldKeepStableDuringFiling: true,
-            albumCount: 2
-        ))
-    }
-
-    @Test func albumShortcutFilingCounterTracksConcurrentWrites() async throws {
-        let firstIncrement = AlbumShortcutFilingCounter.increment([:], albumID: "album-a")
-        let secondIncrement = AlbumShortcutFilingCounter.increment(firstIncrement, albumID: "album-a")
-
-        #expect(AlbumShortcutFilingCounter.isFiling(secondIncrement, albumID: "album-a"))
-        #expect(secondIncrement["album-a"] == 2)
-
-        let firstDecrement = AlbumShortcutFilingCounter.decrement(secondIncrement, albumID: "album-a")
-        #expect(AlbumShortcutFilingCounter.isFiling(firstDecrement, albumID: "album-a"))
-        #expect(firstDecrement["album-a"] == 1)
-
-        let secondDecrement = AlbumShortcutFilingCounter.decrement(firstDecrement, albumID: "album-a")
-        #expect(!AlbumShortcutFilingCounter.isFiling(secondDecrement, albumID: "album-a"))
-        #expect(secondDecrement["album-a"] == nil)
     }
 
     @Test func advancedPreviewPagingShowsSelectedPositionAndNeighbors() async throws {
