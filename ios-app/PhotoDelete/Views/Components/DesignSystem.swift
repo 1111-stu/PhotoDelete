@@ -263,6 +263,42 @@ struct PhotoDeleteMetricCard: View {
     }
 }
 
+/// 首页等页面的分区标题：14pt 加粗标题 + 可选右侧琥珀值（对应原型 `.glabel`）。
+struct PhotoDeleteSectionHeader: View {
+    let title: String
+    var trailing: String?
+
+    init(title: String, trailing: String? = nil) {
+        self.title = title
+        self.trailing = trailing
+    }
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(title)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(PhotoDeleteStyle.primaryText)
+
+            Spacer(minLength: 8)
+
+            if let trailing {
+                Text(trailing)
+                    .font(.system(size: 12.5, weight: .semibold))
+                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .lineLimit(1)
+            }
+        }
+        .padding(.horizontal, 6)
+    }
+}
+
+/// 数字格式约定：一律不带千分位（2974，而不是 2,974）。
+enum PhotoDeleteCountFormat {
+    static func plain(_ count: Int) -> String {
+        String(count)
+    }
+}
+
 enum PhotoDeleteIconTileStyle {
     case soft
     case solid

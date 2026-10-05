@@ -5812,7 +5812,6 @@
       }
     },
     "使用统计" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -7993,6 +7992,7 @@
       }
     },
     "共 %@ 项 · %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8015,6 +8015,7 @@
       }
     },
     "共 %@ 项 · 已整理 %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15055,6 +15056,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "可釋放"
+          }
+        }
+      }
+    },
+    "可释放 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reclaimable %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可釋放 %@"
           }
         }
       }
@@ -22683,6 +22700,22 @@
         }
       }
     },
+    "张" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "photos"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "張"
+          }
+        }
+      }
+    },
     "归类中" : {
       "localizations" : {
         "ar" : {
@@ -23522,6 +23555,7 @@
       }
     },
     "往年今日" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -26224,6 +26258,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "按時間整理"
+          }
+        }
+      }
+    },
+    "按时间段开始" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By time period"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按時間段開始"
           }
         }
       }
@@ -30351,6 +30401,7 @@
       }
     },
     "更多" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31496,7 +31547,24 @@
         }
       }
     },
+    "本周" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This week"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本週"
+          }
+        }
+      }
+    },
     "本周新增" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31575,7 +31643,24 @@
         }
       }
     },
+    "本年" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This year"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本年"
+          }
+        }
+      }
+    },
     "本年新增" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31638,6 +31723,7 @@
       }
     },
     "本月新增" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36433,6 +36519,7 @@
       }
     },
     "点按查看" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36698,6 +36785,7 @@
       }
     },
     "照片库概览" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -40357,6 +40445,7 @@
       }
     },
     "累计清理" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -48019,6 +48108,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "預計可清理 %@"
+          }
+        }
+      }
+    },
+    "预计可释放" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Est. reclaimable"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "預計可釋放"
           }
         }
       }

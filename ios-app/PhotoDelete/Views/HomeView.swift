@@ -138,7 +138,6 @@ enum HomeCategoryCountDetailResolver {
 struct HomeView: View {
     @EnvironmentObject var dataManager: DataManager
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Environment(\.colorScheme) private var colorScheme
     @AppStorage(AppConstants.hasSeenIntroKey) private var hasSeenPhotoDeleteIntro = false
     @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
     @State private var navigationPath = NavigationPath()
@@ -257,15 +256,26 @@ struct HomeView: View {
     private func homeContent(isLandscape: Bool) -> some View {
         if libraryContentState != .needsAuthorization {
             VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+                homeTitleBar
                 introSection(isCompact: isLandscape)
                 libraryDashboard
             }
         } else {
             VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+                homeTitleBar
                 introSection(isCompact: false)
                 authorizationSection
             }
         }
+    }
+
+    /// 首页大标题（对齐原型：34/700，本轮不带操作按钮）。
+    private var homeTitleBar: some View {
+        Text(L10n.string("整理"))
+            .font(.system(size: 34, weight: .bold))
+            .foregroundColor(PhotoDeleteStyle.primaryText)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 10)
     }
 
     @ViewBuilder
@@ -359,8 +369,8 @@ struct HomeView: View {
 
     private var availableLibraryDashboard: some View {
         VStack(spacing: 22) {
-            spotlightRow
-            periodSection
+            duoRow
+            periodBandSection
             specialCleanupSection
             toolSection
         }
@@ -448,95 +458,107 @@ struct HomeView: View {
         .photoDeleteCard()
     }
 
-    private var spotlightRow: some View {
-        HStack(alignment: .top, spacing: 10) {
-            libraryOverviewCard
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+    // MARK: - 首屏双卡（珊瑚=待整理 / 琥珀=随机整理，对齐原型）
 
-            VStack(spacing: 10) {
-                randomReviewCard
-                historicalTodayCard
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    private var duoRow: some View {
+        HStack(spacing: 12) {
+            pendingReviewCard
+            randomReviewFanCard
         }
-        .frame(height: 196)
+        .frame(height: 158)
     }
 
-    private var libraryOverviewCard: some View {
-        Button {
-            navigationPath.append(SwipeViewDestination.stats)
+    private var pendingReviewCard: some View {
+        let stats = libraryStats
+        let total = stats.totalAssets
+        let reviewed = min(stats.reviewedAssets, total)
+        let pending = max(total - reviewed, 0)
+        let progress = total > 0 ? Double(reviewed) / Double(total) : 0
+        let theme = PhotoDeleteTheme.current
+
+        return Button {
+            let yearSummary = currentPeriodSummary(for: .year)
+            navigationPath.append(SwipeViewDestination.period(.year, yearSummary.intervalStart))
         } label: {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(L10n.string("照片库概览"))
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
-                    Spacer(minLength: 4)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.tertiaryText)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(L10n.string("待整理"))
+                    .font(.system(size: 16.5, weight: .bold))
+
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    RollingNumberText(target: pending)
+                        .font(.system(size: 31, weight: .bold))
+                    Text(L10n.string("张"))
+                        .font(.system(size: 14, weight: .semibold))
+                        .opacity(0.72)
                 }
-
-                Text(librarySizeText)
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-                    .minimumScaleFactor(0.7)
-                    .lineLimit(1)
-
-                Text(libraryCountLine)
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 10)
 
                 Spacer(minLength: 0)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(L10n.string("累计清理"))
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.tertiaryText)
-                    Text(cleanedSizeText)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
-                        .lineLimit(1)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L10n.string("预计可释放"))
+                        .font(.system(size: 11, weight: .regular))
+                        .opacity(0.72)
+                    Text(librarySizeText)
+                        .font(.system(size: 18, weight: .bold))
                 }
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .photoDeleteCard(radius: 22)
-        }
-        .buttonStyle(.plain)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityIdentifier("home-library-overview")
-    }
 
-    private var randomReviewCard: some View {
-        Button {
-            navigationPath.append(SwipeViewDestination.random(.memories))
-        } label: {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.string("随机整理"))
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(randomReviewTitle)
-                Text(randomReviewDetail)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(randomReviewTitle.opacity(0.78))
-                Spacer(minLength: 0)
-                Image(systemName: "sparkles")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(randomReviewTitle.opacity(0.88))
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+                CoralProgressBar(progress: progress, ink: theme.coralInk)
+                    .padding(.top, 10)
             }
-            .padding(14)
+            .padding(EdgeInsets(top: 14, leading: 16, bottom: 12, trailing: 16))
+            .foregroundColor(theme.coralInk)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(PhotoDeleteStyle.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 22, style: .continuous)
-                            .fill(randomReviewTint)
+                    .fill(
+                        LinearGradient(
+                            colors: [theme.coralGradientTop, theme.coralGradientBottom],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
                     )
             )
+            .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityIdentifier("home-pending-review")
+    }
+
+    private var randomReviewFanCard: some View {
+        let theme = PhotoDeleteTheme.current
+
+        return Button {
+            navigationPath.append(SwipeViewDestination.random(.memories))
+        } label: {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(L10n.string("随机整理"))
+                    .font(.system(size: 16.5, weight: .bold))
+                Text(randomReviewDetail)
+                    .font(.system(size: 12, weight: .medium))
+                    .opacity(0.72)
+                Spacer(minLength: 0)
+            }
+            .padding(EdgeInsets(top: 15, leading: 15, bottom: 0, trailing: 15))
+            .foregroundColor(theme.amberInk)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [theme.amberGradientTop, theme.amberGradientBottom],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            )
+            .overlay(alignment: .bottom) {
+                RandomFanDecoration()
+                    .offset(y: -52)
+                    .accessibilityHidden(true)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -544,223 +566,187 @@ struct HomeView: View {
         .accessibilityIdentifier("home-random-review")
     }
 
-    private var historicalTodayCard: some View {
-        Button {
-            navigationPath.append(SwipeViewDestination.historicalToday)
-        } label: {
-            HStack(alignment: .center, spacing: 8) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("往年今日"))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(historicalCardTitle)
-                    Text(historicalTodayDetail)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(historicalCardTitle.opacity(0.72))
-                        .lineLimit(1)
-                }
-                Spacer(minLength: 0)
-                Image(systemName: "calendar")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(historicalCardTitle.opacity(0.85))
+    // 旧首屏三卡（库概览 / 随机整理 / 往年今日）已由上方 duoRow 双卡替代；
+    // 统计页入口迁移到设置页（「使用统计」）。
+
+    // MARK: - 按时间段开始（三段 band，对齐原型）
+
+    private var periodBandSection: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            PhotoDeleteSectionHeader(title: L10n.string("按时间段开始"))
+
+            HStack(spacing: 0) {
+                periodBandSegment(
+                    scope: .week,
+                    title: L10n.string("本周"),
+                    identifier: "home-period-week",
+                    rollDelay: 0.22
+                )
+                bandDivider
+                periodBandSegment(
+                    scope: .month,
+                    title: L10n.string("本月"),
+                    identifier: "home-period-month",
+                    rollDelay: 0.30
+                )
+                bandDivider
+                periodBandSegment(
+                    scope: .year,
+                    title: L10n.string("本年"),
+                    identifier: "home-period-year",
+                    rollDelay: 0.38
+                )
             }
-            .padding(14)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(PhotoDeleteStyle.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 22, style: .continuous)
-                            .fill(historicalCardFill.opacity(0.96))
-                    )
-            )
-        }
-        .buttonStyle(.plain)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityLabel(L10n.string("往年今日"))
-        .accessibilityIdentifier("home-historical-today")
-    }
-
-    private var periodSection: some View {
-        VStack(spacing: 10) {
-            periodCard(scope: .week, title: L10n.string("本周新增"), icon: "calendar", identifier: "home-period-week")
-            periodCard(scope: .month, title: L10n.string("本月新增"), icon: "calendar", identifier: "home-period-month")
-            periodCard(scope: .year, title: L10n.string("本年新增"), icon: "calendar", identifier: "home-period-year")
+            .photoDeleteCard(radius: 22)
         }
     }
 
-    private func periodCard(
+    private var bandDivider: some View {
+        Rectangle()
+            .fill(PhotoDeleteStyle.hairline)
+            .frame(width: 1)
+            .padding(.vertical, 13)
+    }
+
+    private func periodBandSegment(
         scope: AdvancedTimeScope,
         title: String,
-        icon: String,
-        identifier: String
+        identifier: String,
+        rollDelay: Double
     ) -> some View {
         let summary = currentPeriodSummary(for: scope)
-        let countText = summary.assetCount.formatted(.number.grouping(.automatic))
-        let pendingText = summary.remainingCount.formatted(.number.grouping(.automatic))
 
         return Button {
             navigationPath.append(SwipeViewDestination.period(scope, summary.intervalStart))
         } label: {
-            HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(timelineAccent)
-                    .frame(width: 36, height: 36)
-                    .background(
-                        timelineAccent.opacity(colorScheme == .dark ? 0.18 : 0.12),
-                        in: RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
-                    )
-
-                VStack(alignment: .leading, spacing: 3) {
+            VStack(spacing: 3) {
+                HStack(spacing: 3) {
                     Text(title)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(periodTextColor)
-                    Text(String(format: L10n.string("共 %@ 项 · %@"), countText, summary.formattedEstimatedSize))
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(periodTextColor.opacity(0.68))
-                        .lineLimit(1)
-                }
-
-                Spacer(minLength: 8)
-
-                VStack(alignment: .trailing, spacing: 1) {
-                    Text(pendingText)
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(periodTextColor)
-                    Text(L10n.string("待整理"))
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(periodTextColor.opacity(0.68))
-                }
-
-                Rectangle()
-                    .fill(PhotoDeleteStyle.primaryText.opacity(colorScheme == .dark ? 0.18 : 0.14))
-                    .frame(width: 1, height: 48)
-                    .padding(.vertical, -14)
-                    .padding(.leading, 4)
-                    .padding(.trailing, 10)
-
-                HStack(spacing: 2) {
-                    Text(L10n.string("更多"))
-                        .font(.system(size: 13, weight: .medium))
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.system(size: 8, weight: .semibold))
                 }
-                .foregroundColor(periodTextColor.opacity(0.84))
+                .font(.system(size: 11.5, weight: .medium))
+                .foregroundColor(PhotoDeleteStyle.secondaryText)
+
+                RollingNumberText(target: summary.remainingCount, delay: rollDelay)
+                    .font(.system(size: 23, weight: .bold))
+                    .foregroundColor(PhotoDeleteStyle.primaryText)
+
+                Text(String(format: L10n.string("可释放 %@"), summary.formattedEstimatedSize))
+                    .font(.system(size: 10.5, weight: .regular))
+                    .foregroundColor(PhotoDeleteStyle.secondaryText)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 14)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(periodCardFill)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 22, style: .continuous)
-                            .stroke(PhotoDeleteStyle.primaryText.opacity(colorScheme == .dark ? 0.22 : 0.16), lineWidth: 1)
-                    )
-            )
+            .padding(.vertical, 12)
+            .padding(.horizontal, 8)
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(identifier)
     }
 
-    private var specialCleanupSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(L10n.string("专项清理"))
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-                Spacer(minLength: 8)
-                Text(String(format: L10n.string("预计可清理 %@"), reclaimableSizeText))
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-                    .lineLimit(1)
-            }
-            .padding(.horizontal, 2)
+    // MARK: - 专项清理（行式列表，值用中性灰）
 
-            HStack(spacing: 0) {
-                specialCleanupTile(
-                    title: L10n.string("相似与重复"),
+    private var specialCleanupSection: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            PhotoDeleteSectionHeader(
+                title: L10n.string("专项清理"),
+                trailing: String(format: L10n.string("预计可清理 %@"), cleanupReclaimableSizeText)
+            )
+
+            VStack(spacing: 0) {
+                cleanupRow(
                     icon: "rectangle.on.rectangle",
-                    tint: PhotoDeleteStyle.accent,
+                    title: L10n.string("相似与重复"),
+                    value: cleanupQueue(for: .similarPhotos)?.formattedSpace,
                     identifier: "home-cleanup-similar"
                 ) {
                     navigationPath.append(SwipeViewDestination.cleanup(.similarPhotos))
                 }
-                specialCleanupDivider
-                specialCleanupTile(
-                    title: L10n.string("视频"),
+                insetHairline
+                cleanupRow(
                     icon: "video",
-                    tint: PhotoDeleteStyle.secondaryText,
+                    title: L10n.string("视频"),
+                    value: cleanupQueue(for: .videos)?.formattedSpace,
                     identifier: "home-cleanup-videos"
                 ) {
                     navigationPath.append(SwipeViewDestination.category(.videos))
                 }
-                specialCleanupDivider
-                specialCleanupTile(
-                    title: L10n.string("截图"),
+                insetHairline
+                cleanupRow(
                     icon: "iphone",
-                    tint: PhotoDeleteStyle.accent,
+                    title: L10n.string("截图"),
+                    value: nil,
                     identifier: "home-cleanup-screenshots"
                 ) {
                     navigationPath.append(SwipeViewDestination.category(.screenshots))
                 }
-                specialCleanupDivider
-                specialCleanupTile(
-                    title: L10n.string("大文件"),
+                insetHairline
+                cleanupRow(
                     icon: "internaldrive",
-                    tint: PhotoDeleteStyle.secondaryText,
+                    title: L10n.string("大文件"),
+                    value: cleanupQueue(for: .largeFiles)?.formattedSpace,
                     identifier: "home-cleanup-large-files"
                 ) {
                     navigationPath.append(SwipeViewDestination.cleanup(.largeFiles))
                 }
             }
-            .padding(.vertical, 8)
             .photoDeleteCard(radius: 22)
         }
     }
 
-    private var specialCleanupDivider: some View {
+    private var insetHairline: some View {
         Rectangle()
             .fill(PhotoDeleteStyle.hairline)
-            .frame(width: 1, height: 52)
+            .frame(height: 1)
+            .padding(.horizontal, 18)
     }
 
-    private func specialCleanupTile(
-        title: String,
+    private func cleanupRow(
         icon: String,
-        tint: Color,
+        title: String,
+        value: String?,
         identifier: String,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            HStack(spacing: 14) {
                 Image(systemName: icon)
-                    .font(.system(size: 22, weight: .regular))
-                    .foregroundColor(tint)
-                    .frame(width: 42, height: 34)
-                    .background(tint.opacity(colorScheme == .dark ? 0.16 : 0.10), in: RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous))
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .frame(width: 32, height: 32)
+                    .background(
+                        Color.white.opacity(0.07),
+                        in: RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    )
+
                 Text(title)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
+
+                Spacer(minLength: 8)
+
+                if let value {
+                    Text(value)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 13)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(title)
         .accessibilityIdentifier(identifier)
     }
 
     private var toolSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(L10n.string("工具"))
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
-                .padding(.horizontal, 2)
+        VStack(alignment: .leading, spacing: 9) {
+            PhotoDeleteSectionHeader(title: L10n.string("工具"))
 
             VStack(spacing: 0) {
                 if AppConstants.isImageCompressionVisible {
@@ -771,9 +757,7 @@ struct HomeView: View {
                     ) {
                         navigationPath.append(SwipeViewDestination.cleanup(.imageCompression))
                     }
-                    Divider()
-                        .background(PhotoDeleteStyle.hairline)
-                        .padding(.leading, 16)
+                    insetHairline
                 }
 
                 toolRow(
@@ -798,25 +782,25 @@ struct HomeView: View {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
                     Text(L10n.string("变小，不删除"))
-                        .font(.system(size: 12, weight: .regular))
+                        .font(.system(size: 11.5, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
 
                 Spacer(minLength: 8)
 
                 Text(countText(count))
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.tertiaryText)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 13)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
@@ -857,36 +841,10 @@ struct HomeView: View {
         return CleanupStatsFormatter.space(totalMB)
     }
 
-    private var libraryCountLine: String {
-        let total = libraryStats.totalAssets
-        let reviewed = min(libraryStats.reviewedAssets, total)
-        let ratio = total > 0 ? Double(reviewed) / Double(total) * 100 : 0
-        let percent = ratio < 10
-            ? "\(ratio.formatted(.number.precision(.fractionLength(1))))%"
-            : "\(Int(ratio.rounded()))%"
-        let countText = total.formatted(.number.grouping(.automatic))
-        return String(format: L10n.string("共 %@ 项 · 已整理 %@"), countText, percent)
-    }
-
-    private var cleanedSizeText: String {
-        libraryStats.formattedSpaceSaved
-    }
-
-    private var randomReviewDetail: String {
-        let count = PhotoRandomReviewBatchSize.normalized(randomReviewBatchSizeValue).rawValue
-        return String(format: L10n.string("最多 %@ 项"), count.formatted(.number.grouping(.automatic)))
-    }
-
-    private var historicalTodayDetail: String {
-        let count = dataManager.historicalTodayPhotoCount
-        if count > 0 {
-            return L10n.shortPhotoCount(count)
-        }
-        return L10n.string("点按查看")
-    }
-
-    private var reclaimableSizeText: String {
-        let reclaimMB = [AdvancedCleanupKind.similarPhotos, .largeFiles].reduce(0.0) { total, kind in
+    /// 专项清理头部合计（相似 + 视频 + 大文件；视频/截图的估算数据待补齐，当前可能显示 0）。
+    private var cleanupReclaimableSizeText: String {
+        let kinds: [AdvancedCleanupKind] = [.similarPhotos, .videos, .largeFiles]
+        let reclaimMB = kinds.reduce(0.0) { total, kind in
             total + (cleanupQueue(for: kind)?.estimatedSpaceMB ?? 0)
         }
         if reclaimMB <= 0 && dataManager.isLoadingAdvancedCleanupQueues {
@@ -895,47 +853,181 @@ struct HomeView: View {
         return CleanupStatsFormatter.space(reclaimMB)
     }
 
+    private var randomReviewDetail: String {
+        let count = PhotoRandomReviewBatchSize.normalized(randomReviewBatchSizeValue).rawValue
+        return String(format: L10n.string("最多 %@ 项"), PhotoDeleteCountFormat.plain(count))
+    }
+
     private func countText(_ count: Int?) -> String {
         guard let count else { return L10n.string("读取中") }
-        return count.formatted(.number.grouping(.automatic))
+        return PhotoDeleteCountFormat.plain(count)
     }
 
-    private var periodCardFill: Color {
-        colorScheme == .dark
-            ? PhotoDeleteTheme.current.surface
-            : Color(red: 0.95, green: 0.95, blue: 0.93)
+}
+
+// MARK: - 首页组件（对齐 home-prototype.html）
+
+/// 数字滚动：从 0 以 easeOut 滚到目标值（一律无千分位），支持错峰 delay。
+private struct RollingNumberText: View {
+    let target: Int
+    var delay: Double = 0
+    var duration: Double = 0.9
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var displayed = 0
+    @State private var hasRun = false
+
+    var body: some View {
+        Text(PhotoDeleteCountFormat.plain(displayed))
+            .monospacedDigit()
+            .onAppear(perform: startCounting)
     }
 
-    private var timelineAccent: Color {
-        colorScheme == .dark
-            ? PhotoDeleteTheme.current.primaryAccent
-            : Color(red: 0.72, green: 0.46, blue: 0.08)
+    private func startCounting() {
+        guard !hasRun else {
+            displayed = target
+            return
+        }
+        hasRun = true
+
+        guard !reduceMotion else {
+            displayed = target
+            return
+        }
+
+        displayed = 0
+        Task { @MainActor in
+            if delay > 0 {
+                try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            }
+            let start = Date()
+            while !Task.isCancelled {
+                let progress = min(max(Date().timeIntervalSince(start) / duration, 0), 1)
+                let eased = 1 - pow(1 - progress, 3)
+                displayed = Int((Double(target) * eased).rounded())
+                if progress >= 1 { break }
+                try? await Task.sleep(nanoseconds: 16_000_000)
+            }
+        }
+    }
+}
+
+/// 珊瑚卡进度条：7pt 胶囊，深棕填充 + 18% 深棕轨道，出现时生长到目标进度。
+private struct CoralProgressBar: View {
+    let progress: Double
+    let ink: Color
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var shown = false
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                Capsule(style: .continuous)
+                    .fill(ink.opacity(0.18))
+                Capsule(style: .continuous)
+                    .fill(ink)
+                    .frame(width: geometry.size.width * (shown ? min(max(progress, 0), 1) : 0))
+            }
+        }
+        .frame(height: 7)
+        .onAppear {
+            guard !reduceMotion else {
+                shown = true
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.26) {
+                withAnimation(.easeOut(duration: 0.95)) {
+                    shown = true
+                }
+            }
+        }
+    }
+}
+
+/// 扇形牌的三张静态渐变占位（对应原型里的森林 / 城市 / 落日三张照片卡）。
+private enum HomeFanArt {
+    static let gradients: [LinearGradient] = [
+        LinearGradient(
+            colors: [
+                Color(red: 0.70, green: 0.79, blue: 0.72),
+                Color(red: 0.37, green: 0.55, blue: 0.45),
+                Color(red: 0.17, green: 0.32, blue: 0.26)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        ),
+        LinearGradient(
+            colors: [
+                Color(red: 0.11, green: 0.17, blue: 0.33),
+                Color(red: 0.14, green: 0.22, blue: 0.43),
+                Color(red: 0.16, green: 0.24, blue: 0.44)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        ),
+        LinearGradient(
+            colors: [
+                Color(red: 1.00, green: 0.75, blue: 0.54),
+                Color(red: 0.96, green: 0.52, blue: 0.44),
+                Color(red: 0.29, green: 0.25, blue: 0.47)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    ]
+}
+
+/// 扇形牌轮（纯装饰）：进场时把牌一张张摊开，之后静止。几何与原型一致（R=104、±24°）。
+private struct RandomFanDecoration: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dealt = false
+
+    private static let radius: CGFloat = 104
+    private static let spread: CGFloat = 24
+
+    var body: some View {
+        ZStack {
+            ForEach(0..<3, id: \.self) { index in
+                fanCard(index: index)
+            }
+        }
+        .frame(width: 0, height: 0)
+        .onAppear {
+            if reduceMotion {
+                dealt = true
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    dealt = true
+                }
+            }
+        }
     }
 
-    private var periodTextColor: Color {
-        colorScheme == .dark ? .white : PhotoDeleteStyle.primaryText
-    }
+    private func fanCard(index: Int) -> some View {
+        let i = CGFloat(index)
+        let restAngle = (i - 1) * Self.spread
+        let radians = restAngle * .pi / 180
+        let restX = Self.radius * sin(radians)
+        let restY = Self.radius * (1 - cos(radians))
 
-    private var randomReviewTint: Color {
-        colorScheme == .dark
-            ? PhotoDeleteTheme.current.elevatedSurface
-            : Color(red: 0.91, green: 0.43, blue: 0.35)
+        return RoundedRectangle(cornerRadius: 9, style: .continuous)
+            .fill(HomeFanArt.gradients[index % HomeFanArt.gradients.count])
+            .frame(width: 46, height: 62)
+            .overlay(
+                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    .stroke(Color.white.opacity(0.62), lineWidth: 2)
+            )
+            .shadow(color: .black.opacity(0.28), radius: 8, y: 3)
+            .rotationEffect(.degrees(dealt ? restAngle : 0))
+            .offset(x: dealt ? restX : 0, y: dealt ? restY : 0)
+            .scaleEffect(dealt ? 1 : 0.82)
+            .opacity(dealt ? 1 : (index == 0 ? 1 : 0))
+            .animation(
+                reduceMotion ? nil : .easeOut(duration: 0.62).delay(Double(index) * 0.09),
+                value: dealt
+            )
     }
-
-    private var randomReviewTitle: Color {
-        colorScheme == .dark ? PhotoDeleteStyle.primaryText : Color(red: 0.18, green: 0.08, blue: 0.06)
-    }
-
-    private var historicalCardFill: Color {
-        colorScheme == .dark
-            ? PhotoDeleteTheme.current.elevatedSurface
-            : Color(red: 0.93, green: 0.72, blue: 0.36)
-    }
-
-    private var historicalCardTitle: Color {
-        colorScheme == .dark ? PhotoDeleteStyle.primaryText : Color(red: 0.18, green: 0.12, blue: 0.06)
-    }
-
 }
 
 // MARK: - 扫描态组件

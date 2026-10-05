@@ -39,7 +39,7 @@ final class PhotoDeleteUITests: XCTestCase {
             app.tabBars.buttons["整理"].waitForExistence(timeout: 10) ||
                 app.staticTexts["需要访问照片库"].waitForExistence(timeout: 2) ||
                 app.staticTexts["随机整理"].waitForExistence(timeout: 2) ||
-                app.staticTexts["照片库概览"].waitForExistence(timeout: 2) ||
+                app.staticTexts["待整理"].waitForExistence(timeout: 2) ||
                 app.staticTexts["没有可整理的照片"].waitForExistence(timeout: 2)
         )
     }
@@ -53,7 +53,7 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertTrue(
             app.staticTexts["需要访问照片库"].exists ||
                 app.staticTexts["随机整理"].exists ||
-                app.staticTexts["照片库概览"].exists ||
+                app.staticTexts["待整理"].exists ||
                 app.staticTexts["没有可整理的照片"].exists ||
                 app.staticTexts["专项清理"].exists
         )
@@ -1089,13 +1089,16 @@ final class PhotoDeleteUITests: XCTestCase {
 
     @MainActor
     private func openStatsTab(in app: XCUIApplication) {
-        openOrganizeTab(in: app)
-        let statsEntry = app.descendants(matching: .any)["home-stats-entry"]
-        if statsEntry.waitForExistence(timeout: 5), statsEntry.isHittable {
-            statsEntry.tap()
-            return
+        openSettingsTab(in: app)
+        let statsEntry = app.descendants(matching: .any)["settings-stats-entry"]
+        for _ in 0..<6 {
+            if statsEntry.exists, statsEntry.isHittable {
+                statsEntry.tap()
+                return
+            }
+            app.swipeUp()
         }
-        _ = tapFirstExistingButton(in: app, labels: ["统计", "Stats", "照片库概览", "Library overview"], timeout: 5)
+        _ = tapFirstExistingButton(in: app, labels: ["使用统计", "Usage stats"], timeout: 5)
     }
 
     @MainActor
@@ -1650,8 +1653,8 @@ final class PhotoDeleteUITests: XCTestCase {
     private func waitForHomeReady(in app: XCUIApplication, language: String, timeout: TimeInterval) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         let labels = language.hasPrefix("en")
-            ? ["Library overview", "Special cleanup", "New this week", "On this day"]
-            : ["照片库概览", "专项清理", "本周新增", "随机整理"]
+            ? ["To review", "Special cleanup", "Random Review", "By time period"]
+            : ["待整理", "专项清理", "随机整理", "按时间段开始"]
 
         while Date() < deadline {
             if app.descendants(matching: .any)["review-photo-card"].exists {

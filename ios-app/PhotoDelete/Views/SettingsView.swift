@@ -167,6 +167,19 @@ struct SettingsView: View {
                 GestureSettingsView()
             case .languageSettings:
                 LanguageSettingsView()
+            case .stats:
+                NavigationStack {
+                    StatsView()
+                        .environmentObject(dataManager)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button(L10n.string("完成")) {
+                                    activeSheet = nil
+                                }
+                                .foregroundColor(PhotoDeleteStyle.accent)
+                            }
+                        }
+                }
             }
         }
     }
@@ -385,6 +398,16 @@ struct SettingsView: View {
                 SettingsHairline()
 
                 SettingRow(
+                    title: L10n.string("使用统计"),
+                    action: {
+                        activeSheet = .stats
+                    }
+                )
+                .accessibilityIdentifier("settings-stats-entry")
+
+                SettingsHairline()
+
+                SettingRow(
                     title: L10n.string("照片访问权限"),
                     subtitle: photoAccessSubtitle,
                     action: {
@@ -579,6 +602,7 @@ private enum SettingsSheet: Identifiable {
     case supporter
     case gestureSettings
     case languageSettings
+    case stats
 
     var id: String {
         switch self {
@@ -587,6 +611,7 @@ private enum SettingsSheet: Identifiable {
         case .supporter: return "supporter"
         case .gestureSettings: return "gestureSettings"
         case .languageSettings: return "languageSettings"
+        case .stats: return "stats"
         }
     }
 }
