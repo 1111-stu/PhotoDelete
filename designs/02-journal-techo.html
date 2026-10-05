@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>删图 · 设计稿 02 — 手账贴纸 (Sticker Journal)</title>
+<style>
+  @font-face { font-family: "Caveat"; font-style: normal; font-weight: 600; font-display: swap;
+    src: url(fonts/Caveat-600.woff2) format("woff2"); }
+  @font-face { font-family: "Caveat"; font-style: normal; font-weight: 700; font-display: swap;
+    src: url(fonts/Caveat-700.woff2) format("woff2"); }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --paper: #FFFDF4;
+    --grid: rgba(96,165,250,.13);
+    --ink: #2A2620;
+    --ink2: #6B655A;
+    --ink3: #9A9284;
+    --coral: #E2543E;
+    --teal: #4D8A7E;
+    --star: #F0B429;
+    --ok: #4D8A7E;
+    --bad: #E2543E;
+    --fav: #E88BA0;
+    --warn: #D9972E;
+    --dash: #D8D2C4;
+    --p1: #FFE9E6; --p2: #E7F6F2; --p3: #FFF6D9; --p4: #ECE8FF; --p5: #E8F3FF;
+    --tape1: rgba(255,138,128,.5); --tape2: rgba(130,204,190,.55); --tape3: rgba(255,214,130,.55); --tape4: rgba(168,158,255,.45);
+    --shadow: 3px 3px 0 rgba(42,38,32,.85);
+    --shadow-soft: 3px 3px 0 rgba(42,38,32,.25);
+  }
+
+  html, body { background: #EFE8D6; }
+  body {
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", "Caveat", cursive;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .caveat, .caveat * { font-family: "Caveat", "Kaiti SC", "STKaiti", cursive; }
+
+  /* ================= 展板外壳: 手账本封面页 ================= */
+  .board { max-width: 1500px; margin: 0 auto; padding: 56px 36px 90px; position: relative; }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(96,165,250,.12) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(96,165,250,.12) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .board-head { position: relative; }
+  .tape {
+    position: absolute; width: 150px; height: 32px; border-radius: 2px; opacity: .8;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  }
+  .eyebrow {
+    font-family: "Caveat", cursive; font-size: 22px; font-weight: 600; color: var(--ink3);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--coral); }
+  .board-head h1 { font-family: "Caveat", cursive; font-size: 64px; font-weight: 700; line-height: 1.05; color: var(--ink); margin-top: 6px; }
+  .board-head h1 em { font-style: normal; color: var(--coral); }
+  .squiggle { display: block; width: 300px; height: 10px; margin: 4px 0 12px 4px; }
+  .board-head .sub { font-size: 17px; color: var(--ink2); max-width: 760px; line-height: 1.8; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+    border: 2px solid var(--ink); border-radius: 999px; background: #fff;
+    box-shadow: var(--shadow); font-size: 14px; font-weight: 700; color: var(--ink);
+  }
+  .chip:nth-child(1) { background: var(--p1); transform: rotate(-1.2deg); }
+  .chip:nth-child(2) { background: var(--p2); transform: rotate(.8deg); }
+  .chip:nth-child(3) { background: var(--p3); transform: rotate(-.6deg); }
+  .chip:nth-child(4) { background: var(--p4); transform: rotate(1deg); }
+  .chip:nth-child(5) { background: var(--p5); transform: rotate(-1deg); }
+  .chip:nth-child(6) { background: #fff; transform: rotate(.5deg); }
+  .chip .dot { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--ink); }
+  .specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-top: 22px; }
+  .spec {
+    background: #fff; border: 2px solid var(--ink); border-radius: 16px;
+    padding: 15px 18px; box-shadow: 4px 4px 0 rgba(42,38,32,.9); position: relative;
+  }
+  .spec:nth-child(1) { transform: rotate(-.5deg); }
+  .spec:nth-child(2) { transform: rotate(.4deg); background: var(--p2); }
+  .spec:nth-child(3) { transform: rotate(-.3deg); background: var(--p3); }
+  .spec:nth-child(4) { transform: rotate(.5deg); background: var(--p4); }
+  .spec b { display: block; font-family: "Caveat", cursive; font-size: 21px; font-weight: 700; color: var(--teal); }
+  .spec div { margin-top: 4px; font-size: 15px; color: var(--ink2); line-height: 1.7; }
+  .spec div strong { color: var(--ink); }
+
+  .screens { display: flex; flex-wrap: wrap; justify-content: center; gap: 34px 46px; margin-top: 52px; }
+  .screen-wrap { zoom: .72; }
+  .screen-label {
+    margin-top: 16px; display: flex; justify-content: space-between; align-items: center;
+    font-family: "Caveat", cursive; font-size: 21px; font-weight: 600; color: var(--ink3);
+  }
+  .screen-label b { color: var(--ink); font-weight: 700; }
+  @media (max-width: 1240px) { .screen-wrap { zoom: .6; } .screens { gap: 24px 26px; } }
+  @media (max-width: 900px)  { .screen-wrap { zoom: .52; } .screens { gap: 18px 14px; } }
+
+  .screen {
+    width: 390px; height: 844px; border-radius: 44px; overflow: hidden; position: relative;
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    box-shadow: 0 26px 60px rgba(42,38,32,.35);
+    transition: transform .35s cubic-bezier(.2,.7,.3,1);
+  }
+  .screen-wrap:hover .screen { transform: translateY(-8px) rotate(.4deg); }
+  .screen::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(96,165,250,.13) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(96,165,250,.13) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  /* ================= 手机通用 ================= */
+  .statusbar {
+    position: absolute; top: 0; left: 0; right: 0; height: 48px; z-index: 30;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 30px 0 32px; font-size: 14px; font-weight: 700; color: var(--ink);
+  }
+  .status-icons { display: flex; align-items: center; gap: 6px; }
+  .status-icons svg { display: block; color: var(--ink); }
+  .app { position: absolute; inset: 0; display: flex; flex-direction: column; z-index: 1; }
+  .scroll { position: relative; flex: 1; overflow: hidden; padding: 0 18px 12px; display: flex; flex-direction: column; gap: 22px; }
+  .scroll::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 46px; z-index: 25;
+    background: linear-gradient(180deg, transparent, var(--paper));
+    pointer-events: none;
+  }
+
+  .page-title {
+    font-family: "Caveat", cursive; font-size: 44px; font-weight: 700; line-height: 1;
+    padding: 54px 6px 0; display: flex; align-items: center; gap: 10px;
+  }
+  .page-title .t-tape { width: 34px; height: 16px; border-radius: 2px; background: var(--tape2); transform: rotate(-8deg); }
+  .page-title .t-star { color: var(--star); font-size: 26px; transform: rotate(8deg); }
+
+  .sticker-card {
+    background: #fff; border: 2px solid var(--ink); border-radius: 18px;
+    box-shadow: var(--shadow); position: relative;
+  }
+  .section-title {
+    font-family: "Caveat", cursive; font-size: 26px; font-weight: 700; padding: 0 2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content: ""; flex: 1; border-bottom: 2px dashed var(--dash); }
+
+  /* 底部 Tab 栏: 纸胶带样式 */
+  .tabbar {
+    position: relative; z-index: 20; height: 86px; padding: 10px 10px 0; margin-top: 0;
+    display: flex; justify-content: space-around; align-items: flex-start;
+    background: #fff; border-top: 2px dashed var(--dash);
+  }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; padding-top: 8px; width: 64px; position: relative; }
+  .tab svg { width: 23px; height: 23px; }
+  .tab span { font-family: "Caveat", cursive; font-size: 17px; font-weight: 700; }
+  .tab.on { color: var(--coral); }
+  .tab.on::before {
+    content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%) rotate(-2deg);
+    width: 58px; height: 14px; border-radius: 2px; background: var(--tape1); opacity: .8;
+  }
+  .tab.off { color: var(--ink3); }
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 999px; background: var(--ink); opacity: .25;
+  }
+
+  /* ---- 首页: 引导便签 ---- */
+  .intro { background: var(--p3); border: 2px solid var(--ink); border-radius: 16px; box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; gap: 12px; transform: rotate(-.4deg); }
+  .intro-row { display: flex; gap: 12px; align-items: flex-start; }
+  .icon-tile {
+    width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 2px solid var(--ink); box-shadow: 2px 2px 0 rgba(42,38,32,.8);
+    color: var(--coral); transform: rotate(-3deg);
+  }
+  .icon-tile.green { color: var(--teal); background: var(--p2); }
+  .icon-tile svg { width: 20px; height: 20px; }
+  .intro-row h4 { font-family: "Caveat", cursive; font-size: 23px; font-weight: 700; line-height: 1.1; }
+  .intro-row p { font-size: 14.5px; color: var(--ink2); line-height: 1.6; margin-top: 3px; }
+  .intro .know {
+    height: 42px; border-radius: 999px; background: #fff; border: 2px solid var(--ink);
+    box-shadow: var(--shadow); color: var(--ink); font-family: "Caveat", cursive; font-size: 20px; font-weight: 700;
+    cursor: pointer;
+  }
+  .intro .know:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 rgba(42,38,32,.85); }
+
+  /* ---- 首页: 聚光灯区(拍立得 + 贴纸) ---- */
+  .spotlight { display: flex; gap: 14px; height: 208px; }
+  .overview {
+    flex: 1.3; background: #fff; border: 2px solid var(--ink); border-radius: 14px;
+    padding: 16px 14px 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative;
+    transform: rotate(-.6deg);
+  }
+  .overview .o-tape { position: absolute; top: -13px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 92px; height: 24px; background: var(--tape1); border-radius: 2px; }
+  .overview .head { display: flex; justify-content: space-between; align-items: center; font-family: "Caveat", cursive; font-size: 19px; font-weight: 700; color: var(--ink2); }
+  .overview .head svg { width: 14px; height: 14px; color: var(--ink3); }
+  .overview .big { font-family: "Caveat", cursive; font-size: 46px; font-weight: 700; line-height: 1.05; margin-top: 2px; }
+  .overview .sub { font-size: 13px; color: var(--ink2); }
+  .overview .cleaned { margin-top: auto; }
+  .overview .cleaned b { display: block; font-family: "Caveat", cursive; font-size: 16px; font-weight: 600; color: var(--ink3); }
+  .overview .cleaned span { font-family: "Caveat", cursive; font-size: 26px; font-weight: 700; color: var(--teal); }
+  .spot-col { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .spot-card {
+    flex: 1; border: 2px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow);
+    padding: 12px 13px; display: flex; flex-direction: column; align-items: flex-start;
+  }
+  .spot-card h5 { font-family: "Caveat", cursive; font-size: 23px; font-weight: 700; line-height: 1.1; }
+  .spot-card p { font-size: 13px; font-weight: 700; }
+  .spot-card svg { width: 21px; height: 21px; margin-top: auto; align-self: flex-end; }
+  .spot-random { background: var(--p1); transform: rotate(1deg); color: #7C2A20; }
+  .spot-hist { background: var(--p3); transform: rotate(-.8deg); color: #6B4E12; }
+
+  /* ---- 首页: 时间段便签行 ---- */
+  .periods { display: flex; flex-direction: column; gap: 12px; }
+  .period {
+    display: flex; align-items: center; gap: 11px; padding: 12px 13px;
+    background: #fff; border: 2px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow);
+  }
+  .period:nth-child(1) { transform: rotate(.3deg); background: var(--p5); }
+  .period:nth-child(2) { transform: rotate(-.4deg); background: var(--p2); }
+  .period:nth-child(3) { transform: rotate(.3deg); background: var(--p4); }
+  .period .p-icon {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 2px solid var(--ink); box-shadow: 2px 2px 0 rgba(42,38,32,.8);
+    color: var(--coral);
+  }
+  .period .p-icon svg { width: 17px; height: 17px; }
+  .period .p-body { flex: 1; min-width: 0; }
+  .period .p-body b { display: block; font-family: "Caveat", cursive; font-size: 21px; font-weight: 700; line-height: 1.15; }
+  .period .p-body span { font-size: 12.5px; color: var(--ink2); }
+  .period .p-count { text-align: right; }
+  .period .p-count b { display: block; font-family: "Caveat", cursive; font-size: 27px; font-weight: 700; line-height: 1; color: var(--coral); }
+  .period .p-count span { font-size: 11.5px; color: var(--ink2); }
+  .period .p-div { width: 1.5px; height: 42px; background: var(--dash); margin: 0 2px; }
+  .period .p-more { display: flex; align-items: center; gap: 1px; font-family: "Caveat", cursive; font-size: 18px; font-weight: 700; color: var(--teal); }
+  .period .p-more svg { width: 12px; height: 12px; }
+
+  /* ---- 首页: 专项清理贴纸 ---- */
+  .cleanup-head { display: flex; justify-content: space-between; align-items: baseline; padding: 0 2px; }
+  .cleanup-head > span:last-child { font-family: "Caveat", cursive; font-size: 18px; font-weight: 700; color: var(--coral); }
+  .cleanup-grid { display: flex; gap: 10px; padding: 4px 2px; }
+  .cleanup-tile {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 12px 4px 10px;
+    border: 2px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow); background: #fff;
+  }
+  .cleanup-tile:nth-child(1) { transform: rotate(-1.2deg); background: var(--p1); }
+  .cleanup-tile:nth-child(3) { transform: rotate(1deg); background: var(--p2); }
+  .cleanup-tile:nth-child(5) { transform: rotate(-.8deg); background: var(--p3); }
+  .cleanup-tile:nth-child(7) { transform: rotate(1.2deg); background: var(--p4); }
+  .cleanup-tile .c-icon { width: 38px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #fff; border: 2px solid var(--ink); box-shadow: 2px 2px 0 rgba(42,38,32,.8); }
+  .cleanup-tile .c-icon svg { width: 20px; height: 20px; }
+  .cleanup-tile b { font-size: 12px; font-weight: 700; line-height: 1.25; text-align: center; }
+  .cleanup-tile span { font-family: "Caveat", cursive; font-size: 16px; font-weight: 700; color: var(--ink2); margin-top: -2px; }
+  .c1 { color: #C0523F; } .c2 { color: #3E8A9E; } .c3 { color: #C08A22; } .c4 { color: #7A5FD0; }
+
+  /* ---- 首页: 工具 ---- */
+  .tool-card { background: #fff; border: 2px dashed var(--ink); border-radius: 16px; }
+  .tool-row { display: flex; align-items: center; padding: 14px 16px; gap: 12px; }
+  .tool-row b { display: block; font-family: "Caveat", cursive; font-size: 21px; font-weight: 700; line-height: 1.15; }
+  .tool-row span { font-size: 12.5px; color: var(--ink2); }
+  .tool-row .count { margin-left: auto; font-family: "Caveat", cursive; font-size: 20px; font-weight: 700; color: var(--teal); }
+  .tool-row svg { width: 12px; height: 12px; color: var(--ink3); }
+  .tool-div { border-top: 2px dashed var(--dash); margin-left: 16px; }
+
+  /* ---- 滑动页: 拍立得 ---- */
+  .swipe-head {
+    position: relative; z-index: 20; height: 54px; padding-top: 46px;
+    display: flex; align-items: center; justify-content: space-between; padding-left: 10px; padding-right: 12px;
+  }
+  .swipe-head .back { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--coral); }
+  .swipe-head .back svg { width: 26px; height: 26px; }
+  .swipe-head .center { text-align: center; }
+  .swipe-head .center b { display: block; font-family: "Caveat", cursive; font-size: 25px; font-weight: 700; line-height: 1.1; }
+  .swipe-head .center span { font-size: 13px; color: var(--ink2); }
+  .swipe-head .trash { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+  .swipe-head .trash svg { width: 22px; height: 22px; }
+  .badge {
+    position: absolute; top: 1px; right: 0; min-width: 17px; height: 17px; border-radius: 999px;
+    background: var(--bad); color: #fff; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; padding: 0 4px;
+    font-family: -apple-system, sans-serif;
+  }
+  .swipe-toast {
+    position: absolute; z-index: 40; top: 112px; left: 50%; transform: translateX(-50%) rotate(-1deg);
+    display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px;
+    background: #fff; border: 2px solid var(--ink); box-shadow: var(--shadow);
+    font-family: "Caveat", cursive; font-size: 20px; font-weight: 700; white-space: nowrap;
+  }
+  .swipe-toast svg { width: 16px; height: 16px; color: var(--ok); }
+  .swipe-toast b { color: var(--coral); }
+  .photo-stage { position: relative; z-index: 10; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 16px 34px 0; }
+  .polaroid {
+    position: relative; width: 100%; flex: 1; min-height: 0;
+    background: #fff; padding: 12px 12px 46px; border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(42,38,32,.3); transform: rotate(1.2deg);
+  }
+  .polaroid .p-tape { position: absolute; top: -15px; left: 50%; transform: translateX(-50%) rotate(-4deg); width: 116px; height: 30px; background: var(--tape2); border-radius: 2px; }
+  .polaroid .ph-wrap { width: 100%; height: 100%; border-radius: 3px; overflow: hidden; position: relative; }
+  .polaroid .ph-wrap svg.ph { width: 100%; height: 100%; display: block; filter: sepia(.16) saturate(.95) contrast(1.02); }
+  .polaroid .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.16), transparent 30%, transparent 72%, rgba(0,0,0,.22)); }
+  .caption-chip {
+    position: absolute; top: 12px; left: 12px; padding: 5px 12px 4px; border-radius: 999px;
+    background: #fff; border: 2px solid var(--ink); box-shadow: 2px 2px 0 rgba(42,38,32,.8);
+    font-family: "Caveat", cursive; font-size: 17px; font-weight: 700; transform: rotate(-1.5deg);
+  }
+  .polaroid .cap {
+    position: absolute; left: 0; right: 0; bottom: 14px; text-align: center;
+    font-family: "Caveat", cursive; font-size: 23px; font-weight: 600; color: var(--ink2);
+  }
+  .action-bar { position: relative; z-index: 20; display: flex; justify-content: space-between; padding: 12px 22px 0; }
+  .act { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .act .icon-holder {
+    width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 2px solid var(--ink); box-shadow: 2.5px 2.5px 0 rgba(42,38,32,.85);
+    color: var(--ink2); position: relative; transform: rotate(-2deg);
+  }
+  .act:nth-child(2) .icon-holder { transform: rotate(2deg); background: var(--p1); color: var(--fav); }
+  .act:nth-child(3) .icon-holder { transform: rotate(-1deg); background: var(--p5); color: var(--teal); }
+  .act:nth-child(4) .icon-holder { transform: rotate(2deg); background: var(--p1); color: var(--bad); }
+  .act:nth-child(5) .icon-holder { transform: rotate(-1.5deg); background: var(--p2); color: var(--ok); }
+  .act .icon-holder svg { width: 23px; height: 23px; }
+  .act span { font-family: "Caveat", cursive; font-size: 17px; font-weight: 700; color: var(--ink2); }
+  .act.danger span { color: var(--bad); } .act.ok span { color: var(--ok); }
+  .act .badge { top: -4px; right: -8px; font-family: -apple-system, sans-serif; }
+  .action-spacer { height: 22px; }
+
+  /* ---- 统计页 ---- */
+  .stat-head { display: flex; align-items: center; gap: 8px; padding: 50px 2px 0; }
+  .stat-head .back { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--coral); margin-left: -8px; }
+  .stat-head .back svg { width: 24px; height: 24px; }
+  .stat-head h1 { font-family: "Caveat", cursive; font-size: 42px; font-weight: 700; line-height: 1; }
+  .progress-card { padding: 16px; display: flex; flex-direction: column; gap: 14px; transform: rotate(-.5deg); }
+  .progress-top { display: flex; justify-content: space-between; align-items: flex-end; }
+  .progress-top .lab { font-family: "Caveat", cursive; font-size: 19px; font-weight: 700; color: var(--ink2); }
+  .progress-top .num { font-family: "Caveat", cursive; font-size: 52px; font-weight: 700; line-height: .95; margin-top: 3px; }
+  .progress-top .right { text-align: right; }
+  .progress-top .right span { font-size: 13.5px; color: var(--ink2); }
+  .progress-top .right b { display: block; font-family: "Caveat", cursive; font-size: 26px; font-weight: 700; color: var(--coral); margin-top: 4px; }
+  .crayon-bar { height: 14px; border-radius: 999px; border: 2px solid var(--ink); background: #fff; overflow: hidden; transform: rotate(-.4deg); }
+  .crayon-bar i { display: block; height: 100%; border-radius: 999px 6px 6px 999px; background: repeating-linear-gradient(90deg, var(--coral) 0 10px, #f0775f 10px 20px); box-shadow: 0 0 0 2px #fff inset; }
+  .progress-foot { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink2); font-weight: 700; }
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .metric {
+    padding: 12px 13px; border: 2px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow);
+    background: #fff; position: relative;
+  }
+  .metric:nth-child(1) { transform: rotate(-.8deg); background: var(--p5); }
+  .metric:nth-child(2) { transform: rotate(.8deg); background: var(--p1); }
+  .metric:nth-child(3) { transform: rotate(.5deg); background: var(--p2); }
+  .metric:nth-child(4) { transform: rotate(-.6deg); background: var(--p3); }
+  .metric b { display: block; font-family: "Caveat", cursive; font-size: 30px; font-weight: 700; line-height: 1; }
+  .metric:nth-child(2) b { color: var(--bad); } .metric:nth-child(3) b { color: var(--ok); } .metric:nth-child(4) b { color: var(--warn); }
+  .metric span { font-size: 12.5px; font-weight: 700; color: var(--ink2); }
+  .storage { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .storage .s-head { display: flex; align-items: center; gap: 10px; }
+  .storage .s-head svg { width: 20px; height: 20px; color: var(--coral); }
+  .storage .s-head b { font-family: "Caveat", cursive; font-size: 21px; font-weight: 700; }
+  .storage .s-head span { margin-left: auto; font-family: "Caveat", cursive; font-size: 20px; font-weight: 700; color: var(--teal); }
+  .storage .s-foot { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink2); font-weight: 700; }
+  .recent-row { display: flex; gap: 12px; }
+  .recent-row .thumb {
+    flex: 1; aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+    background: #fff; padding: 5px; border: 2px solid var(--ink); box-shadow: var(--shadow);
+  }
+  .recent-row .thumb:nth-child(1) { transform: rotate(-1.5deg); }
+  .recent-row .thumb:nth-child(2) { transform: rotate(1.2deg); }
+  .recent-row .thumb:nth-child(3) { transform: rotate(-1deg); }
+  .recent-row .thumb svg { width: 100%; height: 100%; display: block; border-radius: 5px; filter: sepia(.16) saturate(.95); }
+  .chart-wrap { padding: 16px 18px 16px; }
+  .chart-wrap .c-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .chart-wrap .c-head b { font-family: "Caveat", cursive; font-size: 21px; font-weight: 700; }
+  .chart-wrap .c-head span { font-family: "Caveat", cursive; font-size: 18px; font-weight: 700; color: var(--coral); }
+  .bars { display: flex; align-items: flex-end; gap: 9px; height: 96px; position: relative; }
+  .bars::before { content: ""; position: absolute; left: -6px; right: -6px; top: 100%; height: 0; }
+  .bars::after { content: ""; position: absolute; left: -6px; right: -6px; bottom: -4px; border-top: 2px dashed var(--dash); }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 100%; justify-content: flex-end; }
+  .bar-col i {
+    width: 100%; max-width: 24px; border-radius: 5px 5px 3px 3px; border: 2px solid var(--ink);
+    background: repeating-linear-gradient(180deg, #FFE9E6 0 8px, #ffd4cd 8px 16px);
+    box-shadow: 2px 2px 0 rgba(42,38,32,.5);
+  }
+  .bar-col.peak i { background: var(--star); box-shadow: 2px 2px 0 rgba(42,38,32,.7); }
+  .bar-col b { font-family: "Caveat", cursive; font-size: 15px; font-weight: 700; color: var(--ink3); }
+  .bar-col.peak b { color: var(--coral); }
+  .clear-btn {
+    height: 48px; border-radius: 999px; background: #fff; border: 2px solid var(--ink);
+    box-shadow: var(--shadow); color: var(--bad); font-family: "Caveat", cursive; font-size: 20px; font-weight: 700;
+    cursor: pointer; transform: rotate(-.4deg);
+  }
+  .clear-btn:active { transform: translate(2px,2px) rotate(-.4deg); box-shadow: 1px 1px 0 rgba(42,38,32,.85); }
+
+  /* ---- 设置页 ---- */
+  .set-group { display: flex; flex-direction: column; gap: 10px; }
+  .set-card { background: #fff; border: 2px solid var(--ink); border-radius: 16px; box-shadow: var(--shadow); overflow: visible; }
+  .set-row { display: flex; align-items: center; gap: 12px; padding: 13px 15px; min-height: 56px; }
+  .set-row .s-body { flex: 1; min-width: 0; }
+  .set-row .s-body b { display: block; font-family: "Caveat", cursive; font-size: 21px; font-weight: 700; line-height: 1.15; }
+  .set-row .s-body span { font-size: 12.5px; color: var(--ink2); line-height: 1.45; display: block; margin-top: 2px; }
+  .set-row > svg { width: 13px; height: 13px; color: var(--ink3); flex-shrink: 0; }
+  .set-div { border-top: 2px dashed var(--dash); margin: 0 14px; }
+  .banner {
+    display: flex; align-items: center; gap: 12px; padding: 15px; min-height: 56px;
+    border: 2px solid var(--ink); border-radius: 16px; box-shadow: var(--shadow);
+    background: var(--p3); position: relative; transform: rotate(.4deg);
+  }
+  .banner::before { content: ""; position: absolute; top: -14px; left: 30px; width: 84px; height: 26px; background: var(--tape3); border-radius: 2px; transform: rotate(-3deg); }
+  .banner .b-ico {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    background: #fff; border: 2px solid var(--ink); box-shadow: 2px 2px 0 rgba(42,38,32,.8);
+    color: var(--star); display: flex; align-items: center; justify-content: center;
+  }
+  .banner .b-ico svg { width: 19px; height: 19px; }
+  .banner .b-body { flex: 1; }
+  .banner .b-body b { display: block; font-family: "Caveat", cursive; font-size: 22px; font-weight: 700; line-height: 1.1; }
+  .banner .b-body span { font-size: 12.5px; color: var(--ink2); line-height: 1.45; display: block; margin-top: 2px; }
+  .banner > svg { width: 13px; height: 13px; color: var(--ink3); }
+  /* 手绘开关 */
+  .toggle {
+    width: 54px; height: 32px; border-radius: 999px; background: var(--coral);
+    border: 2px solid var(--ink); box-shadow: 2px 2px 0 rgba(42,38,32,.7); position: relative; flex-shrink: 0;
+  }
+  .toggle i { position: absolute; top: 1px; right: 1px; width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 2px solid var(--ink); }
+  .oneapps { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+  .oneapps .oa-ico {
+    width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+    background: var(--p2); border: 2px solid var(--ink); box-shadow: 2px 2px 0 rgba(42,38,32,.8);
+    display: flex; align-items: center; justify-content: center; color: var(--teal);
+  }
+  .oneapps .oa-ico svg { width: 20px; height: 20px; }
+  .oneapps .oa-body b { display: block; font-family: "Caveat", cursive; font-size: 21px; font-weight: 700; line-height: 1.1; }
+  .oneapps .oa-body span { font-size: 12.5px; color: var(--ink2); }
+  .oneapps .oa-arrow { margin-left: auto; color: var(--ink3); display: flex; }
+  .oneapps .oa-arrow svg { width: 14px; height: 14px; }
+  .version { text-align: center; padding: 4px 0 10px; }
+  .version b { display: block; font-family: "Caveat", cursive; font-size: 20px; font-weight: 700; color: var(--ink2); }
+  .version span { font-size: 13px; color: var(--ink3); }
+
+  .board-foot { margin-top: 56px; text-align: center; font-family: "Caveat", cursive; font-size: 21px; font-weight: 600; color: var(--ink3); }
+  .board-foot a { color: var(--coral); text-decoration: none; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+  .screen-wrap { animation: rise .7s cubic-bezier(.2,.7,.3,1) backwards; }
+  .screen-wrap:nth-child(1) { animation-delay: .05s; }
+  .screen-wrap:nth-child(2) { animation-delay: .16s; }
+  .screen-wrap:nth-child(3) { animation-delay: .27s; }
+  .screen-wrap:nth-child(4) { animation-delay: .38s; }
+</style>
+</head>
+<body>
+
+<!-- ============ 图标库 ============ -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-chevron-r" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chevron-l" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M6.2 7l.7 12a2 2 0 0 0 2 1.9h6.2a2 2 0 0 0 2-1.9l.7-12M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5S4.5 16 3 11.3a5.2 5.2 0 0 1 9-3.4 5.2 5.2 0 0 1 9 3.4C19.5 16 12 20.5 12 20.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><rect x="5.5" y="13" width="13" height="7.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 13V4.5M8.7 7.3L12 4l3.3 3.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 13.2l4.2 4.2L19 7.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14.5L4 9.5l5-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9.5h10.5a5.5 5.5 0 0 1 0 11H8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17.5l-1.8-5.2L5 10.5l5.2-1.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M18.5 15.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" fill="currentColor"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M3.5 9.8h17M8 2.8v4.2M16 2.8v4.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6.5" width="12.5" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M15.5 10.8l5.5-3v8.4l-5.5-3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M11 18.4h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-drive" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M8.5 8.5h7M8.5 15.5h7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/><rect x="3" y="9" width="14" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13.5V6.2a1.6 1.6 0 0 1 3.2 0V11m0-5.6v-.8a1.6 1.6 0 0 1 3.2 0V11m0-4.2a1.6 1.6 0 0 1 3.2 0v4.4M8.8 13.8c-1.5 1-2.3 2.3-2.3 4 0 2.4 1.6 3.7 4.2 3.7 1.6 0 3-.6 3.8-1.4l3.3-2.9c.6-.5.5-1.4-.1-1.8-.8-.5-1.9-.3-2.4.4l-.9 1.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M3.5 7.5L12 13l8.5-5.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 2.8v5.4c0 4.6-3.2 8-7.5 9.8-4.3-1.8-7.5-5.2-7.5-9.8V5.8z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-photo-album" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><circle cx="9.2" cy="10.6" r="1.9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 17.5l4.6-4.6 3.2 3.2 3-3 4.2 4.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-up-right" viewBox="0 0 24 24"><path d="M7 17L17 7M9.5 7H17v7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 19V10.5M12 19V5M19 19v-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M3 19.5h18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-crown" viewBox="0 0 24 24"><path d="M4 17.5L2.5 7.8l5.7 3.6L12 4.5l3.8 6.9 5.7-3.6L20 17.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4.5 20h15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+</svg>
+
+<!-- ============ 照片占位场景 ============ -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="sc-forest" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="jf1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9d3b4"/><stop offset=".6" stop-color="#6f9a72"/><stop offset="1" stop-color="#3f6b4d"/></linearGradient></defs>
+    <rect width="400" height="300" fill="url(#jf1)"/>
+    <circle cx="112" cy="82" r="42" fill="#f2f6dd" opacity=".9"/>
+    <path d="M0 232 Q55 160 120 222 Q185 168 260 226 Q320 180 400 228 L400 300 L0 300 Z" fill="#3a6b4e"/>
+    <path d="M0 262 Q85 212 175 258 Q255 214 400 260 L400 300 L0 300 Z" fill="#28492f"/>
+    <g fill="#28492f"><circle cx="70" cy="210" r="13"/><rect x="66" y="216" width="8" height="16"/><circle cx="330" cy="200" r="15"/><rect x="326" y="208" width="8" height="18"/></g>
+  </symbol>
+  <symbol id="sc-sunset" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="jf2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc894"/><stop offset=".5" stop-color="#ff9b7c"/><stop offset="1" stop-color="#6a5a92"/></linearGradient></defs>
+    <rect width="400" height="300" fill="url(#jf2)"/>
+    <circle cx="288" cy="118" r="44" fill="#ffe6b8" opacity=".92"/>
+    <path d="M0 208 L72 150 L132 204 L192 132 L258 208 L332 162 L400 206 L400 300 L0 300 Z" fill="#4e4178"/>
+    <path d="M0 246 L92 196 L172 246 L252 186 L332 246 L400 208 L400 300 L0 300 Z" fill="#352c5a"/>
+  </symbol>
+  <symbol id="sc-city" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+    <rect width="400" height="300" fill="#232c48"/>
+    <circle cx="318" cy="70" r="30" fill="#f7ecd0" opacity=".9"/>
+    <rect x="30" y="118" width="60" height="182" fill="#32406b"/>
+    <rect x="104" y="78" width="72" height="222" fill="#3a4b7c"/>
+    <rect x="190" y="138" width="56" height="162" fill="#2e3b63"/>
+    <rect x="260" y="60" width="80" height="240" fill="#41548a"/>
+    <g fill="#ffdf9a"><rect x="40" y="134" width="8" height="10"/><rect x="60" y="134" width="8" height="10"/><rect x="40" y="160" width="8" height="10"/><rect x="60" y="186" width="8" height="10"/><rect x="118" y="94" width="9" height="12"/><rect x="142" y="94" width="9" height="12"/><rect x="118" y="130" width="9" height="12"/><rect x="142" y="164" width="9" height="12"/><rect x="274" y="78" width="9" height="12"/><rect x="300" y="78" width="9" height="12"/><rect x="274" y="114" width="9" height="12"/><rect x="300" y="148" width="9" height="12"/></g>
+  </symbol>
+  <symbol id="sc-beach" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="jf3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b5e0ea"/><stop offset=".58" stop-color="#63b1c4"/><stop offset=".6" stop-color="#f0e2b4"/><stop offset="1" stop-color="#ddc78e"/></linearGradient></defs>
+    <rect width="400" height="300" fill="url(#jf3)"/>
+    <circle cx="92" cy="68" r="34" fill="#fff6d9"/>
+    <path d="M118 192 q13 -15 26 0 M152 202 q13 -15 26 0 M186 192 q13 -15 26 0" stroke="#faf3dd" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <circle cx="330" cy="240" r="7" fill="#b08a52"/>
+  </symbol>
+  <symbol id="sc-portrait" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="jf4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8d5a0"/><stop offset="1" stop-color="#d17b52"/></linearGradient></defs>
+    <rect width="300" height="400" fill="url(#jf4)"/>
+    <circle cx="150" cy="168" r="96" fill="#3b363f"/>
+    <path d="M66 400 q84 -118 168 0 z" fill="#3b363f"/>
+    <circle cx="150" cy="118" r="58" fill="#ffe0b0" opacity=".55"/>
+    <circle cx="150" cy="150" r="64" fill="#3b363f"/>
+  </symbol>
+  <symbol id="sc-food" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">
+    <rect width="300" height="400" fill="#f2e6d2"/>
+    <rect x="0" y="196" width="300" height="204" fill="#c0643f"/>
+    <ellipse cx="150" cy="212" rx="122" ry="42" fill="#9c5233"/>
+    <ellipse cx="150" cy="202" rx="112" ry="36" fill="#eeba5a"/>
+    <g fill="#8ab573"><circle cx="82" cy="186" r="16"/><circle cx="132" cy="182" r="14"/><circle cx="186" cy="185" r="15"/><circle cx="232" cy="190" r="13"/></g>
+    <path d="M40 120 q30 -24 60 0 M120 100 q30 -24 60 0 M200 118 q30 -24 60 0" stroke="#faf3dd" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="board">
+  <header class="board-head">
+    <div class="eyebrow"><span></span>PhotoDelete · 视觉设计稿 02 / 05</div>
+    <h1>手账贴纸 <em>Sticker Journal</em></h1>
+    <svg class="squiggle" viewBox="0 0 300 12" preserveAspectRatio="none"><path d="M2 8 Q 20 2 38 8 T 74 8 T 110 8 T 146 8 T 182 8 T 218 8 T 254 8 T 290 8" stroke="#E2543E" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+    <p class="sub">把整理相册变成写手账:奶油纸 + 蓝色网格、和纸胶带、拍立得照片、贴纸卡片。删除不再是严肃的「销毁」,而是手账里随手一笔 —— 适合想要温暖、治愈气质的版本。</p>
+    <div class="chips">
+      <span class="chip"><i class="dot" style="background:#FFE9E6"></i>纸底 #FFFDF4</span>
+      <span class="chip"><i class="dot" style="background:#E2543E"></i>珊瑚 #E2543E</span>
+      <span class="chip"><i class="dot" style="background:#4D8A7E"></i>青绿 #4D8A7E</span>
+      <span class="chip"><i class="dot" style="background:#F0B429"></i>星黄 #F0B429</span>
+      <span class="chip"><i class="dot" style="background:#2A2620"></i>墨线 #2A2620</span>
+      <span class="chip"><i class="dot" style="background:#fff"></i>硬阴影 3×3</span>
+    </div>
+    <div class="specs">
+      <div class="spec"><b>字体</b><div>标题/数字 <strong>Caveat</strong> 手写体 + 中文 <strong>楷体</strong>(Kaiti SC);正文楷体小字,像写在纸上</div></div>
+      <div class="spec"><b>卡片语言</b><div>2px 墨线边框 + <strong>3px 硬阴影</strong>;卡片微旋转 ±1°;虚线分隔;胶带贴角</div></div>
+      <div class="spec"><b>气质</b><div>温暖治愈 · 手工感 · 贴纸收集册 · 低压力删除</div></div>
+      <div class="spec"><b>适用</b><div>面向生活记录人群;若选它,「删除」文案可改为手账口吻(如「放它走」)</div></div>
+    </div>
+  </header>
+
+  <main class="screens">
+    <!-- ========== 01 首页 · 整理 ========== -->
+    <div class="screen-wrap">
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span>
+          <span class="status-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 14 0"/><path d="M4 7a6.3 6.3 0 0 1 9 0"/><circle cx="8.5" cy="10" r="1.4" fill="currentColor" stroke="none"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="21.5" height="12" rx="3.6" fill="none" stroke="currentColor" opacity=".45" stroke-width="1"/><rect x="2.4" y="2.4" width="14.5" height="8.2" rx="2" fill="currentColor"/><path d="M23.4 4.4v4.2a2 2 0 0 0 2-2v-.2a2 2 0 0 0-2-2z" fill="currentColor" opacity=".45"/></svg>
+          </span>
+        </div>
+        <div class="app">
+          <div class="scroll" style="gap:20px">
+            <div class="page-title"><span class="t-tape"></span>整理<span class="t-star">✦</span></div>
+            <section class="intro">
+              <div class="intro-row">
+                <div class="icon-tile"><svg><use href="#i-hand"/></svg></div>
+                <div><h4>快速上手 ✎</h4><p>左滑删除、右滑保留、上滑收藏;想换手势,在整理页底部打开设置～</p></div>
+              </div>
+              <div class="intro-row">
+                <div class="icon-tile green"><svg><use href="#i-lock"/></svg></div>
+                <div><p>隐私优先:整理过程只在本机完成,照片不会上传哦。</p></div>
+              </div>
+              <button class="know">知道啦 ✓</button>
+            </section>
+            <section class="spotlight">
+              <div class="overview">
+                <div class="o-tape"></div>
+                <div class="head">照片库概览 <svg><use href="#i-chevron-r"/></svg></div>
+                <div class="big">32.5 GB</div>
+                <div class="sub">共 18,432 项 · 已整理 62%</div>
+                <div class="cleaned"><b>累计清理</b><span>4.8 GB</span></div>
+              </div>
+              <div class="spot-col">
+                <div class="spot-card spot-random"><h5>随机整理</h5><p>最多 120 项</p><svg><use href="#i-sparkle"/></svg></div>
+                <div class="spot-card spot-hist"><h5>往年今日</h5><p>23 张</p><svg><use href="#i-calendar"/></svg></div>
+              </div>
+            </section>
+            <section class="periods">
+              <div class="period">
+                <div class="p-icon"><svg><use href="#i-calendar"/></svg></div>
+                <div class="p-body"><b>本周新增</b><span>共 128 项 · 256 MB</span></div>
+                <div class="p-count"><b>94</b><span>待整理</span></div>
+                <div class="p-div"></div>
+                <div class="p-more">更多<svg><use href="#i-chevron-r"/></svg></div>
+              </div>
+              <div class="period">
+                <div class="p-icon"><svg><use href="#i-calendar"/></svg></div>
+                <div class="p-body"><b>本月新增</b><span>共 486 项 · 1.2 GB</span></div>
+                <div class="p-count"><b>208</b><span>待整理</span></div>
+                <div class="p-div"></div>
+                <div class="p-more">更多<svg><use href="#i-chevron-r"/></svg></div>
+              </div>
+              <div class="period">
+                <div class="p-icon"><svg><use href="#i-calendar"/></svg></div>
+                <div class="p-body"><b>本年新增</b><span>共 3,204 项 · 8.6 GB</span></div>
+                <div class="p-count"><b>1,470</b><span>待整理</span></div>
+                <div class="p-div"></div>
+                <div class="p-more">更多<svg><use href="#i-chevron-r"/></svg></div>
+              </div>
+            </section>
+            <section>
+              <div class="cleanup-head" style="margin-bottom:12px"><span class="section-title">专项清理</span><span>预计可清理 2.4 GB</span></div>
+              <div class="cleanup-grid">
+                <div class="cleanup-tile"><div class="c-icon c1"><svg><use href="#i-layers"/></svg></div><b>相似与重复</b><span>8,432</span></div>
+                <div class="cleanup-tile"><div class="c-icon c2"><svg><use href="#i-video"/></svg></div><b>视频</b><span>1,204</span></div>
+                <div class="cleanup-tile"><div class="c-icon c3"><svg><use href="#i-phone"/></svg></div><b>截图</b><span>3,102</span></div>
+                <div class="cleanup-tile"><div class="c-icon c4"><svg><use href="#i-drive"/></svg></div><b>大文件</b><span>156</span></div>
+              </div>
+            </section>
+            <section>
+              <div class="section-title" style="margin-bottom:12px">工具</div>
+              <div class="tool-card">
+                <div class="tool-row"><div><b>图片压缩</b><span>变小,不删除</span></div><div class="count">1,024</div><svg><use href="#i-chevron-r"/></svg></div>
+                <div class="tool-div"></div>
+                <div class="tool-row"><div><b>视频压缩</b><span>变小,不删除</span></div><div class="count">89</div><svg><use href="#i-chevron-r"/></svg></div>
+              </div>
+            </section>
+          </div>
+          <nav class="tabbar">
+            <div class="tab on"><svg><use href="#i-sparkle"/></svg><span>整理</span></div>
+            <div class="tab off"><svg><use href="#i-photo-album"/></svg><span>相册</span></div>
+            <div class="tab off"><svg><use href="#i-gear"/></svg><span>设置</span></div>
+            <div class="home-indicator"></div>
+          </nav>
+        </div>
+      </div>
+      <div class="screen-label"><b>01 · 首页(整理)</b><span>Home</span></div>
+    </div>
+
+    <!-- ========== 02 滑动整理 ========== -->
+    <div class="screen-wrap">
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span>
+          <span class="status-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 14 0"/><path d="M4 7a6.3 6.3 0 0 1 9 0"/><circle cx="8.5" cy="10" r="1.4" fill="currentColor" stroke="none"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="21.5" height="12" rx="3.6" fill="none" stroke="currentColor" opacity=".45" stroke-width="1"/><rect x="2.4" y="2.4" width="14.5" height="8.2" rx="2" fill="currentColor"/><path d="M23.4 4.4v4.2a2 2 0 0 0 2-2v-.2a2 2 0 0 0-2-2z" fill="currentColor" opacity=".45"/></svg>
+          </span>
+        </div>
+        <div class="app swipe">
+          <div class="swipe-head">
+            <div class="back"><svg><use href="#i-chevron-l"/></svg></div>
+            <div class="center"><b>128 / 3,102</b><span>本轮待整理 2,974 张</span></div>
+            <div class="trash"><svg><use href="#i-trash"/></svg><span class="badge">3</span></div>
+          </div>
+          <div class="photo-stage">
+            <div class="polaroid">
+              <div class="p-tape"></div>
+              <div class="ph-wrap">
+                <svg class="ph" viewBox="0 0 400 300"><use href="#sc-forest"/></svg>
+                <div class="shade"></div>
+                <div class="caption-chip">3 年前的今天 ✿</div>
+              </div>
+              <div class="cap">2023年10月5日 · 浙江 · 杭州</div>
+            </div>
+          </div>
+          <div class="swipe-toast"><svg><use href="#i-check"/></svg>已加入待删除 <b>撤销 ✎</b></div>
+          <div class="action-bar">
+            <div class="act"><div class="icon-holder"><svg><use href="#i-undo"/></svg></div><span>撤销</span></div>
+            <div class="act"><div class="icon-holder"><svg><use href="#i-heart"/></svg></div><span>收藏</span></div>
+            <div class="act"><div class="icon-holder"><svg><use href="#i-share"/></svg></div><span>分享</span></div>
+            <div class="act danger"><div class="icon-holder"><svg><use href="#i-trash"/></svg><span class="badge">3</span></div><span>待删除</span></div>
+            <div class="act ok"><div class="icon-holder"><svg><use href="#i-check"/></svg></div><span>完成</span></div>
+          </div>
+          <div class="action-spacer"></div>
+          <div class="home-indicator" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:999px;background:var(--ink);opacity:.25"></div>
+        </div>
+      </div>
+      <div class="screen-label"><b>02 · 滑动整理(截图)</b><span>Swipe</span></div>
+    </div>
+
+    <!-- ========== 03 统计 ========== -->
+    <div class="screen-wrap">
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span>
+          <span class="status-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 14 0"/><path d="M4 7a6.3 6.3 0 0 1 9 0"/><circle cx="8.5" cy="10" r="1.4" fill="currentColor" stroke="none"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="21.5" height="12" rx="3.6" fill="none" stroke="currentColor" opacity=".45" stroke-width="1"/><rect x="2.4" y="2.4" width="14.5" height="8.2" rx="2" fill="currentColor"/><path d="M23.4 4.4v4.2a2 2 0 0 0 2-2v-.2a2 2 0 0 0-2-2z" fill="currentColor" opacity=".45"/></svg>
+          </span>
+        </div>
+        <div class="app">
+          <div class="scroll" style="gap:20px">
+            <div class="stat-head"><div class="back"><svg><use href="#i-chevron-l"/></svg></div><h1>统计</h1></div>
+            <section>
+              <div class="section-title" style="margin-bottom:12px">整理进度</div>
+              <div class="sticker-card progress-card">
+                <div class="progress-top">
+                  <div><div class="lab">已整理</div><div class="num">11,428</div></div>
+                  <div class="right"><span>共 18,432 张</span><b>62%</b></div>
+                </div>
+                <div class="crayon-bar"><i style="width:62%"></i></div>
+                <div class="progress-foot"><span>删除内容约 4.8 GB</span><span>已删除 1,236 张</span></div>
+              </div>
+            </section>
+            <section class="metric-grid">
+              <div class="metric"><b>18,432</b><span>照片</span></div>
+              <div class="metric"><b>1,236</b><span>已删除</span></div>
+              <div class="metric"><b>11,428</b><span>已整理</span></div>
+              <div class="metric"><b>4.8 GB</b><span>节省空间</span></div>
+            </section>
+            <section>
+              <div class="section-title" style="margin-bottom:12px">手机存储空间</div>
+              <div class="sticker-card storage">
+                <div class="s-head"><svg><use href="#i-drive"/></svg><b>手机存储空间</b><span>78%</span></div>
+                <div class="crayon-bar"><i style="width:78%;background:repeating-linear-gradient(90deg, var(--teal) 0 10px, #6daca0 10px 20px)"></i></div>
+                <div class="s-foot"><span>已用 200.4 GB</span><span>可用 56.2 GB</span></div>
+              </div>
+            </section>
+            <section>
+              <div class="section-title" style="margin-bottom:12px">最近整理</div>
+              <div class="recent-row">
+                <div class="thumb"><svg viewBox="0 0 400 300"><use href="#sc-city"/></svg></div>
+                <div class="thumb"><svg viewBox="0 0 300 400"><use href="#sc-food"/></svg></div>
+                <div class="thumb"><svg viewBox="0 0 400 300"><use href="#sc-beach"/></svg></div>
+              </div>
+            </section>
+            <section>
+              <div class="section-title" style="margin-bottom:12px">月度汇总</div>
+              <div class="sticker-card chart-wrap">
+                <div class="c-head"><b>清理空间</b><span>本月 6.3 GB</span></div>
+                <div class="bars">
+                  <div class="bar-col"><b>4月</b><i style="height:34%"></i></div>
+                  <div class="bar-col"><b>5月</b><i style="height:52%"></i></div>
+                  <div class="bar-col"><b>6月</b><i style="height:44%"></i></div>
+                  <div class="bar-col"><b>7月</b><i style="height:64%"></i></div>
+                  <div class="bar-col"><b>8月</b><i style="height:58%"></i></div>
+                  <div class="bar-col"><b>9月</b><i style="height:76%"></i></div>
+                  <div class="bar-col peak"><b>10月</b><i style="height:96%"></i></div>
+                </div>
+              </div>
+            </section>
+            <button class="clear-btn">清空统计记录</button>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label"><b>03 · 统计</b><span>Stats</span></div>
+    </div>
+
+    <!-- ========== 04 设置 ========== -->
+    <div class="screen-wrap">
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span>
+          <span class="status-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 14 0"/><path d="M4 7a6.3 6.3 0 0 1 9 0"/><circle cx="8.5" cy="10" r="1.4" fill="currentColor" stroke="none"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="21.5" height="12" rx="3.6" fill="none" stroke="currentColor" opacity=".45" stroke-width="1"/><rect x="2.4" y="2.4" width="14.5" height="8.2" rx="2" fill="currentColor"/><path d="M23.4 4.4v4.2a2 2 0 0 0 2-2v-.2a2 2 0 0 0-2-2z" fill="currentColor" opacity=".45"/></svg>
+          </span>
+        </div>
+        <div class="app">
+          <div class="scroll" style="gap:18px">
+            <div class="page-title"><span class="t-tape" style="background:var(--tape1)"></span>设置<span class="t-star">✦</span></div>
+            <div class="banner">
+              <div class="b-ico"><svg><use href="#i-crown"/></svg></div>
+              <div class="b-body"><b>解锁进阶功能</b><span>可先免费体验 3 天,也可选择年度或永久 Pro</span></div>
+              <svg><use href="#i-chevron-r"/></svg>
+            </div>
+            <section class="set-group">
+              <div class="section-title">偏好设置</div>
+              <div class="set-card">
+                <div class="set-row"><div class="s-body"><b>手势与播放</b><span>视频自动 · 实况手动</span></div><svg><use href="#i-chevron-r"/></svg></div>
+                <div class="set-div"></div>
+                <div class="set-row"><div class="s-body"><b>照片顺序</b><span>最新优先</span></div><svg><use href="#i-chevron-r"/></svg></div>
+                <div class="set-div"></div>
+                <div class="set-row"><div class="s-body"><b>语言</b><span>简体中文</span></div><svg><use href="#i-chevron-r"/></svg></div>
+                <div class="set-div"></div>
+                <div class="set-row"><div class="s-body"><b>触感反馈</b><span>滑动、撤销和归类时提供轻微反馈</span></div><div class="toggle"><i></i></div></div>
+              </div>
+            </section>
+            <section class="set-group">
+              <div class="section-title">数据与权限</div>
+              <div class="set-card">
+                <div class="set-row"><div class="s-body"><b>本机整理数据</b><span>已整理 11,428 张</span></div></div>
+                <div class="set-div"></div>
+                <div class="set-row"><div class="s-body"><b>照片访问权限</b><span>全部照片</span></div><svg><use href="#i-chevron-r"/></svg></div>
+                <div class="set-div"></div>
+                <div class="set-row"><div class="s-body"><b>重新查看引导</b></div></div>
+              </div>
+            </section>
+            <section class="set-group">
+              <div class="section-title">关于与支持</div>
+              <div class="set-card">
+                <div class="set-row"><div class="s-body"><b>给删图评分</b></div></div>
+                <div class="set-div"></div>
+                <div class="set-row"><div class="s-body"><b>邮件反馈</b><span>feedback@photodelete.app</span></div><svg><use href="#i-chevron-r"/></svg></div>
+                <div class="set-div"></div>
+                <div class="set-row"><div class="s-body"><b>隐私说明</b></div><svg><use href="#i-chevron-r"/></svg></div>
+              </div>
+            </section>
+            <section class="set-group">
+              <div class="section-title">One Apps</div>
+              <div class="set-card"><div class="oneapps">
+                <div class="oa-ico"><svg><use href="#i-sparkle"/></svg></div>
+                <div class="oa-body"><b>One Apps</b><span>更多实用小工具</span></div>
+                <div class="oa-arrow"><svg><use href="#i-up-right"/></svg></div>
+              </div></div>
+            </section>
+            <div class="version"><b>删图 v2.6.0</b><span>让照片整理变得简单</span></div>
+          </div>
+          <nav class="tabbar">
+            <div class="tab off"><svg><use href="#i-sparkle"/></svg><span>整理</span></div>
+            <div class="tab off"><svg><use href="#i-photo-album"/></svg><span>相册</span></div>
+            <div class="tab on"><svg><use href="#i-gear"/></svg><span>设置</span></div>
+            <div class="home-indicator"></div>
+          </nav>
+        </div>
+      </div>
+      <div class="screen-label"><b>04 · 设置</b><span>Settings</span></div>
+    </div>
+  </main>
+
+  <footer class="board-foot"><a href="index.html">← 返回总览,查看另外 4 套风格</a></footer>
+</div>
+</body>
+</html>
