@@ -16106,6 +16106,9 @@
     "垃圾桶" : {
 
     },
+    "垃圾桶，%lld 张待删除" : {
+
+    },
     "垃圾桶是空的" : {
 
     },
@@ -30441,7 +30444,6 @@
       }
     },
     "更多" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -210,6 +210,42 @@
     transition:opacity .25s, transform .35s cubic-bezier(.22,.9,.28,1); }
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
+  /* ---- 周期选择弹窗（点 band 段弹出） ---- */
+  .sheet-mask { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.52);
+    opacity:0; pointer-events:none; transition:opacity .24s ease-out; }
+  .sheet-mask.on { opacity:1; pointer-events:auto; }
+  .period-sheet { position:absolute; z-index:51; left:8px; right:8px; bottom:8px;
+    background:var(--card); border-radius:26px; padding:10px 0 8px;
+    transform:translateY(115%); transition:transform .34s cubic-bezier(.22,.9,.28,1);
+    box-shadow:0 22px 60px rgba(0,0,0,.65); }
+  .period-sheet.on { transform:translateY(0); }
+  .ps-grab { width:36px; height:5px; border-radius:999px; background:rgba(255,255,255,.22);
+    margin:0 auto 12px; }
+  .ps-title { text-align:center; font-size:16px; font-weight:700; letter-spacing:-.01em;
+    padding-bottom:4px; }
+  .ps-rows { max-height:430px; overflow-y:auto; scrollbar-width:none; padding-top:4px; }
+  .ps-rows::-webkit-scrollbar { display:none; }
+  .ps-row { display:flex; align-items:center; gap:12px; padding:12px 20px; position:relative;
+    border:none; background:transparent; width:100%; font-family:inherit; color:inherit;
+    cursor:pointer; text-align:left; }
+  .ps-row + .ps-row::before { content:""; position:absolute; top:0; left:20px; right:20px;
+    height:1px; background:var(--sep); }
+  .ps-row:active { background:rgba(255,255,255,.05); }
+  .ps-thumb { width:46px; height:46px; border-radius:11px; overflow:hidden; flex-shrink:0;
+    display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:1px;
+    background:var(--card2); }
+  .ps-thumb svg { width:100%; height:100%; display:block; }
+  .ps-body { min-width:0; display:flex; flex-direction:column; gap:3px; }
+  .ps-body b { font-size:15px; font-weight:600; letter-spacing:.01em; }
+  .ps-body small { font-size:11.5px; color:var(--ink2); }
+  .ps-meta { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end;
+    gap:1px; flex-shrink:0; }
+  .ps-meta em { font-style:normal; font-size:17px; font-weight:700; letter-spacing:-.02em; }
+  .ps-meta small { font-size:10.5px; color:var(--ink3); }
+  .ps-row.primary .ps-meta em { color:var(--amber); }
+  .ps-row .chev { width:12px; height:12px; color:var(--ink3); flex-shrink:0; }
+  .ps-divider { height:1px; background:var(--sep); margin:2px 20px 4px; }
+
   @media (max-width:1080px) { .page { gap:40px; } .panel { position:static; max-width:390px; } }
 </style>
 </head>
@@ -295,7 +331,7 @@
       </div></div>
       <div class="try-item"><span class="k">3</span><div>
         <b>点任意一处进入</b>
-        <p>点 band 三段、首屏双卡、专项清理 —— 都会从<b>被点的那个元素本身展开</b>成全屏,而不是整页跳转。按左上角关闭。</p>
+        <p>点 band 三段会先弹出<b>周期选择</b>（本周全部/每天、其他月份、其他年份）,选一行再展开成全屏;首屏双卡、专项清理则直接从<b>被点的元素本身展开</b>。按左上角关闭。</p>
       </div></div>
       <div class="try-item"><span class="k">4</span><div>
         <b>滚动看视差</b>
@@ -311,6 +347,7 @@
       · 删掉累计已清理、<code>共 18432 项</code>(回望数据下沉统计页)<br>
       · 专项清理只留 GB,按可释放空间降序 + 占比条<br>
       · 三个时间入口做成可点 band,第三行为<b>可释放空间</b><br>
+      · band 段点击 → <b>周期选择弹窗</b>（标题：按周/按月/按年整理；本周→每天 / 本月→其他月份 / 本年→其他年份，首行"本期全部"）<br>
       · 删掉「往年今日」,待整理上提为首屏左卡,周期 band 独立成行<br>
       · 进度用 6px 卡内横条(A 方案)
     </div>
@@ -431,6 +468,14 @@
         </div>
         <div class="ex-hint">← 左滑删除 · 右滑保留 · 上滑收藏 →</div>
       </div>
+    </div>
+
+    <!-- 周期选择弹窗：点 band 段弹出（本期全部 + 更细周期） -->
+    <div class="sheet-mask" id="sheetMask"></div>
+    <div class="period-sheet" id="periodSheet">
+      <div class="ps-grab"></div>
+      <div class="ps-title" id="psTitle">本周</div>
+      <div class="ps-rows" id="psRows"></div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -596,9 +641,90 @@
     }, 220);
   });
 
-  // 所有可点元素 → 从自身展开
+  // 所有可点元素 → 从自身展开（band 段除外：先弹周期选择）
   document.querySelectorAll('[data-open]').forEach(el => {
+    if (el.classList.contains('seg')) return;
     el.addEventListener('click', () => openFrom(el));
+  });
+
+  /* ================= 6. 周期选择弹窗（点 band 段弹出） ================= */
+  const PERIOD_SETS = {
+    '本周': [
+      { name: '本周全部', sub: '共 128 项 · 640 MB', val: '94', primary: true, thumb: 0 },
+      { divider: true },
+      { name: '10月6日 周二', sub: '共 52 项 · 260 MB', val: '40', thumb: 1 },
+      { name: '10月5日 周一', sub: '共 44 项 · 220 MB', val: '32', thumb: 2 },
+      { name: '10月3日 周五', sub: '共 32 项 · 160 MB', val: '22', thumb: 3 },
+    ],
+    '本月': [
+      { name: '本月全部', sub: '共 486 项 · 2.1 GB', val: '208', primary: true, thumb: 1 },
+      { divider: true },
+      { name: '2026年9月', sub: '共 402 项 · 1.8 GB', val: '210', thumb: 2 },
+      { name: '2026年8月', sub: '共 178 项 · 820 MB', val: '96', thumb: 3 },
+      { name: '2026年7月', sub: '共 266 项 · 1.2 GB', val: '145', thumb: 4 },
+    ],
+    '本年': [
+      { name: '本年全部', sub: '共 3204 项 · 12.4 GB', val: '1470', primary: true, thumb: 2 },
+      { divider: true },
+      { name: '2025年', sub: '共 1840 项 · 7.1 GB', val: '890', thumb: 3 },
+      { name: '2024年', sub: '共 265 项 · 1.1 GB', val: '120', thumb: 4 },
+    ],
+  };
+
+  const PS_ART = ['p-forest', 'p-sunset', 'p-city', 'p-beach', 'p-food', 'p-meadow'];
+  const PERIOD_TITLES = { '本周': '按周整理', '本月': '按月整理', '本年': '按年整理' };
+  function periodRowThumb(seed) {
+    let cells = '';
+    for (let k = 0; k < 4; k++) {
+      cells += `<svg viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">`
+        + `<use href="#${PS_ART[(seed * 3 + k) % PS_ART.length]}"/></svg>`;
+    }
+    return `<span class="ps-thumb">${cells}</span>`;
+  }
+
+  const sheetMask = document.getElementById('sheetMask');
+  const periodSheet = document.getElementById('periodSheet');
+  const psTitle = document.getElementById('psTitle');
+  const psRows = document.getElementById('psRows');
+
+  function openPeriodSheet(seg) {
+    const rows = PERIOD_SETS[seg.dataset.periodKey] || [];
+    psTitle.textContent = PERIOD_TITLES[seg.dataset.periodKey] || seg.dataset.periodKey;
+    psRows.innerHTML = '';
+    rows.forEach(row => {
+      if (row.divider) {
+        const d = document.createElement('div');
+        d.className = 'ps-divider';
+        psRows.appendChild(d);
+        return;
+      }
+      const b = document.createElement('button');
+      b.className = 'ps-row' + (row.primary ? ' primary' : '');
+      b.innerHTML = periodRowThumb(row.thumb)
+        + `<span class="ps-body"><b>${row.name}</b><small>${row.sub}</small></span>`
+        + `<span class="ps-meta"><em class="num">${row.val}</em><small>待整理</small></span>`
+        + `<svg class="chev"><use href="#i-chev"/></svg>`;
+      b.addEventListener('click', () => {
+        closePeriodSheet();
+        seg.dataset.open = row.name;         // 展开层标题 = 选中的周期
+        seg.dataset.sub = row.sub || '';
+        setTimeout(() => openFrom(seg), 200); // 等弹窗收起再展开
+      });
+      psRows.appendChild(b);
+    });
+    sheetMask.classList.add('on');
+    periodSheet.classList.add('on');
+  }
+
+  function closePeriodSheet() {
+    sheetMask.classList.remove('on');
+    periodSheet.classList.remove('on');
+  }
+
+  sheetMask.addEventListener('click', closePeriodSheet);
+  document.querySelectorAll('.seg').forEach(seg => {
+    seg.dataset.periodKey = seg.dataset.open;  // 记住周期键（data-open 后续会被改成选中项）
+    seg.addEventListener('click', () => openPeriodSheet(seg));
   });
   document.querySelectorAll('.tab.off').forEach(el => {
     el.addEventListener('click', () => {

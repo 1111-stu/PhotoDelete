@@ -147,6 +147,7 @@ struct HomeView: View {
     @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
     @State private var navigationPath = NavigationPath()
     @State private var showingRecentOrganized = false
+    @State private var periodPickerScope: AdvancedTimeScope?
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -262,6 +263,12 @@ struct HomeView: View {
         .sheet(isPresented: $showingRecentOrganized) {
             RecentOrganizedPhotosView(dataManager: dataManager)
         }
+        .sheet(item: $periodPickerScope) { scope in
+            PeriodPickerSheet(dataManager: dataManager, scope: scope) { selectedScope, intervalStart in
+                periodPickerScope = nil
+                navigationPath.append(SwipeViewDestination.period(selectedScope, intervalStart))
+            }
+        }
     }
 
     @ViewBuilder
@@ -290,17 +297,17 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 10) {
-                recentOrganizedEntryButton
+                trashBinEntryButton
                 statsEntryButton
             }
         }
         .padding(.top, 10)
     }
 
-    /// 右上角「最近整理」入口（原删除占位钮）：打开整理过 / 待删除 / 已收藏照片的网格回看。
-    /// iOS 26+ 用液态玻璃，老系统回落实心圆钮。
+    /// 右上角垃圾桶入口：进入「垃圾桶」（TrashBinView）。
+    /// iOS 26+ 用液态玻璃，老系统回落实心圆钮；待删除数量挂在按钮角标上（最多 99+）。
     @ViewBuilder
-    private var recentOrganizedEntryButton: some View {
+    private var trashBinEntryButton: some View {
         if #available(iOS 26.0, *) {
             Button {
                 navigationPath.append(SwipeViewDestination.trashBin)
@@ -312,7 +319,8 @@ struct HomeView: View {
             .buttonStyle(.glass)
             .buttonBorderShape(.circle)
             .foregroundStyle(PhotoDeleteStyle.primaryText)
-            .accessibilityLabel(L10n.string("垃圾桶"))
+            .overlay(alignment: .topTrailing) { pendingDeleteBadge }
+            .accessibilityLabel(trashBinAccessibilityLabel)
             .accessibilityIdentifier("home-trash-bin")
         } else {
             Button {
@@ -325,8 +333,43 @@ struct HomeView: View {
                     .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("垃圾桶"))
+            .overlay(alignment: .topTrailing) { pendingDeleteBadge }
+            .accessibilityLabel(trashBinAccessibilityLabel)
             .accessibilityIdentifier("home-trash-bin")
+        }
+    }
+
+    private var pendingDeleteCount: Int {
+        dataManager.deleteCandidates.count
+    }
+
+    private var trashBinAccessibilityLabel: String {
+        pendingDeleteCount > 0
+            ? L10n.string("垃圾桶，\(pendingDeleteCount) 张待删除")
+            : L10n.string("垃圾桶")
+    }
+
+    /// 待删除角标：数量 > 0 时显示，最多 99+（对齐原型 tbadge：红底白字 + 背景色描边环）。
+    @ViewBuilder
+    private var pendingDeleteBadge: some View {
+        let count = pendingDeleteCount
+        if count > 0 {
+            Text(count > 99 ? "99+" : PhotoDeleteCountFormat.plain(count))
+                .font(.system(size: 11, weight: .bold))
+                .monospacedDigit()
+                .foregroundColor(.white)
+                .padding(.horizontal, 5)
+                .frame(minWidth: 20, minHeight: 20)
+                .background(
+                    Capsule(style: .continuous)
+                        .fill(PhotoDeleteStyle.destructive)
+                )
+                .overlay(
+                    Capsule(style: .continuous)
+                        .stroke(PhotoDeleteStyle.backgroundTop, lineWidth: 2.5)
+                )
+                .offset(x: 3, y: -3)
+                .accessibilityHidden(true)
         }
     }
 
@@ -701,7 +744,8 @@ struct HomeView: View {
         let summary = currentPeriodSummary(for: scope)
 
         return Button {
-            navigationPath.append(SwipeViewDestination.period(scope, summary.intervalStart))
+            // 先弹周期选择（本期全部 + 更细周期），选行后再进整理。
+            periodPickerScope = scope
         } label: {
             VStack(spacing: 3) {
                 HStack(spacing: 3) {
@@ -900,12 +944,7 @@ struct HomeView: View {
     }
 
     private func currentPeriodSummary(for scope: AdvancedTimeScope) -> PhotoPeriodSummary {
-        let now = Date()
-        let summaries = dataManager.periodSummariesByScope[scope] ?? []
-        if let current = summaries.first(where: { now >= $0.intervalStart && now < $0.intervalEnd }) {
-            return current
-        }
-        return .empty(scope: scope, containing: now)
+        TimePeriodBrowser.currentSummary(for: scope, in: dataManager.periodSummariesByScope[scope] ?? [])
     }
 
     private func cleanupQueue(for kind: AdvancedCleanupKind) -> AdvancedCleanupQueue? {
