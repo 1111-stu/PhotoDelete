@@ -108,8 +108,14 @@
 
 ### 4.5 顶栏
 
-- 左侧大标题 34/700；右侧操作按钮。
-- 右上删除入口当前为**占位**：iOS 26+ 用液态玻璃圆形按钮（`.buttonStyle(.glass)` + `.buttonBorderShape(.circle)`），老系统回落 `elevatedSurface` 实心圆钮；点击暂无行为（入口细节待定）。
+- 左侧大标题 34/700；右上操作区两枚圆钮（间距 10）：
+  - **删除入口（占位）**：trash 图标，点击暂无行为（回收站 / 最近删除功能待定）；
+  - **统计入口**：`chart.bar.xaxis` 图标，进入「使用统计」（StatsView）。
+- 样式：iOS 26+ 用液态玻璃（`.buttonStyle(.glass)` + `.buttonBorderShape(.circle)`）；老系统回落 `elevatedSurface` 实心圆钮。
+
+### 4.6 待整理卡入口语义（硬约束）
+
+- 卡片大数字 = **全库待整理**（total − reviewed），入口必须是**全部照片**通道（`SwipeViewDestination.category(.all)`）——卡片说的范围与进入后的范围严格一致；不要接单一周期（如"本年"），否则往年未整理的照片会被计数却无法触达。
 
 ## 5. 动效（均尊重「减弱动态效果」）
 

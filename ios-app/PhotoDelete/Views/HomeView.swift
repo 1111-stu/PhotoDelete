@@ -269,7 +269,7 @@ struct HomeView: View {
         }
     }
 
-    /// 首页大标题（对齐原型：34/700）+ 右上角删除入口占位。
+    /// 首页大标题（对齐原型：34/700）+ 右上角操作（删除占位 / 统计入口）。
     private var homeTitleBar: some View {
         HStack(alignment: .center, spacing: 12) {
             Text(L10n.string("整理"))
@@ -277,7 +277,10 @@ struct HomeView: View {
                 .foregroundColor(PhotoDeleteStyle.primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            trashPlaceholderButton
+            HStack(spacing: 10) {
+                trashPlaceholderButton
+                statsEntryButton
+            }
         }
         .padding(.top, 10)
     }
@@ -312,6 +315,38 @@ struct HomeView: View {
             .buttonStyle(.plain)
             .accessibilityLabel(L10n.string("删除"))
             .accessibilityIdentifier("home-trash-placeholder")
+        }
+    }
+
+    /// 右上角统计入口：柱状图图标，进入「使用统计」（StatsView）。
+    @ViewBuilder
+    private var statsEntryButton: some View {
+        if #available(iOS 26.0, *) {
+            Button {
+                navigationPath.append(SwipeViewDestination.stats)
+            } label: {
+                Image(systemName: "chart.bar.xaxis")
+                    .font(.system(size: 17, weight: .semibold))
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.circle)
+            .foregroundStyle(PhotoDeleteStyle.primaryText)
+            .accessibilityLabel(L10n.string("使用统计"))
+            .accessibilityIdentifier("home-stats-entry")
+        } else {
+            Button {
+                navigationPath.append(SwipeViewDestination.stats)
+            } label: {
+                Image(systemName: "chart.bar.xaxis")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .frame(width: 44, height: 44)
+                    .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.string("使用统计"))
+            .accessibilityIdentifier("home-stats-entry")
         }
     }
 
@@ -514,8 +549,8 @@ struct HomeView: View {
         let theme = PhotoDeleteTheme.current
 
         return Button {
-            let yearSummary = currentPeriodSummary(for: .year)
-            navigationPath.append(SwipeViewDestination.period(.year, yearSummary.intervalStart))
+            // 卡片数字是"全库待整理"，入口也用全库（.all）——两者范围严格对齐。
+            navigationPath.append(SwipeViewDestination.category(.all))
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 Text(L10n.string("待整理"))

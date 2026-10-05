@@ -1089,6 +1089,12 @@ final class PhotoDeleteUITests: XCTestCase {
 
     @MainActor
     private func openStatsTab(in app: XCUIApplication) {
+        openOrganizeTab(in: app)
+        let homeStats = app.descendants(matching: .any)["home-stats-entry"]
+        if homeStats.waitForExistence(timeout: 5), homeStats.isHittable {
+            homeStats.tap()
+            return
+        }
         openSettingsTab(in: app)
         let statsEntry = app.descendants(matching: .any)["settings-stats-entry"]
         for _ in 0..<6 {
