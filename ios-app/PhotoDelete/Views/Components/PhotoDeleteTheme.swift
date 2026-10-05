@@ -4,6 +4,7 @@ import SwiftUI
 import UIKit
 #endif
 
+// 设计规范（色彩 / 组件 / 数字格式的唯一基准）见仓库根目录 style.md。
 enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
     case moonly
 

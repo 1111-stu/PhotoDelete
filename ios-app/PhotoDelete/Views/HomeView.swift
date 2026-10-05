@@ -269,13 +269,50 @@ struct HomeView: View {
         }
     }
 
-    /// 首页大标题（对齐原型：34/700，本轮不带操作按钮）。
+    /// 首页大标题（对齐原型：34/700）+ 右上角删除入口占位。
     private var homeTitleBar: some View {
-        Text(L10n.string("整理"))
-            .font(.system(size: 34, weight: .bold))
-            .foregroundColor(PhotoDeleteStyle.primaryText)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 10)
+        HStack(alignment: .center, spacing: 12) {
+            Text(L10n.string("整理"))
+                .font(.system(size: 34, weight: .bold))
+                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            trashPlaceholderButton
+        }
+        .padding(.top, 10)
+    }
+
+    /// 右上角删除按钮占位：iOS 26+ 用液态玻璃，老系统回落实心圆钮。
+    /// 入口细节（回收站 / 最近删除）待定，点击暂不动作。
+    @ViewBuilder
+    private var trashPlaceholderButton: some View {
+        if #available(iOS 26.0, *) {
+            Button {
+                // 入口细节待定
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 17, weight: .semibold))
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.circle)
+            .foregroundStyle(PhotoDeleteStyle.primaryText)
+            .accessibilityLabel(L10n.string("删除"))
+            .accessibilityIdentifier("home-trash-placeholder")
+        } else {
+            Button {
+                // 入口细节待定
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .frame(width: 44, height: 44)
+                    .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.string("删除"))
+            .accessibilityIdentifier("home-trash-placeholder")
+        }
     }
 
     @ViewBuilder

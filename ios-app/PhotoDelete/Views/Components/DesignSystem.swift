@@ -14,6 +14,7 @@ struct SystemShareSheet: UIViewControllerRepresentable {
 }
 #endif
 
+// 设计规范（色彩 / 组件 / 数字格式的唯一基准）见仓库根目录 style.md。
 enum PhotoDeleteStyle {
     // Shared geometry follows the Moonly-inspired style guide.
     enum Metrics {
