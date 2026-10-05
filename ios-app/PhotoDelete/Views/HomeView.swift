@@ -681,7 +681,7 @@ struct HomeView: View {
                 specialCleanupTile(
                     title: L10n.string("相似与重复"),
                     icon: "rectangle.on.rectangle",
-                    tint: Color(red: 0.86, green: 0.45, blue: 0.38),
+                    tint: PhotoDeleteStyle.accent,
                     identifier: "home-cleanup-similar"
                 ) {
                     navigationPath.append(SwipeViewDestination.cleanup(.similarPhotos))
@@ -690,7 +690,7 @@ struct HomeView: View {
                 specialCleanupTile(
                     title: L10n.string("视频"),
                     icon: "video",
-                    tint: Color(red: 0.46, green: 0.76, blue: 0.86),
+                    tint: PhotoDeleteStyle.secondaryText,
                     identifier: "home-cleanup-videos"
                 ) {
                     navigationPath.append(SwipeViewDestination.category(.videos))
@@ -699,7 +699,7 @@ struct HomeView: View {
                 specialCleanupTile(
                     title: L10n.string("截图"),
                     icon: "iphone",
-                    tint: Color(red: 0.96, green: 0.72, blue: 0.30),
+                    tint: PhotoDeleteStyle.accent,
                     identifier: "home-cleanup-screenshots"
                 ) {
                     navigationPath.append(SwipeViewDestination.category(.screenshots))
@@ -708,7 +708,7 @@ struct HomeView: View {
                 specialCleanupTile(
                     title: L10n.string("大文件"),
                     icon: "internaldrive",
-                    tint: Color(red: 0.65, green: 0.55, blue: 0.92),
+                    tint: PhotoDeleteStyle.secondaryText,
                     identifier: "home-cleanup-large-files"
                 ) {
                     navigationPath.append(SwipeViewDestination.cleanup(.largeFiles))
@@ -902,13 +902,13 @@ struct HomeView: View {
 
     private var periodCardFill: Color {
         colorScheme == .dark
-            ? Color(red: 0.09, green: 0.10, blue: 0.10)
+            ? PhotoDeleteTheme.current.surface
             : Color(red: 0.95, green: 0.95, blue: 0.93)
     }
 
     private var timelineAccent: Color {
         colorScheme == .dark
-            ? Color(red: 1.00, green: 0.76, blue: 0.28)
+            ? PhotoDeleteTheme.current.primaryAccent
             : Color(red: 0.72, green: 0.46, blue: 0.08)
     }
 
@@ -918,24 +918,22 @@ struct HomeView: View {
 
     private var randomReviewTint: Color {
         colorScheme == .dark
-            ? Color(red: 0.91, green: 0.43, blue: 0.35)
+            ? PhotoDeleteTheme.current.elevatedSurface
             : Color(red: 0.91, green: 0.43, blue: 0.35)
     }
 
     private var randomReviewTitle: Color {
-        colorScheme == .dark
-            ? Color(red: 0.16, green: 0.07, blue: 0.05)
-            : Color(red: 0.18, green: 0.08, blue: 0.06)
+        colorScheme == .dark ? PhotoDeleteStyle.primaryText : Color(red: 0.18, green: 0.08, blue: 0.06)
     }
 
     private var historicalCardFill: Color {
         colorScheme == .dark
-            ? Color(red: 0.88, green: 0.67, blue: 0.30)
+            ? PhotoDeleteTheme.current.elevatedSurface
             : Color(red: 0.93, green: 0.72, blue: 0.36)
     }
 
     private var historicalCardTitle: Color {
-        Color(red: 0.18, green: 0.12, blue: 0.06)
+        colorScheme == .dark ? PhotoDeleteStyle.primaryText : Color(red: 0.18, green: 0.12, blue: 0.06)
     }
 
 }

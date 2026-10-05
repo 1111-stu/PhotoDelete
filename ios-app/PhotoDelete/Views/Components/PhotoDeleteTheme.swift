@@ -7,7 +7,7 @@ import UIKit
 enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
     case moonly
 
-    // Moonly-inspired default: warm amber highlights on a quiet dark canvas.
+    // Moonly-inspired structure with a cooler blue-black surface system and restrained amber actions.
     static let defaultTheme: PhotoDeleteTheme = .moonly
 
     var id: String { rawValue }
@@ -128,13 +128,13 @@ enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
         switch self {
         case .moonly:
             return PhotoDeleteThemePalette(
-                backgroundTop: .init(light: .init(0.994, 0.968, 0.930), dark: .init(0.056, 0.046, 0.039)),
-                backgroundBottom: .init(light: .init(0.956, 0.900, 0.820), dark: .init(0.040, 0.034, 0.030)),
-                surface: .init(light: .init(1, 1, 1, 0.82), dark: .init(1, 1, 1, 0.075)),
-                elevatedSurface: .init(light: .init(1, 1, 1, 0.92), dark: .init(1, 1, 1, 0.11)),
-                cardStroke: .init(light: .init(0.56, 0.38, 0.18, 0.11), dark: .init(1, 1, 1, 0.115)),
-                hairline: .init(light: .init(0.56, 0.38, 0.18, 0.14), dark: .init(1, 1, 1, 0.115)),
-                floatingShadow: .init(light: .init(0.22, 0.12, 0.03, 0.09), dark: .init(0, 0, 0, 0.26)),
+                backgroundTop: .init(light: .init(0.994, 0.968, 0.930), dark: .init(0.043, 0.051, 0.059)),
+                backgroundBottom: .init(light: .init(0.956, 0.900, 0.820), dark: .init(0.031, 0.039, 0.051)),
+                surface: .init(light: .init(1, 1, 1, 0.82), dark: .init(0.071, 0.102, 0.141)),
+                elevatedSurface: .init(light: .init(1, 1, 1, 0.92), dark: .init(0.102, 0.145, 0.196)),
+                cardStroke: .init(light: .init(0.56, 0.38, 0.18, 0.11), dark: .init(0.76, 0.84, 0.94, 0.09)),
+                hairline: .init(light: .init(0.56, 0.38, 0.18, 0.14), dark: .init(0.76, 0.84, 0.94, 0.075)),
+                floatingShadow: .init(light: .init(0.22, 0.12, 0.03, 0.09), dark: .init(0, 0, 0, 0.30)),
                 primaryAccent: .init(light: .init(0.72, 0.42, 0.10), dark: .init(0.953, 0.694, 0.298)),
                 primaryAccentPressed: .init(light: .init(0.58, 0.31, 0.06), dark: .init(0.788, 0.541, 0.196)),
                 primaryAccentOnFill: .init(light: .init(1, 1, 1), dark: .init(0.04, 0.035, 0.03)),

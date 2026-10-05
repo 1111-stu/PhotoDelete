@@ -18,6 +18,8 @@
     --ink3: rgba(255,255,255,.34);
     --amber: #A9C9E6;
     --amber-lt: #DCEBFB;
+    --blk1a: #DCEBFB; --blk1b: #9FC3E4; --blk1-ink: #0A1119;
+    --blk2a: #FFC85E; --blk2b: #EFA53C; --blk2-ink: #1A1206;
     --on-amber: #0A1119;
     --danger: #FF6B5A;
     --success: #7BC98A;
@@ -34,7 +36,8 @@
     color: var(--ink); -webkit-font-smoothing: antialiased;
     font-feature-settings: "tnum";
   }
-  .num { font-variant-numeric: tabular-nums; }
+  .num { font-variant-numeric: tabular-nums;
+    font-family: ui-rounded, "SF Pro Rounded", -apple-system, "PingFang SC", sans-serif; }
 
   /* ============ 展板 ============ */
   .glow { position: fixed; inset: 0; pointer-events: none; z-index: 0;
@@ -110,21 +113,65 @@
   .hero .h-foot b { font-size: 13px; font-weight: 500; color: var(--ink2); }
   .hero .h-foot span { font-size: 18px; font-weight: 700; color: var(--amber); letter-spacing: -.01em; }
 
-  /* ---- 大胶囊快捷 (Moonly 签名元素) ---- */
-  .pill-row { display: flex; gap: 12px; }
-  .big-pill {
-    flex: 1; background: var(--card); border-radius: 999px; padding: 14px 16px;
-    display: flex; align-items: center; gap: 11px; min-height: 74px;
-  }
-  .big-pill .p-ico {
-    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--card3); color: var(--amber);
-  }
-  .big-pill .p-ico svg { width: 21px; height: 21px; }
-  .big-pill .p-txt { min-width: 0; }
-  .big-pill .p-txt small { display: block; font-size: 11.5px; color: var(--ink3); letter-spacing: .02em; }
-  .big-pill .p-txt b { display: block; font-size: 17px; font-weight: 700; letter-spacing: -.01em; margin-top: 3px; }
+  /* ---- 顶部动作区 ---- */
+  .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 54px 4px 6px; }
+  .top-bar h1 { font-size: 34px; font-weight: 700; letter-spacing: -.03em; }
+  .top-acts { display: flex; gap: 10px; }
+  .tbtn { position: relative; width: 42px; height: 42px; border-radius: 50%;
+    background: var(--card2); display: flex; align-items: center; justify-content: center; color: var(--ink2); }
+  .tbtn svg { width: 20px; height: 20px; }
+  .tbadge { position: absolute; top: -2px; right: -2px; min-width: 20px; height: 20px; border-radius: 999px;
+    background: var(--danger); color: #fff; font-size: 11.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; padding: 0 5px;
+    box-shadow: 0 0 0 2.5px var(--bg); }
+
+  /* ---- 顶部聚光: 左概览大卡 + 右双色块 ---- */
+  .spot { display: flex; gap: 12px; height: 190px; }
+  .spot-hero { flex: 1.28; padding: 17px 18px 16px; display: flex; flex-direction: column;
+    position: relative; overflow: hidden; }
+  .sh-top { display: flex; align-items: center; justify-content: space-between; }
+  .sh-top b { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: .01em; }
+  .circ { width: 26px; height: 26px; border-radius: 50%; background: var(--card2);
+    display: flex; align-items: center; justify-content: center; color: var(--ink2); }
+  .circ svg { width: 13px; height: 13px; }
+  .sh-num { font-size: 46px; font-weight: 700; letter-spacing: -.045em; line-height: 1; margin-top: 11px; }
+  .sh-num i { font-style: normal; font-size: 20px; color: var(--ink2); margin-left: 3px; letter-spacing: 0; font-weight: 600; }
+  .sh-sub { font-size: 12.5px; color: var(--ink2); margin-top: 8px; line-height: 1.45; }
+  .sh-foot { position: absolute; left: 18px; bottom: 16px; z-index: 2; }
+  .sh-foot b { display: block; font-size: 12px; font-weight: 500; color: var(--ink3); }
+  .sh-foot span { display: block; font-size: 21px; font-weight: 700; color: var(--amber);
+    letter-spacing: -.025em; margin-top: 3px; }
+
+  .spot-col { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .mini { flex: 1; border-radius: 22px; padding: 15px 16px 14px; display: flex; flex-direction: column; }
+  .mini b { display: block; font-size: 17px; font-weight: 700; letter-spacing: -.015em; }
+  .mini small { display: block; font-size: 12.5px; font-weight: 500; margin-top: 4px; opacity: .72; }
+  .mini .mi-ico { width: 28px; height: 28px; margin-top: auto; align-self: flex-end; opacity: .85; }
+  .mini.b1 { background: linear-gradient(135deg, var(--blk1a), var(--blk1b)); color: var(--blk1-ink); }
+  .mini.b2 { background: linear-gradient(135deg, var(--blk2a), var(--blk2b)); color: var(--blk2-ink); }
+
+  /* ---- 插图占位 (交付时替换为手绘插图) ---- */
+  .ph-slot { position: absolute; right: -16px; bottom: -16px; width: 132px; height: 98px; z-index: 1;
+    border: 1.5px dashed rgba(255,255,255,.17); border-radius: 18px 0 0 0;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    color: rgba(255,255,255,.3); font-size: 10px; font-weight: 600; letter-spacing: .05em;
+    padding: 0 14px 18px 12px; line-height: 1.4; }
+
+  /* ---- 行分隔 + 更多 ---- */
+  .rdiv { width: 1px; height: 40px; background: var(--sep); flex-shrink: 0; margin-left: 3px; }
+  .rmore { display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600;
+    color: var(--ink2); flex-shrink: 0; }
+  .rmore svg { width: 12px; height: 12px; }
+
+  /* ---- 专项清理: 图标栅格 (插图待替换) ---- */
+  .tiles { display: flex; padding: 14px 4px 12px; }
+  .tile { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 9px; position: relative; }
+  .tile + .tile::before { content: ""; position: absolute; left: 0; top: 2px; bottom: 2px;
+    width: 1px; background: var(--sep); }
+  .ti { width: 52px; height: 52px; border-radius: 17px; border: 1.5px dashed rgba(255,255,255,.17);
+    display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.3); }
+  .ti svg { width: 24px; height: 24px; }
+  .tile b { font-size: 12.5px; font-weight: 600; color: var(--ink); text-align: center; }
 
   /* ---- 列表行卡 ---- */
   .rows { padding: 6px 0; }
@@ -132,14 +179,14 @@
   .row + .row::before { content: ""; position: absolute; top: 0; left: 20px; right: 20px; height: 1px; background: var(--sep); }
   .ri { width: 38px; height: 38px; border-radius: 13px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    background: var(--card2); color: var(--ink2); }
+    background: rgba(255,255,255,.07); color: var(--ink2); }
   .ri svg { width: 19px; height: 19px; }
-  .ri.amber { background: rgba(169,201,230,.16); color: var(--amber); }
+  .ri.amber { background: rgba(255,255,255,.07); color: var(--ink2); }
   .rb { flex: 1; min-width: 0; }
   .rb b { display: block; font-size: 15.5px; font-weight: 600; letter-spacing: -.005em; }
   .rb span { font-size: 12px; color: var(--ink3); display: block; margin-top: 3px; }
   .rcount { text-align: right; flex-shrink: 0; }
-  .rcount b { display: block; font-size: 20px; font-weight: 700; letter-spacing: -.02em; color: var(--amber); }
+  .rcount b { display: block; font-size: 26px; font-weight: 700; letter-spacing: -.035em; line-height: 1; color: var(--ink); }
   .rcount span { font-size: 10.5px; color: var(--ink3); }
   .chev { width: 13px; height: 13px; color: var(--ink3); flex-shrink: 0; }
 
@@ -314,6 +361,9 @@
   <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14.5L4 9.5l5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9.5h10.5a5.5 5.5 0 0 1 0 11H8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.4l2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2z" fill="currentColor"/></symbol>
   <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.8" y="5.4" width="16.4" height="15" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.8 10h16.4M8.2 3v4.4M15.8 3v4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-cal-week" viewBox="0 0 24 24"><rect x="5.6" y="3.4" width="12.8" height="17.2" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.6 8.6h12.8M9.4 12.2h5.2M9.4 15.6h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-cal-month" viewBox="0 0 24 24"><rect x="3.4" y="4.6" width="17.2" height="15.8" rx="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.4 9.4h17.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="13.2" r="1.15" fill="currentColor"/><circle cx="12" cy="13.2" r="1.15" fill="currentColor"/><circle cx="16" cy="13.2" r="1.15" fill="currentColor"/><circle cx="8" cy="16.8" r="1.15" fill="currentColor"/><circle cx="12" cy="16.8" r="1.15" fill="currentColor"/></symbol>
+  <symbol id="i-cal-year" viewBox="0 0 24 24"><rect x="7.4" y="2.8" width="13.2" height="14.2" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.2 6.6v11.4a3.4 3.4 0 0 0 3.4 3.4h11.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.4V12l3.2 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-video" viewBox="0 0 24 24"><rect x="3.4" y="6.8" width="12" height="10.4" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.4 10.9l5.2-2.8v7.8l-5.2-2.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7.4" y="2.8" width="9.2" height="18.4" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.2 18.2h1.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
@@ -408,58 +458,80 @@
         </div>
         <div class="app">
           <div class="scroll">
-            <div class="big-title">整理</div>
+            <div class="top-bar">
+              <h1>整理</h1>
+              <div class="top-acts">
+                <div class="tbtn"><svg><use href="#i-trash"/></svg><span class="tbadge num">9</span></div>
+                <div class="tbtn"><svg><use href="#i-gear"/></svg></div>
+              </div>
+            </div>
 
-            <section class="card hero">
-              <div class="h-top"><b>照片库概览</b><svg><use href="#i-chevron-r"/></svg></div>
-              <div class="h-num num">32.5<i>GB</i></div>
-              <div class="h-sub">共 18,432 项 · 已整理 62%</div>
-              <div class="h-bar"><i style="width:62%"></i></div>
-              <div class="h-foot"><b>累计清理</b><span class="num">4.8 GB</span></div>
+            <section class="spot">
+              <div class="card spot-hero">
+                <div class="sh-top"><b>照片库概览</b><span class="circ"><svg><use href="#i-chevron-r"/></svg></span></div>
+                <div class="sh-num num">32.5<i>GB</i></div>
+                <div class="sh-sub">共 18,432 项 · 已整理 62%</div>
+                <div class="ph-slot">插图位<br>右下角出血</div>
+                <div class="sh-foot"><b>累计清理</b><span class="num">4.8 GB</span></div>
+              </div>
+              <div class="spot-col">
+                <div class="mini b1">
+                  <div><b>随机整理</b><small>最多 120 项</small></div>
+                  <svg class="mi-ico"><use href="#i-sparkle"/></svg>
+                </div>
+                <div class="mini b2">
+                  <div><b>往年今日</b><small>点按查看</small></div>
+                  <svg class="mi-ico"><use href="#i-calendar"/></svg>
+                </div>
+              </div>
             </section>
 
-            <section class="pill-row">
-              <div class="big-pill">
-                <div class="p-ico"><svg><use href="#i-sparkle"/></svg></div>
-                <div class="p-txt"><small>换换口味</small><b>随机整理</b></div>
-              </div>
-              <div class="big-pill">
-                <div class="p-ico"><svg><use href="#i-clock"/></svg></div>
-                <div class="p-txt"><small>三年前今天</small><b>往年今日</b></div>
-              </div>
-            </section>
-
-            <div class="glabel"><span>时间轴</span></div>
             <section class="card rows">
               <div class="row">
-                <div class="ri amber"><svg><use href="#i-calendar"/></svg></div>
+                <div class="ri"><svg><use href="#i-cal-week"/></svg></div>
                 <div class="rb"><b>本周新增</b><span>共 128 项 · 256 MB</span></div>
                 <div class="rcount"><b class="num">94</b><span>待整理</span></div>
+                <div class="rdiv"></div>
+                <svg class="chev"><use href="#i-chevron-r"/></svg>
               </div>
               <div class="row">
-                <div class="ri amber"><svg><use href="#i-calendar"/></svg></div>
+                <div class="ri"><svg><use href="#i-cal-month"/></svg></div>
                 <div class="rb"><b>本月新增</b><span>共 486 项 · 1.2 GB</span></div>
                 <div class="rcount"><b class="num">208</b><span>待整理</span></div>
+                <div class="rdiv"></div>
+                <svg class="chev"><use href="#i-chevron-r"/></svg>
               </div>
               <div class="row">
-                <div class="ri amber"><svg><use href="#i-calendar"/></svg></div>
+                <div class="ri"><svg><use href="#i-cal-year"/></svg></div>
                 <div class="rb"><b>本年新增</b><span>共 3,204 项 · 8.6 GB</span></div>
                 <div class="rcount"><b class="num">1,470</b><span>待整理</span></div>
+                <div class="rdiv"></div>
+                <svg class="chev"><use href="#i-chevron-r"/></svg>
               </div>
             </section>
 
-            <div class="glabel"><span>专项清理</span><span>可清理 2.4 GB</span></div>
-            <section class="cloud">
-              <div class="ck on"><svg><use href="#i-layers"/></svg>相似与重复 <i>8,432</i></div>
-              <div class="ck"><svg><use href="#i-video"/></svg>视频 <i>1,204</i></div>
-              <div class="ck"><svg><use href="#i-phone"/></svg>截图 <i>3,102</i></div>
-              <div class="ck"><svg><use href="#i-drive"/></svg>大文件 <i>156</i></div>
+            <div class="glabel"><span>专项清理</span><span>预计可清理 2.4 GB</span></div>
+            <section class="card tiles">
+              <div class="tile"><div class="ti"><svg><use href="#i-layers"/></svg></div><b>相似与重复</b></div>
+              <div class="tile"><div class="ti"><svg><use href="#i-video"/></svg></div><b>视频</b></div>
+              <div class="tile"><div class="ti"><svg><use href="#i-phone"/></svg></div><b>截图</b></div>
+              <div class="tile"><div class="ti"><svg><use href="#i-drive"/></svg></div><b>大文件</b></div>
             </section>
 
             <div class="glabel"><span>工具</span></div>
-            <section class="cloud">
-              <div class="ck"><svg><use href="#i-photo-album"/></svg>图片压缩 <i>1,024</i></div>
-              <div class="ck"><svg><use href="#i-video"/></svg>视频压缩 <i>89</i></div>
+            <section class="card rows">
+              <div class="row">
+                <div class="ri"><svg><use href="#i-photo-album"/></svg></div>
+                <div class="rb"><b>图片压缩</b><span>变小,不删除</span></div>
+                <div class="rv num">1,024</div>
+                <svg class="chev"><use href="#i-chevron-r"/></svg>
+              </div>
+              <div class="row">
+                <div class="ri"><svg><use href="#i-video"/></svg></div>
+                <div class="rb"><b>视频压缩</b><span>变小,不删除</span></div>
+                <div class="rv num">89</div>
+                <svg class="chev"><use href="#i-chevron-r"/></svg>
+              </div>
             </section>
           </div>
 
