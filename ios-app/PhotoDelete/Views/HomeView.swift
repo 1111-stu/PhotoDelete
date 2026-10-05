@@ -19,6 +19,7 @@ enum SwipeViewDestination: Hashable {
     case period(AdvancedTimeScope, Date)
     case stats
     case cleanup(AdvancedCleanupKind)
+    case trashBin
 
     static func == (lhs: SwipeViewDestination, rhs: SwipeViewDestination) -> Bool {
         switch (lhs, rhs) {
@@ -44,6 +45,8 @@ enum SwipeViewDestination: Hashable {
             return true
         case (.cleanup(let lhsKind), .cleanup(let rhsKind)):
             return lhsKind == rhsKind
+        case (.trashBin, .trashBin):
+            return true
         default:
             return false
         }
@@ -81,6 +84,8 @@ enum SwipeViewDestination: Hashable {
         case .cleanup(let kind):
             hasher.combine("cleanup")
             hasher.combine(kind)
+        case .trashBin:
+            hasher.combine("trashBin")
         }
     }
 }
@@ -237,6 +242,9 @@ struct HomeView: View {
                 case .cleanup(let kind):
                     AdvancedCleanupDestination(kind: kind)
                         .environmentObject(dataManager)
+                case .trashBin:
+                    TrashBinView()
+                        .environmentObject(dataManager)
                 }
             }
         }
@@ -295,7 +303,7 @@ struct HomeView: View {
     private var recentOrganizedEntryButton: some View {
         if #available(iOS 26.0, *) {
             Button {
-                showingRecentOrganized = true
+                navigationPath.append(SwipeViewDestination.trashBin)
             } label: {
                 Image(systemName: "trash")
                     .font(.system(size: 17, weight: .semibold))
@@ -304,11 +312,11 @@ struct HomeView: View {
             .buttonStyle(.glass)
             .buttonBorderShape(.circle)
             .foregroundStyle(PhotoDeleteStyle.primaryText)
-            .accessibilityLabel(L10n.string("最近整理"))
-            .accessibilityIdentifier("home-recent-organized")
+            .accessibilityLabel(L10n.string("垃圾桶"))
+            .accessibilityIdentifier("home-trash-bin")
         } else {
             Button {
-                showingRecentOrganized = true
+                navigationPath.append(SwipeViewDestination.trashBin)
             } label: {
                 Image(systemName: "trash")
                     .font(.system(size: 17, weight: .semibold))
@@ -317,8 +325,8 @@ struct HomeView: View {
                     .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("最近整理"))
-            .accessibilityIdentifier("home-recent-organized")
+            .accessibilityLabel(L10n.string("垃圾桶"))
+            .accessibilityIdentifier("home-trash-bin")
         }
     }
 

@@ -79,7 +79,7 @@ struct ReviewNavigationHeader: View {
                 .buttonStyle(.plain)
                 .disabled(!canDelete)
                 .accessibilityIdentifier("review-trash-button")
-                .accessibilityLabel(L10n.string("加入待删除"))
+                .accessibilityLabel(L10n.string("待删除"))
                 .accessibilityValue(L10n.string("待删除 \(deleteCount) 张"))
                 .frame(width: 116, alignment: .trailing)
             }

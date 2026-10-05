@@ -33,6 +33,7 @@ struct SwipePhotoView: View {
 
     @StateObject private var session = PhotoReviewSession()
     @State private var showBatchConfirm = false
+    @State private var showingPendingDeletion = false
     @State private var showCompletionMessage = false
     @StateObject private var actions = PhotoReviewActions()
     @State private var randomReviewSeed = UUID().uuidString
@@ -297,6 +298,12 @@ struct SwipePhotoView: View {
             }
                 .environmentObject(dataManager)
         }
+        .fullScreenCover(isPresented: $showingPendingDeletion) {
+            NavigationStack {
+                PendingDeletionView()
+                    .environmentObject(dataManager)
+            }
+        }
         .onDisappear {
             stopInlineVideoPlayback()
             sharePreparationTask?.cancel()
@@ -395,8 +402,8 @@ struct SwipePhotoView: View {
     private var navigationHeader: some View {
         ReviewNavigationHeader(
             title: navigationHeaderTitle, subtitle: headerProgressSubtitle,
-            deleteCount: pendingDeleteCount, canDelete: canPerformPhotoAction,
-            onBack: handleBackAction, onDelete: handleDeleteAction
+            deleteCount: pendingDeleteCount, canDelete: true,
+            onBack: handleBackAction, onDelete: { showingPendingDeletion = true }
         )
     }
 
