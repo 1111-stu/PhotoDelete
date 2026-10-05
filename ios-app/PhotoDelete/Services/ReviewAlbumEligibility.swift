@@ -17,4 +17,3 @@ enum AlbumShortcutEligibility {
         albums.filter(canFile)
     }
 }
-

@@ -43,7 +43,7 @@ struct ReviewAlbumFilingSheet: View {
                 .padding(.vertical, 12)
                 .accessibilityIdentifier("review-album-filing-continue")
             }
-        .background(Color.black)
+            .background(Color.black)
             .navigationTitle(L10n.string("放进哪个相册?"))
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: L10n.string("搜索相册"))
@@ -125,6 +125,7 @@ struct ReviewAlbumFilingSheet: View {
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
+            .disabled(selectedAlbumIDs.contains(album.id))
             .accessibilityLabel(
                 String(
                     format: L10n.string(selectedAlbumIDs.contains(album.id) ? "已归类到 %@" : "归类到 %@"),

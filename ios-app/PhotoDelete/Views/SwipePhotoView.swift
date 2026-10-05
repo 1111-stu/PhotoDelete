@@ -54,6 +54,7 @@ struct SwipePhotoView: View {
     @State private var isPreparingShare = false
     @State private var showsAlbumFilingSheet = false
     @State private var albumFilingSheetSelection: Set<String> = []
+    @State private var albumFilingSheetAsset: PHAsset?
     @State private var pendingAlbumSuccessToastTitle: String?
 
     private static let countFormatter: NumberFormatter = {
@@ -266,6 +267,7 @@ struct SwipePhotoView: View {
                 showAlbumFilingSuccessToast(albumTitle: title)
             }
             albumFilingSheetSelection.removeAll()
+            albumFilingSheetAsset = nil
             pendingAlbumSuccessToastTitle = nil
         }) {
             ReviewAlbumFilingSheet(
@@ -522,7 +524,6 @@ struct SwipePhotoView: View {
             pageStride: containerSize.width,
             canDelete: canPerformPhotoAction(.delete),
             isVideoPlaying: shouldPlayVideo(for: asset),
-            onPrepareNext: { _ = session.expand(for: session.currentIndex) },
             onBrowse: { step in
                 guard let index = horizontalNeighborIndex(step: step) else { return }
                 session.currentIndex = index
@@ -1373,20 +1374,23 @@ struct SwipePhotoView: View {
     }
 
     private func openAlbumFilingSheet() {
-        guard currentRealPhoto != nil, !showCompletionMessage else { return }
+        guard let asset = currentRealPhoto, !showCompletionMessage else { return }
+        albumFilingSheetAsset = asset
         albumFilingSheetSelection.removeAll()
         dataManager.loadAlbumsIfNeeded()
         showsAlbumFilingSheet = true
     }
 
     private func fileCurrentPhotoFromSheet(_ albumInfo: AlbumInfo) {
-        guard !showCompletionMessage, let asset = currentRealPhoto else { return }
+        guard !albumFilingSheetSelection.contains(albumInfo.id),
+              let asset = albumFilingSheetAsset else { return }
         guard actions.fileToAlbum(asset, albumInfo: albumInfo, dataManager: dataManager, session: session) else { return }
         albumFilingSheetSelection.insert(albumInfo.id)
     }
 
     private func finishAlbumFilingSheet() {
-        let shouldAdvance = !albumFilingSheetSelection.isEmpty
+        let shouldAdvance = !albumFilingSheetSelection.isEmpty &&
+            currentRealPhoto?.localIdentifier == albumFilingSheetAsset?.localIdentifier
         showsAlbumFilingSheet = false
         guard shouldAdvance else { return }
         moveToNextPhoto()

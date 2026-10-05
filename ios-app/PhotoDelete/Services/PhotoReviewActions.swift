@@ -31,7 +31,7 @@ enum PhotoReviewActionEvent {
     case haptic(PhotoReviewActionHaptic)
 }
 
-enum PhotoReviewActionRecord {
+private enum PhotoReviewActionRecord {
     case delete(
         PHAsset,
         originalIndex: Int,
@@ -56,17 +56,19 @@ enum PhotoReviewActionRecord {
 
 /// Coordinates review mutations which outlive the card gesture itself.
 ///
+/// Pending write callbacks retain this service so queued toggles and undo finish
+/// even when the user leaves the review screen.
 /// The service owns the mutation queues and undo history. Presentation code listens
 /// to `events` for toasts, haptics, source refreshes, and position restoration.
 @MainActor
 final class PhotoReviewActions: ObservableObject {
-    @Published private(set) var actionHistory: [PhotoReviewActionRecord] = []
-    @Published private(set) var favoriteMutationTargets: [String: Bool] = [:]
-    @Published private(set) var queuedFavoriteMutationTargets: [String: Bool] = [:]
+    @Published private var actionHistory: [PhotoReviewActionRecord] = []
+    @Published private var favoriteMutationTargets: [String: Bool] = [:]
+    @Published private var queuedFavoriteMutationTargets: [String: Bool] = [:]
     @Published private(set) var albumFilingAssetIDs: Set<String> = []
     @Published private(set) var recentlyFiledAlbumAssetIDs: Set<String> = []
-    @Published private(set) var pendingAlbumFilingUndoKeys: Set<String> = []
-    @Published private(set) var completedAlbumFilingKeys: Set<String> = []
+    private var pendingAlbumFilingUndoKeys: Set<String> = []
+    private var completedAlbumFilingKeys: Set<String> = []
     @Published private(set) var isUndoInProgress = false
     private var pendingAlbumUndoRefreshSources: [String: Bool] = [:]
 
@@ -213,8 +215,7 @@ final class PhotoReviewActions: ObservableObject {
         }
 
         favoriteMutationTargets[assetID] = targetStatus
-        dataManager.setPhotoFavoriteImmediately(asset, isFavorite: targetStatus) { [weak self] success in
-            guard let self else { return }
+        dataManager.setPhotoFavoriteImmediately(asset, isFavorite: targetStatus) { success in
             self.favoriteMutationTargets.removeValue(forKey: assetID)
             let queuedTarget = self.queuedFavoriteMutationTargets.removeValue(forKey: assetID)
 
@@ -291,12 +292,10 @@ final class PhotoReviewActions: ObservableObject {
         let assetID = asset.localIdentifier
         guard !albumFilingAssetIDs.contains(assetID) else { return false }
 
-        let originalIndex = session.currentIndex
+        let originalIndex = session.photos.firstIndex { $0.localIdentifier == assetID } ?? session.currentIndex
         let filingKey = UUID().uuidString
         albumFilingAssetIDs.insert(assetID)
         recentlyFiledAlbumAssetIDs.remove(assetID)
-        pendingAlbumFilingUndoKeys.remove(filingKey)
-        completedAlbumFilingKeys.remove(filingKey)
 
         let wasSessionReviewed = session.reviewedIDs.contains(assetID)
         let wasReviewed = dataManager.isReviewed(asset)
@@ -313,18 +312,14 @@ final class PhotoReviewActions: ObservableObject {
         ))
         events.send(.haptic(.light))
 
-        dataManager.addPhotoToAlbum(asset, album: collection) { [weak self] success, didInsert in
-            DispatchQueue.main.async {
-                guard let self else { return }
+        dataManager.addPhotoToAlbum(asset, album: collection) { success, didInsert in
             self.albumFilingAssetIDs.remove(assetID)
 
             if success, didInsert {
                 if self.pendingAlbumFilingUndoKeys.contains(filingKey) {
-                    dataManager.removePhotoFromAlbum(asset, album: collection) { [weak self] removeSuccess in
-                        guard let self else { return }
+                    dataManager.removePhotoFromAlbum(asset, album: collection) { removeSuccess in
                         self.completeAlbumUndo(
                             asset: asset,
-                            collection: collection,
                             preferredIndex: originalIndex,
                             action: .fileToAlbum(
                                 asset,
@@ -355,6 +350,7 @@ final class PhotoReviewActions: ObservableObject {
                 // The asset was already in the album. It is still reviewed, but there
                 // is no successful insert that can be undone.
                 let wasUndoRequested = self.pendingAlbumFilingUndoKeys.remove(filingKey) != nil
+                let refreshSource = self.pendingAlbumUndoRefreshSources.removeValue(forKey: filingKey) ?? false
                 self.removeAction(filingKey: filingKey)
                 if wasUndoRequested {
                     self.restoreReviewState(
@@ -365,7 +361,7 @@ final class PhotoReviewActions: ObservableObject {
                         session: session
                     )
                     self.finishUndo()
-                    self.events.send(.restorePosition(asset: asset, preferredIndex: originalIndex, refreshSource: false))
+                    self.events.send(.restorePosition(asset: asset, preferredIndex: originalIndex, refreshSource: refreshSource))
                 }
             } else {
                 let wasUndoRequested = self.pendingAlbumFilingUndoKeys.remove(filingKey) != nil
@@ -392,7 +388,6 @@ final class PhotoReviewActions: ObservableObject {
                     ))
                     self.events.send(.restorePosition(asset: asset, preferredIndex: originalIndex, refreshSource: false))
                 }
-            }
             }
         }
         return true
@@ -441,8 +436,7 @@ final class PhotoReviewActions: ObservableObject {
 
         case .favorite(let asset, let originalIndex, let previousStatus):
             favoriteMutationTargets[asset.localIdentifier] = previousStatus
-            dataManager.setPhotoFavoriteImmediately(asset, isFavorite: previousStatus) { [weak self] success in
-                guard let self else { return }
+            dataManager.setPhotoFavoriteImmediately(asset, isFavorite: previousStatus) { success in
                 self.favoriteMutationTargets.removeValue(forKey: asset.localIdentifier)
                 if success {
                     self.finishUndo()
@@ -486,10 +480,9 @@ final class PhotoReviewActions: ObservableObject {
             pendingAlbumUndoRefreshSources[filingKey] = refreshesAfterAlbumRemoval
 
             if completedAlbumFilingKeys.remove(filingKey) != nil {
-                dataManager.removePhotoFromAlbum(asset, album: collection) { [weak self] success in
-                    self?.completeAlbumUndo(
+                dataManager.removePhotoFromAlbum(asset, album: collection) { success in
+                    self.completeAlbumUndo(
                         asset: asset,
-                        collection: collection,
                         preferredIndex: originalIndex,
                         action: .fileToAlbum(
                             asset,
@@ -527,7 +520,6 @@ final class PhotoReviewActions: ObservableObject {
 
     private func completeAlbumUndo(
         asset: PHAsset,
-        collection: PHAssetCollection,
         preferredIndex: Int,
         action: PhotoReviewActionRecord,
         success: Bool,

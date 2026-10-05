@@ -15,7 +15,6 @@ struct ReviewPhotoPager<Content: View>: View {
     let pageStride: CGFloat
     let canDelete: Bool
     let isVideoPlaying: Bool
-    let onPrepareNext: () -> Void
     let onBrowse: (Int) -> Void
     let onDelete: () -> Void
     let onFile: () -> Void
@@ -85,7 +84,6 @@ struct ReviewPhotoPager<Content: View>: View {
         .onChanged { value in
             guard !isSettling, !isScrubberGesture(value) else { return }
             let locked = axis ?? ReviewSwipeGesture.dragAxis(for: value.translation)
-            if axis == nil, locked == .horizontal { onPrepareNext() }
             let translation = ReviewSwipeGesture.constrainedTranslation(value.translation, to: locked)
             var transaction = Transaction(animation: nil)
             transaction.disablesAnimations = true
