@@ -141,6 +141,7 @@ struct HomeView: View {
     @AppStorage(AppConstants.hasSeenIntroKey) private var hasSeenPhotoDeleteIntro = false
     @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
     @State private var navigationPath = NavigationPath()
+    @State private var showingRecentOrganized = false
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -250,6 +251,9 @@ struct HomeView: View {
         .onChange(of: dataManager.cleanupStatsRevision) { _ in
             refreshHomeLibrarySummaries()
         }
+        .sheet(isPresented: $showingRecentOrganized) {
+            RecentOrganizedPhotosView(dataManager: dataManager)
+        }
     }
 
     @ViewBuilder
@@ -269,7 +273,7 @@ struct HomeView: View {
         }
     }
 
-    /// 首页大标题（对齐原型：34/700）+ 右上角操作（删除占位 / 统计入口）。
+    /// 首页大标题（对齐原型：34/700）+ 右上角操作（最近整理 / 统计入口）。
     private var homeTitleBar: some View {
         HStack(alignment: .center, spacing: 12) {
             Text(L10n.string("整理"))
@@ -278,20 +282,20 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 10) {
-                trashPlaceholderButton
+                recentOrganizedEntryButton
                 statsEntryButton
             }
         }
         .padding(.top, 10)
     }
 
-    /// 右上角删除按钮占位：iOS 26+ 用液态玻璃，老系统回落实心圆钮。
-    /// 入口细节（回收站 / 最近删除）待定，点击暂不动作。
+    /// 右上角「最近整理」入口（原删除占位钮）：打开整理过 / 待删除 / 已收藏照片的网格回看。
+    /// iOS 26+ 用液态玻璃，老系统回落实心圆钮。
     @ViewBuilder
-    private var trashPlaceholderButton: some View {
+    private var recentOrganizedEntryButton: some View {
         if #available(iOS 26.0, *) {
             Button {
-                // 入口细节待定
+                showingRecentOrganized = true
             } label: {
                 Image(systemName: "trash")
                     .font(.system(size: 17, weight: .semibold))
@@ -300,11 +304,11 @@ struct HomeView: View {
             .buttonStyle(.glass)
             .buttonBorderShape(.circle)
             .foregroundStyle(PhotoDeleteStyle.primaryText)
-            .accessibilityLabel(L10n.string("删除"))
-            .accessibilityIdentifier("home-trash-placeholder")
+            .accessibilityLabel(L10n.string("最近整理"))
+            .accessibilityIdentifier("home-recent-organized")
         } else {
             Button {
-                // 入口细节待定
+                showingRecentOrganized = true
             } label: {
                 Image(systemName: "trash")
                     .font(.system(size: 17, weight: .semibold))
@@ -313,8 +317,8 @@ struct HomeView: View {
                     .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("删除"))
-            .accessibilityIdentifier("home-trash-placeholder")
+            .accessibilityLabel(L10n.string("最近整理"))
+            .accessibilityIdentifier("home-recent-organized")
         }
     }
 

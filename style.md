@@ -148,6 +148,23 @@
 
 已知缺口（如实显示，待数据侧补齐）：视频队列 `estimatedSpaceMB` 恒为 0、无截图队列 → 两行可能显示 0.0 MB / 无值。
 
+### 6.1 使用统计页（回望页，2026-10-05 重构）
+
+- 页面标题：**使用统计**（与入口/设置行命名一致）。
+- 结构（唯一顺序）：整理进度（单卡：已整理大数 + 共 N 张 + % + **中性进度条** + 删除内容/已删除 caption）→ 清理历史（**近 6 个月柱状图**，点柱钻取当月明细）→ 清空统计记录（**破坏性按钮样式**，即 danger）。
+- 柱状图规格：每根柱 = 该月删除张数；**珊瑚渐变柱体**（`coralGradientTop→coralGradientBottom`，同「待整理」卡），当月全饱和、其余 65% 透明度；柱顶为数字（无千分位）、柱底为月份短标签（`MMM`）；无坐标轴/网格线；点柱弹出当月逐条明细。
+
+### 6.2 最近整理（独立模块）
+
+- 入口：**首页右上角按钮**（sheet 呈现；按钮沿用液态玻璃圆钮，语义=最近整理）。
+- 布局：标题「最近整理」+ 右上关闭 X、左上「清空」（有记录时）；三列方形网格（间距 10，圆角 12，复用 `AlbumAssetThumbnail`）；网格上方一行说明「点按查看大图，长按可再次整理。」。
+- 状态角标（右下角，22pt 实心圆 + 白描边）：保留 = `success` ✓、待删除 = `danger` 🗑、已收藏 = `favorite` ♥。
+- 交互：点按 = 大图预览（`CandidatePhotoPreviewView`）；长按 = contextMenu「再次整理」；清空 = 破坏性确认后仅清本机记录。
+- 实现：`RecentOrganizedPhotosView.swift`（统计页不再包含此模块；成就页的旧横向条待其改版时统一下线）。
+- 已移除（勿回退）：2×2 四色指标宫格（与进度卡重复）、手机存储卡（与「预计可释放」重复且偏题）、独立「月度统计」段（并入按月分组的清理历史）。
+- 数据：`makeSettingsStatsSummary` / `CleanupStatsStore.sessions`（按 `monthKey` 分组，`CleanupStatsFormatter.month` 出标题）。
+- 共享组件注意：`SupporterMonthlySection` / `SupporterHistorySection` / `RecentOrganizedPhotosSection` 同时被支持者页与成就页复用——改样式前先查这三处，勿破坏其他页面（它们的整体改版另行 review）。
+
 ## 7. 边界与待办（本轮之外）
 
 - 底部为系统 TabView（未做浮动胶囊标签栏）。

@@ -356,6 +356,19 @@
         }
       }
     },
+    "%@，删除 %lld 张" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@，删除 %2$lld 张"
+          }
+        }
+      }
+    },
+    "%@，点按查看大图" : {
+
+    },
     "%@/%@" : {
       "localizations" : {
         "ar" : {
@@ -14905,6 +14918,7 @@
       }
     },
     "可用 %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -20715,6 +20729,7 @@
       }
     },
     "已用 %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -25033,6 +25048,7 @@
       }
     },
     "手机存储空间" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -36537,6 +36553,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "點按查看"
+          }
+        }
+      }
+    },
+    "点按查看大图，长按可再次整理。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to preview, touch and hold to organize again."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點按查看大圖，長按可再次整理。"
           }
         }
       }

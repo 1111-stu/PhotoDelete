@@ -316,7 +316,7 @@ struct RecentOrganizedPhotosSection: View {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(L10n.string("最近整理"))
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
                     Text(L10n.string("点按再次整理，会移出待删除并重新出现在整理列表。"))
