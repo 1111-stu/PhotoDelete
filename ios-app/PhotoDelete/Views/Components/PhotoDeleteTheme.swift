@@ -88,6 +88,18 @@ enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
     var coralGradientTop: Color { palette.coralGradientTop.color }
     var coralGradientBottom: Color { palette.coralGradientBottom.color }
     var coralInk: Color { palette.coralInk.color }
+    /// 待整理卡：色停不变，亮部沿 135° 轴停到约 25%（均分与 45% 停点之间），暗部收到右下角。
+    var coralEntryGradient: LinearGradient {
+        LinearGradient(
+            stops: [
+                .init(color: coralGradientTop, location: 0),
+                .init(color: coralGradientTop, location: 0.25),
+                .init(color: coralGradientBottom, location: 1)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
     var amberGradientTop: Color { palette.amberGradientTop.color }
     var amberGradientBottom: Color { palette.amberGradientBottom.color }
     var amberInk: Color { palette.amberInk.color }
@@ -153,8 +165,8 @@ enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
                 warning: .init(light: .init(0.80, 0.45, 0.08), dark: .init(1.00, 0.78, 0.45)),
                 danger: .init(light: .init(0.78, 0.18, 0.12), dark: .init(1.00, 0.46, 0.38)),
                 favorite: .init(light: .init(0.72, 0.25, 0.36), dark: .init(1.00, 0.64, 0.72)),
-                coralGradientTop: .init(light: .init(1.00, 0.62, 0.49), dark: .init(1.00, 0.62, 0.49)),
-                coralGradientBottom: .init(light: .init(0.949, 0.439, 0.290), dark: .init(0.949, 0.439, 0.290)),
+                coralGradientTop: .init(light: .init(0.984, 0.522, 0.494), dark: .init(0.984, 0.522, 0.494)),
+                coralGradientBottom: .init(light: .init(0.949, 0.361, 0.329), dark: .init(0.949, 0.361, 0.329)),
                 coralInk: .init(light: .init(0.180, 0.059, 0.024), dark: .init(0.180, 0.059, 0.024)),
                 amberGradientTop: .init(light: .init(1.00, 0.784, 0.369), dark: .init(1.00, 0.784, 0.369)),
                 amberGradientBottom: .init(light: .init(0.941, 0.604, 0.133), dark: .init(0.941, 0.604, 0.133)),

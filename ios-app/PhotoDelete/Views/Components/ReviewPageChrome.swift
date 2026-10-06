@@ -224,7 +224,7 @@ struct ReviewActionToolbar: View {
                 )
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 2)
+            .padding(.vertical, 1)
             .modifier(ReviewGlassCapsuleChrome())
             .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 12, y: 6)
 
@@ -259,11 +259,11 @@ struct ReviewActionToolbar: View {
             Button(action: onFinish) {
                 Image(systemName: "archivebox")
                     .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
                     .frame(width: 46, height: 46)
+                    .glassEffect(.regular.tint(PhotoDeleteStyle.accent), in: .circle)
             }
-            .buttonStyle(.glassProminent)
-            .buttonBorderShape(.circle)
-            .tint(PhotoDeleteStyle.accent)
+            .buttonStyle(.plain)
             .accessibilityLabel(L10n.string("完成整理"))
         } else {
             Button(action: onFinish) {

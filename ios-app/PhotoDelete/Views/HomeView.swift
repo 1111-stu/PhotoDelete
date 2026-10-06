@@ -638,13 +638,7 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [theme.coralGradientTop, theme.coralGradientBottom],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(theme.coralEntryGradient)
             )
             .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }

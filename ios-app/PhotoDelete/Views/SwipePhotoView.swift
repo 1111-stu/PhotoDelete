@@ -551,9 +551,11 @@ struct SwipePhotoView: View {
                 reviewPhotoCard(asset: photo, cardSize: cardSize, isCurrent: isCurrent)
             }
             .frame(height: cardSize.height)
+            .zIndex(1)
 
             ReviewPhotoDetailLine(asset: asset)
                 .id(asset.localIdentifier)
+                .zIndex(0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

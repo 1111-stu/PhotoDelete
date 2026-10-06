@@ -48,14 +48,14 @@
 
 | Token | 值 | Hex |
 | --- | --- | --- |
-| `coralGradientTop` | 1.00/0.62/0.49 | `#FF9E7D` |
-| `coralGradientBottom` | 0.949/0.439/0.290 | `#F2704A` |
+| `coralGradientTop` | 0.984/0.522/0.494 | `#FB857E` |
+| `coralGradientBottom` | 0.949/0.361/0.329 | `#F25C54` |
 | `coralInk` | 0.180/0.059/0.024 | `#2E0F06` |
 | `amberGradientTop` | 1.00/0.784/0.369 | `#FFC85E` |
 | `amberGradientBottom` | 0.941/0.604/0.133 | `#F09A22` |
 | `amberInk` | 0.102/0.071/0.024 | `#1A1206` |
 
-渐变方向：`LinearGradient(topLeading → bottomTrailing)`（对应原型 135°）。
+渐变方向：`LinearGradient(topLeading → bottomTrailing)`（对应原型 135°）。待整理卡亮部在轴上停到约 25%（`coralEntryGradient`），暗部收到右下角；琥珀卡仍为均分双停。
 
 ### 2.3 琥珀使用规则（硬约束）
 
