@@ -2,87 +2,69 @@ import SwiftUI
 
 struct ReviewNavigationHeader: View {
     let title: String
-    let subtitle: String
     let deleteCount: Int
     let canDelete: Bool
     let onBack: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
-        VStack(spacing: 10) {
-            HStack {
-                HStack(spacing: 8) {
-                    Button(action: onBack) {
-                        ZStack {
-                            Circle()
-                                .fill(PhotoDeleteStyle.elevatedSurface)
-                                .frame(width: 40, height: 40)
-
-                            Image(systemName: "arrow.left")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(PhotoDeleteStyle.primaryText)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(L10n.string("返回"))
-                }
-                .frame(width: 116, alignment: .leading)
-
-                Spacer()
-
-                VStack(spacing: 2) {
-                    Text(title)
-                        .font(.system(size: 18, weight: .semibold))
+        HStack {
+            HStack(spacing: 8) {
+                Button(action: onBack) {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.82)
-
-                    Text(subtitle)
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.78)
-                        .monospacedDigit()
+                        .frame(width: 38, height: 38)
                 }
+                .modifier(ReviewGlassCircleChrome())
+                .accessibilityLabel(L10n.string("返回"))
+            }
+            .frame(width: 116, alignment: .leading)
+
+            Spacer()
+
+            Text(title)
+                .font(.system(size: 17, weight: .bold))
+                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
                 .frame(maxWidth: .infinity)
                 .layoutPriority(1)
 
-                Spacer()
+            Spacer()
 
-                Button(action: onDelete) {
-                    ZStack(alignment: .topTrailing) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.destructive)
-                            .frame(width: 40, height: 40)
-                            .background(Circle().fill(PhotoDeleteStyle.destructive.opacity(0.12)))
+            Button(action: onDelete) {
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .frame(width: 38, height: 38)
 
-                        if deleteCount > 0 {
-                            Text(deleteCount.formatted(.number.grouping(.automatic)))
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.white)
-                                .monospacedDigit()
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                                .padding(.horizontal, 5)
-                                .frame(minWidth: 18, minHeight: 18)
-                                .background(Capsule(style: .continuous).fill(PhotoDeleteStyle.destructive))
-                                .overlay(
-                                    Capsule(style: .continuous)
-                                        .stroke(PhotoDeleteStyle.reviewCanvas, lineWidth: 2)
-                                )
-                                .offset(x: 4, y: -4)
-                        }
+                    if deleteCount > 0 {
+                        // 颜色只承担"数量"语义：图标中性、角标珊瑚红（>99 显示 99+）。
+                        Text(deleteCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(deleteCount))
+                            .font(.system(size: 10.5, weight: .bold))
+                            .foregroundColor(.white)
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .padding(.horizontal, 5)
+                            .frame(minWidth: 18, minHeight: 18)
+                            .background(Capsule(style: .continuous).fill(PhotoDeleteStyle.destructive))
+                            .overlay(
+                                Capsule(style: .continuous)
+                                    .stroke(PhotoDeleteStyle.reviewCanvas, lineWidth: 2)
+                            )
+                            .offset(x: 2, y: -2)
                     }
                 }
-                .buttonStyle(.plain)
-                .disabled(!canDelete)
-                .accessibilityIdentifier("review-trash-button")
-                .accessibilityLabel(L10n.string("待删除"))
-                .accessibilityValue(L10n.string("待删除 \(deleteCount) 张"))
-                .frame(width: 116, alignment: .trailing)
             }
+            .modifier(ReviewGlassCircleChrome())
+            .disabled(!canDelete)
+            .accessibilityIdentifier("review-trash-button")
+            .accessibilityLabel(L10n.string("待删除"))
+            .accessibilityValue(L10n.string("待删除 \(deleteCount) 张"))
+            .frame(width: 116, alignment: .trailing)
         }
         .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
         .padding(.top, 16)
@@ -207,63 +189,140 @@ struct ReviewActionToolbar: View {
     let isFavorite: Bool
     let canPerformAction: Bool
     let isPreparingShare: Bool
-    let deleteCount: Int
+    let onShowDetails: () -> Void
     let onUndo: () -> Void
     let onFavorite: () -> Void
     let onShare: () -> Void
     let onFinish: () -> Void
 
     var body: some View {
-        HStack(spacing: 0) {
-            Spacer(minLength: 0)
-            ActionButton(icon: "arrow.uturn.backward", title: "撤销", color: PhotoDeleteStyle.secondaryText, style: .quiet) {
-                onUndo()
-
+        HStack(spacing: 10) {
+            // 四枚纯图标工具：详情 / 撤销 / 收藏 / 分享（名称靠 VoiceOver 标签；状态只用形状表达）
+            HStack(spacing: 0) {
+                toolButton(
+                    icon: "info.circle",
+                    label: L10n.string("照片详情"),
+                    action: onShowDetails
+                )
+                Spacer(minLength: 0)
+                toolButton(
+                    icon: "arrow.uturn.backward",
+                    label: L10n.string("撤销"),
+                    action: onUndo
+                )
+                Spacer(minLength: 0)
+                toolButton(
+                    icon: isFavorite ? "heart.fill" : "heart",
+                    label: isFavorite ? L10n.string("取消收藏") : L10n.string("收藏"),
+                    action: onFavorite
+                )
+                Spacer(minLength: 0)
+                toolButton(
+                    icon: isPreparingShare ? "hourglass" : "square.and.arrow.up",
+                    label: isPreparingShare ? L10n.string("准备中") : L10n.string("分享"),
+                    action: onShare
+                )
             }
-            Spacer(minLength: 0)
-            ActionButton(
-                icon: isFavorite ? "heart.slash" : "heart",
-                title: isFavorite ? "取消收藏" : "收藏",
-                color: PhotoDeleteStyle.iconTint(for: "favorite")
-            ) {
-                onFavorite()
+            .padding(.horizontal, 8)
+            .padding(.vertical, 2)
+            .modifier(ReviewGlassCapsuleChrome())
+            .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 12, y: 6)
 
-            }
-            Spacer(minLength: 0)
-            ActionButton(
-                icon: isPreparingShare ? "hourglass" : "square.and.arrow.up",
-                title: isPreparingShare ? "准备中" : "分享",
-                color: PhotoDeleteStyle.accent
-            ) {
-                onShare()
-
-            }
-            Spacer(minLength: 0)
-            ActionButton(
-                icon: "checkmark",
-                title: "完成整理",
-                color: PhotoDeleteStyle.positive,
-                style: .solid,
-                badgeText: deleteCount > 0 ? deleteCount.formatted(.number.grouping(.automatic)) : nil
-            ) {
-                onFinish()
-
-            }
-            Spacer(minLength: 0)
+            // 终点动作独立成珠：琥珀玻璃「完成整理」（待删数字由头部角标承担）
+            finishButton
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background {
-            Capsule(style: .continuous)
-                .fill(PhotoDeleteStyle.surface.opacity(0.9))
-                .overlay {
-                    Capsule(style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
-                }
-        }
-        .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 12, y: 6)
         .padding(.horizontal, 18)
         .disabled(!canPerformAction)
         .opacity(canPerformAction ? 1 : 0.45)
+    }
+
+    /// 工具按钮：图标保持统一白色 + 加粗 rounded；状态只用形状（heart / heart.fill）表达。
+    private func toolButton(
+        icon: String,
+        label: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+    }
+
+    @ViewBuilder
+    private var finishButton: some View {
+        if #available(iOS 26.0, *) {
+            Button(action: onFinish) {
+                Image(systemName: "archivebox")
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .frame(width: 46, height: 46)
+            }
+            .buttonStyle(.glassProminent)
+            .buttonBorderShape(.circle)
+            .tint(PhotoDeleteStyle.accent)
+            .accessibilityLabel(L10n.string("完成整理"))
+        } else {
+            Button(action: onFinish) {
+                Image(systemName: "archivebox")
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+                    .frame(width: 46, height: 46)
+                    .background(
+                        Circle().fill(
+                            LinearGradient(
+                                colors: [
+                                    PhotoDeleteTheme.current.amberGradientTop,
+                                    PhotoDeleteTheme.current.amberGradientBottom
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                    )
+                    .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 1))
+                    .shadow(color: PhotoDeleteStyle.accent.opacity(0.3), radius: 12, y: 5)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.string("完成整理"))
+        }
+    }
+}
+
+/// 评审页圆形按钮的液态玻璃 chrome：iOS 26+ 用玻璃圆钮，老系统回落实心圆。
+struct ReviewGlassCircleChrome: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .buttonStyle(.glass)
+                .buttonBorderShape(.circle)
+        } else {
+            content
+                .buttonStyle(.plain)
+                .background(Circle().fill(PhotoDeleteStyle.elevatedSurface))
+        }
+    }
+}
+
+/// 评审页底栏的液态玻璃胶囊 chrome：iOS 26+ 用玻璃，老系统回落 surface 实心胶囊。
+struct ReviewGlassCapsuleChrome: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular, in: .capsule)
+        } else {
+            content
+                .background {
+                    Capsule(style: .continuous)
+                        .fill(PhotoDeleteStyle.surface.opacity(0.9))
+                        .overlay {
+                            Capsule(style: .continuous)
+                                .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                        }
+                }
+        }
     }
 }

@@ -161,6 +161,17 @@
 - 状态角标（右下角，22pt 实心圆 + 白描边）：保留 = `success` ✓、待删除 = `danger` 🗑、已收藏 = `favorite` ♥。
 - 交互：点按 = 大图预览（`CandidatePhotoPreviewView`）；长按 = contextMenu「再次整理」；清空 = 破坏性确认后仅清本机记录。
 - 实现：`RecentOrganizedPhotosView.swift`（统计页不再包含此模块；成就页的旧横向条待其改版时统一下线）。
+
+### 6.3 滑动整理页（Swipe，2026-10-06 定型并落地顶栏/底栏）
+
+- **幕布**：`reviewCanvas #17181F`（平铺）——有意比首页画布（#0A0A0D）亮一档，让照片卡边界更隐；"是否统一画布"仍为待定项。
+- **顶栏**：居中 `1 / 19`（17/700、monospaced、**无千分位**）；两侧 38pt 圆形按钮 = 液态玻璃（iOS 26 `.buttonStyle(.glass)`，老系统回落 `elevatedSurface` 实心圆）：左=返回（白箭头）、右=垃圾桶（**白图标** + 珊瑚红数量角标；>99 显示 99+；角标描边用幕布色）。颜色只承担"数量"语义。
+- **底栏（双珠形态）**：左 = 液态玻璃胶囊（iOS 26 `.glassEffect(.regular, in: .capsule)`；老系统回落 surface 实心胶囊），内四枚**纯图标**工具（44pt 触区、19pt **白色加粗 rounded**）：**详情（info.circle → 半屏「照片详情」）** / 撤销 / 收藏（状态只用形状：`heart` ⇄ `heart.fill`，不用颜色）/ 分享；右 = 独立 46pt **琥珀玻璃圆钮**（iOS 26 `.glassProminent` + accent tint；老系统琥珀渐变圆）= 完成整理，图标用 **`archivebox`**（归档盒，避免对勾的"选择"歧义），高度与玻璃条一致。文字标签不进底栏，语义靠 VoiceOver 标签；**颜色完全退出底栏**（唯一有色的是琥珀终点按钮）。
+- **照片详情弹窗**：medium 固定档、surface 底、行=左灰标签+右白数值+hairline；内容：拍摄时间 / 位置 / 文件大小 / 分辨率（无千分位）/ 所属相册——**空数据的行自动隐藏**。
+- **手势（保持现状，文案改真）**：左滑=下一张、右滑=上一张、上滑=加入待删除、下滑=加入相册；不做"左滑删除"。**待办**：引导页 / 首页 intro / 手势设置页的旧文案（"左滑删除、右滑保留"）需改成真实手势——注意 UI 测试断言了引导页那句；并为"上滑=删除"补首见 hint pill。
+- **照片卡**：卡随照片高（收敛上下 letterbox）——原型已做，**SwiftUI 待落地**。
+- 底栏不显示待删数字：唯一真相 = 顶栏垃圾桶角标。
+- 横屏/iPad 侧栏（`ReviewSessionSummaryPanel` + `SidebarActionButton`）本轮未动，待其后单独迭代。
 - 已移除（勿回退）：2×2 四色指标宫格（与进度卡重复）、手机存储卡（与「预计可释放」重复且偏题）、独立「月度统计」段（并入按月分组的清理历史）。
 - 数据：`makeSettingsStatsSummary` / `CleanupStatsStore.sessions`（按 `monthKey` 分组，`CleanupStatsFormatter.month` 出标题）。
 - 共享组件注意：`SupporterMonthlySection` / `SupporterHistorySection` / `RecentOrganizedPhotosSection` 同时被支持者页与成就页复用——改样式前先查这三处，勿破坏其他页面（它们的整体改版另行 review）。
@@ -182,6 +193,7 @@
 | 周期选择弹窗 | `ios-app/PhotoDelete/Views/PeriodPickerSheet.swift`（半屏 sheet，行结构对齐原型） |
 | 时间周期纯逻辑 | `ios-app/PhotoDelete/Services/TimePeriodBrowser.swift`（弹窗切片 / 当前周期匹配 / 行格式化，视图无关） |
 | 最近整理 | `ios-app/PhotoDelete/Views/RecentOrganizedPhotosView.swift` |
+| 滑动整理页 chrome | `ios-app/PhotoDelete/Views/Components/ReviewPageChrome.swift`（顶栏 + 双珠底栏 + 玻璃 chrome modifiers） |
 | 文案 | `ios-app/PhotoDelete/Localizable.xcstrings` |
 | 视觉原型 | `designs/home-prototype.html` |
 

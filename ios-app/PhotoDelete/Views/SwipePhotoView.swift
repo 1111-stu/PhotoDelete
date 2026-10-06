@@ -48,6 +48,7 @@ struct SwipePhotoView: View {
     @State private var manuallyStoppedVideoAssetID: String?
     @State private var currentAlbumInfo: AlbumInfo?
     @State private var sessionVideoMuted = true
+    @State private var showingPhotoDetails = false
     @State private var didApplySessionPlaybackPreference = false
     @State private var inlineVideoControlsRevealToken: UUID?
     @State private var sharePayload: PhotoSharePayload?
@@ -263,6 +264,11 @@ struct SwipePhotoView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
+        .sheet(isPresented: $showingPhotoDetails) {
+            if let asset = currentRealPhoto {
+                PhotoDetailSheet(asset: asset, dataManager: dataManager)
+            }
+        }
         .sheet(isPresented: $showsAlbumFilingSheet, onDismiss: {
             if let title = pendingAlbumSuccessToastTitle {
                 showAlbumFilingSuccessToast(albumTitle: title)
@@ -401,7 +407,7 @@ struct SwipePhotoView: View {
     // MARK: - 导航栏
     private var navigationHeader: some View {
         ReviewNavigationHeader(
-            title: navigationHeaderTitle, subtitle: headerProgressSubtitle,
+            title: navigationHeaderTitle,
             deleteCount: pendingDeleteCount, canDelete: true,
             onBack: handleBackAction, onDelete: { showingPendingDeletion = true }
         )
@@ -524,28 +530,32 @@ struct SwipePhotoView: View {
 
     private func cardPhotoArea(asset: PHAsset, in containerSize: CGSize) -> some View {
         let cardSize = photoCardSize(in: containerSize)
-        return ReviewPhotoPager(
-            pages: horizontalPageEntries(),
-            currentID: asset.localIdentifier,
-            cardSize: cardSize,
-            pageStride: containerSize.width,
-            canDelete: canPerformPhotoAction(.delete),
-            isVideoPlaying: shouldPlayVideo(for: asset),
-            onBrowse: { step in
-                guard let index = horizontalNeighborIndex(step: step) else { return }
-                session.currentIndex = index
-                preloadUpcomingImages(from: index)
-                persistSessionProgressIfPossible()
-            },
-            onDelete: handleDeleteAction,
-            onFile: openAlbumFilingSheet
-        ) { photo, isCurrent in
-            reviewPhotoCard(asset: photo, cardSize: cardSize, isCurrent: isCurrent)
+        // 卡片 + 元数据小字作为一个整体居中：小字始终贴在卡片下方，而不是钉在区域底部。
+        return VStack(spacing: 6) {
+            ReviewPhotoPager(
+                pages: horizontalPageEntries(),
+                currentID: asset.localIdentifier,
+                cardSize: cardSize,
+                pageStride: containerSize.width,
+                canDelete: canPerformPhotoAction(.delete),
+                isVideoPlaying: shouldPlayVideo(for: asset),
+                onBrowse: { step in
+                    guard let index = horizontalNeighborIndex(step: step) else { return }
+                    session.currentIndex = index
+                    preloadUpcomingImages(from: index)
+                    persistSessionProgressIfPossible()
+                },
+                onDelete: handleDeleteAction,
+                onFile: openAlbumFilingSheet
+            ) { photo, isCurrent in
+                reviewPhotoCard(asset: photo, cardSize: cardSize, isCurrent: isCurrent)
+            }
+            .frame(height: cardSize.height)
+
+            ReviewPhotoDetailLine(asset: asset)
+                .id(asset.localIdentifier)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .safeAreaInset(edge: .bottom, spacing: 8) {
-            ReviewPhotoDetailLine(asset: asset).id(asset.localIdentifier)
-        }
     }
 
     private func reviewPhotoCard(asset: PHAsset, cardSize: CGSize, isCurrent: Bool) -> some View {
@@ -797,7 +807,8 @@ struct SwipePhotoView: View {
         ReviewActionToolbar(
             isFavorite: isCurrentPhotoFavorited,
             canPerformAction: canPerformPhotoAction,
-            isPreparingShare: isPreparingShare, deleteCount: pendingDeleteCount,
+            isPreparingShare: isPreparingShare,
+            onShowDetails: { showingPhotoDetails = true },
             onUndo: handleUndoAction, onFavorite: handleFavoriteAction,
             onShare: handleShareAction, onFinish: handleFinishAction
         )
@@ -898,7 +909,8 @@ struct SwipePhotoView: View {
     }
 
     private var navigationHeaderTitle: String {
-        "\(formattedCount(currentProgress)) / \(formattedCount(totalPhotosCount))"
+        // 数字一律无千分位
+        "\(PhotoDeleteCountFormat.plain(currentProgress)) / \(PhotoDeleteCountFormat.plain(totalPhotosCount))"
     }
 
     private var headerProgressSubtitle: String {

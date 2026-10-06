@@ -27,7 +27,10 @@
     font-family:ui-rounded,"SF Pro Rounded",-apple-system,"PingFang SC",sans-serif; }
 
   .page { display:flex; gap:64px; align-items:flex-start; justify-content:center;
-    padding:56px 40px 80px; max-width:1240px; margin:0 auto; flex-wrap:wrap; }
+    padding:56px 40px 80px; max-width:1420px; margin:0 auto; flex-wrap:wrap; }
+  .phones { display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start; }
+  .phone-cap { font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink3); font-weight:600; margin:0 0 12px 8px; }
 
   /* ============ 说明面板 ============ */
   .panel { flex:1; min-width:300px; max-width:430px; position:sticky; top:56px; }
@@ -64,6 +67,8 @@
     box-shadow:0 40px 90px rgba(0,0,0,.8);
     touch-action:pan-y; user-select:none; -webkit-user-select:none;
   }
+  /* 滑动页幕布 = App 现有实现 reviewCanvas(23,24,31) 的平铺色 */
+  #phoneSwipe { background:#17181F; }
   .statusbar { position:absolute; top:0; left:0; right:0; height:50px; z-index:30;
     display:flex; align-items:center; justify-content:space-between; padding:0 30px 0 32px;
     font-size:15px; font-weight:600; }
@@ -248,6 +253,75 @@
   .ps-row .chev { width:12px; height:12px; color:var(--ink3); flex-shrink:0; }
   .ps-divider { height:1px; background:var(--sep); margin:2px 20px 4px; }
 
+  /* 详情弹窗的键值行（复用 period-sheet 的外观语言） */
+  .ps-kv { display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+    padding:13px 20px; position:relative; }
+  .ps-kv + .ps-kv::before { content:""; position:absolute; top:0; left:20px; right:20px;
+    height:1px; background:var(--sep); }
+  .ps-kv b { font-size:13px; font-weight:500; color:var(--ink2); flex-shrink:0; }
+  .ps-kv span { font-size:15px; font-weight:500; color:rgba(255,255,255,.92);
+    text-align:right; }
+
+  /* ---- 滑动整理页原型（对齐当前 App 实现，待迭代） ---- */
+  .rv-head { position:absolute; top:58px; left:16px; right:16px; display:flex;
+    align-items:center; gap:10px; }
+  /* 顶部圆钮与底栏同材质：液态玻璃（垃圾桶=玻璃 + 危险色图标/微红底） */
+  .rv-circle { width:38px; height:38px; border-radius:50%; display:flex;
+    align-items:center; justify-content:center; color:rgba(255,255,255,.88);
+    border:1px solid rgba(255,255,255,.14); background:rgba(28,28,34,.5);
+    -webkit-backdrop-filter:blur(30px) saturate(170%);
+    backdrop-filter:blur(30px) saturate(170%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
+    cursor:pointer; flex-shrink:0; }
+  .rv-circle svg { width:17px; height:17px; }
+  .rv-titles { flex:1; text-align:center; }
+  .rv-titles b { display:block; font-size:17px; font-weight:700; letter-spacing:-.01em; }
+  /* 垃圾桶：白图标 + 玻璃底；红色只出现在"待删数量"角标上 */
+  .rv-trash { position:relative; }
+  .rv-badge { position:absolute; top:-2px; right:-2px; min-width:18px; height:18px;
+    border-radius:999px; background:var(--danger); color:#fff; font-size:10.5px;
+    font-weight:700; display:flex; align-items:center; justify-content:center;
+    padding:0 5px; box-shadow:0 0 0 2.5px #17181F; }
+  /* 照片舞台：卡随照片高（无黑带），整体在头部与底栏之间垂直居中 */
+  .rv-stage { position:absolute; top:148px; left:16px; right:16px; bottom:150px;
+    display:flex; flex-direction:column; justify-content:center; }
+  .rv-card { position:relative; border-radius:22px; background:#0E0E12; overflow:hidden; }
+  .rv-card > svg { width:100%; height:auto; display:block; }
+  .rv-tag { position:absolute; top:12px; right:12px; padding:6px 11px; border-radius:999px;
+    background:rgba(0,0,0,.55); backdrop-filter:blur(8px); font-size:11px; font-weight:600;
+    color:rgba(255,255,255,.92); letter-spacing:.02em; }
+  .rv-meta { margin-top:8px; text-align:center; font-size:11px; color:var(--ink3);
+    font-variant-numeric:tabular-nums; letter-spacing:.01em; }
+  /* 液态玻璃底栏：双珠形态——左三工具玻璃胶囊 + 右独立琥珀玻璃圆钮（归档盒=完成整理） */
+  .rv-bar { position:absolute; left:12px; right:70px; bottom:42px; height:46px;
+    border-radius:999px; display:flex; align-items:center; justify-content:space-around;
+    padding:0 4px;
+    background:rgba(28,28,34,.5);
+    -webkit-backdrop-filter:blur(36px) saturate(180%);
+    backdrop-filter:blur(36px) saturate(180%);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.18),
+      inset 0 -1px 0 rgba(255,255,255,.04),
+      0 20px 50px rgba(0,0,0,.55); }
+  .rv-fab { position:absolute; right:12px; bottom:42px; width:46px; height:46px;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:var(--on-amber); border:1px solid rgba(255,255,255,.4); cursor:pointer;
+    background:linear-gradient(135deg,rgba(255,200,94,.92),rgba(240,154,34,.92));
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    backdrop-filter:blur(20px) saturate(160%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55), 0 8px 20px rgba(240,154,34,.28); }
+  .rv-fab svg { width:19px; height:19px; }
+  .rv-fab:active { transform:scale(.95); }
+  .rv-act { display:flex; align-items:center; justify-content:center;
+    background:none; border:none; font-family:inherit; color:inherit; cursor:pointer;
+    width:40px; height:40px; color:rgba(255,255,255,.88); border-radius:50%; }
+  .rv-act svg { width:19px; height:19px; }
+  .rv-act:active { background:rgba(255,255,255,.08); }
+  /* 收藏：图标保持白色；激活态用"填充"表达形状，不用颜色 */
+  .rv-act .fill { display:none; }
+  .rv-act.fav.on .line { display:none; }
+  .rv-act.fav.on .fill { display:block; }
+
   @media (max-width:1080px) { .page { gap:40px; } .panel { position:static; max-width:390px; } }
 </style>
 </head>
@@ -266,6 +340,14 @@
   <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7.4" y="2.8" width="9.2" height="18.4" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.2 18.2h1.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
   <symbol id="i-drive" viewBox="0 0 24 24"><rect x="3.8" y="3.8" width="16.4" height="16.4" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.6 8.6h6.8M8.6 15.4h6.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-album" viewBox="0 0 24 24"><rect x="3.8" y="5.2" width="16.4" height="14.6" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9.4" cy="10.6" r="1.7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.8 17.4l4.6-4.6 3.2 3.2 3-3 4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M8.8 5.6L4.4 10l4.4 4.4M4.6 10h9a5.7 5.7 0 0 1 0 11.4H9.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.3l-1.45-1.32C5.4 14.36 2 11.28 2 7.5 2 4.42 4.42 2 7.5 2c1.74 0 3.41.81 4.5 2.09C13.09 2.81 14.76 2 16.5 2 19.58 2 22 4.42 22 7.5c0 3.78-3.4 6.86-8.55 11.48L12 20.3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-heart-fill" viewBox="0 0 24 24"><path d="M12 20.3l-1.45-1.32C5.4 14.36 2 11.28 2 7.5 2 4.42 4.42 2 7.5 2c1.74 0 3.41.81 4.5 2.09C13.09 2.81 14.76 2 16.5 2 19.58 2 22 4.42 22 7.5c0 3.78-3.4 6.86-8.55 11.48L12 20.3z" fill="currentColor"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3.2v11.4M8.2 6.8L12 3l3.8 3.8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.2 10.6v8.2a1.7 1.7 0 0 0 1.7 1.7h8.2a1.7 1.7 0 0 0 1.7-1.7v-8.2" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.6l4.3 4.3L19 7.2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3.4" y="4" width="17.2" height="4.6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 8.6v9.6a1.8 1.8 0 0 0 1.8 1.8h10.4a1.8 1.8 0 0 0 1.8-1.8V8.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.6 12.6h4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="2.1"/><path d="M12 11.2v5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><circle cx="12" cy="7.8" r="1.15" fill="currentColor"/></symbol>
 </svg>
 
 <!-- ============ 缩略图素材 ============ -->
@@ -318,9 +400,9 @@
 <div class="page">
   <!-- ============ 说明 ============ -->
   <aside class="panel">
-    <div class="eyebrow">PhotoDelete · Home Prototype</div>
-    <h1>首页交互 <span>原型</span></h1>
-    <p class="lede">不是静态稿 —— 这几个都能真的操作。用鼠标点、滚,先验证手感,再决定要不要落 SwiftUI。</p>
+    <div class="eyebrow">PhotoDelete · Interaction Prototype</div>
+    <h1>交互 <span>原型</span></h1>
+    <p class="lede">左：首页。右：滑动整理。不是静态稿——能真的操作，先在这里快速迭代，再决定要不要落 SwiftUI。</p>
 
     <div class="try">
       <div class="try-item"><span class="k">1</span><div>
@@ -351,12 +433,15 @@
       · 三个时间入口做成可点 band,第三行为<b>可释放空间</b><br>
       · band 段点击 → <b>周期选择弹窗</b>（标题：按周/按月/按年整理；本周→每天 / 本月→其他月份 / 本年→其他年份，首行"本期全部"）<br>
       · 删掉「往年今日」,待整理上提为首屏左卡,周期 band 独立成行<br>
-      · 进度用 6px 卡内横条(A 方案)
+      · 进度用 6px 卡内横条(A 方案)<br>
+      · 新增<b>滑动整理页</b>原型(对齐当前 App 实现,含四色操作条,待迭代)
     </div>
   </aside>
 
   <!-- ============ 手机 ============ -->
+  <div class="phones">
   <div class="phone-outer">
+  <div class="phone-cap">首页 · Home</div>
   <div class="phone" id="phone">
     <div class="statusbar"><span>9:41</span>
       <span class="status-icons">
@@ -468,7 +553,7 @@
           <div><b id="exTitle">随机整理</b><span id="exSub">最多 120 项</span></div>
           <button class="ex-close" id="exClose"><svg><use href="#i-close"/></svg></button>
         </div>
-        <div class="ex-hint">← 左滑删除 · 右滑保留 · 上滑收藏 →</div>
+        <div class="ex-hint">左右翻页 · 上滑加入待删除 · 下滑加入相册</div>
       </div>
     </div>
 
@@ -481,6 +566,76 @@
     </div>
 
     <div class="toast" id="toast"></div>
+  </div>
+  </div>
+
+  <!-- ============ 滑动整理页（对齐当前 App 实现，待迭代） ============ -->
+  <div class="phone-outer">
+  <div class="phone-cap">滑动整理 · Swipe</div>
+  <div class="phone" id="phoneSwipe">
+    <div class="statusbar"><span>9:41</span>
+      <span class="status-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 14 0"/><path d="M4 7a6.3 6.3 0 0 1 9 0"/><circle cx="8.5" cy="10" r="1.5" fill="currentColor" stroke="none"/></svg>
+        <svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="21.5" height="12" rx="3.6" fill="none" stroke="currentColor" opacity=".4" stroke-width="1"/><rect x="2.4" y="2.4" width="14.5" height="8.2" rx="2" fill="currentColor"/><path d="M23.4 4.4v4.2a2 2 0 0 0 2-2v-.2a2 2 0 0 0-2-2z" fill="currentColor" opacity=".4"/></svg>
+      </span>
+    </div>
+
+    <div class="rv-head">
+      <button class="rv-circle"><svg><use href="#i-back"/></svg></button>
+      <div class="rv-titles">
+        <b>1 / 19</b>
+      </div>
+      <button class="rv-circle rv-trash" aria-label="待删除的照片">
+        <svg><use href="#i-trash"/></svg>
+        <span class="rv-badge num">9</span>
+      </button>
+    </div>
+
+    <div class="rv-stage">
+      <div class="rv-card">
+        <!-- 照片占位：原型阶段不追求真实照片 -->
+        <svg class="rv-photo" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice">
+          <defs><linearGradient id="rvph" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#24242B"/><stop offset="1" stop-color="#191920"/>
+          </linearGradient></defs>
+          <rect width="200" height="150" fill="url(#rvph)"/>
+          <g stroke="#3E3E49" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round">
+            <rect x="71" y="48" width="58" height="46" rx="9"/>
+            <path d="M77 86l15-15 9 9 10-10 14 14"/>
+          </g>
+          <circle cx="89" cy="64" r="4.2" fill="#3E3E49"/>
+        </svg>
+        <span class="rv-tag">周末海边</span>
+      </div>
+      <div class="rv-meta">3月13日 08:17 · 1.9 MB</div>
+    </div>
+
+    <div class="rv-bar">
+      <button class="rv-act detail" aria-label="照片详情"><svg><use href="#i-info"/></svg></button>
+      <button class="rv-act undo" aria-label="撤销"><svg><use href="#i-undo"/></svg></button>
+      <button class="rv-act fav on" aria-label="收藏">
+        <svg class="line"><use href="#i-heart"/></svg>
+        <svg class="fill"><use href="#i-heart-fill"/></svg>
+      </button>
+      <button class="rv-act share" aria-label="分享"><svg><use href="#i-share"/></svg></button>
+    </div>
+    <button class="rv-fab" aria-label="完成整理"><svg><use href="#i-archive"/></svg></button>
+
+    <!-- 照片详情弹窗 -->
+    <div class="sheet-mask" id="rvMask"></div>
+    <div class="period-sheet" id="rvDetailSheet">
+      <div class="ps-grab"></div>
+      <div class="ps-title">照片详情</div>
+      <div class="ps-rows">
+        <div class="ps-kv"><b>拍摄时间</b><span>2026年3月13日 08:17</span></div>
+        <div class="ps-kv"><b>位置</b><span>辽宁 · 大连</span></div>
+        <div class="ps-kv"><b>文件大小</b><span>1.9 MB</span></div>
+        <div class="ps-kv"><b>分辨率</b><span>4032 × 3024</span></div>
+        <div class="ps-kv"><b>所属相册</b><span>周末海边</span></div>
+      </div>
+    </div>
+  </div>
   </div>
   </div>
 </div>

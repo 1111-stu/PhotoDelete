@@ -9,8 +9,8 @@ struct ReviewPhotoDetailLine: View {
     var body: some View {
         let dateText = PhotoAssetMetadataFormatter.shortCaptureDate(for: asset.creationDate)
         Text(sizeText.map { "\(dateText) · \($0)" } ?? dateText)
-            .font(.system(size: 13, weight: .medium))
-            .foregroundColor(PhotoDeleteStyle.secondaryText)
+            .font(.system(size: 11, weight: .regular))
+            .foregroundColor(PhotoDeleteStyle.tertiaryText)
             .lineLimit(1)
             .minimumScaleFactor(0.8)
             .frame(maxWidth: .infinity)
