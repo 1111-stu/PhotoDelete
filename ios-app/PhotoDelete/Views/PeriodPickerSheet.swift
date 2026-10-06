@@ -65,6 +65,19 @@ struct PeriodPickerSheet: View {
 
     // MARK: - 行
 
+    /// 数字样式：「本期全部」用珊瑚粉渐变高亮（与「待整理」卡同一组色），明细行白字。
+    private func numberStyle(isPrimary: Bool) -> AnyShapeStyle {
+        guard isPrimary else { return AnyShapeStyle(PhotoDeleteStyle.primaryText) }
+        let theme = PhotoDeleteTheme.current
+        return AnyShapeStyle(
+            LinearGradient(
+                colors: [theme.coralGradientTop, theme.coralGradientBottom],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+    }
+
     private func pickerRow(
         _ summary: PhotoPeriodSummary,
         title: String,
@@ -94,7 +107,7 @@ struct PeriodPickerSheet: View {
                     Text(PhotoDeleteCountFormat.plain(summary.remainingCount))
                         .font(.system(size: 20, weight: .bold))
                         .monospacedDigit()
-                        .foregroundColor(isPrimary ? PhotoDeleteStyle.accent : PhotoDeleteStyle.primaryText)
+                        .foregroundStyle(numberStyle(isPrimary: isPrimary))
 
                     Text(L10n.string("待整理"))
                         .font(.system(size: 11.5, weight: .regular))

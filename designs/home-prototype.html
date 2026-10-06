@@ -241,7 +241,10 @@
     gap:1px; flex-shrink:0; }
   .ps-meta em { font-style:normal; font-size:20px; font-weight:700; letter-spacing:-.02em; }
   .ps-meta small { font-size:11.5px; color:var(--ink3); }
-  .ps-row.primary .ps-meta em { color:var(--amber); }
+  .ps-row.primary .ps-meta em {
+    background:linear-gradient(180deg,var(--blk2a),var(--blk2b));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
   .ps-row .chev { width:12px; height:12px; color:var(--ink3); flex-shrink:0; }
   .ps-divider { height:1px; background:var(--sep); margin:2px 20px 4px; }
 
