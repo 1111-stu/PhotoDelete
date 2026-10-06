@@ -221,27 +221,26 @@
   .period-sheet.on { transform:translateY(0); }
   .ps-grab { width:36px; height:5px; border-radius:999px; background:rgba(255,255,255,.22);
     margin:0 auto 12px; }
-  .ps-title { text-align:center; font-size:16px; font-weight:700; letter-spacing:-.01em;
+  .ps-title { text-align:center; font-size:17px; font-weight:700; letter-spacing:-.01em;
     padding-bottom:4px; }
   .ps-rows { max-height:430px; overflow-y:auto; scrollbar-width:none; padding-top:4px; }
   .ps-rows::-webkit-scrollbar { display:none; }
-  .ps-row { display:flex; align-items:center; gap:12px; padding:12px 20px; position:relative;
+  .ps-row { display:flex; align-items:center; gap:12px; padding:15px 20px; position:relative;
     border:none; background:transparent; width:100%; font-family:inherit; color:inherit;
     cursor:pointer; text-align:left; }
   .ps-row + .ps-row::before { content:""; position:absolute; top:0; left:20px; right:20px;
     height:1px; background:var(--sep); }
   .ps-row:active { background:rgba(255,255,255,.05); }
-  .ps-thumb { width:46px; height:46px; border-radius:11px; overflow:hidden; flex-shrink:0;
-    display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:1px;
+  .ps-thumb { width:52px; height:52px; border-radius:12px; overflow:hidden; flex-shrink:0;
     background:var(--card2); }
   .ps-thumb svg { width:100%; height:100%; display:block; }
   .ps-body { min-width:0; display:flex; flex-direction:column; gap:3px; }
-  .ps-body b { font-size:15px; font-weight:600; letter-spacing:.01em; }
-  .ps-body small { font-size:11.5px; color:var(--ink2); }
+  .ps-body b { font-size:17px; font-weight:600; letter-spacing:.01em; }
+  .ps-body small { font-size:13px; color:var(--ink2); }
   .ps-meta { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end;
     gap:1px; flex-shrink:0; }
-  .ps-meta em { font-style:normal; font-size:17px; font-weight:700; letter-spacing:-.02em; }
-  .ps-meta small { font-size:10.5px; color:var(--ink3); }
+  .ps-meta em { font-style:normal; font-size:20px; font-weight:700; letter-spacing:-.02em; }
+  .ps-meta small { font-size:11.5px; color:var(--ink3); }
   .ps-row.primary .ps-meta em { color:var(--amber); }
   .ps-row .chev { width:12px; height:12px; color:var(--ink3); flex-shrink:0; }
   .ps-divider { height:1px; background:var(--sep); margin:2px 20px 4px; }
@@ -674,12 +673,9 @@
   const PS_ART = ['p-forest', 'p-sunset', 'p-city', 'p-beach', 'p-food', 'p-meadow'];
   const PERIOD_TITLES = { '本周': '按周整理', '本月': '按月整理', '本年': '按年整理' };
   function periodRowThumb(seed) {
-    let cells = '';
-    for (let k = 0; k < 4; k++) {
-      cells += `<svg viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">`
-        + `<use href="#${PS_ART[(seed * 3 + k) % PS_ART.length]}"/></svg>`;
-    }
-    return `<span class="ps-thumb">${cells}</span>`;
+    // 单张照片缩略图（该周期最新一张）。
+    return `<span class="ps-thumb"><svg viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">`
+      + `<use href="#${PS_ART[seed % PS_ART.length]}"/></svg></span>`;
   }
 
   const sheetMask = document.getElementById('sheetMask');
@@ -712,6 +708,10 @@
       });
       psRows.appendChild(b);
     });
+    // 末行横线收尾
+    const tail = document.createElement('div');
+    tail.className = 'ps-divider';
+    psRows.appendChild(tail);
     sheetMask.classList.add('on');
     periodSheet.classList.add('on');
   }

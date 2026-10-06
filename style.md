@@ -179,6 +179,9 @@
 | 主题 token | `ios-app/PhotoDelete/Views/Components/PhotoDeleteTheme.swift` |
 | 组件与静态色 | `ios-app/PhotoDelete/Views/Components/DesignSystem.swift`（`PhotoDeleteSectionHeader` / `PhotoDeleteCountFormat`） |
 | 首页 | `ios-app/PhotoDelete/Views/HomeView.swift` |
+| 周期选择弹窗 | `ios-app/PhotoDelete/Views/PeriodPickerSheet.swift`（半屏 sheet，行结构对齐原型） |
+| 时间周期纯逻辑 | `ios-app/PhotoDelete/Services/TimePeriodBrowser.swift`（弹窗切片 / 当前周期匹配 / 行格式化，视图无关） |
+| 最近整理 | `ios-app/PhotoDelete/Views/RecentOrganizedPhotosView.swift` |
 | 文案 | `ios-app/PhotoDelete/Localizable.xcstrings` |
 | 视觉原型 | `designs/home-prototype.html` |
 

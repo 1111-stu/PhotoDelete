@@ -34,7 +34,7 @@ struct PeriodPickerSheet: View {
 
             VStack(spacing: 0) {
                 Text(TimePeriodBrowser.pickerTitle(for: scope))
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: 17, weight: .bold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
                     .padding(.top, 24)
                     .padding(.bottom, 4)
@@ -45,9 +45,7 @@ struct PeriodPickerSheet: View {
                         rowHairline
                         ForEach(detailSummaries) { summary in
                             pickerRow(summary, title: TimeOrganizeFormatter.title(for: summary), isPrimary: false)
-                            if summary.id != detailSummaries.last?.id {
-                                rowHairline
-                            }
+                            rowHairline
                         }
                     }
                     .padding(.bottom, 16)
@@ -55,7 +53,8 @@ struct PeriodPickerSheet: View {
                 .scrollIndicators(.hidden)
             }
         }
-        .presentationDetents([.medium, .large])
+        // 固定高度（不提供可伸缩档位）：列表超出时在弹窗内部滚动。
+        .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
         .onAppear {
             if let detailScope = TimePeriodBrowser.detailScope(for: scope) {
@@ -79,12 +78,12 @@ struct PeriodPickerSheet: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
                         .lineLimit(1)
 
                     Text(TimePeriodBrowser.rowSubtitle(for: summary))
-                        .font(.system(size: 11.5, weight: .regular))
+                        .font(.system(size: 13, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .lineLimit(1)
                 }
@@ -93,12 +92,12 @@ struct PeriodPickerSheet: View {
 
                 VStack(alignment: .trailing, spacing: 1) {
                     Text(PhotoDeleteCountFormat.plain(summary.remainingCount))
-                        .font(.system(size: 17, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                         .monospacedDigit()
                         .foregroundColor(isPrimary ? PhotoDeleteStyle.accent : PhotoDeleteStyle.primaryText)
 
                     Text(L10n.string("待整理"))
-                        .font(.system(size: 10.5, weight: .regular))
+                        .font(.system(size: 11.5, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.tertiaryText)
                 }
 
@@ -107,7 +106,7 @@ struct PeriodPickerSheet: View {
                     .foregroundColor(PhotoDeleteStyle.tertiaryText)
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 12)
+            .padding(.vertical, 15)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -122,43 +121,26 @@ struct PeriodPickerSheet: View {
     }
 }
 
-/// 周期行左侧缩略图：取该周期最近 4 张照片拼 2×2 小图（对齐设计稿）。
+/// 周期行左侧缩略图：该周期最新的一张照片（单图，圆角 11）。
 private struct PeriodRowThumbnail: View {
     let summary: PhotoPeriodSummary
     let dataManager: DataManager
 
-    @State private var assetIDs: [String] = []
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 1),
-        GridItem(.flexible(), spacing: 1)
-    ]
+    @State private var assetID: String?
 
     var body: some View {
-        Group {
-            if assetIDs.isEmpty {
-                RoundedRectangle(cornerRadius: 11, style: .continuous)
-                    .fill(PhotoDeleteStyle.elevatedSurface)
-            } else {
-                LazyVGrid(columns: columns, spacing: 1) {
-                    ForEach(assetIDs.prefix(4), id: \.self) { assetID in
-                        AlbumAssetThumbnail(
-                            assetID: assetID,
-                            photoLibraryManager: dataManager.photoLibraryManager,
-                            cornerRadius: 0
-                        )
-                    }
-                }
-            }
-        }
-        .frame(width: 46, height: 46)
-        .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+        AlbumAssetThumbnail(
+            assetID: assetID,
+            photoLibraryManager: dataManager.photoLibraryManager,
+            cornerRadius: 12
+        )
+        .frame(width: 52, height: 52)
         .onAppear {
-            guard assetIDs.isEmpty else { return }
-            assetIDs = dataManager
+            guard assetID == nil else { return }
+            assetID = dataManager
                 .getPhotosForPeriod(summary.scope, containing: summary.intervalStart)
-                .prefix(4)
-                .map(\.localIdentifier)
+                .first?
+                .localIdentifier
         }
     }
 }

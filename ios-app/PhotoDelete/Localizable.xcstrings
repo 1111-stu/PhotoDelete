@@ -8011,7 +8011,6 @@
       }
     },
     "共 %@ 项 · %@" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25753,6 +25752,22 @@
         }
       }
     },
+    "按周整理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Organize by week"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按週整理"
+          }
+        }
+      }
+    },
     "按地图查看拍摄地点，点选一个地点后继续整理。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -25872,6 +25887,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "按地點繼續"
+          }
+        }
+      }
+    },
+    "按年整理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Organize by year"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按年整理"
           }
         }
       }
@@ -26538,6 +26569,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "按月份繼續"
+          }
+        }
+      }
+    },
+    "按月整理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Organize by month"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月整理"
           }
         }
       }
@@ -30444,6 +30491,7 @@
       }
     },
     "更多" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31605,6 +31653,22 @@
         }
       }
     },
+    "本周全部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All of this week"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本週全部"
+          }
+        }
+      }
+    },
     "本周新增" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -31701,6 +31765,22 @@
         }
       }
     },
+    "本年全部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All of this year"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本年全部"
+          }
+        }
+      }
+    },
     "本年新增" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -31720,6 +31800,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本年新增"
+          }
+        }
+      }
+    },
+    "本日全部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All of today"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本日全部"
           }
         }
       }
@@ -31760,6 +31856,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本月"
+          }
+        }
+      }
+    },
+    "本月全部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All of this month"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月全部"
           }
         }
       }

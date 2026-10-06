@@ -1674,6 +1674,7 @@ final class PhotoDeleteUITests: XCTestCase {
 
         return false
     }
+
 }
 
 private enum AppLaunchEnvironmentKey {
