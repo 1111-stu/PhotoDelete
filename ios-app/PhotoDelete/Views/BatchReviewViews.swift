@@ -23,23 +23,33 @@ struct BatchConfirmView: View {
     @State private var showAchievements = false
     @State private var selectedDeleteIDs: Set<String> = []
     @State private var selectedFavoriteIDs: Set<String> = []
+    @State private var hasInitializedSelection = false
     @State private var completedDeletedIDs: Set<String> = []
     @State private var fileSizeEstimatesByAssetID: [String: AssetFileSizeEstimate] = [:]
     @State private var isLoadingFileSizes = false
     let albumInfo: AlbumInfo?
     let onComplete: ((Set<String>) -> Void)?
+    private let initialDeleteIDs: Set<String>?
+    private let initialFavoriteIDs: Set<String>?
+    private let deleteOnly: Bool
 
-    init(albumInfo: AlbumInfo? = nil, onComplete: ((Set<String>) -> Void)? = nil) {
+    init(
+        initialDeleteIDs: Set<String>? = nil,
+        initialFavoriteIDs: Set<String>? = nil,
+        deleteOnly: Bool = false,
+        albumInfo: AlbumInfo? = nil,
+        onComplete: ((Set<String>) -> Void)? = nil
+    ) {
+        self.initialDeleteIDs = initialDeleteIDs
+        self.initialFavoriteIDs = initialFavoriteIDs
+        self.deleteOnly = deleteOnly
         self.albumInfo = albumInfo
         self.onComplete = onComplete
     }
 
-    private var hasPendingOperations: Bool {
-        !dataManager.deleteCandidates.isEmpty || !dataManager.favoriteCandidates.isEmpty
-    }
-
     private var hasSelectedOperations: Bool {
-        !selectedDeleteIDs.isEmpty || !selectedFavoriteIDs.isEmpty
+        dataManager.deleteCandidates.contains { selectedDeleteIDs.contains($0.localIdentifier) }
+            || (!deleteOnly && dataManager.favoriteCandidates.contains { selectedFavoriteIDs.contains($0.localIdentifier) })
     }
 
     var body: some View {
@@ -54,7 +64,7 @@ struct BatchConfirmView: View {
                 )
             } else {
                 let deleteAssets = sortedAssets(Array(dataManager.deleteCandidates))
-                let favoriteAssets = sortedAssets(Array(dataManager.favoriteCandidates))
+                let favoriteAssets = deleteOnly ? [] : sortedAssets(Array(dataManager.favoriteCandidates))
                 let selectedDeleteAssets = deleteAssets.filter { selectedDeleteIDs.contains($0.localIdentifier) }
                 let selectedFavoriteAssets = favoriteAssets.filter { selectedFavoriteIDs.contains($0.localIdentifier) }
                 let deletedContentSizeSummary = DeletedContentSizeSummary.make(
@@ -99,148 +109,116 @@ struct BatchConfirmView: View {
         selectedFavoriteAssets: [PHAsset],
         deletedContentSizeSummary: DeletedContentSizeSummary
     ) -> some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(spacing: 18) {
-                    VStack(spacing: 12) {
-                        Image(systemName: selectedDeleteAssets.isEmpty ? "checkmark.circle.fill" : "trash.circle.fill")
-                            .font(.system(size: 48, weight: .medium))
-                            .foregroundColor(selectedDeleteAssets.isEmpty ? PhotoDeleteStyle.positive : PhotoDeleteStyle.destructive)
+        let hasVisiblePendingOperations = !deleteAssets.isEmpty || !favoriteAssets.isEmpty
 
-                        Text(L10n.string("Confirm Cleanup"))
-                            .font(.system(size: 27, weight: .bold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
-
-                        Text(batchSummaryText(deleteCount: selectedDeleteAssets.count, favoriteCount: selectedFavoriteAssets.count))
-                            .font(.headline.weight(.semibold))
-                            .foregroundColor(selectedDeleteAssets.isEmpty ? PhotoDeleteStyle.positive : PhotoDeleteStyle.destructive)
-                            .multilineTextAlignment(.center)
-
-                        if !selectedDeleteAssets.isEmpty {
-                            deletedContentSizeText(deletedContentSizeSummary)
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundColor(PhotoDeleteStyle.positive)
-                        }
-                    }
-
-                    if hasPendingOperations {
-                        VStack(alignment: .leading, spacing: 0) {
+        return NavigationStack {
+            ZStack {
+                PhotoDeleteScreenBackground()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        if hasVisiblePendingOperations {
                             if !deleteAssets.isEmpty {
-                                CandidatePreviewSection(
-                                    title: L10n.string("To Delete · \(selectedDeleteAssets.count)/\(deleteAssets.count) Selected"),
-                                    assets: deleteAssets,
-                                    selectedCount: selectedDeleteAssets.count,
-                                    selectedAssetIDs: selectedDeleteIDs,
-                                    color: PhotoDeleteStyle.destructive,
-                                    icon: "trash.fill",
-                                    photoLibraryManager: dataManager.photoLibraryManager,
-                                    selectAccessibilityLabel: L10n.string("Check this photo"),
-                                    deselectAccessibilityLabel: L10n.string("Uncheck this photo"),
-                                    onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
-                                    onToggleSelection: toggleDeleteSelection
-                                )
+                                VStack(alignment: .leading, spacing: 8) {
+                                    CandidatePreviewSection(
+                                        title: L10n.string("Delete"),
+                                        assets: deleteAssets,
+                                        selectedCount: selectedDeleteAssets.count,
+                                        selectedAssetIDs: selectedDeleteIDs,
+                                        photoLibraryManager: dataManager.photoLibraryManager,
+                                        onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
+                                        onToggleSelection: toggleDeleteSelection,
+                                        onToggleAll: {
+                                            selectedDeleteIDs = selectedDeleteAssets.count == deleteAssets.count
+                                                ? [] : Set(deleteAssets.map(\.localIdentifier))
+                                        },
+                                        sizeSummary: selectedDeleteAssets.isEmpty ? nil : AnyView(deletedContentSizeText(deletedContentSizeSummary))
+                                    )
+                                }
                             }
-
                             if !favoriteAssets.isEmpty {
                                 CandidatePreviewSection(
-                                    title: L10n.string("To Favorite · \(selectedFavoriteAssets.count)/\(favoriteAssets.count) Selected"),
+                                    title: L10n.string("Favorite"),
                                     assets: favoriteAssets,
                                     selectedCount: selectedFavoriteAssets.count,
                                     selectedAssetIDs: selectedFavoriteIDs,
-                                    color: PhotoDeleteStyle.iconTint(for: "favorite"),
-                                    icon: "heart.fill",
                                     photoLibraryManager: dataManager.photoLibraryManager,
-                                    selectAccessibilityLabel: L10n.string("Check this photo"),
-                                    deselectAccessibilityLabel: L10n.string("Uncheck this photo"),
                                     onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
-                                    onToggleSelection: toggleFavoriteSelection
+                                    onToggleSelection: toggleFavoriteSelection,
+                                    onToggleAll: {
+                                        selectedFavoriteIDs = selectedFavoriteAssets.count == favoriteAssets.count
+                                            ? [] : Set(favoriteAssets.map(\.localIdentifier))
+                                    }
                                 )
                             }
-                        }
-                        .padding(PhotoDeleteStyle.Metrics.contentBottomPadding)
-                        .background(
-                            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
-                                .fill(PhotoDeleteStyle.elevatedSurface)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
-                                        .stroke(PhotoDeleteStyle.cardStroke, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
-                                )
-                        )
-                    } else {
-                        Text(L10n.string("No pending operations"))
-                            .font(.body)
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 24)
-                    }
-
-                    if hasPendingOperations {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Label(L10n.string("All items are selected by default. Deselected items will be skipped."), systemImage: "checkmark.circle.fill")
-                            Label(L10n.string("Deleted items move to Recently Deleted, so storage may not be freed immediately."), systemImage: "info.circle")
-                        }
-                        .font(.subheadline)
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-
-                    if let errorMessage {
-                        Text(errorMessage)
+                            VStack(alignment: .leading, spacing: 10) {
+                                Label(L10n.string("Unchecked items will not be included in this action."), systemImage: "checkmark.circle")
+                                if !deleteAssets.isEmpty {
+                                    Label(L10n.string("Deleted items move to Recently Deleted, so storage may not be freed immediately."), systemImage: "info.circle")
+                                }
+                            }
                             .font(.subheadline)
-                            .foregroundColor(PhotoDeleteStyle.warning)
-                            .multilineTextAlignment(.center)
+                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        } else {
+                            Text(L10n.string("No pending operations"))
+                                .font(.body)
+                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 24)
+                        }
+                        if let errorMessage {
+                            Text(errorMessage)
+                                .font(.subheadline)
+                                .foregroundColor(PhotoDeleteStyle.warning)
+                                .accessibilityIdentifier("cleanup-error")
+                        }
                     }
+                    .frame(maxWidth: 620, alignment: .leading)
+                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.vertical, PhotoDeleteStyle.Metrics.contentBottomPadding)
-            }
-            .scrollIndicators(.hidden)
-
-            VStack(spacing: 10) {
-                Button(action: executeBatchOperations) {
-                    Text(isProcessing ? L10n.string("Running...") : L10n.string("Confirm"))
-                }
-                .photoDeletePrimaryButton()
-                .disabled(isProcessing || !hasSelectedOperations)
-
-                Button(action: cancelOperations) {
-                    Text(L10n.string("Back to Organizing"))
-                }
-                .photoDeleteSecondaryButton()
+                .scrollIndicators(.hidden)
                 .disabled(isProcessing)
-
-                Button(role: .destructive, action: cancelAllPendingOperations) {
-                    Text(L10n.string("Cancel All Actions"))
+            }
+            .navigationTitle(L10n.string("Confirm Cleanup"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .tabBar)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(action: cancelOperations) {
+                        Label(L10n.string("Back"), systemImage: "chevron.left")
+                    }
+                    .disabled(isProcessing)
+                    .accessibilityIdentifier("cleanup-back")
                 }
-                .font(.subheadline.weight(.semibold))
-                .foregroundColor(PhotoDeleteStyle.destructive)
-                .frame(minHeight: 44)
-                .disabled(isProcessing || !hasPendingOperations)
             }
-            .padding(.top, 14)
-            .overlay(alignment: .top) {
-                Rectangle()
-                    .fill(PhotoDeleteStyle.hairline)
-                    .frame(height: 1)
-            }
-        }
-        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-        .padding(.vertical, PhotoDeleteStyle.Metrics.contentBottomPadding)
-        .photoDeleteCard()
-        .frame(maxWidth: 620)
-        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-    }
+            .safeAreaInset(edge: .bottom) {
+                VStack(spacing: 4) {
+                    Button(action: executeBatchOperations) {
+                        HStack(spacing: 8) {
+                            if isProcessing { ProgressView().tint(PhotoDeleteStyle.primaryButtonText) }
+                            Text(isProcessing ? L10n.string("Running...") : L10n.string("Confirm Cleanup"))
+                        }
+                    }
+                    .photoDeletePrimaryButton()
+                    .disabled(isProcessing || !hasSelectedOperations)
+                    .accessibilityIdentifier("cleanup-confirm")
 
-    private func batchSummaryText(deleteCount: Int, favoriteCount: Int) -> String {
-        if deleteCount > 0 && favoriteCount > 0 {
-            return L10n.string("Deleted \(deleteCount) · Favorited \(favoriteCount)")
+                    Button(role: .destructive, action: cancelAllPendingOperations) {
+                        Text(deleteOnly ? L10n.string("Cancel Pending Deletions") : L10n.string("Cancel All Actions"))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(PhotoDeleteStyle.destructive)
+                    .disabled(isProcessing || !hasVisiblePendingOperations)
+                    .accessibilityIdentifier("cleanup-cancel-all")
+                }
+                .frame(maxWidth: 620)
+                .frame(maxWidth: .infinity)
+                .modifier(CleanupReviewFooterStyle())
+            }
         }
-        if deleteCount > 0 {
-            return L10n.string("Delete \(deleteCount) photos")
-        }
-        if favoriteCount > 0 {
-            return L10n.string("Favorite \(favoriteCount) photos")
-        }
-        return L10n.string("No pending operations")
+        .interactiveDismissDisabled(isProcessing)
     }
 
     private func executeBatchOperations() {
@@ -285,21 +263,27 @@ struct BatchConfirmView: View {
                         )
                     }
                 } else {
-                    errorMessage = error?.localizedDescription ?? L10n.string("Operation failed. Try again later.")
+                    errorMessage = L10n.string("Operation failed. Try again later.")
                 }
             }
         }
     }
 
     private func selectAllPendingCandidates() {
-        selectedDeleteIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
-        selectedFavoriteIDs = Set(dataManager.favoriteCandidates.map(\.localIdentifier))
+        guard !hasInitializedSelection else { return }
+        hasInitializedSelection = true
+        let availableDeleteIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
+        let availableFavoriteIDs = Set(dataManager.favoriteCandidates.map(\.localIdentifier))
+        selectedDeleteIDs = initialDeleteIDs.map { $0.intersection(availableDeleteIDs) } ?? availableDeleteIDs
+        selectedFavoriteIDs = deleteOnly
+            ? []
+            : initialFavoriteIDs.map { $0.intersection(availableFavoriteIDs) } ?? availableFavoriteIDs
     }
 
     @ViewBuilder
     private func deletedContentSizeText(_ summary: DeletedContentSizeSummary) -> some View {
         if summary.knownAssetCount > 0 {
-            VStack(spacing: 3) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(L10n.string("Known deleted content: about \(CleanupStatsFormatter.fileSize(summary.knownSizeMB))"))
                 if isLoadingFileSizes {
                     Text(
@@ -307,11 +291,11 @@ struct BatchConfirmView: View {
                             "Reading file sizes \(summary.knownAssetCount)/\(summary.totalAssetCount)"
                         )
                     )
-                    .font(.system(size: 12, weight: .regular))
+                    .font(.caption)
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                 } else if summary.unknownAssetCount > 0 {
                     Text(L10n.string("Size unavailable for \(summary.unknownAssetCount) items"))
-                        .font(.system(size: 12, weight: .regular))
+                        .font(.caption)
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
             }
@@ -417,7 +401,13 @@ struct BatchConfirmView: View {
     private func cancelAllPendingOperations() {
         selectedDeleteIDs.removeAll()
         selectedFavoriteIDs.removeAll()
-        dataManager.cancelAllOperations()
+        if deleteOnly {
+            for asset in Array(dataManager.deleteCandidates) {
+                dataManager.removeFromDeleteCandidates(asset)
+            }
+        } else {
+            dataManager.cancelAllOperations()
+        }
         dismiss()
     }
 
@@ -776,18 +766,14 @@ private struct CandidatePreviewSection: View {
     let assets: [PHAsset]
     let selectedCount: Int
     let selectedAssetIDs: Set<String>
-    let color: Color
-    let icon: String
     let photoLibraryManager: PhotoLibraryManager
-    let selectAccessibilityLabel: String
-    let deselectAccessibilityLabel: String
     let onPreview: (PHAsset) -> Void
     let onToggleSelection: (PHAsset) -> Void
+    let onToggleAll: () -> Void
+    var sizeSummary: AnyView? = nil
     @State private var visibleAssetLimit = 48
 
-    private let columns = [
-        GridItem(.adaptive(minimum: 64, maximum: 76), spacing: 8)
-    ]
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 3)
     private let assetLimitStep = 48
 
     private var visibleAssets: [PHAsset] {
@@ -795,174 +781,54 @@ private struct CandidatePreviewSection: View {
     }
 
     private var hasMoreAssets: Bool {
-        VisibleListPagination.hasMore(
-            totalCount: assets.count,
-            limit: visibleAssetLimit
-        )
+        VisibleListPagination.hasMore(totalCount: assets.count, limit: visibleAssetLimit)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(color)
-
-                Text(L10n.string("\(title) \(selectedCount) photos"))
-                    .font(.system(size: 14, weight: .semibold))
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("\(title) · \(PhotoDeleteCountFormat.plain(selectedCount))/\(PhotoDeleteCountFormat.plain(assets.count))")
+                    .font(.title3.weight(.bold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
-
-                Spacer()
+                Spacer(minLength: 8)
+                Button(selectedCount == assets.count ? L10n.string("Deselect All") : L10n.string("Select All"), action: onToggleAll)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .frame(minHeight: 44)
             }
-
-            LazyVGrid(columns: columns, spacing: 8) {
+            if let sizeSummary {
+                sizeSummary
+                    .font(.subheadline)
+                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .padding(.top, -8)
+            }
+            LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(visibleAssets, id: \.localIdentifier) { asset in
-                    CandidateThumbnailView(
+                    CleanupReviewAssetCell(
                         asset: asset,
                         photoLibraryManager: photoLibraryManager,
-                        badgeColor: color,
-                        badgeIcon: icon,
                         isSelected: selectedAssetIDs.contains(asset.localIdentifier),
-                        selectAccessibilityLabel: selectAccessibilityLabel,
-                        deselectAccessibilityLabel: deselectAccessibilityLabel,
                         onPreview: { onPreview(asset) },
                         onToggleSelection: { onToggleSelection(asset) }
                     )
                 }
             }
-
             if hasMoreAssets {
                 Button(action: showMoreAssets) {
                     Label(L10n.string("Show More"), systemImage: "chevron.down")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(color)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: 44)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(PhotoDeleteStyle.accent)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(PhotoDeleteStyle.surface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(color.opacity(0.24), lineWidth: 1)
-                )
-        )
     }
 
     private func showMoreAssets() {
         visibleAssetLimit = VisibleListPagination.advancedLimit(
-            totalCount: assets.count,
-            currentLimit: visibleAssetLimit,
-            step: assetLimitStep
+            totalCount: assets.count, currentLimit: visibleAssetLimit, step: assetLimitStep
         )
-    }
-}
-
-private struct CandidateThumbnailView: View {
-    let asset: PHAsset
-    let photoLibraryManager: PhotoLibraryManager
-    let badgeColor: Color
-    let badgeIcon: String
-    let isSelected: Bool
-    let selectAccessibilityLabel: String
-    let deselectAccessibilityLabel: String
-    let onPreview: () -> Void
-    let onToggleSelection: () -> Void
-
-    @State private var image: UIImage?
-    @State private var isLoading = true
-    @State private var requestID: PHImageRequestID?
-    @State private var loadingAssetIdentifier: String?
-
-    var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            Button(action: onPreview) {
-                thumbnailContent
-                    .frame(width: 70, height: 70)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("View photo larger"))
-
-            Image(systemName: badgeIcon)
-                .font(.system(size: 9, weight: .bold))
-                .foregroundColor(.white)
-                .frame(width: 20, height: 20)
-                .background(Circle().fill(isSelected ? badgeColor : PhotoDeleteStyle.tertiaryText))
-                .overlay(Circle().stroke(PhotoDeleteStyle.background.opacity(0.8), lineWidth: 1.5))
-                .offset(x: -53, y: -53)
-
-            Button(action: onToggleSelection) {
-                Label(
-                    isSelected ? deselectAccessibilityLabel : selectAccessibilityLabel,
-                    systemImage: isSelected ? "checkmark.circle.fill" : "circle"
-                )
-                    .labelStyle(.iconOnly)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(isSelected ? PhotoDeleteStyle.positive : PhotoDeleteStyle.tertiaryText)
-                    .frame(width: 28, height: 28)
-                    .background(Circle().fill(PhotoDeleteStyle.background.opacity(0.92)))
-                    .overlay(Circle().stroke(PhotoDeleteStyle.primaryText.opacity(isSelected ? 0.18 : 0.12), lineWidth: 1))
-                    .photoDeleteMinimumTapTarget()
-            }
-            .buttonStyle(.plain)
-            .accessibilityHint(L10n.string("Unchecked items will not be included in this action."))
-            .offset(x: 3, y: 3)
-        }
-        .frame(width: 76, height: 76)
-        .onAppear(perform: loadImage)
-        .onDisappear {
-            photoLibraryManager.cancelImageRequest(requestID)
-            requestID = nil
-            loadingAssetIdentifier = nil
-            image = nil
-            isLoading = false
-        }
-    }
-
-    @ViewBuilder
-    private var thumbnailContent: some View {
-        if let image {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .saturation(isSelected ? 1 : 0.18)
-                .opacity(isSelected ? 1 : 0.42)
-        } else {
-            Rectangle()
-                .fill(PhotoDeleteStyle.elevatedSurface)
-                .overlay {
-                    if isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
-                            .scaleEffect(0.72)
-                    } else {
-                        Image(systemName: "photo")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
-                    }
-                }
-        }
-    }
-
-    private func loadImage() {
-        photoLibraryManager.cancelImageRequest(requestID)
-        let requestedAssetID = asset.localIdentifier
-        loadingAssetIdentifier = requestedAssetID
-        image = nil
-        isLoading = true
-
-        requestID = photoLibraryManager.loadFastThumbnail(for: asset, size: CGSize(width: 150, height: 150)) { loadedImage in
-            guard loadingAssetIdentifier == requestedAssetID else { return }
-            image = loadedImage
-            isLoading = false
-            requestID = nil
-            loadingAssetIdentifier = nil
-        }
     }
 }
 

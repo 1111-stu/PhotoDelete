@@ -277,6 +277,72 @@ final class PhotoDeleteUITests: XCTestCase {
     }
 
     @MainActor
+    func testCleanupConfirmationSelectionAndReturn() throws {
+        try verifyCleanupConfirmation(appearance: "dark")
+    }
+
+    @MainActor
+    func testCleanupConfirmationLightAppearance() throws {
+        try verifyCleanupConfirmation(appearance: "light")
+    }
+
+    @MainActor
+    private func verifyCleanupConfirmation(appearance: String) throws {
+        installPhotoLibraryInterruptionMonitor()
+        let app = makeApp(completedOnboarding: true, seedLibrary: true)
+        app.launchEnvironment[AppLaunchEnvironmentKey.appAppearance] = appearance
+        app.launch()
+        _ = allowFullPhotoLibraryAccessIfNeeded(app: app)
+        dismissMarketingSystemPrompts(app: app)
+        XCTAssertTrue(waitForHomeReady(in: app, language: "zh-Hans", timeout: 30))
+        app.buttons["home-random-review"].tap()
+        XCTAssertNotNil(waitForReviewDoneButton(in: app, timeout: 30))
+        if app.buttons["知道了"].exists { app.buttons["知道了"].tap() }
+        dragCardUp(in: app)
+        dragCardUp(in: app)
+        dragCardUp(in: app)
+        dragCardUp(in: app)
+        try XCTUnwrap(waitForReviewDoneButton(in: app, timeout: 10)).tap()
+
+        let confirm = app.buttons["cleanup-confirm"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 10))
+        XCTAssertTrue(confirm.isEnabled)
+        XCTAssertTrue(app.buttons["cleanup-back"].exists)
+        XCTAssertFalse(app.tabBars.firstMatch.exists)
+        let selections = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "cleanup-selection-"))
+        XCTAssertEqual(selections.count, 4)
+        selections.element(boundBy: 0).tap()
+        XCTAssertTrue(confirm.isEnabled, "Remaining selected items still permit confirmation.")
+        app.buttons["放大查看照片"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["关闭"].waitForExistence(timeout: 10))
+        app.buttons["关闭"].tap()
+        XCTAssertEqual(selections.matching(NSPredicate(format: "label == %@", "选择")).count, 1,
+                       "Preview must preserve the deselected item.")
+        app.buttons["全选"].tap()
+        app.buttons["取消全选"].tap()
+        XCTAssertFalse(confirm.isEnabled)
+        app.buttons["全选"].tap()
+
+        do {
+            let output = ProcessInfo.processInfo.environment["PHOTO_DELETE_REVIEW_CAPTURE_DIR"] ?? "/tmp/photodelete-cleanup-review"
+            let directory = URL(fileURLWithPath: output, isDirectory: true)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try capture("cleanup-confirmation-\(appearance)", in: directory, app: app)
+        }
+        app.buttons["cleanup-back"].tap()
+        XCTAssertNotNil(waitForReviewDoneButton(in: app, timeout: 10))
+        try XCTUnwrap(waitForReviewDoneButton(in: app, timeout: 10)).tap()
+        XCTAssertTrue(confirm.waitForExistence(timeout: 10))
+        XCTAssertEqual(selections.count, 4, "Returning must preserve pending operations.")
+        app.buttons["cleanup-cancel-all"].tap()
+        XCTAssertNotNil(waitForReviewDoneButton(in: app, timeout: 10))
+        try XCTUnwrap(waitForReviewDoneButton(in: app, timeout: 10)).tap()
+        XCTAssertTrue(waitForHomeReady(in: app, language: "zh-Hans", timeout: 15),
+                      "Finishing after cancel all must return home without another confirmation.")
+        XCTAssertFalse(confirm.exists)
+    }
+
+    @MainActor
     func testRandomReviewSkipsDeletedPhotosAndSupportsVerticalGestures() throws {
         installPhotoLibraryInterruptionMonitor(allowDeletionConfirmation: true)
         let app = makeApp(completedOnboarding: true, seedLibrary: true)

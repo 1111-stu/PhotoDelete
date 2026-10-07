@@ -7,6 +7,16 @@
     "·" : {
 
     },
+    "%@ · %lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$lld/%3$lld"
+          }
+        }
+      }
+    },
     "%@ · 0 photos" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -147,6 +157,7 @@
       }
     },
     "%@ %lld photos" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -9460,6 +9471,16 @@
         }
       }
     },
+    "Cancel Pending Deletions" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "إلغاء الحذف المعلق" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Geplante Löschungen abbrechen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel Pending Deletions" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "削除予定を取り消す" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "取消待删除" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "取消待刪除" } }
+      }
+    },
     "Capture time unknown" : {
       "localizations" : {
         "ar" : {
@@ -12799,6 +12820,7 @@
       }
     },
     "Confirm" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -16046,6 +16068,7 @@
       }
     },
     "Delete selected photos?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31884,6 +31907,7 @@
       }
     },
     "Photos move to Recently Deleted. You can still recover them in the Photos app." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -45670,6 +45694,7 @@
       }
     },
     "To Delete · %lld/%lld Selected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -45733,6 +45758,7 @@
       }
     },
     "To Favorite · %lld/%lld Selected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

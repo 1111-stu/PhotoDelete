@@ -6,6 +6,7 @@ struct PendingDeletionView: View {
     @EnvironmentObject private var dataManager: DataManager
     @Environment(\.dismiss) private var dismiss
     @State private var selectedIDs: Set<String> = []
+    @State private var hasInitializedSelection = false
     @State private var previewAsset: CandidatePreviewAsset?
 
     private var assets: [PHAsset] {
@@ -28,9 +29,15 @@ struct PendingDeletionView: View {
             secondaryTitle: L10n.string("Remove selected from deletion"),
             primaryTitle: L10n.string("Keep Organizing"),
             secondarySystemImage: "arrow.uturn.backward",
-            primarySystemImage: "arrow.right"
+            primarySystemImage: "arrow.right",
+            primaryRequiresSelection: false,
+            showsModalClose: true
         )
-        .onAppear { selectedIDs = Set(assets.map(\.localIdentifier)) }
+        .onAppear {
+            guard !hasInitializedSelection else { return }
+            hasInitializedSelection = true
+            selectedIDs = Set(assets.map(\.localIdentifier))
+        }
         .onChange(of: assets.map(\.localIdentifier)) { _ in
             selectedIDs.formIntersection(Set(assets.map(\.localIdentifier)))
         }
@@ -42,8 +49,8 @@ struct TrashBinView: View {
     @EnvironmentObject private var dataManager: DataManager
     @Environment(\.dismiss) private var dismiss
     @State private var selectedIDs: Set<String> = []
+    @State private var hasInitializedSelection = false
     @State private var previewAsset: CandidatePreviewAsset?
-    @State private var showingDeleteConfirmation = false
     @State private var showingBatchConfirm = false
 
     private var assets: [PHAsset] {
@@ -62,30 +69,23 @@ struct TrashBinView: View {
                 dataManager.removeFromDeleteCandidates(asset)
                 selectedIDs.remove(asset.localIdentifier)
             },
-            onPrimaryAction: { showingDeleteConfirmation = true },
+            onPrimaryAction: { showingBatchConfirm = true },
             secondaryTitle: L10n.string("Remove selected from deletion"),
             primaryTitle: L10n.string("Delete Selected"),
             secondarySystemImage: "arrow.uturn.backward",
-            primarySystemImage: "trash.fill"
+            primarySystemImage: "trash.fill",
+            primaryRequiresSelection: true
         )
-        .onAppear { selectedIDs = Set(assets.map(\.localIdentifier)) }
+        .onAppear {
+            guard !hasInitializedSelection else { return }
+            hasInitializedSelection = true
+            selectedIDs = Set(assets.map(\.localIdentifier))
+        }
         .onChange(of: assets.map(\.localIdentifier)) { _ in
             selectedIDs.formIntersection(Set(assets.map(\.localIdentifier)))
         }
-        .confirmationDialog(
-            L10n.string("Delete selected photos?"),
-            isPresented: $showingDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(L10n.string("Confirm Deletion"), role: .destructive) {
-                showingBatchConfirm = true
-            }
-            Button(L10n.string("Cancel"), role: .cancel) {}
-        } message: {
-            Text(L10n.string("Photos move to Recently Deleted. You can still recover them in the Photos app."))
-        }
         .fullScreenCover(isPresented: $showingBatchConfirm) {
-            BatchConfirmView()
+            BatchConfirmView(initialDeleteIDs: selectedIDs, deleteOnly: true)
                 .environmentObject(dataManager)
         }
     }
@@ -94,6 +94,7 @@ struct TrashBinView: View {
 private struct DeletionQueueScreen: View {
     @EnvironmentObject private var dataManager: DataManager
     @Environment(\.photoDeleteTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
     let title: String
     let assets: [PHAsset]
     @Binding var selectedIDs: Set<String>
@@ -106,6 +107,8 @@ private struct DeletionQueueScreen: View {
     let primaryTitle: String
     let secondarySystemImage: String
     let primarySystemImage: String
+    let primaryRequiresSelection: Bool
+    var showsModalClose: Bool = false
 
     private let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
 
@@ -119,15 +122,16 @@ private struct DeletionQueueScreen: View {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(alignment: .firstTextBaseline) {
                             Text(L10n.string("Selected \(selectedIDs.count) / \(assets.count)"))
-                                .font(.system(size: 20, weight: .bold))
+                            .font(.title3.weight(.bold))
                                 .foregroundColor(PhotoDeleteStyle.primaryText)
                             Spacer()
                             Button(selectedIDs.count == assets.count ? L10n.string("Deselect All") : L10n.string("Select All")) {
                                 if selectedIDs.count == assets.count { selectedIDs.removeAll() }
                                 else { selectedIDs = Set(assets.map(\.localIdentifier)) }
                             }
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundColor(PhotoDeleteStyle.accent)
+                            .frame(minHeight: 44)
                         }
 
                         LazyVGrid(columns: columns, spacing: 10) {
@@ -138,7 +142,7 @@ private struct DeletionQueueScreen: View {
                     }
                     .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
                     .padding(.top, 20)
-                    .padding(.bottom, 116)
+                    .padding(.bottom, 24)
                 }
                 .scrollIndicators(.hidden)
             }
@@ -146,6 +150,13 @@ private struct DeletionQueueScreen: View {
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            if showsModalClose {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(L10n.string("Close")) { dismiss() }
+                }
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             HStack(spacing: 10) {
                 Button {
@@ -154,37 +165,17 @@ private struct DeletionQueueScreen: View {
                     Label(secondaryTitle, systemImage: secondarySystemImage)
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(QueueSecondaryButtonStyle())
+                .buttonStyle(CleanupReviewSecondaryButtonStyle())
                 .disabled(selectedIDs.isEmpty)
 
                 Button(action: onPrimaryAction) {
                     Label(primaryTitle, systemImage: primarySystemImage)
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(QueueDestructiveButtonStyle())
-                .disabled(selectedIDs.isEmpty)
+                .photoDeletePrimaryButton()
+                .disabled(primaryRequiresSelection && selectedIDs.isEmpty)
             }
-            .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-            .padding(.top, 12)
-            .padding(.bottom, 8)
-            .background {
-                ZStack(alignment: .top) {
-                    theme.backgroundBottom.opacity(0.98)
-                    LinearGradient(
-                        colors: [theme.backgroundTop.opacity(0), theme.backgroundBottom.opacity(0.98)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(height: 24)
-                    .offset(y: -24)
-                }
-                .overlay(alignment: .top) {
-                    Rectangle()
-                        .fill(theme.hairline)
-                        .frame(height: 1)
-                }
-                .ignoresSafeArea(edges: .bottom)
-            }
+            .modifier(CleanupReviewFooterStyle())
         }
         .sheet(item: $previewAsset) { item in
             CandidatePhotoPreviewView(asset: item.asset, photoLibraryManager: dataManager.photoLibraryManager)
@@ -209,27 +200,45 @@ private struct DeletionQueueScreen: View {
     }
 
     private func cell(_ asset: PHAsset) -> some View {
-        ZStack(alignment: .topTrailing) {
-            Button {
-                previewAsset = CandidatePreviewAsset(asset: asset)
-            } label: {
-                AlbumAssetThumbnail(
-                    assetID: asset.localIdentifier,
-                    photoLibraryManager: dataManager.photoLibraryManager,
-                    cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius
-                )
-                .aspectRatio(1, contentMode: .fit)
-            }
-            .buttonStyle(.plain)
-
-            Button {
+        CleanupReviewAssetCell(
+            asset: asset,
+            photoLibraryManager: dataManager.photoLibraryManager,
+            isSelected: selectedIDs.contains(asset.localIdentifier),
+            onPreview: { previewAsset = CandidatePreviewAsset(asset: asset) },
+            onToggleSelection: {
                 if selectedIDs.contains(asset.localIdentifier) {
                     selectedIDs.remove(asset.localIdentifier)
                 } else {
                     selectedIDs.insert(asset.localIdentifier)
                 }
-            } label: {
-                let isSelected = selectedIDs.contains(asset.localIdentifier)
+            }
+        )
+    }
+}
+
+/// Shared photo selection affordance for the queue and final review.
+struct CleanupReviewAssetCell: View {
+    @Environment(\.photoDeleteTheme) private var theme
+    let asset: PHAsset
+    let photoLibraryManager: PhotoLibraryManager
+    let isSelected: Bool
+    let onPreview: () -> Void
+    let onToggleSelection: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Button(action: onPreview) {
+                AlbumAssetThumbnail(
+                    assetID: asset.localIdentifier,
+                    photoLibraryManager: photoLibraryManager,
+                    cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius
+                )
+                .aspectRatio(1, contentMode: .fit)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.string("View photo larger"))
+
+            Button(action: onToggleSelection) {
                 Image(systemName: isSelected ? "checkmark" : "circle")
                     .font(.system(size: isSelected ? 11 : 18, weight: .bold))
                     .foregroundStyle(isSelected ? theme.primaryAccentOnFill : .white.opacity(0.9))
@@ -240,21 +249,23 @@ private struct DeletionQueueScreen: View {
             .buttonStyle(.plain)
             .frame(width: 44, height: 44)
             .accessibilityLabel(
-                selectedIDs.contains(asset.localIdentifier)
+                isSelected
                     ? L10n.string("Deselect")
                     : L10n.string("Select")
             )
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
+            .accessibilityIdentifier("cleanup-selection-\(asset.localIdentifier)")
         }
     }
 }
 
-private struct QueueSecondaryButtonStyle: ButtonStyle {
+struct CleanupReviewSecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
     @Environment(\.photoDeleteTheme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 15, weight: .semibold))
+            .font(.body.weight(.semibold))
             .foregroundStyle(PhotoDeleteStyle.secondaryText)
             .frame(minHeight: 52)
             .background(configuration.isPressed ? theme.surface : theme.elevatedSurface)
@@ -268,18 +279,20 @@ private struct QueueSecondaryButtonStyle: ButtonStyle {
     }
 }
 
-private struct QueueDestructiveButtonStyle: ButtonStyle {
-    @Environment(\.isEnabled) private var isEnabled
+struct CleanupReviewFooterStyle: ViewModifier {
     @Environment(\.photoDeleteTheme) private var theme
 
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundStyle(Color.white)
-            .frame(minHeight: 52)
-            .background(configuration.isPressed ? theme.danger.opacity(0.82) : theme.danger)
-            .clipShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous))
-            .opacity(isEnabled ? 1 : 0.42)
-            .animation(.easeOut(duration: 0.16), value: configuration.isPressed)
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+            .background {
+                theme.backgroundBottom
+                    .overlay(alignment: .top) {
+                        Rectangle().fill(theme.hairline).frame(height: 1)
+                    }
+                    .ignoresSafeArea(edges: .bottom)
+            }
     }
 }
