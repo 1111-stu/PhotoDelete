@@ -1,0 +1,36 @@
+{
+  "catalogEntriesBefore": 1350,
+  "catalogEntriesAfter": 1350,
+  "chineseKeysBefore": 1324,
+  "chineseKeysAfter": 0,
+  "swiftFilesChanged": 39,
+  "sourceReferencesChanged": 1308,
+  "formatArgumentListsReordered": 2,
+  "unresolved": [],
+  "staleEntriesRetained": 494,
+  "mode": "applied",
+  "baselineRevision": "2e96509af990c50d96fab8cdb1c2ed9d272a11a3",
+  "auditMode": "regenerated-from-baseline",
+  "validation": {
+    "buildForTesting": "passed",
+    "compilerReferencesChecked": 1243,
+    "compiledLanguagesChecked": [
+      "en",
+      "zh-Hans",
+      "zh-Hant",
+      "ar",
+      "de",
+      "ja"
+    ],
+    "translationPreservationReview": "passed",
+    "unitTestsPassed": 192,
+    "toolTestsPassed": 13,
+    "uiSmokeTestsPassed": [
+      "testOnboardingFlowCompletesToHome",
+      "testSettingsKeepsWeChatOutOfFeedbackSectionOutsideSimplifiedChinese",
+      "testAdvancedTabUpdatesAfterLanguageChangeInSettings"
+    ],
+    "xcodeVersion": "26.0.1",
+    "simulator": "iPhone 17"
+  }
+}

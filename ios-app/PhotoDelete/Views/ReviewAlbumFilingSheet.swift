@@ -27,7 +27,7 @@ struct ReviewAlbumFilingSheet: View {
                 }
 
                 Button(action: onContinue) {
-                    Text(selectedAlbumIDs.isEmpty ? L10n.string("还未选择") : L10n.string("完成并继续"))
+                    Text(selectedAlbumIDs.isEmpty ? L10n.string("Nothing selected") : L10n.string("Done and Continue"))
                         .font(.system(size: 17, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .frame(minHeight: 48)
@@ -44,9 +44,9 @@ struct ReviewAlbumFilingSheet: View {
                 .accessibilityIdentifier("review-album-filing-continue")
             }
             .background(Color.black)
-            .navigationTitle(L10n.string("放进哪个相册?"))
+            .navigationTitle(L10n.string("Which album?"))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: L10n.string("搜索相册"))
+            .searchable(text: $searchText, prompt: L10n.string("Search albums"))
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -54,7 +54,7 @@ struct ReviewAlbumFilingSheet: View {
                     } label: {
                         Image(systemName: "plus")
                     }
-                    .accessibilityLabel(L10n.string("创建新相册"))
+                    .accessibilityLabel(L10n.string("Create New Album"))
                 }
             }
         }
@@ -68,12 +68,12 @@ struct ReviewAlbumFilingSheet: View {
 
     private var shortcutSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(L10n.string("快捷相册"))
+            Text(L10n.string("Shortcuts"))
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
 
             if filteredShortcuts.isEmpty {
-                Text(L10n.string("暂未添加快捷相册"))
+                Text(L10n.string("No shortcut albums yet"))
                     .font(.system(size: 15, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.tertiaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -90,7 +90,7 @@ struct ReviewAlbumFilingSheet: View {
 
     private func albumSection(_ albums: [AlbumInfo]) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(L10n.string("相册"))
+            Text(L10n.string("Albums"))
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
 
@@ -128,7 +128,7 @@ struct ReviewAlbumFilingSheet: View {
             .disabled(selectedAlbumIDs.contains(album.id))
             .accessibilityLabel(
                 String(
-                    format: L10n.string(selectedAlbumIDs.contains(album.id) ? "已归类到 %@" : "归类到 %@"),
+                    format: L10n.string(selectedAlbumIDs.contains(album.id) ? "Added to %@" : "Add to %@"),
                     album.title
                 )
             )

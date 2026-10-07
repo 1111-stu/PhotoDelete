@@ -18,9 +18,9 @@ enum PhotoReviewSortOrder: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .newestFirst:
-            return L10n.string("最新照片优先")
+            return L10n.string("Newest Photos First")
         case .oldestFirst:
-            return L10n.string("最早照片优先")
+            return L10n.string("Oldest Photos First")
         }
     }
 
@@ -75,15 +75,15 @@ enum PhotoRandomReviewScope: String, CaseIterable, Identifiable, Codable, Hashab
     var title: String {
         switch self {
         case .memories:
-            return L10n.string("随机浏览")
+            return L10n.string("Random Browse")
         case .all:
-            return L10n.string("全部照片")
+            return L10n.string("All Photos")
         case .screenshots:
-            return L10n.string("截图")
+            return L10n.string("Screenshots")
         case .videos:
-            return L10n.string("视频")
+            return L10n.string("Videos")
         case .livePhotos:
-            return L10n.string("实况照片")
+            return L10n.string("Live Photos")
         case .favorites:
             return L10n.favoritesCategoryTitle
         }
@@ -92,17 +92,17 @@ enum PhotoRandomReviewScope: String, CaseIterable, Identifiable, Codable, Hashab
     var subtitle: String {
         switch self {
         case .memories:
-            return L10n.string("随机浏览未整理的旧照片")
+            return L10n.string("Randomly browse unreviewed older photos")
         case .all:
-            return L10n.string("从全部未整理照片里随机")
+            return L10n.string("Random from all unreviewed photos")
         case .screenshots:
-            return L10n.string("随机处理还没整理的截图")
+            return L10n.string("Random unreviewed screenshots")
         case .videos:
-            return L10n.string("随机处理还没整理的视频")
+            return L10n.string("Random unreviewed videos")
         case .livePhotos:
-            return L10n.string("随机处理还没整理的实况照片")
+            return L10n.string("Random unreviewed Live Photos")
         case .favorites:
-            return L10n.string("随机回看收藏里的照片")
+            return L10n.string("Random favorites to revisit")
         }
     }
 
@@ -135,11 +135,11 @@ enum PhotoRandomReviewBatchSize: Int, CaseIterable, Identifiable {
     var id: Int { rawValue }
 
     var title: String {
-        String(format: L10n.string("%lld 张"), Int64(rawValue))
+        String(format: L10n.string("%lld images"), Int64(rawValue))
     }
 
     var subtitle: String {
-        String(format: L10n.string("每轮最多 %lld 张"), Int64(rawValue))
+        String(format: L10n.string("Up to %lld photos per round"), Int64(rawValue))
     }
 
     static func normalized(_ rawValue: Int) -> PhotoRandomReviewBatchSize {
@@ -460,7 +460,7 @@ enum PhotoLocationGrouping {
 
         let reviewedCount = reviewedCount(in: records)
         return String(
-            format: L10n.string("%lld 张 · 已整理 %lld 张"),
+            format: L10n.string("%lld photos · %lld reviewed"),
             Int64(records.count),
             Int64(reviewedCount)
         )
@@ -665,24 +665,24 @@ enum PhotoMemoryCaptionFormatter {
         calendar: Calendar = .current
     ) -> String {
         guard let date else {
-            return L10n.string("拍摄时间未知")
+            return L10n.string("Capture time unknown")
         }
 
         if calendar.isDate(date, inSameDayAs: now) {
-            return L10n.string("今天")
+            return L10n.string("Today")
         }
 
         let components = calendar.dateComponents([.year, .month, .day], from: date, to: now)
         if let years = components.year, years > 0 {
-            return String(format: L10n.string("%lld 年前"), Int64(years))
+            return String(format: L10n.string("%lld years ago"), Int64(years))
         }
         if let months = components.month, months > 0 {
-            return String(format: L10n.string("%lld 个月前"), Int64(months))
+            return String(format: L10n.string("%lld months ago"), Int64(months))
         }
         if let days = components.day, days > 0 {
-            return String(format: L10n.string("%lld 天前"), Int64(days))
+            return String(format: L10n.string("%lld days ago"), Int64(days))
         }
-        return L10n.string("刚刚")
+        return L10n.string("Just now")
     }
 
     static func dateSubtitle(for date: Date?) -> String? {
@@ -704,20 +704,20 @@ struct PhotoAssetMetadataSummary: Equatable {
 enum PhotoAssetMetadataFormatter {
     static func shortCaptureDate(for date: Date?) -> String {
         guard let date else {
-            return L10n.string("拍摄时间未知")
+            return L10n.string("Capture time unknown")
         }
         return AppDateFormatter.string(from: date, template: "MMMd HH:mm")
     }
 
     static func detailCaptureDate(for date: Date?) -> String {
         guard let date else {
-            return L10n.string("未保存拍摄时间")
+            return L10n.string("No capture time saved")
         }
         return AppDateFormatter.string(from: date, dateStyle: .medium, timeStyle: .short)
     }
 
     static func locationText(locationTitle: String?, coordinate: CLLocationCoordinate2D?) -> String {
-        optionalLocationText(locationTitle: locationTitle, coordinate: coordinate) ?? L10n.string("无地点信息")
+        optionalLocationText(locationTitle: locationTitle, coordinate: coordinate) ?? L10n.string("No Location Info")
     }
 
     static func optionalLocationText(locationTitle: String?, coordinate: CLLocationCoordinate2D?) -> String? {
@@ -733,13 +733,13 @@ enum PhotoAssetSourceFormatter {
     static func sourceDescription(for sourceType: PHAssetSourceType) -> String? {
         var descriptions: [String] = []
         if sourceType.contains(.typeUserLibrary) {
-            descriptions.append(L10n.string("个人图库"))
+            descriptions.append(L10n.string("Personal Library"))
         }
         if sourceType.contains(.typeCloudShared) {
-            descriptions.append(L10n.string("iCloud 共享相册"))
+            descriptions.append(L10n.string("iCloud Shared Album"))
         }
         if sourceType.contains(.typeiTunesSynced) {
-            descriptions.append(L10n.string("Mac 或 PC 同步"))
+            descriptions.append(L10n.string("Synced from Mac or PC"))
         }
         return descriptions.isEmpty ? nil : descriptions.joined(separator: " · ")
     }

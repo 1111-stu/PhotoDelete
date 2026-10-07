@@ -73,13 +73,13 @@ struct AlbumsView: View {
                         albumToastView(albumToast)
                     }
                 }
-                .navigationTitle(L10n.string("相册"))
+                .navigationTitle(L10n.string("Albums"))
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar {
                     if dataManager.photoLibraryManager.hasPhotoLibraryAccess {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             if editMode == .active {
-                                Button(L10n.string("完成"), action: toggleReordering)
+                                Button(L10n.string("Done"), action: toggleReordering)
                                     .font(.body.weight(.semibold))
                             } else {
                                 Button {
@@ -87,7 +87,7 @@ struct AlbumsView: View {
                                 } label: {
                                     Image(systemName: "square.grid.2x2")
                                 }
-                                .accessibilityLabel(L10n.string("显示方式"))
+                                .accessibilityLabel(L10n.string("Display"))
                                 .accessibilityIdentifier("album-display-style")
                             }
                         }
@@ -183,14 +183,14 @@ struct AlbumsView: View {
                 .background(PhotoDeleteStyle.surface, in: Circle())
                 .shadow(color: PhotoDeleteStyle.floatingShadow.opacity(0.18), radius: 10, y: 4)
         }
-        .accessibilityLabel(L10n.string("创建相册"))
+        .accessibilityLabel(L10n.string("Create Album"))
     }
 
     private var albumSearchField: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(PhotoDeleteStyle.secondaryText)
-            TextField(L10n.string("搜索相册"), text: $searchText)
+            TextField(L10n.string("Search albums"), text: $searchText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
         }
@@ -215,7 +215,7 @@ struct AlbumsView: View {
 
         guard !emptyAlbums.isEmpty else {
             HapticManager.impact(.light)
-            showAlbumToast(L10n.string("没有空相册"), icon: "checkmark.circle", style: .positive)
+            showAlbumToast(L10n.string("No Empty Albums"), icon: "checkmark.circle", style: .positive)
             return
         }
 
@@ -228,7 +228,7 @@ struct AlbumsView: View {
         VStack {
             Spacer()
             PhotoAuthorizationCard(
-                subtitle: L10n.string("需要访问您的照片库来管理相册。\(AppConstants.privacyShortText)"),
+                subtitle: L10n.string("OnePhoto needs photo library access to manage albums. \(AppConstants.privacyShortText)"),
                 onRequestAccess: { dataManager.requestPhotoLibraryAccess() }
             )
             .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
@@ -300,19 +300,19 @@ struct AlbumsView: View {
                 Button {
                     openAlbumSwipe(id: row.id)
                 } label: {
-                    Label(L10n.string("整理"), systemImage: "hand.draw")
+                    Label(L10n.string("Organize"), systemImage: "hand.draw")
                 }
             }
             if row.canEdit {
                 Button {
                     editAlbum(id: row.id)
                 } label: {
-                    Label(L10n.string("编辑"), systemImage: "pencil")
+                    Label(L10n.string("Edit"), systemImage: "pencil")
                 }
                 Button(role: .destructive) {
                     deleteAlbum(id: row.id)
                 } label: {
-                    Label(L10n.string("删除"), systemImage: "trash")
+                    Label(L10n.string("Delete"), systemImage: "trash")
                 }
             }
         }
@@ -393,7 +393,7 @@ struct AlbumsView: View {
                     .frame(maxWidth: 220)
                     .clipShape(Capsule(style: .continuous))
 
-                Text(progress > 0.01 ? L10n.percent(Int(progress * 100)) : L10n.string("准备中"))
+                Text(progress > 0.01 ? L10n.percent(Int(progress * 100)) : L10n.string("Preparing"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.tertiaryText)
             }
@@ -451,11 +451,11 @@ struct AlbumsView: View {
     }
 
     private var emptyTitle: String {
-        searchText.isEmpty ? L10n.string("还没有相册") : L10n.string("没有找到相册")
+        searchText.isEmpty ? L10n.string("No Albums Yet") : L10n.string("No Albums Found")
     }
 
     private var emptyMessage: String {
-        searchText.isEmpty ? L10n.string("可以点右上角加号创建一个新相册。") : L10n.string("换个关键词试试。")
+        searchText.isEmpty ? L10n.string("Tap the plus button in the top right to create a new album.") : L10n.string("Try another keyword.")
     }
 
     private func albumRow(_ row: AlbumListRowModel) -> some View {
@@ -475,20 +475,20 @@ struct AlbumsView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityHint(L10n.string("点按整理这个相册"))
+        .accessibilityHint(L10n.string("Tap to organize this album"))
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             if row.canEdit {
                 Button(role: .destructive) {
                     deleteAlbum(id: row.id)
                 } label: {
-                    Label(L10n.string("删除"), systemImage: "trash")
+                    Label(L10n.string("Delete"), systemImage: "trash")
                 }
                 .tint(PhotoDeleteStyle.destructive)
 
                 Button {
                     editAlbum(id: row.id)
                 } label: {
-                    Label(L10n.string("编辑"), systemImage: "pencil")
+                    Label(L10n.string("Edit"), systemImage: "pencil")
                 }
                 .tint(PhotoDeleteStyle.accent)
             }
@@ -499,12 +499,12 @@ struct AlbumsView: View {
 
     private var albumHeaderSubtitle: String {
         if isLoadingPhotoLibraryForAlbums {
-            return L10n.string("正在初始化照片库")
+            return L10n.string("Initializing Photo Library")
         }
         if dataManager.isLoadingAlbums && displayedAlbumCount == 0 {
-            return L10n.string("正在更新相册列表")
+            return L10n.string("Updating Album List")
         }
-        return L10n.string("\(displayedAlbumCount) 个相册")
+        return L10n.string("\(displayedAlbumCount) albums")
     }
 
     // MARK: - 计算属性
@@ -527,13 +527,13 @@ struct AlbumsView: View {
     }
 
     private var albumLoadingTitle: String {
-        isLoadingPhotoLibraryForAlbums ? L10n.string("正在初始化照片库") : L10n.string("正在更新相册列表")
+        isLoadingPhotoLibraryForAlbums ? L10n.string("Initializing Photo Library") : L10n.string("Updating Album List")
     }
 
     private var albumLoadingMessage: String {
         isLoadingPhotoLibraryForAlbums
-            ? L10n.string("正在读取相册数量和封面，完成后会显示你的相册。")
-            : L10n.string("正在统计相册数量和封面。")
+            ? L10n.string("Reading album counts and covers. Your albums will appear when ready.")
+            : L10n.string("Counting albums and loading covers.")
     }
 
     private var shouldShowAlbumSwipeHint: Bool {
@@ -615,7 +615,7 @@ struct AlbumsView: View {
     private func toggleReordering() {
         guard sortMode == .custom else { return }
         if editMode != .active && !searchText.isEmpty {
-            showAlbumToast(L10n.string("请先清除搜索再调整顺序"), icon: "magnifyingglass", style: .warning)
+            showAlbumToast(L10n.string("Clear search before reordering"), icon: "magnifyingglass", style: .warning)
             return
         }
 
@@ -627,7 +627,7 @@ struct AlbumsView: View {
 
     private func moveUserAlbums(from source: IndexSet, to destination: Int) {
         guard sortMode == .custom, searchText.isEmpty else {
-            showAlbumToast(L10n.string("请先清除搜索再调整顺序"), icon: "magnifyingglass", style: .warning)
+            showAlbumToast(L10n.string("Clear search before reordering"), icon: "magnifyingglass", style: .warning)
             return
         }
 
@@ -641,14 +641,14 @@ struct AlbumsView: View {
     private func openAlbum(id: String) {
         guard let albumInfo = albumsByID[id] ?? dataManager.userAlbums.first(where: { $0.id == id }) else {
             HapticManager.impact(.light)
-            showAlbumToast(L10n.string("这个相册已不存在，列表已更新"), icon: "arrow.clockwise", style: .warning)
+            showAlbumToast(L10n.string("This album no longer exists. The list has been updated."), icon: "arrow.clockwise", style: .warning)
             rebuildDisplayedRows()
             return
         }
 
         guard let currentAlbumInfo = dataManager.currentUserAlbumInfo(for: albumInfo) else {
             HapticManager.impact(.light)
-            showAlbumToast(L10n.string("这个相册已不存在，列表已更新"), icon: "arrow.clockwise", style: .warning)
+            showAlbumToast(L10n.string("This album no longer exists. The list has been updated."), icon: "arrow.clockwise", style: .warning)
             rebuildDisplayedRows()
             return
         }
@@ -662,7 +662,7 @@ struct AlbumsView: View {
               let currentAlbumInfo = dataManager.currentUserAlbumInfo(for: albumInfo),
               currentAlbumInfo.photosCount > 0 else {
             HapticManager.impact(.light)
-            showAlbumToast(L10n.string("这个相册还没有照片"), icon: "photo", style: .warning)
+            showAlbumToast(L10n.string("This album has no photos yet"), icon: "photo", style: .warning)
             return
         }
 
@@ -675,7 +675,7 @@ struct AlbumsView: View {
               let currentAlbumInfo = dataManager.currentUserAlbumInfo(for: albumInfo),
               let album = currentAlbumInfo.assetCollection else {
             HapticManager.impact(.light)
-            showAlbumToast(L10n.string("这个相册已不存在，列表已更新"), icon: "arrow.clockwise", style: .warning)
+            showAlbumToast(L10n.string("This album no longer exists. The list has been updated."), icon: "arrow.clockwise", style: .warning)
             rebuildDisplayedRows()
             return
         }
@@ -688,7 +688,7 @@ struct AlbumsView: View {
               let currentAlbumInfo = dataManager.currentUserAlbumInfo(for: albumInfo),
               let album = currentAlbumInfo.assetCollection else {
             HapticManager.impact(.light)
-            showAlbumToast(L10n.string("这个相册已不存在，列表已更新"), icon: "arrow.clockwise", style: .warning)
+            showAlbumToast(L10n.string("This album no longer exists. The list has been updated."), icon: "arrow.clockwise", style: .warning)
             rebuildDisplayedRows()
             return
         }
@@ -696,10 +696,10 @@ struct AlbumsView: View {
         dataManager.deleteUserAlbum(album) { success in
             if success {
                 HapticManager.notify(.success)
-                self.showAlbumToast(L10n.string("相册已删除"), icon: "trash", style: .positive)
+                self.showAlbumToast(L10n.string("Album deleted"), icon: "trash", style: .positive)
             } else {
                 HapticManager.notify(.error)
-                self.showAlbumToast(L10n.string("相册列表已更新，请再试一次"), icon: "arrow.clockwise", style: .warning)
+                self.showAlbumToast(L10n.string("Album list updated. Try again."), icon: "arrow.clockwise", style: .warning)
             }
             self.rebuildDisplayedRows()
         }
@@ -785,13 +785,13 @@ private struct AlbumSwipeHintRow: View {
                 .frame(width: 24, height: 24)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(L10n.string("可在右上角排序里调整顺序"))
+                Text(L10n.string("Use Sort in the top right to reorder"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.82)
 
-                Text(L10n.string("左滑相册可编辑或删除"))
+                Text(L10n.string("Swipe left on an album to edit or delete it"))
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .lineLimit(1)
@@ -801,7 +801,7 @@ private struct AlbumSwipeHintRow: View {
             Spacer(minLength: 8)
 
             Button(action: onDismiss) {
-                Text(L10n.string("知道了"))
+                Text(L10n.string("Got it"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.accent)
                     .frame(minWidth: 44, minHeight: 44)
@@ -904,7 +904,7 @@ struct AlbumInfoRow: View, Equatable {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(progress?.tint ?? PhotoDeleteStyle.tertiaryText)
                     .monospacedDigit()
-                    .accessibilityLabel(L10n.string("照片数据整理进度"))
+                    .accessibilityLabel(L10n.string("Photo data preparation progress"))
                     .accessibilityValue(progressText)
             }
 
@@ -1044,18 +1044,18 @@ struct CreateAlbumView: View {
                             .font(.system(size: 60, weight: .medium))
                             .foregroundColor(PhotoDeleteStyle.accent)
 
-                        Text(L10n.string("创建新相册"))
+                        Text(L10n.string("Create New Album"))
                             .font(.system(size: 24, weight: .semibold))
                             .foregroundColor(PhotoDeleteStyle.primaryText)
                     }
 
                     VStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(L10n.string("相册名称"))
+                            Text(L10n.string("Album Name"))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                            TextField(L10n.string("输入相册名称"), text: $albumName)
+                            TextField(L10n.string("Enter album name"), text: $albumName)
                                 .font(.system(size: 16, weight: .regular))
                                 .foregroundColor(PhotoDeleteStyle.primaryText)
                                 .padding(.horizontal, 16)
@@ -1070,7 +1070,7 @@ struct CreateAlbumView: View {
                                 )
                         }
 
-                        Text(L10n.string("简洁的相册名称，如\"旅行\"、\"家庭\"等"))
+                        Text(L10n.string("Use a simple album name, like \"Travel\" or \"Family\"."))
                             .font(.system(size: 14, weight: .regular))
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
                             .multilineTextAlignment(.leading)
@@ -1094,14 +1094,14 @@ struct CreateAlbumView: View {
                                         .font(.system(size: 16, weight: .semibold))
                                 }
 
-                                Text(isCreating ? L10n.string("创建中...") : L10n.string("创建相册"))
+                                Text(isCreating ? L10n.string("Creating...") : L10n.string("Create Album"))
                             }
                         }
                         .photoDeletePrimaryButton()
                         .disabled(albumName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isCreating)
 
                         Button(action: { dismiss() }) {
-                            Text(L10n.string("取消"))
+                            Text(L10n.string("Cancel"))
                         }
                         .photoDeleteSecondaryButton()
                     }
@@ -1113,11 +1113,11 @@ struct CreateAlbumView: View {
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
-            .navigationTitle(L10n.string("创建相册"))
+            .navigationTitle(L10n.string("Create Album"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("取消")) {
+                    Button(L10n.string("Cancel")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
@@ -1136,7 +1136,7 @@ struct CreateAlbumView: View {
             if success {
                 self.dismiss()
             } else {
-                self.errorMessage = L10n.string("创建相册失败，请再试一次")
+                self.errorMessage = L10n.string("Could not create the album. Try again.")
             }
         }
     }
@@ -1168,18 +1168,18 @@ struct EditAlbumView: View {
                             .font(.system(size: 60, weight: .medium))
                             .foregroundColor(PhotoDeleteStyle.accent)
 
-                        Text(L10n.string("编辑相册"))
+                        Text(L10n.string("Edit Album"))
                             .font(.system(size: 24, weight: .semibold))
                             .foregroundColor(PhotoDeleteStyle.primaryText)
                     }
 
                     VStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(L10n.string("相册名称"))
+                            Text(L10n.string("Album Name"))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                            TextField(L10n.string("输入相册名称"), text: $newName)
+                            TextField(L10n.string("Enter album name"), text: $newName)
                                 .font(.system(size: 16, weight: .regular))
                                 .foregroundColor(PhotoDeleteStyle.primaryText)
                                 .padding(.horizontal, 16)
@@ -1213,14 +1213,14 @@ struct EditAlbumView: View {
                                         .font(.system(size: 16, weight: .semibold))
                                 }
 
-                                Text(isUpdating ? L10n.string("更新中...") : L10n.string("保存更改"))
+                                Text(isUpdating ? L10n.string("Updating...") : L10n.string("Save Changes"))
                             }
                         }
                         .photoDeletePrimaryButton()
                         .disabled(newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isUpdating)
 
                         Button(action: { dismiss() }) {
-                            Text(L10n.string("取消"))
+                            Text(L10n.string("Cancel"))
                         }
                         .photoDeleteSecondaryButton()
                     }
@@ -1232,11 +1232,11 @@ struct EditAlbumView: View {
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
-            .navigationTitle(L10n.string("编辑相册"))
+            .navigationTitle(L10n.string("Edit Album"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("取消")) {
+                    Button(L10n.string("Cancel")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
@@ -1249,7 +1249,7 @@ struct EditAlbumView: View {
         let trimmedName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty, album.assetCollectionType == .album else { return }
         guard dataManager.currentUserAlbumInfo(for: album) != nil else {
-            errorMessage = L10n.string("这个相册已不存在，列表已更新")
+            errorMessage = L10n.string("This album no longer exists. The list has been updated.")
             dismissAfterShowingMissingAlbumMessage()
             return
         }
@@ -1260,10 +1260,10 @@ struct EditAlbumView: View {
             if success {
                 self.dismiss()
             } else if self.dataManager.currentUserAlbumInfo(for: album) == nil {
-                self.errorMessage = L10n.string("这个相册已不存在，列表已更新")
+                self.errorMessage = L10n.string("This album no longer exists. The list has been updated.")
                 self.dismissAfterShowingMissingAlbumMessage()
             } else {
-                self.errorMessage = L10n.string("更新相册失败，请再试一次")
+                self.errorMessage = L10n.string("Could not update the album. Try again.")
             }
         }
     }
@@ -1311,11 +1311,11 @@ struct DeleteEmptyAlbumsView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .navigationTitle(L10n.string("删除空相册"))
+            .navigationTitle(L10n.string("Delete Empty Albums"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("取消")) {
+                    Button(L10n.string("Cancel")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
@@ -1335,12 +1335,12 @@ struct DeleteEmptyAlbumsView: View {
             )
 
             VStack(spacing: 6) {
-                Text(String(format: L10n.string("发现 %lld 个空相册"), Int64(albums.count)))
+                Text(String(format: L10n.string("%lld Empty Albums Found"), Int64(albums.count)))
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
                     .multilineTextAlignment(.center)
 
-                Text(L10n.string("只会删除空相册，不会删除任何照片。"))
+                Text(L10n.string("Only empty albums will be deleted. No photos will be deleted."))
                     .font(.system(size: 14, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .multilineTextAlignment(.center)
@@ -1393,7 +1393,7 @@ struct DeleteEmptyAlbumsView: View {
     @ViewBuilder
     private var errorSection: some View {
         if !failedAlbumTitles.isEmpty {
-            Text(String(format: L10n.string("%lld 个相册删除失败，请稍后再试"), Int64(failedAlbumTitles.count)))
+            Text(String(format: L10n.string("%lld albums could not be deleted. Try again later."), Int64(failedAlbumTitles.count)))
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(PhotoDeleteStyle.warning)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -1420,7 +1420,7 @@ struct DeleteEmptyAlbumsView: View {
             .disabled(selectedAlbums.isEmpty || isDeleting)
 
             Button(action: { dismiss() }) {
-                Text(L10n.string("取消"))
+                Text(L10n.string("Cancel"))
             }
             .photoDeleteSecondaryButton()
             .disabled(isDeleting)
@@ -1434,12 +1434,12 @@ struct DeleteEmptyAlbumsView: View {
     private var deleteButtonTitle: String {
         if isDeleting {
             return String(
-                format: L10n.string("正在删除 %lld/%lld"),
+                format: L10n.string("Deleting %lld/%lld"),
                 Int64(processedAlbumCount),
                 Int64(selectedAlbums.count)
             )
         }
-        return String(format: L10n.string("删除 %lld 个空相册"), Int64(selectedAlbums.count))
+        return String(format: L10n.string("Delete %lld Empty Albums"), Int64(selectedAlbums.count))
     }
 
     private func toggleSelection(for album: AlbumInfo) {

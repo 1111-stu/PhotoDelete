@@ -20,11 +20,11 @@ enum PhotoCategory: String, CaseIterable {
 
     var title: String {
         switch self {
-        case .all: return L10n.string("全部照片")
-        case .unclassified: return L10n.string("未归类照片")
-        case .videos: return L10n.string("视频")
-        case .screenshots: return L10n.string("截图")
-        case .livePhotos: return L10n.string("实况照片")
+        case .all: return L10n.string("All Photos")
+        case .unclassified: return L10n.string("Unfiled Photos")
+        case .videos: return L10n.string("Videos")
+        case .screenshots: return L10n.string("Screenshots")
+        case .livePhotos: return L10n.string("Live Photos")
         case .favorites: return L10n.favoritesCategoryTitle
         }
     }
@@ -63,23 +63,23 @@ enum SwipeGestureAction: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .previous: return L10n.string("上一张")
-        case .next: return L10n.string("下一张")
-        case .close: return L10n.string("返回")
-        case .delete: return L10n.string("删除")
-        case .keep: return L10n.string("保留")
-        case .favorite: return L10n.string("收藏")
+        case .previous: return L10n.string("Previous")
+        case .next: return L10n.string("Next Photo")
+        case .close: return L10n.string("Back")
+        case .delete: return L10n.string("Delete")
+        case .keep: return L10n.string("Keep")
+        case .favorite: return L10n.string("Favorite")
         }
     }
 
     var detailTitle: String {
         switch self {
-        case .previous: return L10n.string("浏览上一张")
-        case .next: return L10n.string("浏览下一张")
-        case .close: return L10n.string("返回列表")
-        case .delete: return L10n.string("加入待删除")
-        case .keep: return L10n.string("跳过")
-        case .favorite: return L10n.string("加入收藏")
+        case .previous: return L10n.string("Browse previous")
+        case .next: return L10n.string("Browse next")
+        case .close: return L10n.string("Back to list")
+        case .delete: return L10n.string("Mark to delete")
+        case .keep: return L10n.string("Skip")
+        case .favorite: return L10n.string("Add to favorites")
         }
     }
 
@@ -113,9 +113,9 @@ enum SwipeGestureDirection: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .left: return L10n.string("左滑")
-        case .right: return L10n.string("右滑")
-        case .up: return L10n.string("上滑")
+        case .left: return L10n.string("Swipe left")
+        case .right: return L10n.string("Swipe right")
+        case .up: return L10n.string("Swipe up")
         }
     }
 
@@ -184,11 +184,11 @@ enum TimeGroup: String, CaseIterable {
 
     var title: String {
         switch self {
-        case .today: return L10n.string("今天的照片")
-        case .thisWeek: return L10n.string("本周的照片")
-        case .thisMonth: return L10n.string("本月的照片")
-        case .lastMonth: return L10n.string("上个月的照片")
-        case .olderPhotos: return L10n.string("更早的照片")
+        case .today: return L10n.string("Today's Photos")
+        case .thisWeek: return L10n.string("This Week")
+        case .thisMonth: return L10n.string("Photos This Month")
+        case .lastMonth: return L10n.string("Last month")
+        case .olderPhotos: return L10n.string("Older Photos")
         }
     }
 
@@ -266,13 +266,13 @@ enum AlbumType: String, CaseIterable {
 
     var title: String {
         switch self {
-        case .all: return L10n.string("全部照片")
-        case .recents: return L10n.string("最近项目")
+        case .all: return L10n.string("All Photos")
+        case .recents: return L10n.string("Recents")
         case .favorites: return L10n.favoritesCategoryTitle
-        case .screenshots: return L10n.string("截图")
-        case .videos: return L10n.string("视频")
-        case .livePhotos: return L10n.string("实况照片")
-        case .userCreated: return L10n.string("用户相册")
+        case .screenshots: return L10n.string("Screenshots")
+        case .videos: return L10n.string("Videos")
+        case .livePhotos: return L10n.string("Live Photos")
+        case .userCreated: return L10n.string("User Albums")
         }
     }
 
@@ -395,17 +395,17 @@ enum AppAppearance: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .system: return L10n.string("跟随系统")
-        case .light: return L10n.string("日间模式")
-        case .dark: return L10n.string("夜间模式")
+        case .system: return L10n.string("Follow System")
+        case .light: return L10n.string("Light Mode")
+        case .dark: return L10n.string("Dark Mode")
         }
     }
 
     var detail: String {
         switch self {
-        case .system: return L10n.string("根据 iPhone 外观自动切换")
-        case .light: return L10n.string("明亮背景，适合白天整理")
-        case .dark: return L10n.string("深色背景，适合夜间整理")
+        case .system: return L10n.string("Automatically follows iPhone appearance")
+        case .light: return L10n.string("Bright background for daytime organizing")
+        case .dark: return L10n.string("Dark background for night organizing")
         }
     }
 
@@ -437,28 +437,28 @@ enum AdvancedTimeScope: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .day: return L10n.string("日")
-        case .week: return L10n.string("周")
-        case .month: return L10n.string("月")
-        case .year: return L10n.string("年")
+        case .day: return L10n.string("Day")
+        case .week: return L10n.string("Week")
+        case .month: return L10n.string("Month")
+        case .year: return L10n.string("Year")
         }
     }
 
     var actionTitle: String {
         switch self {
-        case .day: return L10n.string("整理这一天")
-        case .week: return L10n.string("整理这一周")
-        case .month: return L10n.string("整理这个月")
-        case .year: return L10n.string("整理这一年")
+        case .day: return L10n.string("Organize This Day")
+        case .week: return L10n.string("Organize This Week")
+        case .month: return L10n.string("Organize This Month")
+        case .year: return L10n.string("Organize This Year")
         }
     }
 
     var rangeDescription: String {
         switch self {
-        case .day: return L10n.string("按当天照片继续整理")
-        case .week: return L10n.string("按这一周照片继续整理")
-        case .month: return L10n.string("按这个月照片继续整理")
-        case .year: return L10n.string("按这一年照片继续整理")
+        case .day: return L10n.string("Continue with photos from this day")
+        case .week: return L10n.string("Continue with photos from this week")
+        case .month: return L10n.string("Continue with photos from this month")
+        case .year: return L10n.string("Continue with photos from this year")
         }
     }
 
@@ -503,11 +503,11 @@ enum AdvancedCleanupKind: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .similarPhotos: return L10n.string("相似照片")
-        case .largeFiles: return L10n.string("大文件")
-        case .imageCompression: return L10n.string("图片压缩")
-        case .videoCompression: return L10n.string("视频压缩")
-        case .videos: return L10n.string("视频")
+        case .similarPhotos: return L10n.string("Similar Photos")
+        case .largeFiles: return L10n.string("Large Files")
+        case .imageCompression: return L10n.string("Image Compression")
+        case .videoCompression: return L10n.string("Video Compression")
+        case .videos: return L10n.string("Videos")
         }
     }
 
@@ -789,7 +789,7 @@ struct AdvancedSimilarPhotoGroup: Identifiable {
     }
 
     var title: String {
-        guard let date = representativeDate else { return L10n.string("相似照片") }
+        guard let date = representativeDate else { return L10n.string("Similar Photos") }
         return AdvancedSimilarPhotoGroupFormatter.groupTitle(for: date)
     }
 

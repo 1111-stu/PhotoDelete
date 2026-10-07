@@ -82,9 +82,9 @@ enum TimePeriodBrowser {
     /// 弹窗标题：按周 / 按月 / 按年整理。
     static func pickerTitle(for scope: AdvancedTimeScope) -> String {
         switch scope {
-        case .week: return L10n.string("按周整理")
-        case .month: return L10n.string("按月整理")
-        case .year: return L10n.string("按年整理")
+        case .week: return L10n.string("Organize by week")
+        case .month: return L10n.string("Organize by month")
+        case .year: return L10n.string("Organize by year")
         case .day: return AdvancedTimeScope.day.title
         }
     }
@@ -92,17 +92,17 @@ enum TimePeriodBrowser {
     /// 弹窗首行「本期全部」的标题。
     static func allRowTitle(for scope: AdvancedTimeScope) -> String {
         switch scope {
-        case .week: return L10n.string("本周全部")
-        case .month: return L10n.string("本月全部")
-        case .year: return L10n.string("本年全部")
-        case .day: return L10n.string("本日全部")
+        case .week: return L10n.string("All of this week")
+        case .month: return L10n.string("All of this month")
+        case .year: return L10n.string("All of this year")
+        case .day: return L10n.string("All of today")
         }
     }
 
     /// 弹窗行的副标题：共 X 项 · Y（对齐设计稿；数字不带千分位）。
     static func rowSubtitle(for summary: PhotoPeriodSummary) -> String {
         String(
-            format: L10n.string("共 %@ 项 · %@"),
+            format: L10n.string("%@ items · %@"),
             PhotoDeleteCountFormat.plain(summary.assetCount),
             summary.formattedEstimatedSize
         )
@@ -126,7 +126,7 @@ enum TimeOrganizeFormatter {
 
     static func subtitle(for summary: PhotoPeriodSummary) -> String {
         String(
-            format: L10n.string("剩余 %lld 张 · 共 %lld 张"),
+            format: L10n.string("%lld remaining · %lld total"),
             Int64(summary.remainingCount),
             Int64(summary.assetCount)
         )

@@ -45,7 +45,7 @@ struct ReviewAlbumDragHint: View {
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(PhotoDeleteStyle.accent)
 
-                Text(L10n.string("下滑加入相册"))
+                Text(L10n.string("Swipe down to add"))
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(.white)
                     .lineLimit(1)
@@ -162,7 +162,7 @@ struct ActionButton: View {
                         }
                     }
 
-                Text(title.appLocalized)
+                Text(title)
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(labelColor)
                     .lineLimit(1)
@@ -224,7 +224,7 @@ struct SessionMuteToggleButton: View {
     var body: some View {
         Button(action: action) {
             Label(
-                isMuted ? L10n.string("打开声音") : L10n.string("静音"),
+                isMuted ? L10n.string("Turn Sound On") : L10n.string("Mute"),
                 systemImage: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill"
             )
             .labelStyle(.iconOnly)
@@ -246,8 +246,8 @@ struct SessionMuteToggleButton: View {
             .photoDeleteMinimumTapTarget()
         }
         .buttonStyle(PhotoDeletePressScaleButtonStyle())
-        .accessibilityLabel(isMuted ? L10n.string("打开声音") : L10n.string("静音"))
-        .accessibilityHint(L10n.string("只影响当前整理页面"))
+        .accessibilityLabel(isMuted ? L10n.string("Turn Sound On") : L10n.string("Mute"))
+        .accessibilityHint(L10n.string("Only affects the current review screen."))
     }
 }
 
@@ -266,7 +266,7 @@ struct SidebarActionButton: View {
                     .foregroundColor(color)
                     .frame(width: 20)
 
-                Text(title.appLocalized)
+                Text(title)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
                     .lineLimit(1)

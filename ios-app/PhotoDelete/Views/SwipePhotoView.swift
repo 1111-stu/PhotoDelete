@@ -422,7 +422,7 @@ struct SwipePhotoView: View {
                 if !dataManager.photoLibraryManager.hasPhotoLibraryAccess {
                     centeredPhotoAreaPlaceholder(in: geometry, bottomReserve: placeholderBottomReserve) {
                         PhotoAuthorizationCard(
-                            subtitle: L10n.string("请允许访问您的照片库来开始整理照片"),
+                            subtitle: L10n.string("Allow photo library access to start organizing photos"),
                             onRequestAccess: { dataManager.requestPhotoLibraryAccess() }
                         )
                         .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
@@ -440,8 +440,8 @@ struct SwipePhotoView: View {
                 } else if shouldShowInitialPreparingState {
                     centeredPhotoAreaPlaceholder(in: geometry, bottomReserve: placeholderBottomReserve) {
                         PhotoSelectionLoadingCard(
-                            title: L10n.string("正在读取照片"),
-                            message: L10n.string("读取完成后会直接进入当前整理。"),
+                            title: L10n.string("Reading Photos"),
+                            message: L10n.string("When reading finishes, this cleanup will start automatically."),
                             progress: activeLibraryLoadingProgress
                         )
                         .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
@@ -449,8 +449,8 @@ struct SwipePhotoView: View {
                 } else if shouldShowBackgroundLoadingState {
                     centeredPhotoAreaPlaceholder(in: geometry, bottomReserve: placeholderBottomReserve) {
                         PhotoSelectionLoadingCard(
-                            title: L10n.string("正在读取当前相册"),
-                            message: L10n.string("照片很多时可能需要几秒，完成后会自动开始。"),
+                            title: L10n.string("Reading Current Album"),
+                            message: L10n.string("Large libraries can take a few seconds. Cleanup starts automatically when ready."),
                             progress: activeLibraryLoadingProgress
                         )
                         .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
@@ -476,7 +476,7 @@ struct SwipePhotoView: View {
                                     .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
 
                                 Button(action: { dismiss() }) {
-                                    Text(L10n.string("返回主页"))
+                                    Text(L10n.string("Back to Home"))
                                         .frame(maxWidth: 180)
                                 }
                                 .photoDeleteSecondaryButton()
@@ -486,16 +486,16 @@ struct SwipePhotoView: View {
                                     .font(.system(size: 60, weight: .medium))
                                     .foregroundColor(PhotoDeleteStyle.positive)
 
-                                Text(L10n.string("整理完成！"))
+                                Text(L10n.string("Cleanup Complete!"))
                                     .font(.system(size: 24, weight: .semibold))
                                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                                Text(L10n.string("您已经整理完所有照片"))
+                                Text(L10n.string("You have finished all photos"))
                                     .font(.system(size: 16, weight: .regular))
                                     .foregroundColor(PhotoDeleteStyle.secondaryText)
 
                                 Button(action: { dismiss() }) {
-                                    Text(L10n.string("返回主页"))
+                                    Text(L10n.string("Back to Home"))
                                         .frame(maxWidth: 180)
                                 }
                                 .photoDeleteSecondaryButton()
@@ -598,21 +598,21 @@ struct SwipePhotoView: View {
             .photoDeleteSimultaneousTapGesture(enabled: isCurrent && isInlineVideoPlaying) {
                 revealInlineVideoPlaybackControls()
             }
-            .accessibilityAction(named: Text(L10n.string("加入待删除"))) {
+            .accessibilityAction(named: Text(L10n.string("Mark to delete"))) {
                 handleDeleteAction()
 
             }
-            .accessibilityAction(named: Text(L10n.string("加入相册"))) {
+            .accessibilityAction(named: Text(L10n.string("Add to Album"))) {
                 openAlbumFilingSheet()
             }
-            .accessibilityAction(named: Text(isCurrentPhotoFavorited ? L10n.string("取消收藏") : L10n.string("加入收藏"))) {
+            .accessibilityAction(named: Text(isCurrentPhotoFavorited ? L10n.string("Unfavorite") : L10n.string("Add to favorites"))) {
                 handleFavoriteAction()
 
             }
-            .accessibilityAction(named: Text(L10n.string("下一张"))) {
+            .accessibilityAction(named: Text(L10n.string("Next Photo"))) {
                 browseToNextPhoto(reviewing: asset)
             }
-            .accessibilityAction(named: Text(L10n.string("上一张"))) {
+            .accessibilityAction(named: Text(L10n.string("Previous"))) {
                 browseToPreviousPhoto(reviewing: asset)
             }
             .allowsHitTesting(isCurrent)
@@ -688,24 +688,24 @@ struct SwipePhotoView: View {
     }
 
     private var completionTitle: String {
-        hasUnreviewedPhotos ? L10n.string("已浏览到最后一张") : L10n.string("整理完成！")
+        hasUnreviewedPhotos ? L10n.string("Reached the last photo") : L10n.string("Cleanup Complete!")
     }
 
     private var completionSubtitle: String {
         if hasUnreviewedPhotos {
             return String(
-                format: L10n.string("剩余 %lld 张 · 共 %lld 张"),
+                format: L10n.string("%lld remaining · %lld total"),
                 Int64(remainingPhotosCount),
                 Int64(totalPhotosCount)
             )
         }
 
         if randomReviewScope == nil {
-            return L10n.string("您已经浏览完所有照片")
+            return L10n.string("You have reviewed all photos")
         }
 
         return String(
-            format: L10n.string("已整理 %lld/%lld 张，确认后再统一删除。"),
+            format: L10n.string("%lld/%lld reviewed. Confirm before anything is deleted."),
             Int64(organizedProgress),
             Int64(totalPhotosCount)
         )
@@ -713,12 +713,12 @@ struct SwipePhotoView: View {
 
     private var completionPrimaryActionTitle: String {
         if pendingDeleteCount > 0 || !dataManager.deleteCandidates.isEmpty {
-            return L10n.string("确认删除")
+            return L10n.string("Confirm Deletion")
         }
         if pendingFavoriteCount > 0 || !dataManager.favoriteCandidates.isEmpty {
-            return L10n.string("确认收藏")
+            return L10n.string("Confirm Favorites")
         }
-        return L10n.string("完成整理")
+        return L10n.string("Finish Organizing")
     }
 
     // MARK: - 底部控制区域
@@ -746,7 +746,7 @@ struct SwipePhotoView: View {
             VStack(spacing: 10) {
                 SidebarActionButton(
                     icon: "arrow.uturn.backward",
-                    title: L10n.string("撤销"),
+                    title: L10n.string("Undo"),
                     color: PhotoDeleteStyle.secondaryText
                 ) {
                     handleUndoAction()
@@ -755,7 +755,7 @@ struct SwipePhotoView: View {
 
                 SidebarActionButton(
                     icon: isCurrentPhotoFavorited ? "heart.slash" : "heart",
-                    title: isCurrentPhotoFavorited ? L10n.string("取消收藏") : L10n.string("收藏"),
+                    title: isCurrentPhotoFavorited ? L10n.string("Unfavorite") : L10n.string("Favorite"),
                     color: PhotoDeleteStyle.iconTint(for: "favorite")
                 ) {
                     handleFavoriteAction()
@@ -764,7 +764,7 @@ struct SwipePhotoView: View {
 
                 SidebarActionButton(
                     icon: isPreparingShare ? "hourglass" : "square.and.arrow.up",
-                    title: isPreparingShare ? L10n.string("准备中") : L10n.string("分享"),
+                    title: isPreparingShare ? L10n.string("Preparing") : L10n.string("Share"),
                     color: PhotoDeleteStyle.accent
                 ) {
                     handleShareAction()
@@ -773,7 +773,7 @@ struct SwipePhotoView: View {
 
                 SidebarActionButton(
                     icon: "trash",
-                    title: L10n.string("加入待删除"),
+                    title: L10n.string("Mark to delete"),
                     color: PhotoDeleteStyle.destructive
                 ) {
                     handleDeleteAction()
@@ -782,7 +782,7 @@ struct SwipePhotoView: View {
 
                 SidebarActionButton(
                     icon: "checkmark",
-                    title: L10n.string("完成整理"),
+                    title: L10n.string("Finish Organizing"),
                     color: PhotoDeleteStyle.positive
                 ) {
                     handleFinishAction()
@@ -878,18 +878,18 @@ struct SwipePhotoView: View {
 
     private var emptyPhotoTitle: String {
         if isRandomMemoriesMode {
-            return randomReviewHideFiledPhotos ? L10n.string("没有未归类的照片") : L10n.string("这里还没有可整理的照片")
+            return randomReviewHideFiledPhotos ? L10n.string("No unfiled photos found") : L10n.string("No photos to clean up here yet")
         }
-        return L10n.string("这里还没有可整理的照片")
+        return L10n.string("No photos to clean up here yet")
     }
 
     private var emptyPhotoMessage: String {
         if isRandomMemoriesMode {
             return randomReviewHideFiledPhotos
-                ? L10n.string("已归类照片当前被隐藏，可在整理设置中重新显示。")
-                : L10n.string("若照片权限为部分访问，请在系统设置中允许更多照片。")
+                ? L10n.string("Filed photos are hidden. You can show them again in review settings.")
+                : L10n.string("If photo access is limited, allow more photos in System Settings.")
         }
-        return L10n.string("您可以返回选择其他分类，或稍后在系统照片中添加更多照片后再回来。")
+        return L10n.string("Go back and choose another category, or add more photos in Photos and come back later.")
     }
 
     private var activeLibraryLoadingProgress: Double {
@@ -917,7 +917,7 @@ struct SwipePhotoView: View {
 
     private var headerProgressSubtitle: String {
         String(
-            format: L10n.string("本轮待整理 %lld 张"),
+            format: L10n.string("%lld left this round"),
             Int64(max(totalPhotosCount - currentProgress, 0))
         )
     }
@@ -953,7 +953,7 @@ struct SwipePhotoView: View {
         guard let latestAlbumInfo = dataManager.currentUserAlbumInfo(for: selectedAlbumInfo) else {
             currentAlbumInfo = nil
             if showMissingToast {
-                showFeedback(L10n.string("这个相册已不存在，列表已更新"), icon: "arrow.clockwise", style: .warning)
+                showFeedback(L10n.string("This album no longer exists. The list has been updated."), icon: "arrow.clockwise", style: .warning)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                     dismiss()
                 }
@@ -1141,7 +1141,7 @@ struct SwipePhotoView: View {
                     isPreparingShare = false
                     sharePreparationTask = nil
                     showFeedback(
-                        L10n.string("操作失败，请稍后重试。"),
+                        L10n.string("Operation failed. Try again later."),
                         icon: "exclamationmark.triangle",
                         style: .warning
                     )
@@ -1166,7 +1166,7 @@ struct SwipePhotoView: View {
         didApplySessionPlaybackPreference = true
         HapticManager.impact(.light)
         showFeedback(
-            sessionVideoMuted ? L10n.string("已静音") : L10n.string("已打开声音"),
+            sessionVideoMuted ? L10n.string("Muted") : L10n.string("Sound On"),
             icon: sessionVideoMuted ? "speaker.slash.fill" : "speaker.wave.2.fill",
             style: .neutral,
             duration: 1.1
@@ -1175,7 +1175,7 @@ struct SwipePhotoView: View {
 
     private func browseToPreviousPhoto(reviewing asset: PHAsset) {
         guard let index = horizontalNeighborIndex(step: -1) else {
-            showFeedback(L10n.string("已经是第一张"), icon: "chevron.left", style: .neutral, duration: 1.2)
+            showFeedback(L10n.string("This is the first photo"), icon: "chevron.left", style: .neutral, duration: 1.2)
             return
         }
         stopInlineVideoPlayback()
@@ -1189,7 +1189,7 @@ struct SwipePhotoView: View {
               session.expand(for: session.photos.count, force: true) { }
         guard let index = horizontalNeighborIndex(step: 1) else {
             if randomReviewScope != nil {
-                showFeedback(L10n.string("已浏览到最后一张"), icon: "checkmark", style: .positive, duration: 1.5)
+                showFeedback(L10n.string("Reached the last photo"), icon: "checkmark", style: .positive, duration: 1.5)
             } else {
                 showCompletionMessage = true
             }
@@ -1444,7 +1444,7 @@ struct SwipePhotoView: View {
 
     private func showAlbumFilingSuccessToast(albumTitle: String) {
         showFeedback(
-            String(format: L10n.string("已归类到 %@"), albumTitle),
+            String(format: L10n.string("Added to %@"), albumTitle),
             icon: "checkmark.circle.fill",
             style: .positive,
             duration: 1.6

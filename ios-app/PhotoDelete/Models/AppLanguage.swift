@@ -98,7 +98,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .system:
-            return L10n.string("跟随系统")
+            return L10n.string("Follow System")
         default:
             return nativeName
         }
@@ -107,7 +107,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     var detail: String {
         switch self {
         case .system:
-            return L10n.string("自动匹配 iPhone 的首选语言")
+            return L10n.string("Match the iPhone preferred language automatically")
         default:
             return englishName
         }
@@ -166,7 +166,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     private var nativeName: String {
         switch self {
         case .system:
-            return L10n.string("跟随系统")
+            return L10n.string("Follow System")
         case .zhHans:
             return "简体中文"
         case .zhHant:

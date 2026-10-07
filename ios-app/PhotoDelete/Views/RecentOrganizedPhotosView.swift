@@ -39,7 +39,7 @@ struct RecentOrganizedPhotosView: View {
                 } else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text(L10n.string("点按查看大图，长按可再次整理。"))
+                            Text(L10n.string("Tap to preview, touch and hold to organize again."))
                                 .font(.system(size: 12, weight: .regular))
                                 .foregroundColor(PhotoDeleteStyle.secondaryText)
 
@@ -56,12 +56,12 @@ struct RecentOrganizedPhotosView: View {
                     .scrollIndicators(.hidden)
                 }
             }
-            .navigationTitle(L10n.string("最近整理"))
+            .navigationTitle(L10n.string("Recently Organized"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if !items.isEmpty {
-                        Button(L10n.string("清空"), role: .destructive) {
+                        Button(L10n.string("Clear"), role: .destructive) {
                             showingClearConfirmation = true
                         }
                         .font(.system(size: 14, weight: .semibold))
@@ -75,7 +75,7 @@ struct RecentOrganizedPhotosView: View {
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(PhotoDeleteStyle.primaryText)
                     }
-                    .accessibilityLabel(L10n.string("关闭"))
+                    .accessibilityLabel(L10n.string("Close"))
                 }
             }
         }
@@ -86,16 +86,16 @@ struct RecentOrganizedPhotosView: View {
             )
         }
         .confirmationDialog(
-            L10n.string("清空最近整理记录？"),
+            L10n.string("Clear recent organization history?"),
             isPresented: $showingClearConfirmation,
             titleVisibility: .visible
         ) {
-            Button(L10n.string("清空记录"), role: .destructive) {
+            Button(L10n.string("Clear History"), role: .destructive) {
                 dataManager.clearRecentOrganizedPhotoHistory()
             }
-            Button(L10n.string("取消"), role: .cancel) {}
+            Button(L10n.string("Cancel"), role: .cancel) {}
         } message: {
-            Text(L10n.string("只会清空本机记录，不会修改照片或待删除列表。"))
+            Text(L10n.string("This clears only local history and won’t change photos or pending deletion."))
         }
     }
 
@@ -121,10 +121,10 @@ struct RecentOrganizedPhotosView: View {
                 HapticManager.impact(.light)
                 dataManager.reopenForOrganizing(item.asset)
             } label: {
-                Label(L10n.string("再次整理"), systemImage: "arrow.uturn.backward")
+                Label(L10n.string("Organize Again"), systemImage: "arrow.uturn.backward")
             }
         }
-        .accessibilityLabel(L10n.string("\(item.record.action.title)，点按查看大图"))
+        .accessibilityLabel(L10n.string("\(item.record.action.title), tap to view full size"))
     }
 
     private func statusBadge(for action: RecentOrganizedPhotoAction) -> some View {
@@ -163,7 +163,7 @@ struct RecentOrganizedPhotosView: View {
                 .font(.system(size: 34, weight: .medium))
                 .foregroundColor(PhotoDeleteStyle.tertiaryText)
 
-            Text(L10n.string("整理过的照片会显示在这里，方便回头修改。"))
+            Text(L10n.string("Recently organized photos appear here so you can revise them."))
                 .font(.system(size: 14, weight: .regular))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
                 .multilineTextAlignment(.center)

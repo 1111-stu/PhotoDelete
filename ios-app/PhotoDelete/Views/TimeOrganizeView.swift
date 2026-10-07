@@ -24,7 +24,7 @@ struct TimeOrganizeView: View {
             ScrollView {
                 LazyVStack(spacing: 16) {
                     if visibleScopes.count > 1 {
-                        Picker(L10n.string("时间维度"), selection: $selectedScope) {
+                        Picker(L10n.string("Time Range"), selection: $selectedScope) {
                             ForEach(visibleScopes) { scope in
                                 Text(scope.title)
                                     .tag(scope)
@@ -35,8 +35,8 @@ struct TimeOrganizeView: View {
 
                     if shouldShowPreparingState {
                         OrganizeLoadingCard(
-                            title: L10n.string("正在整理时间线"),
-                            message: L10n.string("读取完成后会显示可整理的日期、月份和年份。"),
+                            title: L10n.string("Organizing timeline"),
+                            message: L10n.string("Dates, months, and years appear after loading."),
                             progress: dataManager.photoLibraryManager.loadingProgress
                         )
                     } else if visibleSummaries.isEmpty {
@@ -60,7 +60,7 @@ struct TimeOrganizeView: View {
 
                         if hasMorePeriods {
                             Button(action: showMorePeriods) {
-                                Text(L10n.string("显示更多"))
+                                Text(L10n.string("Show More"))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(PhotoDeleteStyle.accent)
                                     .frame(maxWidth: .infinity)
@@ -78,7 +78,7 @@ struct TimeOrganizeView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .navigationTitle(L10n.string("时间"))
+        .navigationTitle(L10n.string("Time"))
         .navigationBarTitleDisplayMode(.large)
         .onAppear {
             refreshSummaries()
@@ -127,11 +127,11 @@ struct TimeOrganizeView: View {
                 .font(.system(size: 44, weight: .medium))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
 
-            Text(L10n.string("还没有可按时间整理的照片"))
+            Text(L10n.string("No photos to organize by time yet"))
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.primaryText)
 
-            Text(L10n.string("当前授权范围内没有带拍摄时间的照片。"))
+            Text(L10n.string("No photos with capture dates are available in the current access range."))
                 .font(.system(size: 15, weight: .regular))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
                 .multilineTextAlignment(.center)

@@ -167,7 +167,7 @@ final class PhotoReviewActions: ObservableObject {
         restoreSessionReviewedState(asset: asset, wasReviewed: originalAction.wasSessionReviewed, session: session)
         events.send(.haptic(.light))
         events.send(.feedback(
-            message: L10n.string("已取消删除"),
+            message: L10n.string("Removed from deletion"),
             icon: "xmark.circle.fill",
             style: .neutral,
             showsUndo: false,
@@ -227,7 +227,7 @@ final class PhotoReviewActions: ObservableObject {
                 ))
                 self.events.send(.haptic(.success))
                 self.events.send(.feedback(
-                    message: targetStatus ? L10n.string("已加入收藏") : L10n.string("已取消收藏"),
+                    message: targetStatus ? L10n.string("Added to Favorites") : L10n.string("Removed from favorites"),
                     icon: targetStatus ? "heart.fill" : "heart.slash",
                     style: .favorite,
                     showsUndo: true,
@@ -237,8 +237,8 @@ final class PhotoReviewActions: ObservableObject {
                 self.events.send(.haptic(.error))
                 self.events.send(.feedback(
                     message: targetStatus
-                        ? L10n.string("收藏失败，请再试一次")
-                        : L10n.string("取消收藏失败，请再试一次"),
+                        ? L10n.string("Couldn't add to favorites. Try again.")
+                        : L10n.string("Couldn’t remove from favorites. Try again."),
                     icon: "exclamationmark.triangle",
                     style: .warning,
                     showsUndo: false,
@@ -280,7 +280,7 @@ final class PhotoReviewActions: ObservableObject {
               let collection = currentAlbum.assetCollection,
               collection.canPerform(.addContent) else {
             events.send(.feedback(
-                message: L10n.string("无法归类到这个相册"),
+                message: L10n.string("Could not add to this album"),
                 icon: "exclamationmark.triangle",
                 style: .warning,
                 showsUndo: false,
@@ -380,7 +380,7 @@ final class PhotoReviewActions: ObservableObject {
                 } else {
                     self.events.send(.haptic(.error))
                     self.events.send(.feedback(
-                        message: L10n.string("归类失败，请再试一次"),
+                        message: L10n.string("Could not add to the album. Try again."),
                         icon: "exclamationmark.triangle",
                         style: .warning,
                         showsUndo: false,
@@ -403,7 +403,7 @@ final class PhotoReviewActions: ObservableObject {
         guard let action = actionHistory.popLast() else {
             events.send(.haptic(.light))
             events.send(.feedback(
-                message: L10n.string("没有可撤销的操作"),
+                message: L10n.string("Nothing to undo"),
                 icon: "arrow.uturn.backward",
                 style: .neutral,
                 showsUndo: false,
@@ -426,7 +426,7 @@ final class PhotoReviewActions: ObservableObject {
             finishUndo()
             events.send(.haptic(.success))
             events.send(.feedback(
-                message: L10n.string("已撤销上一步"),
+                message: L10n.string("Undid the last action"),
                 icon: "arrow.uturn.backward",
                 style: .positive,
                 showsUndo: false,
@@ -442,7 +442,7 @@ final class PhotoReviewActions: ObservableObject {
                     self.finishUndo()
                     self.events.send(.haptic(.success))
                     self.events.send(.feedback(
-                        message: L10n.string("已撤销上一步"),
+                        message: L10n.string("Undid the last action"),
                         icon: "arrow.uturn.backward",
                         style: .positive,
                         showsUndo: false,
@@ -458,7 +458,7 @@ final class PhotoReviewActions: ObservableObject {
                     self.finishUndo()
                     self.events.send(.haptic(.error))
                     self.events.send(.feedback(
-                        message: L10n.string("撤销失败，请再试一次"),
+                        message: L10n.string("Couldn’t undo. Try again."),
                         icon: "exclamationmark.triangle",
                         style: .warning,
                         showsUndo: false,
@@ -552,7 +552,7 @@ final class PhotoReviewActions: ObservableObject {
             finishUndo()
             events.send(.haptic(.success))
             events.send(.feedback(
-                message: L10n.string("已撤销上一步"),
+                message: L10n.string("Undid the last action"),
                 icon: "arrow.uturn.backward",
                 style: .positive,
                 showsUndo: false,
@@ -565,7 +565,7 @@ final class PhotoReviewActions: ObservableObject {
             finishUndo()
             events.send(.haptic(.error))
             events.send(.feedback(
-                message: L10n.string("移出失败，请再试一次"),
+                message: L10n.string("Could not remove from the album. Try again."),
                 icon: "exclamationmark.triangle",
                 style: .warning,
                 showsUndo: false,

@@ -41,7 +41,7 @@ struct AdvancedView: View {
 
         switch purchaseManager.entitlementState {
         case .verifying:
-            return L10n.string("正在检查购买状态...")
+            return L10n.string("Checking purchase status...")
         case .unknown, .verified, .cachedOffline, .locked:
             return nil
         }
@@ -52,7 +52,7 @@ struct AdvancedView: View {
 
         NavigationStack {
             advancedRootContent
-                .navigationTitle(L10n.string("进阶"))
+                .navigationTitle(L10n.string("Advanced"))
                 .navigationBarTitleDisplayMode(.large)
                 .navigationDestination(isPresented: isShowingActivePeriodRoute) {
                     if let activePeriodRoute {
@@ -116,7 +116,7 @@ struct AdvancedView: View {
 
                     if isAwaitingPhotoLibraryAccess {
                         PhotoAuthorizationCard(
-                            subtitle: L10n.string("进阶功能需要读取本机照片库，才能生成真实月份进度和清理队列。"),
+                            subtitle: L10n.string("Advanced features need the local photo library to build real monthly progress and cleanup queues."),
                             onRequestAccess: { dataManager.requestPhotoLibraryAccess() }
                         )
                     } else if shouldShowAdvancedPreparingCard {
@@ -254,11 +254,11 @@ struct AdvancedView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(L10n.string("按时间整理"))
+                    Text(L10n.string("Organize by Time"))
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(L10n.string("按日、周、月、年继续整理。"))
+                    Text(L10n.string("Continue by day, week, month, or year."))
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
@@ -272,14 +272,14 @@ struct AdvancedView: View {
                 if !isLocked && dataManager.isLoadingPeriodSummaries {
                     AdvancedEmptyState(
                         icon: "clock",
-                        title: L10n.string("正在整理时间线"),
-                        subtitle: L10n.string("读取完成后会显示可整理的日期、月份和年份。")
+                        title: L10n.string("Organizing timeline"),
+                        subtitle: L10n.string("Dates, months, and years appear after loading.")
                     )
                 } else {
                     AdvancedEmptyState(
                         icon: "calendar",
-                        title: L10n.string("还没有可按时间整理的照片"),
-                        subtitle: L10n.string("当前授权范围内没有带拍摄时间的照片。")
+                        title: L10n.string("No photos to organize by time yet"),
+                        subtitle: L10n.string("No photos with capture dates are available in the current access range.")
                     )
                 }
             } else {
@@ -303,7 +303,7 @@ struct AdvancedView: View {
 
                 if summaries.count > displayedAdvancedPeriodSummaries.count {
                     Button(action: showMoreAdvancedPeriods) {
-                        Text(L10n.string("显示更多"))
+                        Text(L10n.string("Show More"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(PhotoDeleteStyle.accent)
                             .frame(maxWidth: .infinity)
@@ -323,14 +323,14 @@ struct AdvancedView: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(L10n.string("时间进度"))
+                Text(L10n.string("Time Progress"))
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
                 Spacer()
 
                 if isLocked {
-                    Text(L10n.string("示例"))
+                    Text(L10n.string("Demo"))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.tertiaryText)
                 }
@@ -366,11 +366,11 @@ struct AdvancedView: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(L10n.string("高效清理"))
+                Text(L10n.string("Focused Cleanup"))
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                Text(L10n.string("集中处理相似照片、大文件、图片和视频压缩。"))
+                Text(L10n.string("Handle similar photos, large files, image compression, and video compression in one place."))
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
             }
@@ -398,8 +398,8 @@ struct AdvancedView: View {
             if visibleQueues.isEmpty && dataManager.isLoadingAdvancedCleanupQueues {
                 AdvancedEmptyState(
                     icon: "sparkles",
-                    title: L10n.string("正在准备清理入口"),
-                    subtitle: L10n.string("稍后会显示可处理的照片和视频。")
+                    title: L10n.string("Preparing cleanup options"),
+                    subtitle: L10n.string("Photos and videos you can review will appear shortly.")
                 )
             } else {
                 VStack(spacing: 0) {
@@ -688,7 +688,7 @@ private struct AdvancedTimeScopePicker: View {
     @Binding var selectedScope: AdvancedTimeScope
 
     var body: some View {
-        Picker(L10n.string("时间维度"), selection: $selectedScope) {
+        Picker(L10n.string("Time Range"), selection: $selectedScope) {
             ForEach(AdvancedTimeScope.allCases) { scope in
                 Text(scope.title)
                     .tag(scope)
@@ -707,7 +707,7 @@ private struct AdvancedPeriodNavigator: View {
     var body: some View {
         HStack(spacing: 12) {
             Button(action: onPrevious) {
-                Label(L10n.string("上一段时间"), systemImage: "chevron.left")
+                Label(L10n.string("Previous Period"), systemImage: "chevron.left")
                     .labelStyle(.iconOnly)
                     .font(.system(size: 15, weight: .bold))
                     .frame(width: 38, height: 38)
@@ -733,7 +733,7 @@ private struct AdvancedPeriodNavigator: View {
             .frame(maxWidth: .infinity)
 
             Button(action: onNext) {
-                Label(L10n.string("下一段时间"), systemImage: "chevron.right")
+                Label(L10n.string("Next Period"), systemImage: "chevron.right")
                     .labelStyle(.iconOnly)
                     .font(.system(size: 15, weight: .bold))
                     .frame(width: 38, height: 38)
@@ -764,7 +764,7 @@ private struct AdvancedPeriodProgressCard: View {
             VStack(alignment: .leading, spacing: 10) {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
-                        Text(String(format: L10n.string("%@清理进度"), AdvancedPeriodFormatter.compactTitle(for: summary)))
+                        Text(String(format: L10n.string("%@ cleanup progress"), AdvancedPeriodFormatter.compactTitle(for: summary)))
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(PhotoDeleteStyle.primaryText)
                             .lineLimit(1)
@@ -776,7 +776,7 @@ private struct AdvancedPeriodProgressCard: View {
                     }
 
                     Text(String(
-                        format: L10n.string("已整理 %lld/%lld 项"),
+                        format: L10n.string("%lld/%lld items organized"),
                         Int64(summary.reviewedCount),
                         Int64(summary.assetCount)
                     ))
@@ -787,9 +787,9 @@ private struct AdvancedPeriodProgressCard: View {
                 }
 
                 HStack(spacing: 6) {
-                    AdvancedMiniMetric(title: L10n.string("照片"), value: "\(summary.assetCount)")
-                    AdvancedMiniMetric(title: L10n.string("视频"), value: "\(summary.videoCount)")
-                    AdvancedMiniMetric(title: L10n.string("截图"), value: "\(summary.screenshotCount)")
+                    AdvancedMiniMetric(title: L10n.string("Photos"), value: "\(summary.assetCount)")
+                    AdvancedMiniMetric(title: L10n.string("Videos"), value: "\(summary.videoCount)")
+                    AdvancedMiniMetric(title: L10n.string("Screenshots"), value: "\(summary.screenshotCount)")
                 }
             }
         }
@@ -843,7 +843,7 @@ private struct AdvancedPeriodChip: View {
                         .lineLimit(1)
 
                     Text(String(
-                        format: L10n.string("%lld 项 · %lld%%"),
+                        format: L10n.string("%lld items · %lld%%"),
                         Int64(summary.assetCount),
                         Int64(summary.progress * 100)
                     ))
@@ -874,7 +874,7 @@ private struct AdvancedPeriodChip: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityValue(Text(isSelected ? L10n.string("已选") : L10n.string("未选择")))
+        .accessibilityValue(Text(isSelected ? L10n.string("Selected") : L10n.string("Not Set")))
     }
 }
 
@@ -914,7 +914,7 @@ private struct AdvancedCleanupEntryRow: View {
     }
 
     private var detailText: String {
-        String(format: L10n.string("%lld 项"), Int64(queue.assetCount))
+        String(format: L10n.string("%lld items"), Int64(queue.assetCount))
     }
 }
 
@@ -953,7 +953,7 @@ private struct AdvancedTimePeriodRow: View {
 
     private var detailText: String {
         String(
-            format: L10n.string("剩余 %lld 张"),
+            format: L10n.string("%lld remaining"),
             Int64(summary.remainingCount)
         )
     }
@@ -998,7 +998,7 @@ private struct AdvancedBottomPaywall: View {
                 HStack(spacing: 7) {
                     Image(systemName: canStartTrial ? "timer" : "lock.fill")
                         .font(.system(size: 16, weight: .semibold))
-                    Text(canStartTrial ? L10n.string("免费体验进阶功能") : L10n.string("解锁全部进阶功能"))
+                    Text(canStartTrial ? L10n.string("Try Advanced Features") : L10n.string("Unlock All Advanced Features"))
                         .font(.system(size: 20, weight: .semibold))
                 }
                 .foregroundColor(PhotoDeleteStyle.primaryText)
@@ -1012,7 +1012,7 @@ private struct AdvancedBottomPaywall: View {
 
             if canStartTrial {
                 Button(action: onStartTrial) {
-                    Label(L10n.string("开始 3 天免费体验"), systemImage: "timer")
+                    Label(L10n.string("Start 3-Day Free Trial"), systemImage: "timer")
                         .labelStyle(.titleAndIcon)
                 }
                 .photoDeletePrimaryButton()
@@ -1025,7 +1025,7 @@ private struct AdvancedBottomPaywall: View {
                                 .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
                                 .scaleEffect(0.78)
                         }
-                        Text(isLoading ? L10n.string("处理中...") : String(format: L10n.string("开通年度 Pro %@/年"), priceText))
+                        Text(isLoading ? L10n.string("Processing...") : String(format: L10n.string("Start Annual Pro %@/year"), priceText))
                     }
                 }
                 .photoDeleteSecondaryButton()
@@ -1038,7 +1038,7 @@ private struct AdvancedBottomPaywall: View {
                                 .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.primaryButtonText))
                                 .scaleEffect(0.78)
                         }
-                        Text(isLoading ? L10n.string("处理中...") : String(format: L10n.string("开通年度 Pro %@/年"), priceText))
+                        Text(isLoading ? L10n.string("Processing...") : String(format: L10n.string("Start Annual Pro %@/year"), priceText))
                     }
                 }
                 .photoDeletePrimaryButton()
@@ -1060,7 +1060,7 @@ private struct AdvancedBottomPaywall: View {
             SupporterLegalLinksRow()
 
             Button(action: onShowBenefits) {
-                Text(L10n.string("查看年度与永久 Pro 方案"))
+                Text(L10n.string("View Annual and Lifetime Pro plans"))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .underline()
@@ -1101,19 +1101,19 @@ private struct AdvancedBottomPaywall: View {
 
     private var subtitle: String {
         if canStartTrial {
-            return L10n.string("免费体验 3 天进阶功能，或开通年度 Pro；永久方案可在方案页选择。")
+            return L10n.string("Try advanced features free for 3 days or start Annual Pro. Lifetime Pro is available on the plans screen.")
         }
 
-        return L10n.string("年度 Pro 解锁完整时间列表、大文件清理、视频压缩和相似照片清理。")
+        return L10n.string("Annual Pro unlocks the full timeline, large-file cleanup, video compression, and similar-photo cleanup.")
     }
 
     private var billingDisclosure: String {
         if canStartTrial {
-            return L10n.string("3 天体验到期不会扣费；年度 Pro 会自动续订，可随时在 Apple ID 设置中取消。基础整理始终免费。")
+            return L10n.string("The 3-day trial does not charge you. Annual Pro auto-renews and can be canceled anytime in Apple ID settings. Basic cleanup is always free.")
         }
 
         return String(
-            format: L10n.string("年度 Pro 为 %@/年；确认购买后开始计费并自动续订，可随时在 Apple ID 设置中取消。永久 Pro 为一次购买。基础整理始终免费。"),
+            format: L10n.string("Annual Pro is %@/year. Billing starts when you confirm and renews automatically unless canceled in Apple ID settings. Lifetime Pro is a one-time purchase. Basic cleanup remains free."),
             priceText
         )
     }
@@ -1136,11 +1136,11 @@ private struct AdvancedTrialStatusBanner: View {
                 )
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(L10n.string("支持者版试用中"))
+                Text(L10n.string("Supporter Trial Active"))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                Text(String(format: L10n.string("还剩 %lld 天"), Int64(remainingDays)))
+                Text(String(format: L10n.string("%lld days remaining"), Int64(remainingDays)))
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
             }
@@ -1148,7 +1148,7 @@ private struct AdvancedTrialStatusBanner: View {
             Spacer(minLength: 8)
 
             Button(action: onPurchase) {
-                Text(isLoading ? L10n.string("处理中...") : L10n.string("解锁"))
+                Text(isLoading ? L10n.string("Processing...") : L10n.string("Unlock"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryButtonText)
                     .padding(.horizontal, 14)
@@ -1183,11 +1183,11 @@ private struct AdvancedLibraryPreparingCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("正在整理照片数据"))
+                    Text(L10n.string("Preparing Photo Data"))
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(L10n.string("正在读取本机照片、截图和视频，完成后会显示可用入口。"))
+                    Text(L10n.string("Reading local photos, screenshots, and videos. Available options will appear when ready."))
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
@@ -1196,7 +1196,7 @@ private struct AdvancedLibraryPreparingCard: View {
 
             ProgressView(value: progress)
                 .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
-                .accessibilityLabel(L10n.string("照片数据整理进度"))
+                .accessibilityLabel(L10n.string("Photo data preparation progress"))
         }
         .padding(16)
         .photoDeleteCard()
@@ -1248,7 +1248,7 @@ private struct AdvancedPeriodListView: View {
 
                     if hasMore {
                         Button(action: showMore) {
-                            Text(L10n.string("显示更多"))
+                            Text(L10n.string("Show More"))
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(PhotoDeleteStyle.accent)
                                 .frame(maxWidth: .infinity)
@@ -1264,7 +1264,7 @@ private struct AdvancedPeriodListView: View {
                 .padding(PhotoDeleteStyle.screenHorizontalPadding)
             }
         }
-        .advancedDetailNavigation(title: L10n.string("时间进度"))
+        .advancedDetailNavigation(title: L10n.string("Time Progress"))
     }
 
     private func showMore() {
@@ -1293,7 +1293,7 @@ private struct AdvancedPeriodListRow: View {
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
                 Text(String(
-                    format: L10n.string("%lld 项 · 已整理 %lld%%"),
+                    format: L10n.string("%lld items · %lld%% organized"),
                     Int64(summary.assetCount),
                     Int64(summary.progress * 100)
                 ))
@@ -1427,34 +1427,34 @@ private struct AdvancedAssetListView: View {
                     AdvancedAssetListSummaryCard(
                         title: summaryTitle(for: snapshot),
                         subtitle: summarySubtitle(for: snapshot),
-                        buttonTitle: isAllFilteredSelected(in: snapshot) ? L10n.string("取消") : L10n.string("全选"),
+                        buttonTitle: isAllFilteredSelected(in: snapshot) ? L10n.string("Cancel") : L10n.string("Select All"),
                         action: toggleBulkSelection
                     )
 
                     if !isLoadingAssets, !isLoadingFileSizes, snapshot.iCloudVideoCount > 0 {
                         AdvancedVideoCompressionICloudInfoCard(
                             count: snapshot.iCloudVideoCount,
-                            subtitle: L10n.string("预览或处理时会下载原片。"),
+                            subtitle: L10n.string("The original will download when previewing or processing."),
                             action: showICloudVideoInfo
                         )
                     }
 
                     if isLoadingAssets && assets.isEmpty {
                         AdvancedLoadingState(
-                            title: L10n.string("正在准备清理入口"),
-                            subtitle: L10n.string("稍后会显示可处理的照片和视频。")
+                            title: L10n.string("Preparing cleanup options"),
+                            subtitle: L10n.string("Photos and videos you can review will appear shortly.")
                         )
                     } else if assets.isEmpty {
                         AdvancedEmptyState(
                             icon: mode.icon,
-                            title: L10n.string("没有可整理的内容"),
-                            subtitle: L10n.string("当前照片库里暂时没有符合这个入口的项目。")
+                            title: L10n.string("Nothing to Organize"),
+                            subtitle: L10n.string("No items currently match this cleanup entry.")
                         )
                     } else if snapshot.assets.isEmpty {
                         AdvancedEmptyState(
                             icon: mode.icon,
-                            title: L10n.string("当前筛选没有内容"),
-                            subtitle: L10n.string("可以切换到全部，或稍后再回来查看。")
+                            title: L10n.string("No Results for This Filter"),
+                            subtitle: L10n.string("Switch to All, or check again later.")
                         )
                     } else {
                         LazyVStack(spacing: 9) {
@@ -1477,7 +1477,7 @@ private struct AdvancedAssetListView: View {
                         }
 
                         if snapshot.hasMoreAssets {
-                            Text(L10n.string("继续向下滚动加载更多"))
+                            Text(L10n.string("Scroll down to load more"))
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(PhotoDeleteStyle.secondaryText)
                                 .frame(maxWidth: .infinity)
@@ -1516,10 +1516,10 @@ private struct AdvancedAssetListView: View {
                 selectedAssetIDs: $selectedAssetIDs
             )
         }
-        .alert(L10n.string("iCloud 视频"), isPresented: $showingICloudVideoInfo) {
-            Button(L10n.string("知道了"), role: .cancel) {}
+        .alert(L10n.string("iCloud Videos"), isPresented: $showingICloudVideoInfo) {
+            Button(L10n.string("Got it"), role: .cancel) {}
         } message: {
-            Text(L10n.string("带云朵的视频当前只保存在 iCloud。列表不会自动下载大视频，预览或处理时会下载原片。"))
+            Text(L10n.string("Videos with a cloud icon are currently stored in iCloud. The list will not automatically download large videos. The original will download when previewing or processing."))
         }
         .task(id: mode.id) {
             reloadAssets()
@@ -1537,15 +1537,15 @@ private struct AdvancedAssetListView: View {
     private func summaryTitle(for snapshot: AdvancedFilteredAssetSnapshot) -> String {
         switch mode {
         case .cleanup(.largeFiles):
-            return String(format: L10n.string("共 %lld 个大文件"), Int64(snapshot.assets.count))
+            return String(format: L10n.string("%lld large files total"), Int64(snapshot.assets.count))
         case .cleanup(.imageCompression):
-            return String(format: L10n.string("共 %lld 张可压缩图片"), Int64(snapshot.assets.count))
+            return String(format: L10n.string("%lld compressible images"), Int64(snapshot.assets.count))
         case .cleanup(.videoCompression):
-            return String(format: L10n.string("共 %lld 个可压缩视频"), Int64(snapshot.assets.count))
+            return String(format: L10n.string("%lld videos ready to compress"), Int64(snapshot.assets.count))
         case .cleanup(.videos):
-            return String(format: L10n.string("共 %lld 个视频"), Int64(snapshot.assets.count))
+            return String(format: L10n.string("%lld videos total"), Int64(snapshot.assets.count))
         case .cleanup(.similarPhotos):
-            return String(format: L10n.string("共 %lld 张相似照片"), Int64(snapshot.assets.count))
+            return String(format: L10n.string("%lld similar photos total"), Int64(snapshot.assets.count))
         }
     }
 
@@ -1553,35 +1553,35 @@ private struct AdvancedAssetListView: View {
         switch mode {
         case .cleanup(.largeFiles):
             guard snapshot.loadedReliableSizeCount > 0 else {
-                return L10n.string("正在读取真实文件大小")
+                return L10n.string("Reading actual file sizes")
             }
             return String(
-                format: L10n.string("已读取 %lld/%lld 项，已知约 %@。"),
+                format: L10n.string("%lld/%lld items read. Known size is about %@."),
                 Int64(snapshot.loadedReliableSizeCount),
                 Int64(snapshot.assets.count),
                 CleanupStatsFormatter.fileSize(snapshot.totalSizeMB)
             )
         case .cleanup(.imageCompression):
-            return L10n.string("选择要压缩的图片，完成后显示实际文件大小。")
+            return L10n.string("Select images to compress. Actual file sizes appear when complete.")
         case .cleanup(.videoCompression):
-            return L10n.string("选择要压缩的视频，完成后显示实际文件大小。")
+            return L10n.string("Select videos to compress. Actual file sizes appear when complete.")
         case .cleanup(.videos):
             if snapshot.hasUnresolvedVideoSizes {
                 return String(
-                    format: L10n.string("已读取 %lld/%lld 个视频大小，已知约 %@。"),
+                    format: L10n.string("%lld/%lld video sizes read. Known size is about %@."),
                     Int64(snapshot.loadedReliableVideoSizeCount),
                     Int64(snapshot.videoAssets.count),
                     CleanupStatsFormatter.fileSize(snapshot.totalSizeMB)
                 )
             }
             return String(
-                format: L10n.string("已读取 %lld/%lld 个视频大小，已知约 %@。"),
+                format: L10n.string("%lld/%lld video sizes read. Known size is about %@."),
                 Int64(snapshot.loadedReliableVideoSizeCount),
                 Int64(snapshot.videoAssets.count),
                 CleanupStatsFormatter.fileSize(snapshot.totalSizeMB)
             )
         case .cleanup(.similarPhotos):
-            return L10n.string("建议逐项确认后加入待删除。")
+            return L10n.string("Review items before adding them to the delete queue.")
         }
     }
 
@@ -1657,15 +1657,15 @@ private struct AdvancedAssetListView: View {
             return nil
         }
         guard let estimate else {
-            return L10n.string("计算中")
+            return L10n.string("Calculating")
         }
         switch estimate.source {
         case .assetResource:
             return CleanupStatsFormatter.fileSize(estimate.sizeMB)
         case .iCloud:
-            return L10n.string("待下载")
+            return L10n.string("Needs download")
         case .unavailable:
-            return L10n.string("待确认")
+            return L10n.string("Pending")
         }
     }
 
@@ -1962,8 +1962,8 @@ private enum AdvancedImageCompressionTab: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .pending: return L10n.string("未压缩")
-        case .processed: return L10n.string("已压缩")
+        case .pending: return L10n.string("Uncompressed")
+        case .processed: return L10n.string("Compressed")
         }
     }
 }
@@ -2014,10 +2014,10 @@ private struct AdvancedImageCompressionView: View {
     }
 
     private var imageListSizeSummary: String {
-        guard !compressibleAssets.isEmpty else { return L10n.string("没有需要压缩的图片") }
+        guard !compressibleAssets.isEmpty else { return L10n.string("No images need compression") }
         let visibleSize = visibleCompressibleAssets.reduce(0) { $0 + dataManager.estimatedSizeMB(for: $1) }
         return String(
-            format: L10n.string("已显示 %lld/%lld 张图片 · 当前约 %@"),
+            format: L10n.string("%lld/%lld images shown · shown items about %@"),
             Int64(visibleCompressibleAssets.count),
             Int64(compressibleAssets.count),
             CleanupStatsFormatter.space(visibleSize)
@@ -2031,9 +2031,9 @@ private struct AdvancedImageCompressionView: View {
 
     private var selectedCompressionEstimateText: String {
         guard let selectedCompressionEstimate else {
-            return L10n.string("先选择图片")
+            return L10n.string("Select images first")
         }
-        return String(format: L10n.string("预计压缩后 %@"), selectedCompressionEstimate.formattedCompressedRange)
+        return String(format: L10n.string("Estimated after compression %@"), selectedCompressionEstimate.formattedCompressedRange)
     }
 
     var body: some View {
@@ -2146,28 +2146,28 @@ private struct AdvancedImageCompressionView: View {
     }
 
     private var imageCompressionTabPicker: some View {
-        Picker(L10n.string("图片压缩"), selection: $selectedTab) {
+        Picker(L10n.string("Image Compression"), selection: $selectedTab) {
             ForEach(AdvancedImageCompressionTab.allCases) { tab in
                 Text(tab.title)
                     .tag(tab)
             }
         }
         .pickerStyle(.segmented)
-        .accessibilityLabel(L10n.string("图片压缩"))
+        .accessibilityLabel(L10n.string("Image Compression"))
     }
 
     @ViewBuilder
     private var pendingImageCompressionContent: some View {
         if isLoadingAssets && assets.isEmpty {
             AdvancedLoadingState(
-                title: L10n.string("正在准备清理入口"),
-                subtitle: L10n.string("稍后会显示可处理的照片和视频。")
+                title: L10n.string("Preparing cleanup options"),
+                subtitle: L10n.string("Photos and videos you can review will appear shortly.")
             )
         } else if assets.isEmpty {
             AdvancedEmptyState(
                 icon: AdvancedCleanupKind.imageCompression.icon,
-                title: L10n.string("未找到可压缩的图片"),
-                subtitle: L10n.string("当前照片库里暂时没有适合压缩的普通图片。")
+                title: L10n.string("No compressible images found"),
+                subtitle: L10n.string("There are no regular images suitable for compression in the current library.")
             )
         } else {
             AdvancedImageCompressionListHeader(
@@ -2180,8 +2180,8 @@ private struct AdvancedImageCompressionView: View {
             if compressibleAssets.isEmpty {
                 AdvancedEmptyState(
                     icon: "checkmark.circle",
-                    title: L10n.string("没有需要压缩的图片"),
-                    subtitle: L10n.string("压缩完成的图片会留在最近压缩记录里。")
+                    title: L10n.string("No images need compression"),
+                    subtitle: L10n.string("Compressed images will appear in recent compression history.")
                 )
             } else {
                 LazyVStack(spacing: 9) {
@@ -2202,7 +2202,7 @@ private struct AdvancedImageCompressionView: View {
                 }
 
                 if hasMoreCompressibleAssets {
-                    Text(L10n.string("继续向下滚动加载更多"))
+                    Text(L10n.string("Scroll down to load more"))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .frame(maxWidth: .infinity)
@@ -2217,8 +2217,8 @@ private struct AdvancedImageCompressionView: View {
         if dataManager.imageCompressionHistoryStore.sessions.isEmpty {
             AdvancedEmptyState(
                 icon: "checkmark.circle",
-                title: L10n.string("还没有压缩记录"),
-                subtitle: L10n.string("压缩完成的图片会留在最近压缩记录里。")
+                title: L10n.string("No compression history yet"),
+                subtitle: L10n.string("Compressed images will appear in recent compression history.")
             )
         } else {
             AdvancedImageCompressionHistoryCard(
@@ -2325,7 +2325,7 @@ private struct AdvancedImageCompressionView: View {
 
     private func showCompressionComparison() {
         guard compressionJob.result?.createdAssetIdentifiers.isEmpty == false else {
-            dataManager.setImageCompressionError(L10n.string("暂时找不到压缩后图片。"))
+            dataManager.setImageCompressionError(L10n.string("The compressed image could not be found right now."))
             return
         }
         showingCompressionComparison = true
@@ -2334,7 +2334,7 @@ private struct AdvancedImageCompressionView: View {
     private func queueOriginalImagesForDeletion() {
         guard let compressionResult = compressionJob.result else { return }
         guard compressionResult.hasMeaningfulSavings else {
-            dataManager.setImageCompressionError(L10n.string("这次没有明显减少空间，建议先保留原图。"))
+            dataManager.setImageCompressionError(L10n.string("This did not save much space. Keeping the originals is recommended."))
             return
         }
 
@@ -2345,7 +2345,7 @@ private struct AdvancedImageCompressionView: View {
             originalAssets.append(asset)
         }
         guard !originalAssets.isEmpty else {
-            dataManager.setImageCompressionError(L10n.string("暂时找不到原图。"))
+            dataManager.setImageCompressionError(L10n.string("The original image could not be found right now."))
             return
         }
 
@@ -2365,7 +2365,7 @@ private struct AdvancedImageCompressionView: View {
             originalAssets.append(asset)
         }
         guard !originalAssets.isEmpty else {
-            dataManager.setImageCompressionError(L10n.string("暂时找不到原图。"))
+            dataManager.setImageCompressionError(L10n.string("The original image could not be found right now."))
             return
         }
 
@@ -2390,7 +2390,7 @@ private struct AdvancedImageCompressionListHeader: View {
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.string("可压缩图片"))
+                Text(L10n.string("Compressible Images"))
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -2403,7 +2403,7 @@ private struct AdvancedImageCompressionListHeader: View {
             Spacer()
 
             AdvancedBulkSelectionButton(
-                title: isAllSelected ? L10n.string("取消选择已显示") : L10n.string("选择已显示"),
+                title: isAllSelected ? L10n.string("Deselect Shown") : L10n.string("Select Shown"),
                 isDisabled: isDisabled,
                 action: action
             )
@@ -2451,18 +2451,18 @@ private struct AdvancedImageCompressionOptionsSheet: View {
                     )
 
                     AdvancedVideoCompressionOptionSection(
-                        title: L10n.string("质量")
+                        title: L10n.string("Quality")
                     ) {
                         AdvancedImageCompressionQualityPicker(selection: $plan.quality)
                     }
 
                     AdvancedVideoCompressionOptionSection(
-                        title: L10n.string("尺寸")
+                        title: L10n.string("Dimensions")
                     ) {
                         AdvancedImageCompressionSizePicker(selection: $plan.size)
                     }
 
-                    Label(L10n.string("图片压缩会生成新的 JPEG 副本，原图不会自动删除。最终节省空间以完成报告为准。"), systemImage: "info.circle")
+                    Label(L10n.string("Image compression creates new JPEG copies and does not delete originals automatically. Final space savings are shown after completion."), systemImage: "info.circle")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
@@ -2472,11 +2472,11 @@ private struct AdvancedImageCompressionOptionsSheet: View {
                 .padding(.bottom, 24)
             }
             .background(PhotoDeleteStyle.background.ignoresSafeArea())
-            .navigationTitle(L10n.string("压缩方案"))
+            .navigationTitle(L10n.string("Compression plan"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.string("取消")) {
+                    Button(L10n.string("Cancel")) {
                         dismiss()
                     }
                 }
@@ -2489,9 +2489,9 @@ private struct AdvancedImageCompressionOptionsSheet: View {
                     onStart(selectedPlan, selectedAssets)
                 } label: {
                     VStack(spacing: 3) {
-                        Text(String(format: L10n.string("开始压缩 %lld 张图片"), Int64(context.count)))
+                        Text(String(format: L10n.string("Start compressing %lld images"), Int64(context.count)))
                             .font(.system(size: 15, weight: .semibold))
-                        Text(String(format: L10n.string("预计压缩后 %@"), visibleEstimate.formattedCompressedRange))
+                        Text(String(format: L10n.string("Estimated after compression %@"), visibleEstimate.formattedCompressedRange))
                             .font(.system(size: 11, weight: .medium))
                     }
                     .foregroundColor(PhotoDeleteStyle.primaryButtonText)
@@ -2525,11 +2525,11 @@ private struct AdvancedImageCompressionEstimateCard: View {
                     .frame(width: 34, height: 34)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(String(format: L10n.string("准备压缩 %lld 张图片"), Int64(count)))
+                    Text(String(format: L10n.string("Preparing to compress %lld images"), Int64(count)))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(String(format: L10n.string("原文件合计约 %@"), estimate.formattedOriginalSize))
+                    Text(String(format: L10n.string("Original files total about %@"), estimate.formattedOriginalSize))
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
@@ -2538,8 +2538,8 @@ private struct AdvancedImageCompressionEstimateCard: View {
             }
 
             HStack(spacing: 10) {
-                AdvancedVideoCompressionMetric(label: L10n.string("预计压缩后"), value: estimate.formattedCompressedRange)
-                AdvancedVideoCompressionMetric(label: L10n.string("预计节省"), value: estimate.formattedSavedRange)
+                AdvancedVideoCompressionMetric(label: L10n.string("Estimated after"), value: estimate.formattedCompressedRange)
+                AdvancedVideoCompressionMetric(label: L10n.string("Estimated saved"), value: estimate.formattedSavedRange)
             }
         }
         .padding(14)
@@ -2614,7 +2614,7 @@ private struct AdvancedImageCompressionResultCard: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.78)
 
-                    Text(L10n.string("可减少"))
+                    Text(L10n.string("Can Save"))
                         .font(.caption)
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
@@ -2622,16 +2622,16 @@ private struct AdvancedImageCompressionResultCard: View {
             }
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                AdvancedVideoCompressionMetric(label: L10n.string("方案"), value: result.plan.title)
-                AdvancedVideoCompressionMetric(label: L10n.string("原图"), value: result.formattedOriginalSize)
-                AdvancedVideoCompressionMetric(label: L10n.string("压缩后"), value: result.formattedCompressedSize)
-                AdvancedVideoCompressionMetric(label: L10n.string("节省比例"), value: result.savedRatioText)
+                AdvancedVideoCompressionMetric(label: L10n.string("Plan"), value: result.plan.title)
+                AdvancedVideoCompressionMetric(label: L10n.string("Original Image"), value: result.formattedOriginalSize)
+                AdvancedVideoCompressionMetric(label: L10n.string("After Compression"), value: result.formattedCompressedSize)
+                AdvancedVideoCompressionMetric(label: L10n.string("Savings"), value: result.savedRatioText)
             }
 
             VStack(spacing: 0) {
                 AdvancedVideoCompressionResultInfoRow(
                     systemImage: "photo",
-                    title: L10n.string("压缩后图片"),
+                    title: L10n.string("Compressed Image"),
                     value: result.createdCopiesText,
                     tint: PhotoDeleteStyle.positive
                 )
@@ -2641,26 +2641,26 @@ private struct AdvancedImageCompressionResultCard: View {
 
                 AdvancedVideoCompressionResultInfoRow(
                     systemImage: "arrow.down.right.and.arrow.up.left",
-                    title: L10n.string("尺寸"),
+                    title: L10n.string("Dimensions"),
                     value: result.sizeSummaryText,
                     tint: PhotoDeleteStyle.accent
                 )
             }
 
-            Text(result.hasMeaningfulSavings ? L10n.string("已生成压缩后图片，原图尚未删除。请先查看对比，再决定是否删除原图。") : L10n.string("已生成压缩后图片，但空间减少不明显。建议先保留原图。"))
+            Text(result.hasMeaningfulSavings ? L10n.string("Compressed images were created and originals were not deleted. Review the comparison before deleting originals.") : L10n.string("Compressed images were created, but space savings are limited. Keeping originals is recommended."))
                 .font(.footnote)
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
 
             if result.failedCount > 0 {
-                Label(String(format: L10n.string("%lld 张图片未完成"), Int64(result.failedCount)), systemImage: "exclamationmark.triangle")
+                Label(String(format: L10n.string("%lld images were not completed"), Int64(result.failedCount)), systemImage: "exclamationmark.triangle")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.warning)
             }
 
             VStack(spacing: 10) {
                 Button(action: onCompare) {
-                    Label(L10n.string("查看对比"), systemImage: "rectangle.split.2x1")
+                    Label(L10n.string("Compare"), systemImage: "rectangle.split.2x1")
                         .frame(maxWidth: .infinity)
                 }
                 .photoDeletePrimaryButton()
@@ -2668,7 +2668,7 @@ private struct AdvancedImageCompressionResultCard: View {
 
                 HStack(spacing: 10) {
                     AdvancedVideoCompressionCompactActionButton(
-                        title: L10n.string("删除原图"),
+                        title: L10n.string("Delete Originals"),
                         systemImage: "trash",
                         tint: PhotoDeleteStyle.destructive,
                         isEnabled: result.hasMeaningfulSavings,
@@ -2676,7 +2676,7 @@ private struct AdvancedImageCompressionResultCard: View {
                     )
 
                     AdvancedVideoCompressionCompactActionButton(
-                        title: L10n.string("保留原图"),
+                        title: L10n.string("Keep Originals"),
                         systemImage: "checkmark",
                         tint: PhotoDeleteStyle.accent,
                         isEnabled: true,
@@ -2701,9 +2701,9 @@ private struct AdvancedImageCompressionComparisonSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack(spacing: 10) {
-                        AdvancedVideoCompressionMetric(label: L10n.string("原图"), value: result.formattedOriginalSize)
-                        AdvancedVideoCompressionMetric(label: L10n.string("压缩后"), value: result.formattedCompressedSize)
-                        AdvancedVideoCompressionMetric(label: L10n.string("可减少"), value: result.formattedSavedSize)
+                        AdvancedVideoCompressionMetric(label: L10n.string("Original Image"), value: result.formattedOriginalSize)
+                        AdvancedVideoCompressionMetric(label: L10n.string("After Compression"), value: result.formattedCompressedSize)
+                        AdvancedVideoCompressionMetric(label: L10n.string("Can Save"), value: result.formattedSavedSize)
                     }
 
                     ForEach(result.items) { item in
@@ -2719,11 +2719,11 @@ private struct AdvancedImageCompressionComparisonSheet: View {
                 .padding(.vertical, 16)
             }
             .background(PhotoDeleteStyle.background.ignoresSafeArea())
-            .navigationTitle(L10n.string("图片对比"))
+            .navigationTitle(L10n.string("Image Comparison"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                 }
@@ -2756,7 +2756,7 @@ private struct AdvancedImageCompressionComparisonRow: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
                 comparisonButton(
-                    label: L10n.string("原图"),
+                    label: L10n.string("Original Image"),
                     size: CleanupStatsFormatter.space(item.originalSizeMB),
                     asset: originalAsset,
                     fallbackIcon: "photo"
@@ -2767,14 +2767,14 @@ private struct AdvancedImageCompressionComparisonRow: View {
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
 
                 comparisonButton(
-                    label: L10n.string("压缩后"),
+                    label: L10n.string("After Compression"),
                     size: CleanupStatsFormatter.space(item.compressedSizeMB),
                     asset: compressedAsset,
                     fallbackIcon: "photo"
                 )
             }
 
-            Text(String(format: L10n.string("减少 %@"), CleanupStatsFormatter.space(item.savedSizeMB)))
+            Text(String(format: L10n.string("Reduced %@"), CleanupStatsFormatter.space(item.savedSizeMB)))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.positive)
         }
@@ -2857,7 +2857,7 @@ private struct AdvancedImageCompressionHistoryCard: View {
     private var summaryText: String {
         let savedSizeMB = sessions.reduce(0) { $0 + $1.savedSizeMB }
         return String(
-            format: L10n.string("最近压缩记录 · %lld 次 · 可减少 %@"),
+            format: L10n.string("Recent compressions · %lld sessions · can save %@"),
             Int64(sessions.count),
             CleanupStatsFormatter.space(savedSizeMB)
         )
@@ -2877,7 +2877,7 @@ private struct AdvancedImageCompressionHistoryCard: View {
                         .frame(width: 24)
 
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(L10n.string("最近压缩记录"))
+                        Text(L10n.string("Recent compression history"))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -2897,11 +2897,11 @@ private struct AdvancedImageCompressionHistoryCard: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityValue(isExpanded ? Text(L10n.string("已展开")) : Text(L10n.string("已折叠")))
+            .accessibilityValue(isExpanded ? Text(L10n.string("Expanded")) : Text(L10n.string("Collapsed")))
 
             if let onDeleteOriginals {
                 Button(action: onDeleteOriginals) {
-                    Label(L10n.string("删除原文件释放空间"), systemImage: "trash")
+                    Label(L10n.string("Delete originals to free space"), systemImage: "trash")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.destructive)
                         .frame(maxWidth: .infinity)
@@ -2931,7 +2931,7 @@ private struct AdvancedImageCompressionHistoryCard: View {
                                     .font(.system(size: 13, weight: .semibold))
                                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                                Text(String(format: L10n.string("%lld 张图片 · %@ → %@"), Int64(session.imageCount), session.formattedOriginalSize, session.formattedCompressedSize))
+                                Text(String(format: L10n.string("%lld images · %@ → %@"), Int64(session.imageCount), session.formattedOriginalSize, session.formattedCompressedSize))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                                     .lineLimit(2)
@@ -2957,7 +2957,7 @@ private struct AdvancedImageCompressionHistoryCard: View {
                                 }
 
                                 if session.items.count > 3 {
-                                    Text(String(format: L10n.string("还有 %lld 条压缩明细"), Int64(session.items.count - 3)))
+                                    Text(String(format: L10n.string("%lld more compression details"), Int64(session.items.count - 3)))
                                         .font(.system(size: 11, weight: .medium))
                                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -3023,7 +3023,7 @@ private struct AdvancedImageCompressionHistoryItemRow: View {
             thumbnail(for: compressedAsset)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(title(for: compressedAsset, fallback: L10n.string("压缩后图片已删除")))
+                Text(title(for: compressedAsset, fallback: L10n.string("Compressed image deleted")))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
                     .lineLimit(1)
@@ -3080,7 +3080,7 @@ private struct AdvancedImageCompressionHistoryItemRow: View {
     }
 
     private var originalStatusText: String {
-        isOriginalDeleted ? L10n.string("原图已删除") : L10n.string("原图仍保留")
+        isOriginalDeleted ? L10n.string("Original image deleted") : L10n.string("Original still kept")
     }
 
     private var originalStatusIcon: String {
@@ -3104,7 +3104,7 @@ private struct AdvancedImageCompressionActionBar: View {
     var body: some View {
         VStack(spacing: 8) {
             if !isCompressing {
-                Text(String(format: L10n.string("已选择 %lld 张图片 · %@"), Int64(count), estimateText))
+                Text(String(format: L10n.string("%lld images selected · %@"), Int64(count), estimateText))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .lineLimit(2)
@@ -3113,7 +3113,7 @@ private struct AdvancedImageCompressionActionBar: View {
 
             HStack(spacing: 10) {
                 Button(role: .destructive, action: onDelete) {
-                    Label(L10n.string("删除选中"), systemImage: "trash")
+                    Label(L10n.string("Delete Selected"), systemImage: "trash")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.destructive)
                         .frame(maxWidth: .infinity)
@@ -3166,9 +3166,9 @@ private struct AdvancedImageCompressionActionBar: View {
 
     private var buttonTitle: String {
         if isCompressing {
-            return String(format: L10n.string("正在压缩 %lld/%lld"), Int64(processedCount), Int64(count))
+            return String(format: L10n.string("Compressing %lld/%lld"), Int64(processedCount), Int64(count))
         }
-        return L10n.string("压缩选中")
+        return L10n.string("Compress Selected")
     }
 }
 
@@ -3180,8 +3180,8 @@ private enum AdvancedVideoCompressionTab: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .pending: return L10n.string("未压缩")
-        case .processed: return L10n.string("已压缩")
+        case .pending: return L10n.string("Uncompressed")
+        case .processed: return L10n.string("Compressed")
         }
     }
 }
@@ -3269,7 +3269,7 @@ private struct AdvancedVideoCompressionView: View {
     }
 
     private var videoListSizeSummary: String {
-        guard !compressibleAssets.isEmpty else { return L10n.string("没有需要压缩的视频") }
+        guard !compressibleAssets.isEmpty else { return L10n.string("No videos need compression") }
 
         let visibleReliableSizeCount = loadedReliableVideoSizeCount(in: visibleCompressibleAssets)
         let visibleLoadedSizeCount = loadedVideoSizeCount(in: visibleCompressibleAssets)
@@ -3277,7 +3277,7 @@ private struct AdvancedVideoCompressionView: View {
 
         if visibleReliableSizeCount == visibleCompressibleAssets.count {
             return String(
-                format: L10n.string("已显示 %lld/%lld 个视频 · 合计约 %@"),
+                format: L10n.string("%lld/%lld videos shown · about %@ total"),
                 Int64(visibleCompressibleAssets.count),
                 Int64(compressibleAssets.count),
                 CleanupStatsFormatter.space(visibleTotalSizeMB)
@@ -3286,7 +3286,7 @@ private struct AdvancedVideoCompressionView: View {
 
         if visibleReliableSizeCount > 0 {
             return String(
-                format: L10n.string("已显示 %lld/%lld 个视频 · 已知约 %@"),
+                format: L10n.string("%lld/%lld videos shown · known about %@"),
                 Int64(visibleCompressibleAssets.count),
                 Int64(compressibleAssets.count),
                 CleanupStatsFormatter.space(visibleTotalSizeMB)
@@ -3295,14 +3295,14 @@ private struct AdvancedVideoCompressionView: View {
 
         if visibleLoadedSizeCount == visibleCompressibleAssets.count {
             return String(
-                format: L10n.string("已显示 %lld/%lld 个视频 · 压缩时确认大小"),
+                format: L10n.string("%lld/%lld videos shown · size checked when compressing"),
                 Int64(visibleCompressibleAssets.count),
                 Int64(compressibleAssets.count)
             )
         }
 
         return String(
-            format: L10n.string("已显示 %lld/%lld 个视频 · 正在计算大小"),
+            format: L10n.string("%lld/%lld videos shown · calculating size"),
             Int64(visibleCompressibleAssets.count),
             Int64(compressibleAssets.count)
         )
@@ -3320,10 +3320,10 @@ private struct AdvancedVideoCompressionView: View {
     private var selectedCompressionEstimateText: String {
         guard let selectedCompressionEstimate else {
             return hasPendingSizeLoads(for: selectedAssets)
-                ? L10n.string("正在计算预计大小")
-                : L10n.string("压缩时确认实际大小")
+                ? L10n.string("Calculating estimated size")
+                : L10n.string("Actual size checked when compressing")
         }
-        return String(format: L10n.string("预计压缩后 %@"), selectedCompressionEstimate.formattedCompressedRange)
+        return String(format: L10n.string("Estimated after compression %@"), selectedCompressionEstimate.formattedCompressedRange)
     }
 
     var body: some View {
@@ -3413,10 +3413,10 @@ private struct AdvancedVideoCompressionView: View {
                 )
             }
         }
-        .alert(L10n.string("iCloud 视频"), isPresented: $showingICloudVideoInfo) {
-            Button(L10n.string("知道了"), role: .cancel) {}
+        .alert(L10n.string("iCloud Videos"), isPresented: $showingICloudVideoInfo) {
+            Button(L10n.string("Got it"), role: .cancel) {}
         } message: {
-            Text(L10n.string("带云朵的视频当前只保存在 iCloud。列表不会自动下载大视频，开始压缩后会下载原片并确认实际大小。"))
+            Text(L10n.string("Videos with a cloud icon are currently stored in iCloud. The list will not automatically download large videos. Compression downloads the original and checks the actual size."))
         }
         .sheet(item: $compressionOptionsContext) { context in
             AdvancedVideoCompressionOptionsSheet(
@@ -3444,28 +3444,28 @@ private struct AdvancedVideoCompressionView: View {
     }
 
     private var videoCompressionTabPicker: some View {
-        Picker(L10n.string("视频压缩"), selection: $selectedTab) {
+        Picker(L10n.string("Video Compression"), selection: $selectedTab) {
             ForEach(AdvancedVideoCompressionTab.allCases) { tab in
                 Text(tab.title)
                     .tag(tab)
             }
         }
         .pickerStyle(.segmented)
-        .accessibilityLabel(L10n.string("视频压缩"))
+        .accessibilityLabel(L10n.string("Video Compression"))
     }
 
     @ViewBuilder
     private var pendingVideoCompressionContent: some View {
         if isLoadingAssets && assets.isEmpty {
             AdvancedLoadingState(
-                title: L10n.string("正在准备清理入口"),
-                subtitle: L10n.string("稍后会显示可处理的照片和视频。")
+                title: L10n.string("Preparing cleanup options"),
+                subtitle: L10n.string("Photos and videos you can review will appear shortly.")
             )
         } else if assets.isEmpty {
             AdvancedEmptyState(
                 icon: AdvancedCleanupKind.videoCompression.icon,
-                title: L10n.string("未找到可压缩的视频"),
-                subtitle: L10n.string("当前照片库里暂时没有可压缩的视频。")
+                title: L10n.string("No videos to compress"),
+                subtitle: L10n.string("There are no videos to compress in the current library.")
             )
         } else {
             AdvancedVideoCompressionListHeader(
@@ -3478,7 +3478,7 @@ private struct AdvancedVideoCompressionView: View {
             if !isLoadingAssets, !isLoadingVideoSizes, iCloudVideoCount > 0 {
                 AdvancedVideoCompressionICloudInfoCard(
                     count: iCloudVideoCount,
-                    subtitle: L10n.string("压缩时会下载原片并确认大小。"),
+                    subtitle: L10n.string("The original will download and the size will be checked when compressing."),
                     action: showICloudVideoInfo
                 )
             }
@@ -3486,8 +3486,8 @@ private struct AdvancedVideoCompressionView: View {
             if compressibleAssets.isEmpty {
                 AdvancedEmptyState(
                     icon: "checkmark.circle",
-                    title: L10n.string("没有需要压缩的视频"),
-                    subtitle: L10n.string("压缩完成的视频会留在最近压缩记录里。")
+                    title: L10n.string("No videos need compression"),
+                    subtitle: L10n.string("Finished videos stay in recent compression history.")
                 )
             } else {
                 LazyVStack(spacing: 9) {
@@ -3510,7 +3510,7 @@ private struct AdvancedVideoCompressionView: View {
                 }
 
                 if hasMoreCompressibleAssets {
-                    Text(L10n.string("继续向下滚动加载更多"))
+                    Text(L10n.string("Scroll down to load more"))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .frame(maxWidth: .infinity)
@@ -3525,8 +3525,8 @@ private struct AdvancedVideoCompressionView: View {
         if dataManager.videoCompressionHistoryStore.sessions.isEmpty {
             AdvancedEmptyState(
                 icon: "video.badge.checkmark",
-                title: L10n.string("还没有压缩记录"),
-                subtitle: L10n.string("压缩完成的视频会留在最近压缩记录里。")
+                title: L10n.string("No compression history yet"),
+                subtitle: L10n.string("Finished videos stay in recent compression history.")
             )
         } else {
             AdvancedVideoCompressionHistoryCard(
@@ -3593,15 +3593,15 @@ private struct AdvancedVideoCompressionView: View {
 
     private func displaySizeText(for asset: PHAsset) -> String {
         guard let estimate = videoSizeEstimatesByAssetID[asset.localIdentifier] else {
-            return L10n.string("计算中")
+            return L10n.string("Calculating")
         }
         switch estimate.source {
         case .assetResource:
             return CleanupStatsFormatter.space(estimate.sizeMB)
         case .iCloud:
-            return L10n.string("待下载")
+            return L10n.string("Needs download")
         case .unavailable:
-            return L10n.string("压缩时确认")
+            return L10n.string("Checked when compressing")
         }
     }
 
@@ -3815,7 +3815,7 @@ private struct AdvancedVideoCompressionView: View {
 
     private func showCompressionComparison() {
         guard compressionJob.result?.createdAssetIdentifiers.isEmpty == false else {
-            dataManager.setVideoCompressionError(L10n.string("暂时找不到压缩后视频。"))
+            dataManager.setVideoCompressionError(L10n.string("The compressed video cannot be found right now."))
             return
         }
         showingCompressionComparison = true
@@ -3828,7 +3828,7 @@ private struct AdvancedVideoCompressionView: View {
     private func queueOriginalVideosForDeletion() {
         guard let compressionResult = compressionJob.result else { return }
         guard compressionResult.hasMeaningfulSavings else {
-            dataManager.setVideoCompressionError(L10n.string("这次没有明显减少空间，建议先保留原视频。"))
+            dataManager.setVideoCompressionError(L10n.string("This did not noticeably reduce space, so keep the original for now."))
             return
         }
 
@@ -3839,7 +3839,7 @@ private struct AdvancedVideoCompressionView: View {
             originalAssets.append(asset)
         }
         guard !originalAssets.isEmpty else {
-            dataManager.setVideoCompressionError(L10n.string("暂时找不到原视频。"))
+            dataManager.setVideoCompressionError(L10n.string("The original video cannot be found right now."))
             return
         }
 
@@ -3859,7 +3859,7 @@ private struct AdvancedVideoCompressionView: View {
             originalAssets.append(asset)
         }
         guard !originalAssets.isEmpty else {
-            dataManager.setVideoCompressionError(L10n.string("暂时找不到原视频。"))
+            dataManager.setVideoCompressionError(L10n.string("The original video cannot be found right now."))
             return
         }
 
@@ -3884,7 +3884,7 @@ private struct AdvancedVideoCompressionListHeader: View {
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.string("可压缩视频"))
+                Text(L10n.string("Videos to Compress"))
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -3897,7 +3897,7 @@ private struct AdvancedVideoCompressionListHeader: View {
             Spacer()
 
             AdvancedBulkSelectionButton(
-                title: isAllSelected ? L10n.string("取消") : L10n.string("全选全部"),
+                title: isAllSelected ? L10n.string("Cancel") : L10n.string("Select Everything"),
                 isDisabled: isDisabled,
                 action: action
             )
@@ -3924,7 +3924,7 @@ private struct AdvancedVideoCompressionICloudInfoCard: View {
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(String(format: L10n.string("%lld 个视频在 iCloud"), Int64(count)))
+                    Text(String(format: L10n.string("%lld videos in iCloud"), Int64(count)))
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -3944,7 +3944,7 @@ private struct AdvancedVideoCompressionICloudInfoCard: View {
             .photoDeleteCard()
         }
         .buttonStyle(.plain)
-        .accessibilityHint(Text(L10n.string("查看 iCloud 视频说明")))
+        .accessibilityHint(Text(L10n.string("View iCloud video explanation")))
     }
 }
 
@@ -3965,14 +3965,14 @@ private struct AdvancedVideoCompressionPlanCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(L10n.string("当前压缩方案"))
+                Text(L10n.string("Current compression plan"))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
                 Spacer()
 
                 Button(action: action) {
-                    Label(L10n.string("调整"), systemImage: "slider.horizontal.3")
+                    Label(L10n.string("Adjust"), systemImage: "slider.horizontal.3")
                         .font(.system(size: 12, weight: .semibold))
                 }
                 .buttonStyle(.plain)
@@ -3981,12 +3981,12 @@ private struct AdvancedVideoCompressionPlanCard: View {
             }
 
             HStack(spacing: 10) {
-                AdvancedVideoCompressionMetric(label: L10n.string("质量"), value: plan.quality.title)
-                AdvancedVideoCompressionMetric(label: L10n.string("分辨率"), value: plan.resolution.title)
-                AdvancedVideoCompressionMetric(label: L10n.string("预计压缩后"), value: selectedCount == 0 ? L10n.string("先选择视频") : estimate.formattedCompressedRange)
+                AdvancedVideoCompressionMetric(label: L10n.string("Quality"), value: plan.quality.title)
+                AdvancedVideoCompressionMetric(label: L10n.string("Resolution"), value: plan.resolution.title)
+                AdvancedVideoCompressionMetric(label: L10n.string("Estimated after"), value: selectedCount == 0 ? L10n.string("Select videos first") : estimate.formattedCompressedRange)
             }
 
-            Label(L10n.string("压缩后视频会保存到照片库，原视频不会自动删除。"), systemImage: "info.circle")
+            Label(L10n.string("Compressed videos are saved to Photos. Originals are not deleted automatically."), systemImage: "info.circle")
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
@@ -4040,18 +4040,18 @@ private struct AdvancedVideoCompressionOptionsSheet: View {
                     )
 
                     AdvancedVideoCompressionOptionSection(
-                        title: L10n.string("质量")
+                        title: L10n.string("Quality")
                     ) {
                         AdvancedVideoCompressionQualityPicker(selection: $plan.quality)
                     }
 
                     AdvancedVideoCompressionOptionSection(
-                        title: L10n.string("分辨率")
+                        title: L10n.string("Resolution")
                     ) {
                         AdvancedVideoCompressionResolutionPicker(selection: $plan.resolution)
                     }
 
-                    Label(L10n.string("预计大小会因原视频编码、运动复杂度和 HDR 状态产生偏差，最终以压缩完成报告为准。"), systemImage: "info.circle")
+                    Label(L10n.string("Estimated size can vary by original encoding, motion complexity, and HDR status. The final report is the source of truth."), systemImage: "info.circle")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
@@ -4061,11 +4061,11 @@ private struct AdvancedVideoCompressionOptionsSheet: View {
                 .padding(.bottom, 24)
             }
             .background(PhotoDeleteStyle.background.ignoresSafeArea())
-            .navigationTitle(L10n.string("压缩方案"))
+            .navigationTitle(L10n.string("Compression plan"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.string("取消")) {
+                    Button(L10n.string("Cancel")) {
                         dismiss()
                     }
                 }
@@ -4078,7 +4078,7 @@ private struct AdvancedVideoCompressionOptionsSheet: View {
                     onStart(selectedPlan, selectedAssets)
                 } label: {
                     VStack(spacing: 3) {
-                        Text(String(format: L10n.string("开始压缩 %lld 个视频"), Int64(context.count)))
+                        Text(String(format: L10n.string("Compress %lld videos"), Int64(context.count)))
                             .font(.system(size: 15, weight: .semibold))
                         Text(buttonSubtitle)
                             .font(.system(size: 11, weight: .medium))
@@ -4102,9 +4102,9 @@ private struct AdvancedVideoCompressionOptionsSheet: View {
 
     private var buttonSubtitle: String {
         guard let visibleEstimate else {
-            return L10n.string("压缩时确认实际大小")
+            return L10n.string("Actual size checked when compressing")
         }
-        return String(format: L10n.string("预计压缩后 %@"), visibleEstimate.formattedCompressedRange)
+        return String(format: L10n.string("Estimated after compression %@"), visibleEstimate.formattedCompressedRange)
     }
 }
 
@@ -4121,7 +4121,7 @@ private struct AdvancedVideoCompressionEstimateCard: View {
                     .frame(width: 34, height: 34)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(String(format: L10n.string("准备压缩 %lld 个视频"), Int64(count)))
+                    Text(String(format: L10n.string("Ready to compress %lld videos"), Int64(count)))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -4134,8 +4134,8 @@ private struct AdvancedVideoCompressionEstimateCard: View {
             }
 
             HStack(spacing: 10) {
-                AdvancedVideoCompressionMetric(label: L10n.string("预计压缩后"), value: estimate?.formattedCompressedRange ?? L10n.string("计算中"))
-                AdvancedVideoCompressionMetric(label: L10n.string("预计节省"), value: estimate?.formattedSavedRange ?? L10n.string("计算中"))
+                AdvancedVideoCompressionMetric(label: L10n.string("Estimated after"), value: estimate?.formattedCompressedRange ?? L10n.string("Calculating"))
+                AdvancedVideoCompressionMetric(label: L10n.string("Estimated saved"), value: estimate?.formattedSavedRange ?? L10n.string("Calculating"))
             }
         }
         .padding(14)
@@ -4144,9 +4144,9 @@ private struct AdvancedVideoCompressionEstimateCard: View {
 
     private var originalSizeText: String {
         guard let estimate else {
-            return L10n.string("压缩时确认原文件大小")
+            return L10n.string("Original size checked when compressing")
         }
-        return String(format: L10n.string("原文件合计 %@"), estimate.formattedOriginalSize)
+        return String(format: L10n.string("Original total %@"), estimate.formattedOriginalSize)
     }
 }
 
@@ -4238,7 +4238,7 @@ private struct AdvancedVideoCompressionSegmentButton: View {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityValue(Text(isSelected ? L10n.string("已选") : L10n.string("未选择")))
+        .accessibilityValue(Text(isSelected ? L10n.string("Selected") : L10n.string("Not Set")))
     }
 }
 
@@ -4260,16 +4260,16 @@ private struct AdvancedVideoCompressionProgressCard: View {
                 .frame(width: 34, height: 34)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(String(format: L10n.string("正在压缩 %lld/%lld"), Int64(processedCount), Int64(totalCount)))
+                Text(String(format: L10n.string("Compressing %lld/%lld"), Int64(processedCount), Int64(totalCount)))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                Text(message ?? L10n.string("正在压缩视频"))
+                Text(message ?? L10n.string("Compressing video"))
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Label(L10n.string("请保持 App 打开，离开 App 可能暂停压缩。"), systemImage: "exclamationmark.circle")
+                Label(L10n.string("Keep the app open. Leaving the app may pause compression."), systemImage: "exclamationmark.circle")
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.warning)
                     .fixedSize(horizontal: false, vertical: true)
@@ -4315,7 +4315,7 @@ private struct AdvancedVideoCompressionResultCard: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.78)
 
-                    Text(L10n.string("可减少"))
+                    Text(L10n.string("Can Save"))
                         .font(.caption)
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
@@ -4323,16 +4323,16 @@ private struct AdvancedVideoCompressionResultCard: View {
             }
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                AdvancedVideoCompressionMetric(label: L10n.string("方案"), value: result.plan.title)
-                AdvancedVideoCompressionMetric(label: L10n.string("原视频"), value: result.formattedOriginalSize)
-                AdvancedVideoCompressionMetric(label: L10n.string("压缩后"), value: result.formattedCompressedSize)
-                AdvancedVideoCompressionMetric(label: L10n.string("节省比例"), value: result.savedRatioText)
+                AdvancedVideoCompressionMetric(label: L10n.string("Plan"), value: result.plan.title)
+                AdvancedVideoCompressionMetric(label: L10n.string("Original Video"), value: result.formattedOriginalSize)
+                AdvancedVideoCompressionMetric(label: L10n.string("After Compression"), value: result.formattedCompressedSize)
+                AdvancedVideoCompressionMetric(label: L10n.string("Savings"), value: result.savedRatioText)
             }
 
             VStack(spacing: 0) {
                 AdvancedVideoCompressionResultInfoRow(
                     systemImage: "video.badge.checkmark",
-                    title: L10n.string("压缩后视频"),
+                    title: L10n.string("Compressed video"),
                     value: result.createdCopiesText,
                     tint: PhotoDeleteStyle.positive
                 )
@@ -4342,26 +4342,26 @@ private struct AdvancedVideoCompressionResultCard: View {
 
                 AdvancedVideoCompressionResultInfoRow(
                     systemImage: "arrow.down.right.and.arrow.up.left",
-                    title: L10n.string("分辨率"),
+                    title: L10n.string("Resolution"),
                     value: result.resolutionSummaryText,
                     tint: PhotoDeleteStyle.accent
                 )
             }
 
-            Text(result.hasMeaningfulSavings ? L10n.string("已生成压缩后视频，原视频尚未删除。请先查看对比，再决定是否删除原视频。") : L10n.string("已生成压缩后视频，但空间减少不明显。建议先保留原视频。"))
+            Text(result.hasMeaningfulSavings ? L10n.string("A compressed video was created. The original has not been deleted. Compare them first, then decide whether to delete the original.") : L10n.string("A compressed video was created, but space savings are small. Keep the original for now."))
                 .font(.footnote)
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
 
             if result.failedCount > 0 {
-                Label(String(format: L10n.string("%lld 个视频未完成"), Int64(result.failedCount)), systemImage: "exclamationmark.triangle")
+                Label(String(format: L10n.string("%lld videos did not finish"), Int64(result.failedCount)), systemImage: "exclamationmark.triangle")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.warning)
             }
 
             VStack(spacing: 10) {
                 Button(action: onCompare) {
-                    Label(L10n.string("查看对比"), systemImage: "rectangle.split.2x1")
+                    Label(L10n.string("Compare"), systemImage: "rectangle.split.2x1")
                         .frame(maxWidth: .infinity)
                 }
                 .photoDeletePrimaryButton()
@@ -4369,7 +4369,7 @@ private struct AdvancedVideoCompressionResultCard: View {
 
                 HStack(spacing: 10) {
                     AdvancedVideoCompressionCompactActionButton(
-                        title: L10n.string("删除原视频"),
+                        title: L10n.string("Delete original"),
                         systemImage: "trash",
                         tint: PhotoDeleteStyle.destructive,
                         isEnabled: result.hasMeaningfulSavings,
@@ -4377,7 +4377,7 @@ private struct AdvancedVideoCompressionResultCard: View {
                     )
 
                     AdvancedVideoCompressionCompactActionButton(
-                        title: L10n.string("保留原视频"),
+                        title: L10n.string("Keep original"),
                         systemImage: "checkmark",
                         tint: PhotoDeleteStyle.accent,
                         isEnabled: true,
@@ -4468,9 +4468,9 @@ private struct AdvancedVideoCompressionComparisonSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack(spacing: 10) {
-                        AdvancedVideoCompressionMetric(label: L10n.string("原视频"), value: result.formattedOriginalSize)
-                        AdvancedVideoCompressionMetric(label: L10n.string("压缩后"), value: result.formattedCompressedSize)
-                        AdvancedVideoCompressionMetric(label: L10n.string("可减少"), value: result.formattedSavedSize)
+                        AdvancedVideoCompressionMetric(label: L10n.string("Original Video"), value: result.formattedOriginalSize)
+                        AdvancedVideoCompressionMetric(label: L10n.string("After Compression"), value: result.formattedCompressedSize)
+                        AdvancedVideoCompressionMetric(label: L10n.string("Can Save"), value: result.formattedSavedSize)
                     }
 
                     ForEach(result.items) { item in
@@ -4486,11 +4486,11 @@ private struct AdvancedVideoCompressionComparisonSheet: View {
                 .padding(.vertical, 16)
             }
             .background(PhotoDeleteStyle.background.ignoresSafeArea())
-            .navigationTitle(L10n.string("视频对比"))
+            .navigationTitle(L10n.string("Video comparison"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                 }
@@ -4523,7 +4523,7 @@ private struct AdvancedVideoCompressionComparisonRow: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
                 comparisonButton(
-                    label: L10n.string("原视频"),
+                    label: L10n.string("Original Video"),
                     size: CleanupStatsFormatter.space(item.originalSizeMB),
                     asset: originalAsset,
                     fallbackIcon: "video"
@@ -4534,14 +4534,14 @@ private struct AdvancedVideoCompressionComparisonRow: View {
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
 
                 comparisonButton(
-                    label: L10n.string("压缩后"),
+                    label: L10n.string("After Compression"),
                     size: CleanupStatsFormatter.space(item.compressedSizeMB),
                     asset: compressedAsset,
                     fallbackIcon: "video.badge.checkmark"
                 )
             }
 
-            Text(String(format: L10n.string("减少 %@"), CleanupStatsFormatter.space(item.savedSizeMB)))
+            Text(String(format: L10n.string("Reduced %@"), CleanupStatsFormatter.space(item.savedSizeMB)))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.positive)
         }
@@ -4649,7 +4649,7 @@ private struct AdvancedVideoCompressionHistoryCard: View {
     private var summaryText: String {
         let savedSizeMB = sessions.reduce(0) { $0 + $1.savedSizeMB }
         return String(
-            format: L10n.string("最近压缩记录 · %lld 次 · 可减少 %@"),
+            format: L10n.string("Recent compressions · %lld sessions · can save %@"),
             Int64(sessions.count),
             CleanupStatsFormatter.space(savedSizeMB)
         )
@@ -4669,7 +4669,7 @@ private struct AdvancedVideoCompressionHistoryCard: View {
                         .frame(width: 24)
 
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(L10n.string("最近压缩记录"))
+                        Text(L10n.string("Recent compression history"))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -4689,11 +4689,11 @@ private struct AdvancedVideoCompressionHistoryCard: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityValue(isExpanded ? Text(L10n.string("已展开")) : Text(L10n.string("已折叠")))
+            .accessibilityValue(isExpanded ? Text(L10n.string("Expanded")) : Text(L10n.string("Collapsed")))
 
             if let onDeleteOriginals {
                 Button(action: onDeleteOriginals) {
-                    Label(L10n.string("删除原文件释放空间"), systemImage: "trash")
+                    Label(L10n.string("Delete originals to free space"), systemImage: "trash")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.destructive)
                         .frame(maxWidth: .infinity)
@@ -4723,7 +4723,7 @@ private struct AdvancedVideoCompressionHistoryCard: View {
                                     .font(.system(size: 13, weight: .semibold))
                                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                                Text(String(format: L10n.string("%lld 个视频 · %@ → %@"), Int64(session.videoCount), session.formattedOriginalSize, session.formattedCompressedSize))
+                                Text(String(format: L10n.string("%lld videos · %@ → %@"), Int64(session.videoCount), session.formattedOriginalSize, session.formattedCompressedSize))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                                     .lineLimit(2)
@@ -4749,7 +4749,7 @@ private struct AdvancedVideoCompressionHistoryCard: View {
                                 }
 
                                 if session.items.count > 3 {
-                                    Text(String(format: L10n.string("还有 %lld 条压缩明细"), Int64(session.items.count - 3)))
+                                    Text(String(format: L10n.string("%lld more compression details"), Int64(session.items.count - 3)))
                                         .font(.system(size: 11, weight: .medium))
                                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -4815,7 +4815,7 @@ private struct AdvancedVideoCompressionHistoryItemRow: View {
             thumbnail(for: compressedAsset)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(title(for: compressedAsset, fallback: L10n.string("压缩后视频已删除")))
+                Text(title(for: compressedAsset, fallback: L10n.string("Compressed video deleted")))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
                     .lineLimit(1)
@@ -4872,7 +4872,7 @@ private struct AdvancedVideoCompressionHistoryItemRow: View {
     }
 
     private var originalStatusText: String {
-        isOriginalDeleted ? L10n.string("原视频已删除") : L10n.string("原视频仍保留")
+        isOriginalDeleted ? L10n.string("Original video deleted") : L10n.string("Original video still kept")
     }
 
     private var originalStatusIcon: String {
@@ -4919,7 +4919,7 @@ private struct AdvancedVideoCompressionActionBar: View {
     var body: some View {
         VStack(spacing: 8) {
             if !isCompressing {
-                Text(String(format: L10n.string("已选择 %lld 个视频 · %@"), Int64(count), estimateText))
+                Text(String(format: L10n.string("%lld videos selected · %@"), Int64(count), estimateText))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .lineLimit(2)
@@ -4928,7 +4928,7 @@ private struct AdvancedVideoCompressionActionBar: View {
 
             HStack(spacing: 10) {
                 Button(role: .destructive, action: onDelete) {
-                    Label(L10n.string("删除选中"), systemImage: "trash")
+                    Label(L10n.string("Delete Selected"), systemImage: "trash")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.destructive)
                         .frame(maxWidth: .infinity)
@@ -4981,9 +4981,9 @@ private struct AdvancedVideoCompressionActionBar: View {
 
     private var buttonTitle: String {
         if isCompressing {
-            return String(format: L10n.string("正在压缩 %lld/%lld"), Int64(processedCount), Int64(count))
+            return String(format: L10n.string("Compressing %lld/%lld"), Int64(processedCount), Int64(count))
         }
-        return L10n.string("压缩选中")
+        return L10n.string("Compress Selected")
     }
 }
 
@@ -5030,26 +5030,26 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                     AdvancedFilterPills(kind: .similarPhotos, selection: $selectedFilter)
 
                     AdvancedAssetListSummaryCard(
-                        title: String(format: L10n.string("发现 %lld 组相似照片"), Int64(snapshot.groups.count)),
+                        title: String(format: L10n.string("Found %lld similar groups"), Int64(snapshot.groups.count)),
                         subtitle: String(
-                            format: L10n.string("预计可减少 %lld 张，逐组确认更稳妥。"),
+                            format: L10n.string("Could reduce %lld photos. Confirming group by group is safer."),
                             Int64(snapshot.suggestedDeleteCount)
                         ),
-                        buttonTitle: selectedAssetIDs.isEmpty ? L10n.string("建议选择") : L10n.string("取消"),
+                        buttonTitle: selectedAssetIDs.isEmpty ? L10n.string("Select Suggested") : L10n.string("Cancel"),
                         action: toggleRecommendedSelection
                     )
 
                     if groups.isEmpty {
                         AdvancedEmptyState(
                             icon: AdvancedCleanupKind.similarPhotos.icon,
-                            title: L10n.string("暂未发现相似照片"),
-                            subtitle: L10n.string("会把拍摄时间接近的照片放在一起，方便逐组确认。")
+                            title: L10n.string("No Similar Photos Found Yet"),
+                            subtitle: L10n.string("Photos taken close together are grouped so you can review each group.")
                         )
                     } else if snapshot.groups.isEmpty {
                         AdvancedEmptyState(
                             icon: AdvancedCleanupKind.similarPhotos.icon,
-                            title: L10n.string("当前筛选没有内容"),
-                            subtitle: L10n.string("可以切换到全部，或稍后再回来查看。")
+                            title: L10n.string("No Results for This Filter"),
+                            subtitle: L10n.string("Switch to All, or check again later.")
                         )
                     } else {
                         LazyVStack(spacing: 10) {
@@ -5073,7 +5073,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                         }
 
                         if snapshot.hasMoreGroups {
-                            Text(L10n.string("继续向下滚动加载更多"))
+                            Text(L10n.string("Scroll down to load more"))
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(PhotoDeleteStyle.secondaryText)
                                 .frame(maxWidth: .infinity)
@@ -5096,7 +5096,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .advancedDetailNavigation(title: L10n.string("相似照片"))
+        .advancedDetailNavigation(title: L10n.string("Similar Photos"))
         .fullScreenCover(isPresented: $showBatchConfirm, onDismiss: {
             syncSelectionWithPendingDeleteCandidates()
             reloadGroups()
@@ -5269,7 +5269,7 @@ private struct AdvancedSimilarPhotoGroupCard: View {
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(String(format: L10n.string("%lld 张相近候选"), Int64(group.assets.count)))
+                    Text(String(format: L10n.string("%lld similar candidates"), Int64(group.assets.count)))
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
@@ -5278,19 +5278,19 @@ private struct AdvancedSimilarPhotoGroupCard: View {
 
                 HStack(spacing: 8) {
                     AdvancedSimilarPhotoGroupActionButton(
-                        title: L10n.string("预览"),
+                        title: L10n.string("Preview"),
                         systemImage: "rectangle.stack",
                         tint: PhotoDeleteStyle.accent,
                         action: onPreviewGroup
                     )
 
                     AdvancedSimilarPhotoGroupActionButton(
-                        title: L10n.string("保留首张"),
+                        title: L10n.string("Keep First"),
                         systemImage: "checkmark.circle.fill",
                         tint: PhotoDeleteStyle.positive,
                         action: onSelectRecommended
                     )
-                    .accessibilityHint(Text(L10n.string("选择除首张外的相似照片；再次点击可取消选择。")))
+                    .accessibilityHint(Text(L10n.string("Select similar photos except the first one; tap again to clear the selection.")))
                 }
             }
 
@@ -5309,7 +5309,7 @@ private struct AdvancedSimilarPhotoGroupCard: View {
 
                     if hasMoreAssets {
                         Button(action: showMoreAssets) {
-                            Label(L10n.string("显示更多"), systemImage: "chevron.right")
+                            Label(L10n.string("Show More"), systemImage: "chevron.right")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(PhotoDeleteStyle.accent)
                                 .padding(.horizontal, 12)
@@ -5451,7 +5451,7 @@ private struct AdvancedAssetRow: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(asset.mediaType == .video ? L10n.string("视频预览") : L10n.string("照片预览"))
+            .accessibilityLabel(asset.mediaType == .video ? L10n.string("Video Preview") : L10n.string("Photo Preview"))
 
             Button(action: onToggleSelection) {
                 HStack(spacing: 12) {
@@ -5501,8 +5501,8 @@ private struct AdvancedAssetRow: View {
                 }
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(isSelected ? L10n.string("取消选择") : L10n.string("选择"))
-            .accessibilityValue(Text("\(isSelected ? L10n.string("已选") : L10n.string("未选择")), \(title), \(metadata)"))
+            .accessibilityLabel(isSelected ? L10n.string("Deselect") : L10n.string("Select"))
+            .accessibilityValue(Text("\(isSelected ? L10n.string("Selected") : L10n.string("Not Set")), \(title), \(metadata)"))
             .accessibilityAddTraits(isSelected ? .isSelected : [])
         }
         .padding(10)
@@ -5566,12 +5566,12 @@ private struct AdvancedSelectableThumbnail: View {
 
     private var previewAccessibilityLabel: String {
         if asset.mediaType == .video {
-            return L10n.string("视频预览")
+            return L10n.string("Video Preview")
         }
         if photoLibraryManager.isLivePhoto(asset) {
-            return L10n.string("实况照片")
+            return L10n.string("Live Photos")
         }
-        return L10n.string("照片预览")
+        return L10n.string("Photo Preview")
     }
 
     var body: some View {
@@ -5592,7 +5592,7 @@ private struct AdvancedSelectableThumbnail: View {
             )
 
             if showsRecommendedBadge {
-                Text(L10n.string("保留"))
+                Text(L10n.string("Keep"))
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(PhotoDeleteStyle.primaryButtonText)
                     .padding(.horizontal, 5)
@@ -5647,8 +5647,8 @@ private struct AdvancedSelectableThumbnailSelectionButton: View {
         .buttonStyle(.plain)
         .frame(width: 44, height: 44, alignment: .topTrailing)
         .contentShape(Rectangle())
-        .accessibilityLabel(isSelected ? L10n.string("取消选择") : L10n.string("选择"))
-        .accessibilityValue(Text(isSelected ? L10n.string("已选") : L10n.string("未选择")))
+        .accessibilityLabel(isSelected ? L10n.string("Deselect") : L10n.string("Select"))
+        .accessibilityValue(Text(isSelected ? L10n.string("Selected") : L10n.string("Not Set")))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
@@ -5724,7 +5724,7 @@ private struct AdvancedAssetThumbnail: View {
     }
 
     private var badgeAccessibilityLabel: String {
-        asset.mediaType == .video ? L10n.string("视频") : L10n.string("实况照片")
+        asset.mediaType == .video ? L10n.string("Videos") : L10n.string("Live Photos")
     }
 
     var body: some View {
@@ -5847,7 +5847,7 @@ private struct AdvancedAssetPreviewView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("关闭")) {
+                    Button(L10n.string("Close")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.accent)
@@ -5862,12 +5862,12 @@ private struct AdvancedAssetPreviewView: View {
 
     private var navigationTitle: String {
         if selectedAsset.mediaType == .video {
-            return L10n.string("视频预览")
+            return L10n.string("Video Preview")
         }
         if photoLibraryManager.isLivePhoto(selectedAsset) {
-            return L10n.string("实况照片")
+            return L10n.string("Live Photos")
         }
-        return L10n.string("照片预览")
+        return L10n.string("Photo Preview")
     }
 
     private var assetIdentifiers: [String] {
@@ -5907,7 +5907,7 @@ private struct AdvancedAssetPreviewView: View {
 
             Button(action: toggleSelectedPreviewAsset) {
                 Label(
-                    isSelectedForDeletion ? L10n.string("已加入待删除") : L10n.string("加入待删除"),
+                    isSelectedForDeletion ? L10n.string("Marked to delete") : L10n.string("Mark to delete"),
                     systemImage: isSelectedForDeletion ? "checkmark.circle.fill" : "square"
                 )
                 .font(.system(size: 15, weight: .semibold))
@@ -5925,7 +5925,7 @@ private struct AdvancedAssetPreviewView: View {
             }
             .buttonStyle(.plain)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(isSelectedForDeletion ? L10n.string("已加入待删除") : L10n.string("加入待删除")))
+            .accessibilityLabel(Text(isSelectedForDeletion ? L10n.string("Marked to delete") : L10n.string("Mark to delete")))
             .accessibilityIdentifier("advanced-preview-delete-selection-toggle")
         }
         .padding(.horizontal, 16)
@@ -5947,7 +5947,7 @@ private struct AdvancedAssetPreviewView: View {
                             .padding(.horizontal, 11)
                             .padding(.vertical, 6)
                             .background(Capsule(style: .continuous).fill(Color.black.opacity(0.54)))
-                            .accessibilityLabel(Text("\(L10n.string("位置")) \(previewPositionText)"))
+                            .accessibilityLabel(Text("\(L10n.string("Position")) \(previewPositionText)"))
                     }
                     .padding(.top, 12)
                     .padding(.trailing, 16)
@@ -5960,7 +5960,7 @@ private struct AdvancedAssetPreviewView: View {
             HStack {
                 AdvancedPreviewPagingButton(
                     systemImage: "chevron.left",
-                    accessibilityLabel: L10n.string("上一张"),
+                    accessibilityLabel: L10n.string("Previous"),
                     isDisabled: !canSelectPreviousPreviewAsset
                 ) {
                     selectPreviewAsset(.previous)
@@ -5970,7 +5970,7 @@ private struct AdvancedAssetPreviewView: View {
 
                 AdvancedPreviewPagingButton(
                     systemImage: "chevron.right",
-                    accessibilityLabel: L10n.string("下一张"),
+                    accessibilityLabel: L10n.string("Next Photo"),
                     isDisabled: !canSelectNextPreviewAsset
                 ) {
                     selectPreviewAsset(.next)
@@ -6124,7 +6124,7 @@ private struct AdvancedAssetPreviewPage: View {
                 )
                 .allowsHitTesting(false)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .accessibilityLabel(L10n.string("实况照片"))
+                .accessibilityLabel(L10n.string("Live Photos"))
             } else if let image {
                 ZoomablePhotoPreview(image: image)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -6139,7 +6139,7 @@ private struct AdvancedAssetPreviewPage: View {
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
                     }
 
-                    Text(isLoading ? L10n.string("正在读取照片") : L10n.string("无法读取这张照片"))
+                    Text(isLoading ? L10n.string("Reading Photos") : L10n.string("Unable to load this photo"))
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
@@ -6303,7 +6303,7 @@ private struct AdvancedSelectionActionBar: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: "trash")
-                Text(String(format: L10n.string("加入待删除 %lld 项"), Int64(count)))
+                Text(String(format: L10n.string("Add %lld items to delete"), Int64(count)))
             }
             .font(.system(size: 15, weight: .semibold))
             .foregroundColor(PhotoDeleteStyle.primaryButtonText)
@@ -6339,21 +6339,21 @@ private enum AdvancedCleanupFilter: String, Hashable, Identifiable {
     var title: String {
         switch self {
         case .all:
-            return L10n.string("全部")
+            return L10n.string("All")
         case .recommended:
-            return L10n.string("推荐")
+            return L10n.string("Recommended")
         case .burst:
-            return L10n.string("连拍")
+            return L10n.string("Bursts")
         case .videos:
-            return L10n.string("视频")
+            return L10n.string("Videos")
         case .photos:
-            return L10n.string("图片")
+            return L10n.string("Images")
         case .large:
-            return L10n.string("大文件")
+            return L10n.string("Large Files")
         case .long:
-            return L10n.string("较长")
+            return L10n.string("Longer")
         case .month:
-            return L10n.string("本月")
+            return L10n.string("This Month")
         }
     }
 
@@ -6478,7 +6478,7 @@ private struct AdvancedProgressRing<Content: View>: View {
 
 private struct AdvancedDemoTag: View {
     var body: some View {
-        Text(L10n.string("示例"))
+        Text(L10n.string("Demo"))
             .font(.system(size: 10, weight: .bold))
             .foregroundColor(PhotoDeleteStyle.warning)
             .padding(.horizontal, 5)
@@ -6598,23 +6598,23 @@ private struct AdvancedPreviewAsset: Identifiable {
 private enum AdvancedAssetFormatter {
     static func title(for asset: PHAsset, photoLibraryManager: PhotoLibraryManager) -> String {
         if asset.mediaType == .video {
-            return L10n.string("视频")
+            return L10n.string("Videos")
         }
         if photoLibraryManager.isScreenshot(asset) {
-            return L10n.string("截图")
+            return L10n.string("Screenshots")
         }
-        return L10n.string("照片")
+        return L10n.string("Photos")
     }
 
     static func metadata(for asset: PHAsset, photoLibraryManager: PhotoLibraryManager) -> String {
         var parts: [String] = []
 
         if asset.mediaType == .video {
-            parts.append(String(format: L10n.string("视频 %@"), formattedDuration(asset.duration)))
+            parts.append(String(format: L10n.string("Video %@"), formattedDuration(asset.duration)))
         } else if photoLibraryManager.isScreenshot(asset) {
-            parts.append(L10n.string("截图"))
+            parts.append(L10n.string("Screenshots"))
         } else {
-            parts.append(L10n.string("图片"))
+            parts.append(L10n.string("Images"))
         }
 
         if asset.pixelWidth > 0 && asset.pixelHeight > 0 {
@@ -6679,36 +6679,36 @@ private enum AdvancedPeriodFormatter {
     static func subtitle(for summary: PhotoPeriodSummary) -> String {
         switch summary.scope {
         case .day:
-            return L10n.string("当天")
+            return L10n.string("This Day")
         case .week:
             let start = AppDateFormatter.string(from: summary.intervalStart, template: "Md")
             let endDate = Calendar.current.date(byAdding: .day, value: -1, to: summary.intervalEnd) ?? summary.intervalEnd
             let end = AppDateFormatter.string(from: endDate, template: "Md")
             return "\(start) - \(end)"
         case .month:
-            return L10n.string("本月照片清理进度")
+            return L10n.string("Monthly photo cleanup progress")
         case .year:
-            return L10n.string("全年照片清理进度")
+            return L10n.string("Yearly photo cleanup progress")
         }
     }
 
     private static func weekTitle(for date: Date) -> String {
         let components = Calendar.current.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
         return String(
-            format: L10n.string("%lld 年第 %lld 周"),
-            Int64(components.yearForWeekOfYear ?? 0),
-            Int64(components.weekOfYear ?? 0)
+            format: L10n.string("Week %lld of %lld"),
+            Int64(components.weekOfYear ?? 0),
+            Int64(components.yearForWeekOfYear ?? 0)
         )
     }
 
     private static func weekCompact(for date: Date) -> String {
         let week = Calendar.current.component(.weekOfYear, from: date)
-        return String(format: L10n.string("第 %lld 周"), Int64(week))
+        return String(format: L10n.string("Week No. %lld"), Int64(week))
     }
 
     private static func weekChip(for date: Date) -> String {
         let week = Calendar.current.component(.weekOfYear, from: date)
-        return String(format: L10n.string("周 %lld"), Int64(week))
+        return String(format: L10n.string("Week %lld"), Int64(week))
     }
 }
 

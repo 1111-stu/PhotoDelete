@@ -53,26 +53,26 @@ private struct OnboardingFlowView: View {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             icon: "photo.on.rectangle.angled",
-            title: L10n.string("让照片整理变得简单"),
-            message: L10n.string("用滑动快速判断照片去留。想删除的照片会先进入待确认列表，完成前不会真正删除。"),
+            title: L10n.string("Make photo cleanup simple"),
+            message: L10n.string("Swipe quickly to decide what stays. Photos you want to delete go into a pending list first, and nothing is deleted until you finish."),
             visual: .organize
         ),
         OnboardingPage(
             icon: "hand.draw",
-            title: L10n.string("左滑删除，右滑保留"),
-            message: L10n.string("左滑删除，右滑保留，上滑收藏。点完成后再统一确认。"),
+            title: L10n.string("Swipe left to delete, right to keep"),
+            message: L10n.string("Swipe left to delete, right to keep, and up to favorite. Confirm everything at the end."),
             visual: .swipe
         ),
         OnboardingPage(
             icon: "externaldrive",
-            title: L10n.string("找回更多空间"),
-            message: L10n.string("相似照片、大文件、视频压缩和图片压缩集中在高级清理里，适合处理真正占空间的内容。"),
+            title: L10n.string("Free up more space"),
+            message: L10n.string("Similar photos, large files, video compression, and image compression are grouped under Advanced Cleanup for the items that really take space."),
             visual: .advanced
         ),
         OnboardingPage(
             icon: "lock.shield",
-            title: L10n.string("照片不会上传"),
-            message: L10n.string("不需要账号，也不会上传照片。最后一步才会由系统请求照片访问权限。"),
+            title: L10n.string("Photos are not uploaded"),
+            message: L10n.string("No account is needed, and photos are never uploaded. The system asks for photo access only on the final step."),
             visual: .privacy
         )
     ]
@@ -109,7 +109,7 @@ private struct OnboardingFlowView: View {
                                     .tint(.white)
                             }
 
-                            Text(selectedPage == pages.count - 1 ? L10n.string("选择照片访问权限") : L10n.string("继续"))
+                            Text(selectedPage == pages.count - 1 ? L10n.string("Choose Photo Access") : L10n.string("Continue"))
 
                             if !isRequestingPhotoAccess {
                                 Image(systemName: selectedPage == pages.count - 1 ? "photo.badge.plus" : "arrow.right")
@@ -188,7 +188,7 @@ private struct OnboardingHeaderView: View {
             Spacer()
 
             Button(action: onSkip) {
-                Text(L10n.string("跳过"))
+                Text(L10n.string("Skip"))
                     .font(.callout.weight(.medium))
                     .foregroundStyle(PhotoDeleteStyle.secondaryText)
                     .padding(.horizontal, 12)
@@ -196,7 +196,7 @@ private struct OnboardingHeaderView: View {
             }
             .buttonStyle(.plain)
             .photoDeleteMinimumTapTarget()
-            .accessibilityHint(L10n.string("稍后也可以在设置里重新查看引导。"))
+            .accessibilityHint(L10n.string("You can show this intro again later from Settings."))
         }
         .padding(.horizontal, 22)
         .padding(.top, 16)
@@ -217,11 +217,11 @@ private struct OnboardingPageIndicator: View {
         }
         .animation(.spring(response: 0.28, dampingFraction: 0.82), value: selectedPage)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(L10n.string("引导页"))
+        .accessibilityLabel(L10n.string("Intro pages"))
         .accessibilityValue(
             Text(
                 String(
-                    format: L10n.string("第 %lld/%lld 页"),
+                    format: L10n.string("Page %lld of %lld"),
                     Int64(selectedPage + 1),
                     Int64(pageCount)
                 )
@@ -359,7 +359,7 @@ private struct OrganizeIntroVisual: View {
 
                 HStack(spacing: 8) {
                     Image(systemName: "tray.full")
-                    Text(L10n.string("待确认列表"))
+                    Text(L10n.string("Pending review"))
                 }
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.primaryText.opacity(0.78))
@@ -416,24 +416,24 @@ private struct SwipeIntroVisual: View {
 
             swipeDestination(
                 symbol: "arrow.left",
-                direction: L10n.string("左滑"),
-                action: L10n.string("删除"),
+                direction: L10n.string("Swipe left"),
+                action: L10n.string("Delete"),
                 color: PhotoDeleteStyle.destructive,
                 x: -118,
                 y: 12
             )
             swipeDestination(
                 symbol: "arrow.right",
-                direction: L10n.string("右滑"),
-                action: L10n.string("保留"),
+                direction: L10n.string("Swipe right"),
+                action: L10n.string("Keep"),
                 color: PhotoDeleteStyle.positive,
                 x: 118,
                 y: 12
             )
             swipeDestination(
                 symbol: "arrow.up",
-                direction: L10n.string("上滑"),
-                action: L10n.string("收藏"),
+                direction: L10n.string("Swipe up"),
+                action: L10n.string("Favorite"),
                 color: PhotoDeleteStyle.accent,
                 x: 0,
                 y: -106
@@ -492,28 +492,28 @@ private struct AdvancedCleanupIntroVisual: View {
             VStack(spacing: 10) {
                 advancedToolRow(
                     icon: "square.stack.3d.down.right",
-                    title: L10n.string("相似照片"),
+                    title: L10n.string("Similar Photos"),
                     tint: PhotoDeleteStyle.accent,
                     delayIndex: 0
                 )
 
                 advancedToolRow(
                     icon: "externaldrive",
-                    title: L10n.string("大文件"),
+                    title: L10n.string("Large Files"),
                     tint: PhotoDeleteStyle.warning,
                     delayIndex: 1
                 )
 
                 advancedToolRow(
                     icon: "video.badge.checkmark",
-                    title: L10n.string("视频压缩"),
+                    title: L10n.string("Video Compression"),
                     tint: PhotoDeleteStyle.positive,
                     delayIndex: 2
                 )
 
                 advancedToolRow(
                     icon: "photo.badge.arrow.down",
-                    title: L10n.string("图片压缩"),
+                    title: L10n.string("Image Compression"),
                     tint: PhotoDeleteStyle.accent,
                     delayIndex: 3
                 )
@@ -594,7 +594,7 @@ private struct PrivacyIntroVisual: View {
 
                 HStack(spacing: 8) {
                     Image(systemName: "iphone")
-                    Text(L10n.string("在手机上完成"))
+                    Text(L10n.string("Done on your phone"))
                 }
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.primaryText.opacity(0.76))

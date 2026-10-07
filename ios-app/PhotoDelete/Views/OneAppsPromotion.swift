@@ -23,8 +23,8 @@ enum OneAppsPromotionCatalog {
             name: "OneScan",
             systemImage: "doc.viewfinder",
             assetImageName: "OneAppsIcon_onescan",
-            subtitleKey: "PDF 扫描",
-            summaryKey: "扫描纸质文档，在本地整理最近扫描，并按需导出清晰 PDF。",
+            subtitleKey: "PDF scanning",
+            summaryKey: "Scan paper documents, keep recent scans locally, and export clear PDFs when needed.",
             appStoreURL: URL(string: "https://apps.apple.com/app/id6788495535"),
             productURL: URL(string: "https://oneapps.studio/apps/onescan")!
         ),
@@ -33,8 +33,8 @@ enum OneAppsPromotionCatalog {
             name: "OneHabit",
             systemImage: "checkmark.circle",
             assetImageName: "OneAppsIcon_onehabit",
-            subtitleKey: "习惯追踪",
-            summaryKey: "用灵活计划、清晰进度和 iCloud 同步，建立真正适合日常生活的习惯。",
+            subtitleKey: "Habit tracking",
+            summaryKey: "Build habits that fit real life with flexible plans, clear progress, and iCloud sync.",
             appStoreURL: URL(string: "https://apps.apple.com/app/id6788409678"),
             productURL: URL(string: "https://oneapps.studio/apps/onehabit")!
         ),
@@ -43,8 +43,8 @@ enum OneAppsPromotionCatalog {
             name: "OneFocus",
             systemImage: "timer",
             assetImageName: "OneAppsIcon_onefocus",
-            subtitleKey: "跨设备专注计时",
-            summaryKey: "在 iPhone、iPad 与 Mac 上开始同一场专注，并查看真实保护状态。",
+            subtitleKey: "Focus across Apple devices",
+            summaryKey: "Start one focus session across iPhone, iPad, and Mac with honest protection status.",
             appStoreURL: URL(string: "https://apps.apple.com/app/id6790143964"),
             productURL: URL(string: "https://oneapps.studio/apps/onefocus")!
         ),
@@ -53,8 +53,8 @@ enum OneAppsPromotionCatalog {
             name: "OneTune",
             systemImage: "tuningfork",
             assetImageName: "OneAppsIcon_onetune",
-            subtitleKey: "调音器与节拍器",
-            summaryKey: "离线乐器调音器，提供形象化指引、节拍器与常用和弦。",
+            subtitleKey: "Tuner and metronome",
+            summaryKey: "An offline instrument tuner with visual guidance, a metronome, and common chords.",
             appStoreURL: URL(string: "https://apps.apple.com/app/id6789659103"),
             productURL: URL(string: "https://oneapps.studio/apps/onetune")!
         ),
@@ -63,8 +63,8 @@ enum OneAppsPromotionCatalog {
             name: "OneUke",
             systemImage: "guitars.fill",
             assetImageName: "OneAppsIcon_oneuke",
-            subtitleKey: "尤克里里零基础入门",
-            summaryKey: "从调音、节奏与和弦开始，逐步弹出第一首熟悉旋律。",
+            subtitleKey: "Ukulele for absolute beginners",
+            summaryKey: "Start with tuning, rhythm, and chords, then play your first familiar melody.",
             appStoreURL: URL(string: "https://apps.apple.com/app/id6783200326"),
             productURL: URL(string: "https://oneapps.studio/apps/oneuke")!
         ),
@@ -73,8 +73,8 @@ enum OneAppsPromotionCatalog {
             name: "OneMarkup",
             systemImage: "text.page.badge.magnifyingglass",
             assetImageName: "OneAppsIcon_onemarkup",
-            subtitleKey: "Markdown 与 HTML 编辑",
-            summaryKey: "快速打开、编辑并分享 Markdown、HTML、SVG 与纯文本；内容在本地处理，也可离线使用。",
+            subtitleKey: "Markdown & HTML editor",
+            summaryKey: "Open, edit, and share Markdown, HTML, SVG, and plain text. Content is processed locally and works offline.",
             appStoreURL: URL(string: "https://apps.apple.com/app/id6792251542"),
             productURL: URL(string: "https://oneapps.studio/apps/onemarkup")!
         ),
@@ -83,8 +83,8 @@ enum OneAppsPromotionCatalog {
             name: "OneVoice",
             systemImage: "waveform",
             assetImageName: "OneAppsIcon_onevoice",
-            subtitleKey: "录音与语音转文字",
-            summaryKey: "录音、离线转写，并通过 iCloud 在 Apple 设备间同步。",
+            subtitleKey: "Record and transcribe voice",
+            summaryKey: "Record, transcribe offline, and sync across Apple devices with iCloud.",
             appStoreURL: URL(string: "https://apps.apple.com/app/id6789639056"),
             productURL: URL(string: "https://oneapps.studio/apps/onevoice")!
         ),
@@ -93,8 +93,8 @@ enum OneAppsPromotionCatalog {
             name: "OneRound",
             systemImage: "person.2.circle.fill",
             assetImageName: "OneAppsIcon_oneround",
-            subtitleKey: "双人面对面小游戏",
-            summaryKey: "十款为两台附近 iPhone 打造的插画游戏，无需互联网或账号。",
+            subtitleKey: "Local two-player games",
+            summaryKey: "Ten illustrated games for two nearby iPhones, with no internet or account required.",
             appStoreURL: nil,
             productURL: URL(string: "https://oneapps.studio/apps/oneround")!
         ),
@@ -103,8 +103,8 @@ enum OneAppsPromotionCatalog {
             name: "OnePosture",
             systemImage: "figure.stand",
             assetImageName: "OneAppsIcon_oneposture",
-            subtitleKey: "本地坐姿提醒",
-            summaryKey: "在设备本地监测坐姿，减少误报并提供可靠提醒。",
+            subtitleKey: "Local posture reminders",
+            summaryKey: "Monitor posture on your device with fewer false alerts and reliable reminders.",
             appStoreURL: nil,
             productURL: URL(string: "https://oneapps.studio/apps/oneposture")!
         ),
@@ -113,8 +113,8 @@ enum OneAppsPromotionCatalog {
             name: "OneZen",
             systemImage: "leaf.fill",
             assetImageName: "OneZenAppIcon",
-            subtitleKey: "冥想、呼吸与专注练习",
-            summaryKey: "用简短的冥想与呼吸练习，帮你更快安静下来。",
+            subtitleKey: "Meditation, breathing, and focus",
+            summaryKey: "Short meditation and breathing practices to help you settle more quickly.",
             appStoreURL: URL(string: "https://apps.apple.com/app/id6780318004"),
             productURL: URL(string: "https://oneapps.studio")!
         )
@@ -169,7 +169,7 @@ struct OneAppsPromotionSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text(L10n.string("更多 App"))
+                Text(L10n.string("More Apps"))
                     .settingsSectionHeading()
                 Spacer()
             }
@@ -194,7 +194,7 @@ struct OneAppsPromotionSection: View {
                             .settingsRowTitle()
                             .lineLimit(1)
 
-                        Text(L10n.string("系列简洁好用的 App"))
+                        Text(L10n.string("A series of simple, useful apps"))
                             .settingsRowValue()
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
@@ -216,7 +216,7 @@ struct OneAppsPromotionSection: View {
             .buttonStyle(.plain)
             .settingsGroupedCard()
             .accessibilityIdentifier("settings-oneapps-catalog-entry")
-            .accessibilityHint(L10n.string("打开完整的 App 列表"))
+            .accessibilityHint(L10n.string("Opens the full app list"))
         }
     }
 }
@@ -251,7 +251,7 @@ struct OneAppsCatalogPage: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .navigationTitle(L10n.string("更多 App"))
+        .navigationTitle(L10n.string("More Apps"))
         .navigationBarTitleDisplayMode(.large)
     }
 
@@ -274,13 +274,13 @@ struct OneAppsCatalogPage: View {
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(L10n.string("独立小而美的 App，专注、简洁、好用。"))
+                    Text(L10n.string("Independent apps that are focused, simple, and easy to use."))
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text(L10n.string("每个 App 只解决一个小痛点，基础功能无广告、无限制。"))
+                    Text(L10n.string("Each app solves one small pain point, with unlimited core features and no ads."))
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.tertiaryText)
                         .multilineTextAlignment(.center)
@@ -288,7 +288,7 @@ struct OneAppsCatalogPage: View {
                 }
 
                 HStack(spacing: 6) {
-                    Text(L10n.string("访问 OneApps.Studio"))
+                    Text(L10n.string("Visit OneApps.Studio"))
                     Image(systemName: "arrow.up.right")
                         .font(.system(size: 12, weight: .semibold))
                 }
@@ -348,8 +348,8 @@ struct OneAppsCatalogDetailPage: View {
                         HStack(spacing: 8) {
                             Text(
                                 item.appStoreURL == nil
-                                    ? L10n.string("查看产品页")
-                                    : L10n.string("在 App Store 查看")
+                                    ? L10n.string("View product page")
+                                    : L10n.string("View on the App Store")
                             )
                             Image(systemName: "arrow.up.right")
                                 .font(.system(size: 14, weight: .semibold))

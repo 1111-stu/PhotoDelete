@@ -44,13 +44,13 @@ enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
 
     var title: String {
         switch self {
-        case .moonly: return L10n.string("琥珀夜色")
+        case .moonly: return L10n.string("Amber Night")
         }
     }
 
     var subtitle: String {
         switch self {
-        case .moonly: return L10n.string("深色照片画布，配合琥珀色操作反馈。")
+        case .moonly: return L10n.string("A dark photo canvas with amber action feedback.")
         }
     }
 

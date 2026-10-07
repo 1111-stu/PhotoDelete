@@ -7,7 +7,7 @@ import UIKit
 enum FeedbackDiagnostics {
     static func emailBody() -> String {
         [
-            L10n.string("请在此处写下您的反馈和建议："),
+            L10n.string("Write your feedback or suggestion here:"),
             "",
             "",
             "",

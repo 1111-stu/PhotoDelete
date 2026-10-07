@@ -17,7 +17,7 @@ struct ReviewNavigationHeader: View {
                         .frame(width: 52, height: 52)
                 }
                 .modifier(ReviewGlassCircleChrome())
-                .accessibilityLabel(L10n.string("返回"))
+                .accessibilityLabel(L10n.string("Back"))
             }
             .frame(width: 116, alignment: .leading)
 
@@ -62,8 +62,8 @@ struct ReviewNavigationHeader: View {
             .modifier(ReviewGlassCircleChrome())
             .disabled(!canDelete)
             .accessibilityIdentifier("review-trash-button")
-            .accessibilityLabel(L10n.string("待删除"))
-            .accessibilityValue(L10n.string("待删除 \(deleteCount) 张"))
+            .accessibilityLabel(L10n.string("To delete"))
+            .accessibilityValue(L10n.string("\(deleteCount) to delete"))
             .frame(width: 116, alignment: .trailing)
         }
         .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
@@ -108,13 +108,13 @@ struct ReviewCompletionOverlay: View {
                         CompletionStatPill(
                             icon: "trash",
                             value: deleteCount,
-                            title: L10n.string("删除"),
+                            title: L10n.string("Delete"),
                             tint: PhotoDeleteStyle.destructive
                         )
                         CompletionStatPill(
                             icon: "heart",
                             value: favoriteCount,
-                            title: L10n.string("收藏"),
+                            title: L10n.string("Favorite"),
                             tint: PhotoDeleteStyle.iconTint(for: "favorite")
                         )
 
@@ -123,7 +123,7 @@ struct ReviewCompletionOverlay: View {
 
                 HStack(spacing: 12) {
                     if hasUnreviewedPhotos {
-                        Button(L10n.string("继续整理")) {
+                        Button(L10n.string("Keep Organizing")) {
                             onContinue()
                         }
                         .photoDeleteSecondaryButton()
@@ -201,25 +201,25 @@ struct ReviewActionToolbar: View {
             HStack(spacing: 0) {
                 toolButton(
                     icon: "info.circle",
-                    label: L10n.string("照片详情"),
+                    label: L10n.string("Photo Details"),
                     action: onShowDetails
                 )
                 Spacer(minLength: 0)
                 toolButton(
                     icon: "arrow.uturn.backward",
-                    label: L10n.string("撤销"),
+                    label: L10n.string("Undo"),
                     action: onUndo
                 )
                 Spacer(minLength: 0)
                 toolButton(
                     icon: isFavorite ? "heart.fill" : "heart",
-                    label: isFavorite ? L10n.string("取消收藏") : L10n.string("收藏"),
+                    label: isFavorite ? L10n.string("Unfavorite") : L10n.string("Favorite"),
                     action: onFavorite
                 )
                 Spacer(minLength: 0)
                 toolButton(
                     icon: isPreparingShare ? "hourglass" : "square.and.arrow.up",
-                    label: isPreparingShare ? L10n.string("准备中") : L10n.string("分享"),
+                    label: isPreparingShare ? L10n.string("Preparing") : L10n.string("Share"),
                     action: onShare
                 )
             }
@@ -264,7 +264,7 @@ struct ReviewActionToolbar: View {
                     .glassEffect(.regular.tint(PhotoDeleteStyle.accent), in: .circle)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("完成整理"))
+            .accessibilityLabel(L10n.string("Finish Organizing"))
         } else {
             Button(action: onFinish) {
                 Image(systemName: "archivebox")
@@ -287,7 +287,7 @@ struct ReviewActionToolbar: View {
                     .shadow(color: PhotoDeleteStyle.accent.opacity(0.3), radius: 12, y: 5)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("完成整理"))
+            .accessibilityLabel(L10n.string("Finish Organizing"))
         }
     }
 }

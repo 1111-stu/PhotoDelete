@@ -19,9 +19,9 @@ struct SupporterView: View {
     private var entitlementStatusMessage: String? {
         switch purchaseManager.entitlementState {
         case .verifying:
-            L10n.string("正在检查购买状态...")
+            L10n.string("Checking purchase status...")
         case .cachedOffline:
-            L10n.string("离线时仍可使用已解锁的支持者版，联网后会自动确认状态。")
+            L10n.string("Unlocked supporter features remain available offline. Status is confirmed automatically when online.")
         case .unknown, .verified, .locked:
             nil
         }
@@ -101,14 +101,14 @@ struct SupporterView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     if #available(iOS 16.3, *) {
-                        Button(L10n.string("兑换代码")) {
+                        Button(L10n.string("Redeem Code")) {
                             presentOfferCodeRedemption()
                         }
                         .foregroundColor(PhotoDeleteStyle.accent)
                         .accessibilityIdentifier("supporter-redeem-code-button")
                     }
 
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
@@ -145,11 +145,11 @@ private struct SupporterTrialContent: View {
                 }
 
                 VStack(spacing: 8) {
-                    Text(L10n.string("3 天免费体验中"))
+                    Text(L10n.string("3-Day Free Trial"))
                         .font(.system(size: 28, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(String(format: L10n.string("还剩 %lld 天。试用期间可使用进阶清理和长期统计。"), remainingDays))
+                    Text(String(format: L10n.string("%lld days left. Advanced cleanup and long-term statistics are available during the trial."), remainingDays))
                         .font(.system(size: 16, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .multilineTextAlignment(.center)
@@ -201,10 +201,10 @@ private struct SupporterPaywallContent: View {
 
     private var heroSubtitle: String {
         if canStartTrial {
-            return L10n.string("免费体验 3 天进阶功能，之后可选择年度 Pro 或永久 Pro。")
+            return L10n.string("Try advanced features free for 3 days, then choose Annual or Lifetime Pro.")
         }
 
-        return L10n.string("年度 Pro 和永久 Pro 均可解锁完整时间列表、压缩和相似照片清理。")
+        return L10n.string("Annual Pro and Lifetime Pro both unlock the full timeline, compression, and similar-photo cleanup.")
     }
 }
 
@@ -233,15 +233,15 @@ private struct SupporterBottomActionBar: View {
                 HStack(spacing: 10) {
                     planButton(
                         plan: .annual,
-                        title: L10n.string("年度 Pro"),
+                        title: L10n.string("Annual Pro"),
                         price: annualPriceText,
-                        detail: L10n.string("每年 · 自动续订")
+                        detail: L10n.string("Per year · Auto-renews")
                     )
                     planButton(
                         plan: .lifetime,
-                        title: L10n.string("永久 Pro"),
+                        title: L10n.string("Lifetime Pro"),
                         price: lifetimePriceText,
-                        detail: L10n.string("一次购买 · 永久使用")
+                        detail: L10n.string("One purchase · Lifetime access")
                     )
                 }
 
@@ -249,7 +249,7 @@ private struct SupporterBottomActionBar: View {
                     purchaseButton(style: .primary)
                 } else if canStartTrial {
                     Button(action: onStartTrial) {
-                        Label(L10n.string("开始 3 天免费体验"), systemImage: "timer")
+                        Label(L10n.string("Start 3-Day Free Trial"), systemImage: "timer")
                             .labelStyle(.titleAndIcon)
                     }
                     .photoDeletePrimaryButton()
@@ -318,7 +318,7 @@ private struct SupporterBottomActionBar: View {
                         .progressViewStyle(CircularProgressViewStyle(tint: loadingTint))
                         .scaleEffect(0.78)
                 }
-                Text(isLoading ? L10n.string("处理中...") : purchaseButtonTitle)
+                Text(isLoading ? L10n.string("Processing...") : purchaseButtonTitle)
             }
         }
         .modifier(PurchaseButtonModifier(style: style))
@@ -328,19 +328,19 @@ private struct SupporterBottomActionBar: View {
     private var purchaseButtonTitle: String {
         switch selectedPlan {
         case .annual:
-            String(format: L10n.string("开通年度 Pro %@/年"), annualPriceText)
+            String(format: L10n.string("Start Annual Pro %@/year"), annualPriceText)
         case .lifetime:
-            String(format: L10n.string("解锁永久 Pro %@"), lifetimePriceText)
+            String(format: L10n.string("Unlock Lifetime Pro %@"), lifetimePriceText)
         }
     }
 
     private var billingDisclosure: String {
         if isTrialActive || canStartTrial {
-            return L10n.string("3 天体验到期不会扣费；年度 Pro 会自动续订，可随时在 Apple ID 设置中取消。基础整理始终免费。")
+            return L10n.string("The 3-day trial does not charge you. Annual Pro auto-renews and can be canceled anytime in Apple ID settings. Basic cleanup is always free.")
         }
 
         return String(
-            format: L10n.string("年度 Pro 为 %@/年；确认购买后开始计费并自动续订，可随时在 Apple ID 设置中取消。永久 Pro 为一次购买。基础整理始终免费。"),
+            format: L10n.string("Annual Pro is %@/year. Billing starts when you confirm and renews automatically unless canceled in Apple ID settings. Lifetime Pro is a one-time purchase. Basic cleanup remains free."),
             annualPriceText
         )
     }
@@ -388,7 +388,7 @@ private struct SupporterBottomActionBar: View {
         }
         .buttonStyle(.plain)
         .disabled(isLoading)
-        .accessibilityLabel("\(title)，\(price)，\(detail)")
+        .accessibilityLabel("\(title); \(price); \(detail)")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
@@ -401,14 +401,14 @@ struct SupporterPurchaseAuxiliaryActionsRow: View {
     var body: some View {
         HStack(spacing: 10) {
             auxiliaryButton(
-                title: L10n.string("恢复购买"),
+                title: L10n.string("Restore Purchase"),
                 systemImage: "arrow.clockwise",
                 action: onRestore
             )
 
             if #available(iOS 16.3, *) {
                 auxiliaryButton(
-                    title: L10n.string("兑换代码"),
+                    title: L10n.string("Redeem Code"),
                     systemImage: "ticket",
                     action: onRedeemCode
                 )
@@ -447,13 +447,13 @@ struct SupporterPurchaseAuxiliaryActionsRow: View {
 struct SupporterLegalLinksRow: View {
     var body: some View {
         HStack(spacing: 8) {
-            Link(L10n.string("隐私政策"), destination: AppConstants.privacyPolicyURL)
+            Link(L10n.string("Privacy Policy"), destination: AppConstants.privacyPolicyURL)
                 .accessibilityIdentifier("supporter-privacy-policy-link")
 
             Text("·")
                 .accessibilityHidden(true)
 
-            Link(L10n.string("使用条款"), destination: AppConstants.termsOfUseURL)
+            Link(L10n.string("Terms of Use"), destination: AppConstants.termsOfUseURL)
                 .accessibilityIdentifier("supporter-terms-of-use-link")
         }
         .font(.system(size: 12, weight: .semibold))
@@ -563,11 +563,11 @@ private struct SupporterBadgeCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(accessKind == .annual ? L10n.string("年度 Pro 已启用") : L10n.string("永久 Pro 已解锁"))
+                    Text(accessKind == .annual ? L10n.string("Annual Pro Active") : L10n.string("Lifetime Pro Unlocked"))
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(accessKind == .annual ? L10n.string("订阅有效期内可使用全部进阶功能。") : L10n.string("一次购买，全部进阶功能永久可用。"))
+                    Text(accessKind == .annual ? L10n.string("All advanced features are available while your subscription is active.") : L10n.string("One purchase gives you lifetime access to all advanced features."))
                         .font(.system(size: 15, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
@@ -592,7 +592,7 @@ private struct SupporterPurchaseStatusCard: View {
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(L10n.string("购买状态"))
+                Text(L10n.string("Purchase status"))
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -611,19 +611,19 @@ private struct SupporterPurchaseStatusCard: View {
     private var statusText: String {
         if accessKind == .annual {
             guard let expirationDate else {
-                return L10n.string("年度 Pro 已启用，订阅状态会由 App Store 自动更新。")
+                return L10n.string("Annual Pro is active. Subscription status is updated automatically by the App Store.")
             }
             return String(
-                format: L10n.string("年度 Pro 当前有效至 %@，续订状态以 App Store 为准。"),
+                format: L10n.string("Annual Pro is currently active through %@. Renewal status is provided by the App Store."),
                 CleanupStatsFormatter.sessionDate.string(from: expirationDate)
             )
         }
 
         guard let purchaseDate else {
-            return L10n.string("永久 Pro 已解锁，所有进阶功能可长期使用。")
+            return L10n.string("Lifetime Pro is unlocked. All advanced features are available permanently.")
         }
         return String(
-            format: L10n.string("已于 %@ 解锁永久 Pro，可长期使用。"),
+            format: L10n.string("Lifetime Pro was unlocked on %@ and remains available permanently."),
             CleanupStatsFormatter.sessionDate.string(from: purchaseDate)
         )
     }
@@ -657,12 +657,12 @@ struct SupporterMonthlySection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(L10n.string("月度统计"))
+            Text(L10n.string("Monthly Stats"))
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.primaryText)
 
             if summaries.isEmpty {
-                SupporterEmptyText(L10n.string("完成一次整理后，这里会出现月度记录。"))
+                SupporterEmptyText(L10n.string("Monthly records appear here after your first cleanup."))
             } else {
                 VStack(spacing: 0) {
                     ForEach(summaries.prefix(6)) { summary in
@@ -672,14 +672,14 @@ struct SupporterMonthlySection: View {
                                     .font(.system(size: 15, weight: .semibold))
                                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                                Text(L10n.string("\(summary.sessions) 次 · 整理 \(summary.organizedPhotos) 张"))
+                                Text(L10n.string("\(summary.sessions) sessions · \(summary.organizedPhotos) reviewed"))
                                     .font(.system(size: 13, weight: .regular))
                                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                             }
 
                             Spacer()
 
-                            Text(L10n.string("删除内容约 \(summary.formattedSpaceSaved)"))
+                            Text(L10n.string("Deleted content: about \(summary.formattedSpaceSaved)"))
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(PhotoDeleteStyle.positive)
                         }
@@ -702,12 +702,12 @@ struct SupporterHistorySection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(L10n.string("清理历史"))
+            Text(L10n.string("Cleanup History"))
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.primaryText)
 
             if sessions.isEmpty {
-                SupporterEmptyText(L10n.string("确认删除或收藏后，会在本机留下清理记录。"))
+                SupporterEmptyText(L10n.string("Local cleanup records appear after you confirm deletions or favorites."))
             } else {
                 VStack(spacing: 0) {
                     ForEach(sessions) { session in
@@ -722,14 +722,14 @@ struct SupporterHistorySection: View {
                                     .font(.system(size: 15, weight: .semibold))
                                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                                Text(L10n.string("删除 \(session.deletedPhotos) 张 · 收藏 \(session.favoritedPhotos) 张"))
+                                Text(L10n.string("Deleted \(session.deletedPhotos) · Favorited \(session.favoritedPhotos)"))
                                     .font(.system(size: 13, weight: .regular))
                                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                             }
 
                             Spacer()
 
-                            Text(L10n.string("删除内容约 \(session.formattedSpaceSaved)"))
+                            Text(L10n.string("Deleted content: about \(session.formattedSpaceSaved)"))
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundColor(PhotoDeleteStyle.positive)
                         }
@@ -772,7 +772,7 @@ struct SupporterPlanComparisonCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(L10n.string("版本对比"))
+            Text(L10n.string("Plan Comparison"))
                 .font(.headline)
                 .foregroundColor(PhotoDeleteStyle.primaryText)
                 .padding(.horizontal, 16)
@@ -780,9 +780,9 @@ struct SupporterPlanComparisonCard: View {
                 .padding(.bottom, 10)
 
             HStack(spacing: 10) {
-                Text(L10n.string("功能"))
+                Text(L10n.string("Feature"))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text(L10n.string("免费版"))
+                Text(L10n.string("Free"))
                     .frame(width: 64)
                 Text(L10n.string("Pro"))
                     .frame(width: 64)
@@ -827,17 +827,17 @@ enum SupporterPlanFeatureTitle: String {
 
     var localizedTitle: String {
         switch self {
-        case .randomReview: return L10n.string("随机整理")
-        case .basicSwipeReview: return L10n.string("基础滑动整理")
-        case .confirmedDeleteAndFavorite: return L10n.string("确认后删除和收藏")
-        case .basicTimeOrganizing: return L10n.string("按时间整理")
-        case .localCleanupHistory: return L10n.string("本机清理历史")
-        case .basicSpaceSavedStats: return L10n.string("基础删除内容统计")
-        case .fullTimeList: return L10n.string("完整时间列表")
-        case .largeFileCleanup: return L10n.string("大文件清理")
-        case .imageCompression: return L10n.string("图片压缩")
-        case .videoCompression: return L10n.string("视频压缩")
-        case .similarPhotoCleanup: return L10n.string("相似照片清理")
+        case .randomReview: return L10n.string("Random Review")
+        case .basicSwipeReview: return L10n.string("Basic Swipe Cleanup")
+        case .confirmedDeleteAndFavorite: return L10n.string("Delete and Favorite After Confirmation")
+        case .basicTimeOrganizing: return L10n.string("Organize by Time")
+        case .localCleanupHistory: return L10n.string("Local cleanup history")
+        case .basicSpaceSavedStats: return L10n.string("Basic Deleted Content Stats")
+        case .fullTimeList: return L10n.string("Full Time Lists")
+        case .largeFileCleanup: return L10n.string("Large File Cleanup")
+        case .imageCompression: return L10n.string("Image Compression")
+        case .videoCompression: return L10n.string("Video Compression")
+        case .similarPhotoCleanup: return L10n.string("Similar Photo Cleanup")
         }
     }
 }
@@ -891,8 +891,8 @@ enum SupporterPlanAvailability: Equatable {
 
     var accessibilityLabel: String {
         switch self {
-        case .included: return L10n.string("包含")
-        case .notIncluded: return L10n.string("不包含")
+        case .included: return L10n.string("Included")
+        case .notIncluded: return L10n.string("Not Included")
         }
     }
 }
@@ -923,7 +923,7 @@ struct SupporterBenefitsSheet: View {
 
                 ScrollView {
                     VStack(spacing: 16) {
-                        Text(L10n.string("免费版保留随机整理、滑动整理和按时间整理；支持者版额外解锁完整时间列表、图片压缩、视频压缩、大文件清理和相似照片清理。"))
+                        Text(L10n.string("Random, swipe, and time-based cleanup are free. Supporters also unlock the full timeline, image and video compression, large-file cleanup, and similar-photo cleanup."))
                             .font(.system(size: 14, weight: .regular))
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -934,11 +934,11 @@ struct SupporterBenefitsSheet: View {
                     .padding(PhotoDeleteStyle.screenHorizontalPadding)
                 }
             }
-            .navigationTitle(L10n.string("功能区别"))
+            .navigationTitle(L10n.string("Feature differences"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
@@ -965,10 +965,10 @@ struct CleanupHistoryView: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                            SupporterMetricCard(value: "\(summary.organizedPhotos)", label: L10n.string("累计整理"), tint: PhotoDeleteStyle.accent)
-                            SupporterMetricCard(value: "\(summary.deletedPhotos)", label: L10n.string("累计删除"), tint: PhotoDeleteStyle.destructive)
-                            SupporterMetricCard(value: summary.formattedSpaceSaved, label: L10n.string("删除内容"), tint: PhotoDeleteStyle.positive)
-                            SupporterMetricCard(value: "\(summary.sessions)", label: L10n.string("清理次数"), tint: PhotoDeleteStyle.warning)
+                            SupporterMetricCard(value: "\(summary.organizedPhotos)", label: L10n.string("Total Reviewed"), tint: PhotoDeleteStyle.accent)
+                            SupporterMetricCard(value: "\(summary.deletedPhotos)", label: L10n.string("Total Deleted"), tint: PhotoDeleteStyle.destructive)
+                            SupporterMetricCard(value: summary.formattedSpaceSaved, label: L10n.string("Deleted Content"), tint: PhotoDeleteStyle.positive)
+                            SupporterMetricCard(value: "\(summary.sessions)", label: L10n.string("Cleanup Sessions"), tint: PhotoDeleteStyle.warning)
                         }
 
                         SupporterMonthlySection(summaries: statsStore.monthlySummaries)
@@ -978,7 +978,7 @@ struct CleanupHistoryView: View {
                         Button(role: .destructive) {
                             showingClearConfirmation = true
                         } label: {
-                            Text(L10n.string("清空统计记录"))
+                            Text(L10n.string("Clear Stats"))
                                 .frame(maxWidth: .infinity)
                         }
                         .photoDeleteSecondaryButton()
@@ -988,24 +988,24 @@ struct CleanupHistoryView: View {
                     .padding(.bottom, 32)
                 }
             }
-            .navigationTitle(L10n.string("清理历史"))
+            .navigationTitle(L10n.string("Cleanup History"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
             }
         }
-        .confirmationDialog(L10n.string("清空本机统计记录？"), isPresented: $showingClearConfirmation, titleVisibility: .visible) {
-            Button(L10n.string("清空统计记录"), role: .destructive) {
+        .confirmationDialog(L10n.string("Clear local stats?"), isPresented: $showingClearConfirmation, titleVisibility: .visible) {
+            Button(L10n.string("Clear Stats"), role: .destructive) {
                 statsStore.clearAll()
             }
-            Button(L10n.string("取消"), role: .cancel) {}
+            Button(L10n.string("Cancel"), role: .cancel) {}
         } message: {
-            Text(L10n.string("只会清空删图的本机统计，不会影响照片。"))
+            Text(L10n.string("This only clears OnePhoto's local stats. Your photos are not affected."))
         }
     }
 }

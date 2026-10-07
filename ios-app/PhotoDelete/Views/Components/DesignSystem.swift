@@ -510,7 +510,7 @@ enum AppConstants {
     static let zhHansAppStoreName = "删图"
     static let enAppStoreName = "OnePhoto"
     static var appDisplayName: String {
-        L10n.string("删图")
+        L10n.string("OnePhoto")
     }
     static let landscapeBreakpoint: CGFloat = 700
     static let hapticsEnabledKey = "photoDeleteHapticsEnabled"
@@ -558,7 +558,7 @@ enum AppConstants {
     static let supporterTrialDuration: TimeInterval = 3 * 24 * 60 * 60
     static let isImageCompressionVisible = true
     static var privacyShortText: String {
-        L10n.string("照片整理只在本机完成。不需要账号，也不会上传你的照片。")
+        L10n.string("Photo cleanup happens only on this device. No account is required, and your photos are never uploaded.")
     }
 }
 
@@ -640,7 +640,7 @@ struct PhotoDeleteToastView: View {
                 .foregroundColor(toastColor)
                 .frame(width: 22)
 
-            Text(toast.message.appLocalized)
+            Text(toast.message)
                 .font(.system(size: PhotoDeleteStyle.Metrics.toastTextSize, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.primaryText)
                 .lineLimit(1)
@@ -651,7 +651,7 @@ struct PhotoDeleteToastView: View {
                     .frame(height: 18)
                     .background(PhotoDeleteStyle.hairline)
 
-                Button(L10n.string("撤销"), action: onUndo)
+                Button(L10n.string("Undo"), action: onUndo)
                     .font(.system(size: PhotoDeleteStyle.Metrics.toastTextSize, weight: .semibold))
                     .foregroundColor(theme.toolbarAction)
                     .buttonStyle(.plain)
@@ -685,7 +685,7 @@ struct PhotoAuthorizationCard: View {
                 .foregroundStyle(theme.primaryAccent)
                 .accessibilityHidden(true)
 
-            Text(L10n.string("需要访问照片库"))
+            Text(L10n.string("Photo Library Access Needed"))
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(PhotoDeleteStyle.primaryText)
 
@@ -695,7 +695,7 @@ struct PhotoAuthorizationCard: View {
                 .multilineTextAlignment(.center)
 
             Button(action: onRequestAccess) {
-                Text(L10n.string("继续"))
+                Text(L10n.string("Continue"))
                     .frame(maxWidth: 180)
             }
             .photoDeletePrimaryButton()

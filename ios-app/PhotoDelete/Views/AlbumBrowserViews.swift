@@ -15,9 +15,9 @@ enum AlbumDisplayStyle: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .compact: return L10n.string("紧凑")
-        case .cover: return L10n.string("封面")
-        case .list: return L10n.string("列表")
+        case .compact: return L10n.string("Compact")
+        case .cover: return L10n.string("Covers")
+        case .list: return L10n.string("List")
         }
     }
 
@@ -40,10 +40,10 @@ enum AlbumSortMode: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .recent: return L10n.string("最近更新")
-        case .count: return L10n.string("数量最多")
-        case .name: return L10n.string("名称")
-        case .custom: return L10n.string("自定义")
+        case .recent: return L10n.string("Recently updated")
+        case .count: return L10n.string("Most items")
+        case .name: return L10n.string("Name")
+        case .custom: return L10n.string("Custom")
         }
     }
 
@@ -67,10 +67,10 @@ enum AlbumBrowserContentFilter: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .all: return L10n.string("全部")
-        case .photos: return L10n.string("照片")
-        case .videos: return L10n.string("视频")
-        case .favorites: return L10n.string("收藏")
+        case .all: return L10n.string("All")
+        case .photos: return L10n.string("Photos")
+        case .videos: return L10n.string("Videos")
+        case .favorites: return L10n.string("Favorite")
         }
     }
 
@@ -93,9 +93,9 @@ enum AlbumBrowserGrouping: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .none: return L10n.string("不分组")
-        case .day: return L10n.string("按日")
-        case .month: return L10n.string("按月")
+        case .none: return L10n.string("None")
+        case .day: return L10n.string("By Day")
+        case .month: return L10n.string("By Month")
         }
     }
 }
@@ -109,9 +109,9 @@ enum AlbumBrowserDensity: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .relaxed: return L10n.string("舒展")
-        case .standard: return L10n.string("标准")
-        case .compact: return L10n.string("紧凑")
+        case .relaxed: return L10n.string("Relaxed")
+        case .standard: return L10n.string("Standard")
+        case .compact: return L10n.string("Compact")
         }
     }
 
@@ -132,8 +132,8 @@ enum AlbumBrowserSort: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .newest: return L10n.string("最新")
-        case .oldest: return L10n.string("最早")
+        case .newest: return L10n.string("Newest")
+        case .oldest: return L10n.string("Oldest")
         }
     }
 
@@ -177,10 +177,10 @@ enum AlbumBrowserGroupingBuilder {
 
     static func dayTitle(for date: Date, now: Date = Date(), calendar: Calendar = .current) -> String {
         if calendar.isDateInToday(date) {
-            return L10n.string("今天")
+            return L10n.string("Today")
         }
         if calendar.isDateInYesterday(date) {
-            return L10n.string("昨天")
+            return L10n.string("Yesterday")
         }
         let day = AppDateFormatter.string(from: date, template: "MMMd")
         let weekday = AppDateFormatter.string(from: date, template: "EEE")
@@ -232,7 +232,7 @@ struct AlbumDisplayStyleSheet: View {
                     }
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(L10n.string("排序"))
+                        Text(L10n.string("Sort"))
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(PhotoDeleteStyle.secondaryText)
 
@@ -246,7 +246,7 @@ struct AlbumDisplayStyleSheet: View {
                     }
 
                     Button(action: onReorder) {
-                        Label(L10n.string("调整顺序"), systemImage: "line.3.horizontal")
+                        Label(L10n.string("Reorder"), systemImage: "line.3.horizontal")
                             .font(.body.weight(.semibold))
                             .frame(maxWidth: .infinity)
                             .frame(minHeight: 48)
@@ -255,7 +255,7 @@ struct AlbumDisplayStyleSheet: View {
                     .foregroundStyle(PhotoDeleteStyle.primaryText)
 
                     Button(action: onDeleteEmpty) {
-                        Text(L10n.string("删除空相册"))
+                        Text(L10n.string("Delete Empty Albums"))
                             .font(.body.weight(.semibold))
                             .frame(maxWidth: .infinity)
                             .frame(minHeight: 44)
@@ -266,7 +266,7 @@ struct AlbumDisplayStyleSheet: View {
                 .padding(20)
             }
             .background(PhotoDeleteScreenBackground())
-            .navigationTitle(L10n.string("显示方式"))
+            .navigationTitle(L10n.string("Display"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -276,7 +276,7 @@ struct AlbumDisplayStyleSheet: View {
                         Image(systemName: "xmark")
                             .font(.body.weight(.semibold))
                     }
-                    .accessibilityLabel(L10n.string("关闭"))
+                    .accessibilityLabel(L10n.string("Close"))
                 }
             }
         }
@@ -468,7 +468,7 @@ struct AlbumPhotoBrowserView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 80)
             } else if visibleAssets.isEmpty {
-                Text(L10n.string("这个相册还没有照片"))
+                Text(L10n.string("This album has no photos yet"))
                     .font(.body)
                     .foregroundStyle(PhotoDeleteStyle.secondaryText)
                     .frame(maxWidth: .infinity)
@@ -514,7 +514,7 @@ struct AlbumPhotoBrowserView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 16) {
                     Button(action: onOrganize) {
-                        Text(L10n.string("整理"))
+                        Text(L10n.string("Organize"))
                     }
                     .disabled(album.photosCount == 0)
                     .accessibilityIdentifier("album-start-review")
@@ -524,7 +524,7 @@ struct AlbumPhotoBrowserView: View {
                     } label: {
                         Image(systemName: "line.3.horizontal.decrease")
                     }
-                    .accessibilityLabel(L10n.string("筛选与排序"))
+                    .accessibilityLabel(L10n.string("Filter and sort"))
                 }
             }
         }
@@ -598,12 +598,12 @@ struct AlbumBrowserFilterSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     if isDefault {
-                        Text(L10n.string("当前是默认显示"))
+                        Text(L10n.string("Showing the default view"))
                             .font(.footnote)
                             .foregroundStyle(PhotoDeleteStyle.secondaryText)
                     }
 
-                    filterSection(title: L10n.string("内容")) {
+                    filterSection(title: L10n.string("Content")) {
                         ForEach(AlbumBrowserContentFilter.allCases) { item in
                             countChip(
                                 title: item.title,
@@ -616,26 +616,26 @@ struct AlbumBrowserFilterSheet: View {
                         }
                     }
 
-                    optionSection(title: L10n.string("时间分组"), options: AlbumBrowserGrouping.allCases.map(\.title), selection: grouping.title) { title in
+                    optionSection(title: L10n.string("Group by time"), options: AlbumBrowserGrouping.allCases.map(\.title), selection: grouping.title) { title in
                         grouping = AlbumBrowserGrouping.allCases.first { $0.title == title } ?? .day
                     }
 
-                    optionSection(title: L10n.string("网格密度"), options: AlbumBrowserDensity.allCases.map(\.title), selection: density.title) { title in
+                    optionSection(title: L10n.string("Grid density"), options: AlbumBrowserDensity.allCases.map(\.title), selection: density.title) { title in
                         density = AlbumBrowserDensity.allCases.first { $0.title == title } ?? .standard
                     }
 
-                    optionSection(title: L10n.string("排序"), options: AlbumBrowserSort.allCases.map(\.title), selection: sort.title) { title in
+                    optionSection(title: L10n.string("Sort"), options: AlbumBrowserSort.allCases.map(\.title), selection: sort.title) { title in
                         sort = AlbumBrowserSort.allCases.first { $0.title == title } ?? .newest
                     }
                 }
                 .padding(20)
             }
             .background(PhotoDeleteScreenBackground())
-            .navigationTitle(L10n.string("筛选与排序"))
+            .navigationTitle(L10n.string("Filter and sort"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(L10n.string("重置")) {
+                    Button(L10n.string("Reset")) {
                         contentFilter = .all
                         grouping = .day
                         density = .standard

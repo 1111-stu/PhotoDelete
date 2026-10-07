@@ -163,3 +163,7 @@ Logs/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Python tooling caches
+__pycache__/
+*.pyc

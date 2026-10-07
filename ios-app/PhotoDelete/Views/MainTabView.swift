@@ -206,15 +206,15 @@ private enum PhotoDeleteMainTab: CaseIterable, Identifiable, Hashable {
     var title: String {
         switch self {
         case .organize:
-            return L10n.string("整理")
+            return L10n.string("Organize")
         case .albums:
-            return L10n.string("相册")
+            return L10n.string("Albums")
         case .advanced:
-            return L10n.string("进阶")
+            return L10n.string("Advanced")
         case .stats:
-            return L10n.string("统计")
+            return L10n.string("Stats")
         case .settings:
-            return L10n.string("设置")
+            return L10n.string("Settings")
         }
     }
 

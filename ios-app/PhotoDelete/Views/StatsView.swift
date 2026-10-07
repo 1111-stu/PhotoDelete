@@ -43,7 +43,7 @@ private struct StatsScreen: View {
                     Button(role: .destructive) {
                         showingClearConfirmation = true
                     } label: {
-                        Text(L10n.string("清空统计记录"))
+                        Text(L10n.string("Clear Stats"))
                             .frame(maxWidth: .infinity)
                     }
                     .photoDeleteDestructiveButton()
@@ -56,15 +56,15 @@ private struct StatsScreen: View {
             }
             .scrollIndicators(.hidden)
         }
-        .navigationTitle(L10n.string("使用统计"))
+        .navigationTitle(L10n.string("Usage stats"))
         .navigationBarTitleDisplayMode(.large)
-        .confirmationDialog(L10n.string("清空本机统计记录？"), isPresented: $showingClearConfirmation, titleVisibility: .visible) {
-            Button(L10n.string("清空统计记录"), role: .destructive) {
+        .confirmationDialog(L10n.string("Clear local stats?"), isPresented: $showingClearConfirmation, titleVisibility: .visible) {
+            Button(L10n.string("Clear Stats"), role: .destructive) {
                 statsStore.clearAll()
             }
-            Button(L10n.string("取消"), role: .cancel) {}
+            Button(L10n.string("Cancel"), role: .cancel) {}
         } message: {
-            Text(L10n.string("只会清空删图的本机统计，不会影响照片。"))
+            Text(L10n.string("This only clears OnePhoto's local stats. Your photos are not affected."))
         }
         .sheet(item: $selectedMonth) { month in
             monthDetailSheet(month)
@@ -77,12 +77,12 @@ private struct StatsScreen: View {
         let stats = dataManager.makeSettingsStatsSummary()
 
         return VStack(alignment: .leading, spacing: 9) {
-            PhotoDeleteSectionHeader(title: L10n.string("整理进度"))
+            PhotoDeleteSectionHeader(title: L10n.string("Cleanup Progress"))
 
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(L10n.string("已整理"))
+                        Text(L10n.string("Reviewed"))
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
 
@@ -95,7 +95,7 @@ private struct StatsScreen: View {
                     Spacer(minLength: 12)
 
                     VStack(alignment: .trailing, spacing: 4) {
-                        Text(L10n.string("共 \(stats.totalAssets) 张"))
+                        Text(L10n.string("\(stats.totalAssets) photos in total"))
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
 
@@ -113,9 +113,9 @@ private struct StatsScreen: View {
                     .clipShape(Capsule(style: .continuous))
 
                 HStack {
-                    Text(L10n.string("删除内容约 \(stats.formattedSpaceSaved)"))
+                    Text(L10n.string("Deleted content: about \(stats.formattedSpaceSaved)"))
                     Spacer()
-                    Text(L10n.string("已删除 \(stats.deletedAssets) 张"))
+                    Text(L10n.string("Deleted \(stats.deletedAssets) photos"))
                 }
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
@@ -152,10 +152,10 @@ private struct StatsScreen: View {
         )
 
         return VStack(alignment: .leading, spacing: 9) {
-            PhotoDeleteSectionHeader(title: L10n.string("清理历史"))
+            PhotoDeleteSectionHeader(title: L10n.string("Cleanup History"))
 
             if months.isEmpty {
-                Text(L10n.string("确认删除或收藏后，会在本机留下清理记录。"))
+                Text(L10n.string("Local cleanup records appear after you confirm deletions or favorites."))
                     .font(.system(size: 13, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -223,7 +223,7 @@ private struct StatsScreen: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(L10n.string("\(monthTitle(for: month.monthKey))，删除 \(count) 张"))
+        .accessibilityLabel(L10n.string("\(monthTitle(for: month.monthKey)), delete \(count) photos"))
     }
 
     private func monthDeletedCount(_ month: HistoryMonth) -> Int {
@@ -257,7 +257,7 @@ private struct StatsScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         selectedMonth = nil
                     }
                     .foregroundColor(PhotoDeleteStyle.accent)
@@ -273,14 +273,14 @@ private struct StatsScreen: View {
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                Text(L10n.string("删除 \(session.deletedPhotos) 张 · 收藏 \(session.favoritedPhotos) 张"))
+                Text(L10n.string("Deleted \(session.deletedPhotos) · Favorited \(session.favoritedPhotos)"))
                     .font(.system(size: 13, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
             }
 
             Spacer(minLength: 8)
 
-            Text(L10n.string("删除内容约 \(session.formattedSpaceSaved)"))
+            Text(L10n.string("Deleted content: about \(session.formattedSpaceSaved)"))
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
                 .lineLimit(1)

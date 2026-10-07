@@ -68,7 +68,7 @@ struct PhotoReviewSource {
         if let randomReviewScope {
             return randomReviewScope.title
         } else if selectedHistoricalToday {
-            return L10n.string("历史上的今天")
+            return L10n.string("On This Day")
         } else if let albumInfo = activeAlbumInfo {
             return albumInfo.title
         } else if let selectedDate, let selectedAdvancedTimeScope {
@@ -78,7 +78,7 @@ struct PhotoReviewSource {
         } else if let selectedAdvancedCleanup {
             return selectedAdvancedCleanup.title
         } else if let selectedLocationGroupID {
-            return dataManager.locationGroupTitle(for: selectedLocationGroupID) ?? L10n.string("地点")
+            return dataManager.locationGroupTitle(for: selectedLocationGroupID) ?? L10n.string("Location")
         } else if let category = selectedCategory {
             return category.title
         } else if let timeGroup = selectedTimeGroup {
@@ -140,9 +140,9 @@ private enum ReviewSourceDateFormatter {
         case .week:
             let components = Calendar.current.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
             return String(
-                format: L10n.string("%lld 年第 %lld 周"),
-                Int64(components.yearForWeekOfYear ?? 0),
-                Int64(components.weekOfYear ?? 0)
+                format: L10n.string("Week %lld of %lld"),
+                Int64(components.weekOfYear ?? 0),
+                Int64(components.yearForWeekOfYear ?? 0)
             )
         case .month:
             return monthTitle.string(from: date)

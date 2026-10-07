@@ -276,33 +276,33 @@ enum VideoCompressionQuality: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .high:
-            return L10n.string("高清保留")
+            return L10n.string("High Quality")
         case .balanced:
-            return L10n.string("均衡推荐")
+            return L10n.string("Balanced (Recommended)")
         case .spaceSaving:
-            return L10n.string("节省空间")
+            return L10n.string("Save Space")
         }
     }
 
     var compactTitle: String {
         switch self {
         case .high:
-            return L10n.string("高清")
+            return L10n.string("High")
         case .balanced:
-            return L10n.string("均衡")
+            return L10n.string("Balanced")
         case .spaceSaving:
-            return L10n.string("省空间")
+            return L10n.string("Save")
         }
     }
 
     var subtitle: String {
         switch self {
         case .high:
-            return L10n.string("轻微降低码率，更适合重要视频。")
+            return L10n.string("Slightly lowers bitrate, better for important videos.")
         case .balanced:
-            return L10n.string("画质和体积的默认平衡，适合大多数视频。")
+            return L10n.string("The default balance of quality and size for most videos.")
         case .spaceSaving:
-            return L10n.string("更明显降低码率，适合只想腾出空间的视频。")
+            return L10n.string("Lowers bitrate more aggressively for videos where space matters most.")
         }
     }
 
@@ -340,9 +340,9 @@ enum VideoCompressionResolution: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .original:
-            return L10n.string("原分辨率")
+            return L10n.string("Original Resolution")
         case .automatic:
-            return L10n.string("自动")
+            return L10n.string("Auto")
         case .p1080:
             return L10n.string("1080p")
         case .p720:
@@ -353,13 +353,13 @@ enum VideoCompressionResolution: String, CaseIterable, Identifiable {
     var subtitle: String {
         switch self {
         case .original:
-            return L10n.string("不改变分辨率，只调整编码和码率。")
+            return L10n.string("Keeps resolution unchanged and adjusts encoding and bitrate.")
         case .automatic:
-            return L10n.string("4K 视频转为 1080p，1080p 及以下保持不变。")
+            return L10n.string("Turns 4K videos into 1080p and keeps 1080p or smaller videos unchanged.")
         case .p1080:
-            return L10n.string("适合 4K 生活视频，明显减少体积。")
+            return L10n.string("Good for everyday 4K videos when you want a clear size reduction.")
         case .p720:
-            return L10n.string("适合聊天备份和低重要性视频，空间优先。")
+            return L10n.string("Best for chat backups and less important videos where space comes first.")
         }
     }
 
@@ -506,33 +506,33 @@ enum ImageCompressionQuality: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .high:
-            return L10n.string("细节优先")
+            return L10n.string("Detail First")
         case .balanced:
-            return L10n.string("均衡推荐")
+            return L10n.string("Balanced (Recommended)")
         case .spaceSaving:
-            return L10n.string("节省空间")
+            return L10n.string("Save Space")
         }
     }
 
     var compactTitle: String {
         switch self {
         case .high:
-            return L10n.string("细节")
+            return L10n.string("Detail")
         case .balanced:
-            return L10n.string("均衡")
+            return L10n.string("Balanced")
         case .spaceSaving:
-            return L10n.string("省空间")
+            return L10n.string("Save")
         }
     }
 
     var subtitle: String {
         switch self {
         case .high:
-            return L10n.string("保留更多细节，适合重要照片。")
+            return L10n.string("Preserves more detail for important photos.")
         case .balanced:
-            return L10n.string("画质和体积的默认平衡，适合大多数照片。")
+            return L10n.string("The default balance of image quality and file size for most photos.")
         case .spaceSaving:
-            return L10n.string("更明显压缩体积，适合备份或低重要性图片。")
+            return L10n.string("Compresses more aggressively for backups or less important images.")
         }
     }
 
@@ -570,26 +570,26 @@ enum ImageCompressionSize: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .original:
-            return L10n.string("原尺寸")
+            return L10n.string("Original Size")
         case .automatic:
-            return L10n.string("自动")
+            return L10n.string("Auto")
         case .large:
-            return L10n.string("2400px")
+            return L10n.string("2400 px")
         case .medium:
-            return L10n.string("1600px")
+            return L10n.string("1600 px")
         }
     }
 
     var subtitle: String {
         switch self {
         case .original:
-            return L10n.string("不改变尺寸，只调整图片编码质量。")
+            return L10n.string("Keeps dimensions unchanged and only adjusts image encoding quality.")
         case .automatic:
-            return L10n.string("超大图片缩到 3200px，较小图片保持原尺寸。")
+            return L10n.string("Scales very large images to 3200 px and keeps smaller images unchanged.")
         case .large:
-            return L10n.string("适合日常照片备份，细节和体积更平衡。")
+            return L10n.string("Good for everyday photo backups with a balance of detail and size.")
         case .medium:
-            return L10n.string("适合聊天分享和低重要性图片，空间优先。")
+            return L10n.string("Good for chat sharing and less important images, prioritizing space.")
         }
     }
 
@@ -1813,13 +1813,13 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             throw VideoCompressionError.notVideo
         }
 
-        await progressHandler?(0.04, L10n.string("正在读取原视频信息"))
+        await progressHandler?(0.04, L10n.string("Reading original video info"))
         try Task.checkCancellation()
         let videoAsset = try await requestVideoAsset(for: asset)
         try Task.checkCancellation()
         let originalSizeMB = try await actualVideoFileSizeMB(for: asset, preferredVideoAsset: videoAsset)
         try Task.checkCancellation()
-        await progressHandler?(0.12, L10n.string("正在准备压缩参数"))
+        await progressHandler?(0.12, L10n.string("Preparing compression settings"))
         let originalDimensions = try await displayDimensions(for: videoAsset)
         try Task.checkCancellation()
         let output = try await exportCompressedVideo(
@@ -1835,10 +1835,10 @@ class PhotoLibraryManager: NSObject, ObservableObject {
 
         let compressedSizeMB = try compressedFileSizeMB(at: output.url)
         try Task.checkCancellation()
-        await progressHandler?(0.9, L10n.string("正在保存压缩副本"))
+        await progressHandler?(0.9, L10n.string("Saving compressed copy"))
         try Task.checkCancellation()
         let createdAssetIdentifier = try await saveCompressedVideo(at: output.url, originalAsset: asset)
-        await progressHandler?(1, L10n.string("压缩副本已保存"))
+        await progressHandler?(1, L10n.string("Compressed copy saved"))
         return VideoCompressionResult(
             originalAssetIdentifier: asset.localIdentifier,
             createdAssetIdentifier: createdAssetIdentifier,
@@ -1866,10 +1866,10 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             throw ImageCompressionError.livePhotoUnsupported
         }
 
-        await progressHandler?(0.04, L10n.string("正在读取原图信息"))
+        await progressHandler?(0.04, L10n.string("Reading original image information"))
         let imageData = try await requestImageData(for: asset)
         let originalSizeMB = max(Double(imageData.count) / 1_048_576, 0)
-        await progressHandler?(0.22, L10n.string("正在准备压缩参数"))
+        await progressHandler?(0.22, L10n.string("Preparing compression settings"))
         let output = try await exportCompressedImage(
             from: imageData,
             originalAsset: asset,
@@ -1885,9 +1885,9 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             throw ImageCompressionError.notWorthCompressing
         }
 
-        await progressHandler?(0.88, L10n.string("正在保存压缩副本"))
+        await progressHandler?(0.88, L10n.string("Saving compressed copy"))
         let createdAssetIdentifier = try await saveCompressedImage(at: output.url, originalAsset: asset)
-        await progressHandler?(1, L10n.string("压缩副本已保存"))
+        await progressHandler?(1, L10n.string("Compressed copy saved"))
         return ImageCompressionResult(
             originalAssetIdentifier: asset.localIdentifier,
             createdAssetIdentifier: createdAssetIdentifier,
@@ -2410,7 +2410,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
 
         let audioPair = makeAudioReaderWriterPair(from: audioTracks.first, reader: reader, writer: writer)
 
-        await progressHandler?(0.16, L10n.string("正在压缩视频"))
+        await progressHandler?(0.16, L10n.string("Compressing video"))
         try await runReaderWriterExport(
             reader: reader,
             writer: writer,
@@ -2710,7 +2710,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
 
         try? FileManager.default.removeItem(at: outputURL)
 
-        await progressHandler?(0.42, L10n.string("正在压缩图片"))
+        await progressHandler?(0.42, L10n.string("Compressing image"))
         let thumbnailOptions: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
@@ -2736,7 +2736,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             throw ImageCompressionError.exportFailed
         }
 
-        await progressHandler?(0.78, L10n.string("正在确认压缩结果"))
+        await progressHandler?(0.78, L10n.string("Checking compression result"))
         return ImageCompressionOutput(
             url: outputURL,
             outputDimensions: CGSize(width: outputImage.width, height: outputImage.height)
@@ -4143,7 +4143,7 @@ private final class VideoCompressionExportSession: @unchecked Sendable {
         let handler = progressHandler
 
         Task { @MainActor in
-            handler?(displayedProgress, L10n.string("正在压缩视频"))
+            handler?(displayedProgress, L10n.string("Compressing video"))
         }
     }
 
@@ -4218,21 +4218,21 @@ private enum PhotoLibraryWriteError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noLibraryAccess:
-            return L10n.string("当前照片权限不可用")
+            return L10n.string("Photo access is not available")
         case .unsupportedDelete:
-            return L10n.string("有照片无法删除，请先在系统照片中检查权限或来源。")
+            return L10n.string("Some photos cannot be deleted. Check their permissions or source in Photos.")
         case .unsupportedFavorite:
-            return L10n.string("有照片无法收藏，请先在系统照片中检查权限或来源。")
+            return L10n.string("Some photos cannot be favorited. Check their permissions or source in Photos.")
         case .unsupportedAlbumAdd:
-            return L10n.string("这个相册不支持添加照片。")
+            return L10n.string("This album does not support adding photos.")
         case .unsupportedAlbumRemove:
-            return L10n.string("这个相册不支持移出照片。")
+            return L10n.string("This album does not support removing photos.")
         case .unsupportedAlbumRename:
-            return L10n.string("这个相册不支持重命名。")
+            return L10n.string("This album does not support renaming.")
         case .unsupportedAlbumDelete:
-            return L10n.string("这个相册不支持删除。")
+            return L10n.string("This album does not support deletion.")
         case .invalidAlbumTitle:
-            return L10n.string("请输入相册名称。")
+            return L10n.string("Enter an album name.")
         }
     }
 }
@@ -4247,15 +4247,15 @@ private enum VideoCompressionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noLibraryAccess:
-            return L10n.string("当前照片权限不可用")
+            return L10n.string("Photo access is not available")
         case .notVideo:
-            return L10n.string("这个项目不是视频")
+            return L10n.string("This item is not a video")
         case .videoUnavailable:
-            return L10n.string("无法读取这个视频")
+            return L10n.string("This video cannot be read")
         case .exportFailed:
-            return L10n.string("视频压缩失败，请稍后再试。")
+            return L10n.string("Video compression failed. Please try again later.")
         case .saveFailed:
-            return L10n.string("无法保存压缩视频")
+            return L10n.string("Could not save the compressed video")
         }
     }
 }
@@ -4272,19 +4272,19 @@ private enum ImageCompressionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noLibraryAccess:
-            return L10n.string("当前照片权限不可用")
+            return L10n.string("Photo access is not available")
         case .notImage:
-            return L10n.string("这个项目不是图片")
+            return L10n.string("This item is not an image")
         case .livePhotoUnsupported:
-            return L10n.string("实况照片暂不参与图片压缩")
+            return L10n.string("Live Photos are not included in image compression yet")
         case .imageUnavailable:
-            return L10n.string("无法读取这张图片")
+            return L10n.string("Unable to read this image")
         case .exportFailed:
-            return L10n.string("图片压缩失败，请稍后再试。")
+            return L10n.string("Image compression failed. Please try again later.")
         case .notWorthCompressing:
-            return L10n.string("这张图片已经足够小")
+            return L10n.string("This image is already small enough")
         case .saveFailed:
-            return L10n.string("无法保存压缩图片")
+            return L10n.string("Unable to save compressed image")
         }
     }
 }

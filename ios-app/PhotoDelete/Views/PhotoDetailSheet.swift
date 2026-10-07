@@ -17,11 +17,11 @@ struct PhotoDetailSheet: View {
     private var rows: [(label: String, value: String?)] {
         let albums = dataManager.albumTitles(for: asset)
         return [
-            (L10n.string("拍摄时间"), PhotoAssetMetadataFormatter.detailCaptureDate(for: asset.creationDate)),
-            (L10n.string("位置"), dataManager.locationDisplayTextIfAvailable(for: asset)),
-            (L10n.string("文件大小"), sizeText),
-            (L10n.string("分辨率"), resolutionText),
-            (L10n.string("所属相册"), albums.isEmpty ? nil : albums.joined(separator: "、"))
+            (L10n.string("Captured"), PhotoAssetMetadataFormatter.detailCaptureDate(for: asset.creationDate)),
+            (L10n.string("Position"), dataManager.locationDisplayTextIfAvailable(for: asset)),
+            (L10n.string("File Size"), sizeText),
+            (L10n.string("Resolution"), resolutionText),
+            (L10n.string("In Albums"), albums.isEmpty ? nil : albums.joined(separator: "、"))
         ]
     }
 
@@ -35,7 +35,7 @@ struct PhotoDetailSheet: View {
             PhotoDeleteStyle.surface.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Text(L10n.string("照片详情"))
+                Text(L10n.string("Photo Details"))
                     .font(.system(size: 17, weight: .bold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
                     .padding(.top, 24)

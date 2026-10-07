@@ -187,11 +187,11 @@ final class PurchaseManager: ObservableObject {
 
     var supporterTrialStatusText: String? {
         if isUsingTrialSupporterAccess {
-            return String(format: L10n.string("支持者版试用中，还剩 %lld 天。"), supporterTrialDaysRemaining)
+            return String(format: L10n.string("Supporter trial active, %lld days remaining."), supporterTrialDaysRemaining)
         }
 
         if isSupporterTrialExpired {
-            return L10n.string("3 天体验已结束，基础整理仍可继续使用。开通年度或永久 Pro 后可继续使用进阶功能。")
+            return L10n.string("The 3-day trial has ended. Basic cleanup remains free. Choose Annual or Lifetime Pro to keep using advanced features.")
         }
 
         return nil
@@ -293,12 +293,12 @@ final class PurchaseManager: ObservableObject {
         do {
             products = try await loadTask.value
             if products.isEmpty {
-                errorMessage = L10n.string("暂时无法读取支持者版商品。")
+                errorMessage = L10n.string("Supporter product is not available right now.")
             } else {
                 errorMessage = nil
             }
         } catch {
-            errorMessage = L10n.string("暂时无法读取支持者版商品。")
+            errorMessage = L10n.string("Supporter product is not available right now.")
         }
 
         if productLoadRequest?.id == loadRequestID {
@@ -316,7 +316,7 @@ final class PurchaseManager: ObservableObject {
         }
 
         guard let product = product(for: plan) else {
-            errorMessage = L10n.string("暂时无法读取支持者版商品。")
+            errorMessage = L10n.string("Supporter product is not available right now.")
             return
         }
 
@@ -329,14 +329,14 @@ final class PurchaseManager: ObservableObject {
                 setVerifiedSupporterAccess(true, transaction: transaction)
                 errorMessage = nil
             case .pending:
-                errorMessage = L10n.string("购买正在处理中，完成后会自动解锁。")
+                errorMessage = L10n.string("Purchase is pending and will unlock automatically when it completes.")
             case .userCancelled:
                 errorMessage = nil
             @unknown default:
-                errorMessage = L10n.string("购买未完成，请稍后再试。")
+                errorMessage = L10n.string("Purchase did not complete. Try again later.")
             }
         } catch {
-            errorMessage = L10n.string("购买未完成，请稍后再试。")
+            errorMessage = L10n.string("Purchase did not complete. Try again later.")
         }
     }
 
@@ -349,13 +349,13 @@ final class PurchaseManager: ObservableObject {
             try await AppStore.sync()
             await refreshEntitlementsAfterPotentialExternalChange(showVerificationState: true)
             if !hasPaidSupporterAccess {
-                errorMessage = L10n.string("没有找到可恢复的支持者版购买。")
+                errorMessage = L10n.string("No restorable Supporter purchase was found.")
             }
         } catch {
             if hasCachedSupporterEntitlement {
                 entitlementState = .cachedOffline
             }
-            errorMessage = L10n.string("恢复购买失败，请稍后再试。")
+            errorMessage = L10n.string("Could not restore purchases. Try again later.")
         }
     }
 
@@ -368,7 +368,7 @@ final class PurchaseManager: ObservableObject {
             }
         case .failure(let error):
             guard !(error is CancellationError) else { return }
-            errorMessage = L10n.string("无法打开兑换页面，请稍后再试。")
+            errorMessage = L10n.string("Could not open the redemption page. Try again later.")
         }
     }
 
@@ -522,7 +522,7 @@ final class PurchaseManager: ObservableObject {
         if let product = product(for: plan) {
             return product.displayPrice
         }
-        return hasActivatedStoreKit ? L10n.string("读取价格中") : L10n.string("查看价格")
+        return hasActivatedStoreKit ? L10n.string("Loading price") : L10n.string("View Price")
     }
 
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {

@@ -28,7 +28,7 @@ private struct PhotoAlbumMembershipBadge: View {
 
     private var displayText: String {
         if titles.count == 1 { return titles[0] }
-        return String(format: L10n.string("%@ 等 %lld 个相册"), titles[0], Int64(titles.count))
+        return String(format: L10n.string("%@ and %lld albums"), titles[0], Int64(titles.count))
     }
 
     var body: some View {
@@ -39,7 +39,7 @@ private struct PhotoAlbumMembershipBadge: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
             .background(Color.black.opacity(0.62), in: Capsule(style: .continuous))
-            .accessibilityLabel(L10n.string("所属相册：\(displayText)"))
+            .accessibilityLabel(L10n.string("In Albums: \(displayText)"))
     }
 }
 
@@ -182,7 +182,7 @@ struct RealPhotoCard: View {
                             }
 
                             if isDownloadingFromCloud {
-                                Text(L10n.string("正在从 iCloud 下载照片"))
+                                Text(L10n.string("Downloading photo from iCloud"))
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                             }
@@ -202,9 +202,9 @@ struct RealPhotoCard: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier("review-photo-card")
-        .accessibilityLabel(L10n.string("当前照片"))
+        .accessibilityLabel(L10n.string("Current Photo"))
         .accessibilityValue(accessibilityValue)
-        .accessibilityHint(L10n.string("可使用可访问性操作加入待删除、加入收藏或跳过。"))
+        .accessibilityHint(L10n.string("Use accessibility actions to delete, favorite, or skip."))
         .inlineVideoCloseAccessibility(isActive: isVideoPlaying, action: onStopVideoPlayback)
         .onAppear {
             loadImage()
@@ -306,9 +306,9 @@ struct RealPhotoCard: View {
     }
 
     private var candidateOverlayTitle: String {
-        if isInDeleteCandidates { return L10n.string("待删除") }
-        if isBeingFiledToAlbum { return L10n.string("归类中") }
-        return L10n.string("已归类")
+        if isInDeleteCandidates { return L10n.string("To delete") }
+        if isBeingFiledToAlbum { return L10n.string("Filing") }
+        return L10n.string("Filed")
     }
 
     @ViewBuilder
@@ -329,11 +329,11 @@ struct RealPhotoCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(isDownloadingFromCloud ? L10n.string("正在从 iCloud 下载照片") : L10n.string("正在加载高清预览"))
+                    Text(isDownloadingFromCloud ? L10n.string("Downloading photo from iCloud") : L10n.string("Loading full-quality preview"))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(L10n.string("当前可能较模糊"))
+                    Text(L10n.string("Preview may look blurry"))
                         .font(.system(size: 11, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
@@ -478,12 +478,12 @@ struct RealPhotoCard: View {
     private var accessibilityValue: String {
         var values: [String] = []
         if asset.mediaType == .video {
-            values.append(L10n.string("视频"))
+            values.append(L10n.string("Videos"))
             if isVideoPlaying {
-                values.append(L10n.string("视频预览"))
+                values.append(L10n.string("Video Preview"))
             }
         } else {
-            values.append(L10n.string("照片"))
+            values.append(L10n.string("Photos"))
         }
 
         values.append(memoryCaption.title)
@@ -496,29 +496,29 @@ struct RealPhotoCard: View {
         }
 
         if photoLibraryManager.isScreenshot(asset) {
-            values.append(L10n.string("截图"))
+            values.append(L10n.string("Screenshots"))
         }
 
         if photoLibraryManager.isLivePhoto(asset) {
-            values.append(L10n.string("实况照片"))
+            values.append(L10n.string("Live Photos"))
         }
 
         if photoLibraryManager.isFavorite(asset) {
-            values.append(L10n.string("收藏"))
+            values.append(L10n.string("Favorite"))
         }
 
         if isDownloadingFromCloud {
-            values.append(L10n.string("正在从 iCloud 下载照片"))
+            values.append(L10n.string("Downloading photo from iCloud"))
         } else if isShowingDegradedPreview {
-            values.append(L10n.string("正在加载高清预览"))
+            values.append(L10n.string("Loading full-quality preview"))
         }
 
         if isInDeleteCandidates {
-            values.append(L10n.string("待删除"))
+            values.append(L10n.string("To delete"))
         } else if isBeingFiledToAlbum {
-            values.append(L10n.string("归类中"))
+            values.append(L10n.string("Filing"))
         } else if isFiledToAlbum {
-            values.append(L10n.string("已归类"))
+            values.append(L10n.string("Filed"))
         }
 
         return values.joined(separator: "，")
@@ -616,8 +616,8 @@ struct LivePhotoMotionControlButton: View {
         .photoDeleteMinimumTapTarget()
         .accessibilityLabel(
             isLoading
-                ? L10n.string("正在读取照片")
-                : (isEnabled ? L10n.string("关闭实况照片动态") : L10n.string("播放实况照片"))
+                ? L10n.string("Reading Photos")
+                : (isEnabled ? L10n.string("Turn Live Photo Motion Off") : L10n.string("Play Live Photo"))
         )
         .accessibilityIdentifier("live-photo-motion-toggle")
     }
@@ -627,7 +627,7 @@ private extension View {
     @ViewBuilder
     func inlineVideoCloseAccessibility(isActive: Bool, action: @escaping () -> Void) -> some View {
         if isActive {
-            self.accessibilityAction(named: Text(L10n.string("停止播放"))) {
+            self.accessibilityAction(named: Text(L10n.string("Stop playback"))) {
                 action()
             }
         } else {

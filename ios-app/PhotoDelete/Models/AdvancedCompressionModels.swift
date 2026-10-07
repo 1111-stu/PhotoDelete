@@ -23,7 +23,7 @@ struct AdvancedImageCompressionJobState: Equatable {
             processedCount: 0,
             totalCount: totalCount,
             currentProgress: 0,
-            message: L10n.string("正在准备压缩"),
+            message: L10n.string("Preparing compression"),
             errorMessage: nil,
             result: nil
         )
@@ -45,7 +45,7 @@ struct AdvancedVideoCompressionJobState: Equatable {
             processedCount: 0,
             totalCount: totalCount,
             currentProgress: 0,
-            message: L10n.string("正在准备压缩"),
+            message: L10n.string("Preparing compression"),
             errorMessage: nil,
             result: nil
         )
@@ -124,18 +124,18 @@ struct AdvancedImageCompressionResult: Equatable {
     }
 
     var createdCopiesText: String {
-        String(format: L10n.string("%lld 张"), Int64(successCount))
+        String(format: L10n.string("%lld images"), Int64(successCount))
     }
 
     var completionTitle: String {
-        failedCount > 0 ? L10n.string("压缩部分完成") : L10n.string("压缩完成")
+        failedCount > 0 ? L10n.string("Compression partly complete") : L10n.string("Compression complete")
     }
 
     var completionSubtitle: String {
         if successCount == 1 {
-            return L10n.string("已生成 1 张压缩后图片")
+            return L10n.string("Created 1 compressed image")
         }
-        return String(format: L10n.string("已生成 %lld 张压缩后图片"), Int64(successCount))
+        return String(format: L10n.string("Created %lld compressed images"), Int64(successCount))
     }
 
     var createdAssetIdentifiers: [String] {
@@ -154,13 +154,13 @@ struct AdvancedImageCompressionResult: Equatable {
     }
 
     var sizeSummaryText: String {
-        guard let firstItem = items.first else { return L10n.string("保持原尺寸") }
+        guard let firstItem = items.first else { return L10n.string("Keep original size") }
 
         if items.count == 1 {
             let original = AdvancedCompressionDimensions.text(for: firstItem.originalDimensions)
             let output = AdvancedCompressionDimensions.text(for: firstItem.outputDimensions)
             if original == output {
-                return String(format: L10n.string("保持 %@"), original)
+                return String(format: L10n.string("Kept %@"), original)
             }
             return String(format: L10n.string("%@ → %@"), original, output)
         }
@@ -169,15 +169,15 @@ struct AdvancedImageCompressionResult: Equatable {
             AdvancedCompressionDimensions.text(for: item.originalDimensions) == AdvancedCompressionDimensions.text(for: item.outputDimensions)
         }
         if allKeptOriginalSize {
-            return L10n.string("全部保持原尺寸")
+            return L10n.string("All kept original size")
         }
 
         let outputDimensions = Set(items.map { AdvancedCompressionDimensions.text(for: $0.outputDimensions) })
         if outputDimensions.count == 1, let output = outputDimensions.first {
-            return String(format: L10n.string("输出 %@"), output)
+            return String(format: L10n.string("Output %@"), output)
         }
 
-        return L10n.string("多种尺寸")
+        return L10n.string("Multiple sizes")
     }
 }
 
@@ -257,18 +257,18 @@ struct AdvancedVideoCompressionResult: Equatable {
     }
 
     var createdCopiesText: String {
-        String(format: L10n.string("%lld 个"), Int64(successCount))
+        String(format: L10n.string("%lld copies"), Int64(successCount))
     }
 
     var completionTitle: String {
-        failedCount > 0 ? L10n.string("压缩部分完成") : L10n.string("压缩完成")
+        failedCount > 0 ? L10n.string("Compression partly complete") : L10n.string("Compression complete")
     }
 
     var completionSubtitle: String {
         if successCount == 1 {
-            return L10n.string("已生成 1 个压缩后视频")
+            return L10n.string("Created 1 compressed video")
         }
-        return String(format: L10n.string("已生成 %lld 个压缩后视频"), Int64(successCount))
+        return String(format: L10n.string("Created %lld compressed videos"), Int64(successCount))
     }
 
     var createdAssetIdentifiers: [String] {
@@ -287,23 +287,23 @@ struct AdvancedVideoCompressionResult: Equatable {
     }
 
     var keptResolutionText: String {
-        guard let firstItem = items.first else { return L10n.string("保持原分辨率") }
+        guard let firstItem = items.first else { return L10n.string("Original resolution kept") }
         let original = AdvancedCompressionDimensions.text(for: firstItem.originalDimensions)
         let output = AdvancedCompressionDimensions.text(for: firstItem.outputDimensions)
         if original == output {
-            return String(format: L10n.string("分辨率保持 %@"), original)
+            return String(format: L10n.string("Resolution kept at %@"), original)
         }
-        return String(format: L10n.string("分辨率 %@ → %@"), original, output)
+        return String(format: L10n.string("Resolution %@ → %@"), original, output)
     }
 
     var resolutionSummaryText: String {
-        guard let firstItem = items.first else { return L10n.string("保持原分辨率") }
+        guard let firstItem = items.first else { return L10n.string("Original resolution kept") }
 
         if items.count == 1 {
             let original = AdvancedCompressionDimensions.text(for: firstItem.originalDimensions)
             let output = AdvancedCompressionDimensions.text(for: firstItem.outputDimensions)
             if original == output {
-                return String(format: L10n.string("保持 %@"), original)
+                return String(format: L10n.string("Kept %@"), original)
             }
             return String(format: L10n.string("%@ → %@"), original, output)
         }
@@ -312,15 +312,15 @@ struct AdvancedVideoCompressionResult: Equatable {
             AdvancedCompressionDimensions.text(for: item.originalDimensions) == AdvancedCompressionDimensions.text(for: item.outputDimensions)
         }
         if allKeptOriginalResolution {
-            return L10n.string("全部保持原分辨率")
+            return L10n.string("All kept original resolution")
         }
 
         let outputDimensions = Set(items.map { AdvancedCompressionDimensions.text(for: $0.outputDimensions) })
         if outputDimensions.count == 1, let output = outputDimensions.first {
-            return String(format: L10n.string("输出 %@"), output)
+            return String(format: L10n.string("Output %@"), output)
         }
 
-        return L10n.string("多种分辨率")
+        return L10n.string("Multiple resolutions")
     }
 }
 
@@ -328,7 +328,7 @@ private enum AdvancedCompressionDimensions {
     static func text(for size: CGSize) -> String {
         let width = Int(size.width.rounded())
         let height = Int(size.height.rounded())
-        guard width > 0, height > 0 else { return L10n.string("未知") }
+        guard width > 0, height > 0 else { return L10n.string("Unknown") }
         return "\(width)×\(height)"
     }
 }

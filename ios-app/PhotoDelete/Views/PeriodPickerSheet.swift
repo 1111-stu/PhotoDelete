@@ -109,7 +109,7 @@ struct PeriodPickerSheet: View {
                         .monospacedDigit()
                         .foregroundStyle(numberStyle(isPrimary: isPrimary))
 
-                    Text(L10n.string("待整理"))
+                    Text(L10n.string("To review"))
                         .font(.system(size: 11.5, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.tertiaryText)
                 }

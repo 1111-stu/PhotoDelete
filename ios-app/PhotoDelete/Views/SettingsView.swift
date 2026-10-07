@@ -143,7 +143,7 @@ struct SettingsView: View {
                     settingsToastView(settingsToast)
                 }
             }
-            .navigationTitle(L10n.string("设置"))
+            .navigationTitle(L10n.string("Settings"))
             .navigationBarTitleDisplayMode(.large)
             .settingsNavigationChrome()
         }
@@ -153,7 +153,7 @@ struct SettingsView: View {
             #if canImport(MessageUI)
                 MailComposeView()
             #else
-                Text(L10n.string("此设备不支持发送邮件"))
+                Text(L10n.string("This device cannot send email"))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
                     .padding()
             #endif
@@ -173,7 +173,7 @@ struct SettingsView: View {
                         .environmentObject(dataManager)
                         .toolbar {
                             ToolbarItem(placement: .topBarTrailing) {
-                                Button(L10n.string("完成")) {
+                                Button(L10n.string("Done")) {
                                     activeSheet = nil
                                 }
                                 .foregroundColor(PhotoDeleteStyle.accent)
@@ -213,14 +213,14 @@ struct SettingsView: View {
         }
         .buttonStyle(.plain)
         .settingsGroupedCard()
-        .accessibilityHint(Text(L10n.string("查看购买信息和功能区别")))
+        .accessibilityHint(Text(L10n.string("View purchase info and feature differences")))
     }
 
     // MARK: - 支持者版
     private var supporterSection: some View {
         VStack(spacing: 16) {
             HStack {
-                Text(L10n.string("购买与恢复"))
+                Text(L10n.string("Purchases & Restore"))
                     .settingsSectionHeading()
                 Spacer()
             }
@@ -241,55 +241,55 @@ struct SettingsView: View {
     private var supporterRowTitle: String {
         if purchaseManager.hasPaidSupporterAccess {
             return purchaseManager.supporterAccessKind == .annual
-                ? L10n.string("年度 Pro 已启用")
-                : L10n.string("永久 Pro 已解锁")
+                ? L10n.string("Annual Pro Active")
+                : L10n.string("Lifetime Pro Unlocked")
         }
 
         if purchaseManager.isUsingTrialSupporterAccess {
-            return L10n.string("支持者版试用中")
+            return L10n.string("Supporter Trial Active")
         }
 
         if purchaseManager.isSupporterTrialExpired {
-            return L10n.string("体验已结束")
+            return L10n.string("Trial Ended")
         }
 
-        return L10n.string("解锁进阶功能")
+        return L10n.string("Unlock Advanced Features")
     }
 
     private var supporterRowSubtitle: String {
         if purchaseManager.hasPaidSupporterAccess {
             return purchaseManager.supporterAccessKind == .annual
-                ? L10n.string("查看订阅状态和功能区别")
-                : L10n.string("查看购买信息和功能区别")
+                ? L10n.string("View subscription status and plan features")
+                : L10n.string("View purchase info and feature differences")
         }
 
         if purchaseManager.isUsingTrialSupporterAccess {
-            return String(format: L10n.string("还剩 %lld 天，可选择年度或永久 Pro"), purchaseManager.supporterTrialDaysRemaining)
+            return String(format: L10n.string("%lld days remaining. Choose Annual or Lifetime Pro anytime."), purchaseManager.supporterTrialDaysRemaining)
         }
 
         if purchaseManager.isSupporterTrialExpired {
-            return L10n.string("3 天体验已结束，可选择年度或永久 Pro")
+            return L10n.string("The 3-day trial has ended. Choose Annual or Lifetime Pro.")
         }
 
         if purchaseManager.canStartSupporterTrial {
-            return L10n.string("可先免费体验 3 天，也可选择年度或永久 Pro")
+            return L10n.string("Try free for 3 days, or choose Annual or Lifetime Pro.")
         }
 
-        return L10n.string("可选择年度订阅或一次购买的永久 Pro")
+        return L10n.string("Choose an annual subscription or a one-time Lifetime Pro purchase.")
     }
 
     // MARK: - 关于与支持
     private var aboutSection: some View {
         VStack(spacing: 16) {
             HStack {
-                Text(L10n.string("关于与支持"))
+                Text(L10n.string("About and Support"))
                     .settingsSectionHeading()
                 Spacer()
             }
 
             VStack(spacing: 0) {
                 SettingRow(
-                    title: L10n.string("给删图评分"),
+                    title: L10n.string("Rate OnePhoto"),
                     showsChevron: false,
                     action: requestAppReview
                 )
@@ -297,7 +297,7 @@ struct SettingsView: View {
                 SettingsHairline()
 
                 SettingRow(
-                    title: L10n.string("邮件反馈"),
+                    title: L10n.string("Email Feedback"),
                     subtitle: AppConstants.feedbackEmail,
                     action: handleMailAction
                 )
@@ -305,7 +305,7 @@ struct SettingsView: View {
                 SettingsHairline()
 
                 SettingRow(
-                    title: L10n.string("隐私说明"),
+                    title: L10n.string("Privacy Notes"),
                     action: {
                         activeSheet = .privacy
                     }
@@ -324,14 +324,14 @@ struct SettingsView: View {
     private var preferencesSection: some View {
         VStack(spacing: 16) {
             HStack {
-                Text(L10n.string("偏好设置"))
+                Text(L10n.string("Preferences"))
                     .settingsSectionHeading()
                 Spacer()
             }
 
             VStack(spacing: 0) {
                 SettingRow(
-                    title: L10n.string("手势与播放"),
+                    title: L10n.string("Gestures & Playback"),
                     subtitle: gestureSettingsSubtitle,
                     action: {
                         activeSheet = .gestureSettings
@@ -345,7 +345,7 @@ struct SettingsView: View {
                 SettingsHairline()
 
                 SettingRow(
-                    title: L10n.string("语言"),
+                    title: L10n.string("Language"),
                     subtitle: selectedLanguage.title,
                     action: {
                         activeSheet = .languageSettings
@@ -355,8 +355,8 @@ struct SettingsView: View {
                 SettingsHairline()
 
                 SettingToggleRow(
-                    title: L10n.string("触感反馈"),
-                    subtitle: L10n.string("滑动、撤销和归类时提供轻微反馈"),
+                    title: L10n.string("Haptic Feedback"),
+                    subtitle: L10n.string("Light feedback while swiping, undoing, and sorting"),
                     isOn: $hapticsEnabled
                 )
             }
@@ -368,14 +368,14 @@ struct SettingsView: View {
     private var dataPermissionsSection: some View {
         VStack(spacing: 16) {
             HStack {
-                Text(L10n.string("数据与权限"))
+                Text(L10n.string("Data & Permissions"))
                     .settingsSectionHeading()
                 Spacer()
             }
 
             VStack(spacing: 0) {
                 SettingRow(
-                    title: L10n.string("本机整理数据"),
+                    title: L10n.string("Local Cleanup Data"),
                     subtitle: localDataSubtitle,
                     showsChevron: false,
                     action: {
@@ -383,22 +383,22 @@ struct SettingsView: View {
                     }
                 )
                 .confirmationDialog(
-                    L10n.string("清空本机整理记录？"),
+                    L10n.string("Clear local cleanup records?"),
                     isPresented: $showingClearLocalDataConfirmation,
                     titleVisibility: .visible
                 ) {
-                    Button(L10n.string("清空"), role: .destructive) {
+                    Button(L10n.string("Clear"), role: .destructive) {
                         clearLocalOrganizeData()
                     }
-                    Button(L10n.string("取消"), role: .cancel) {}
+                    Button(L10n.string("Cancel"), role: .cancel) {}
                 } message: {
-                    Text(L10n.string("待删除、待收藏和已整理进度会被清空，不会删除照片库中的任何照片。"))
+                    Text(L10n.string("Pending deletes, pending favorites, and local review progress will be cleared. No photos will be deleted."))
                 }
 
                 SettingsHairline()
 
                 SettingRow(
-                    title: L10n.string("使用统计"),
+                    title: L10n.string("Usage stats"),
                     action: {
                         activeSheet = .stats
                     }
@@ -408,7 +408,7 @@ struct SettingsView: View {
                 SettingsHairline()
 
                 SettingRow(
-                    title: L10n.string("照片访问权限"),
+                    title: L10n.string("Photo Access"),
                     subtitle: photoAccessSubtitle,
                     action: {
                         dataManager.managePhotoLibraryAccessSettings()
@@ -418,7 +418,7 @@ struct SettingsView: View {
                 SettingsHairline()
 
                 SettingRow(
-                    title: L10n.string("重新查看引导"),
+                    title: L10n.string("Show Intro Again"),
                     showsChevron: false,
                     action: resetIntro
                 )
@@ -434,7 +434,7 @@ struct SettingsView: View {
                 .font(.subheadline)
                 .foregroundStyle(SettingsChrome.muted)
 
-            Text(L10n.string("让照片整理变得简单"))
+            Text(L10n.string("Make photo cleanup simple"))
                 .font(.footnote)
                 .foregroundStyle(SettingsChrome.faint)
         }
@@ -456,15 +456,15 @@ struct SettingsView: View {
     private var photoAccessSubtitle: String {
         switch dataManager.photoLibraryManager.authorizationStatus {
         case .authorized:
-            return L10n.string("全部照片")
+            return L10n.string("All Photos")
         case .limited:
-            return L10n.string("仅 \(dataManager.photoLibraryManager.totalPhotosCount) 张")
+            return L10n.string("\(dataManager.photoLibraryManager.totalPhotosCount) photos only")
         case .denied, .restricted:
-            return L10n.string("未授权")
+            return L10n.string("No Access")
         case .notDetermined:
-            return L10n.string("未选择")
+            return L10n.string("Not Set")
         @unknown default:
-            return L10n.string("查看权限")
+            return L10n.string("Review Access")
         }
     }
 
@@ -472,17 +472,17 @@ struct SettingsView: View {
         let reviewedCount = dataManager.reviewedAssetIDs.count
         let pendingCount = dataManager.deleteCandidates.count + dataManager.favoriteCandidates.count
         if reviewedCount > 0 {
-            return L10n.string("已整理 \(compactPhotoCount(reviewedCount))")
+            return L10n.string("\(compactPhotoCount(reviewedCount)) reviewed")
         }
         if pendingCount > 0 {
-            return L10n.string("待确认 \(compactPhotoCount(pendingCount))")
+            return L10n.string("\(compactPhotoCount(pendingCount)) pending")
         }
-        return L10n.string("无记录")
+        return L10n.string("No Records")
     }
 
     private var gestureSettingsSubtitle: String {
-        let videoPlayback = reviewVideoAutoPlay ? L10n.string("视频自动") : L10n.string("视频手动")
-        let livePhotoPlayback = reviewLivePhotoAutoPlay ? L10n.string("实况自动") : L10n.string("实况手动")
+        let videoPlayback = reviewVideoAutoPlay ? L10n.string("Video auto") : L10n.string("Video manual")
+        let livePhotoPlayback = reviewLivePhotoAutoPlay ? L10n.string("Live auto") : L10n.string("Live manual")
         return "\(videoPlayback) · \(livePhotoPlayback)"
     }
 
@@ -500,9 +500,9 @@ struct SettingsView: View {
     private func compactPhotoCount(_ count: Int) -> String {
         if usesChineseCompactText {
             if count >= 10_000 {
-                return L10n.string("\(oneDecimalTrimmed(Double(count) / 10_000)) 万张")
+                return L10n.string("\(oneDecimalTrimmed(Double(count) / 10_000))0K photos")
             }
-            return L10n.string("\(count) 张")
+            return L10n.string("\(count) images")
         }
 
         return L10n.string("\(compactPlainCount(count)) photos")
@@ -544,7 +544,7 @@ struct SettingsView: View {
         components.scheme = "mailto"
         components.path = AppConstants.feedbackEmail
         components.queryItems = [
-            URLQueryItem(name: "subject", value: L10n.string("删图 App 反馈")),
+            URLQueryItem(name: "subject", value: L10n.string("OnePhoto Feedback")),
             URLQueryItem(name: "body", value: FeedbackDiagnostics.emailBody())
         ]
 
@@ -557,13 +557,13 @@ struct SettingsView: View {
 
     private func clearLocalOrganizeData() {
         dataManager.clearLocalOrganizeData()
-        showSettingsToast(L10n.string("已清空本机整理记录"), icon: "checkmark.circle.fill", style: .positive)
+        showSettingsToast(L10n.string("Local cleanup records cleared"), icon: "checkmark.circle.fill", style: .positive)
     }
 
     private func resetIntro() {
         hasSeenPhotoDeleteIntro = false
         hasCompletedOnboarding = false
-        showSettingsToast(L10n.string("已恢复开屏引导"), icon: "sparkles", style: .positive)
+        showSettingsToast(L10n.string("Intro will be shown again"), icon: "sparkles", style: .positive)
     }
 
     private func requestAppReview() {
@@ -574,7 +574,7 @@ struct SettingsView: View {
         }
         #else
         showSettingsToast(
-            L10n.string("稍后可在 App Store 评分"),
+            L10n.string("You can rate us later in the App Store"),
             icon: "star",
             style: .positive
         )
@@ -675,12 +675,12 @@ struct SettingRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(title.appLocalized))
-        .accessibilityValue(Text(subtitle.appLocalized))
+        .accessibilityLabel(Text(title))
+        .accessibilityValue(Text(subtitle))
     }
 
     private var titleLabel: some View {
-        Text(title.appLocalized)
+        Text(title)
             .settingsRowTitle()
             .multilineTextAlignment(.leading)
     }
@@ -688,7 +688,7 @@ struct SettingRow: View {
     @ViewBuilder
     private var subtitleLabel: some View {
         if !subtitle.isEmpty {
-            Text(subtitle.appLocalized)
+            Text(subtitle)
                 .settingsRowValue()
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
@@ -704,11 +704,11 @@ struct SettingToggleRow: View {
     var body: some View {
         Toggle(isOn: $isOn) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(title.appLocalized)
+                Text(title)
                     .settingsRowTitle()
                     .multilineTextAlignment(.leading)
 
-                Text(subtitle.appLocalized)
+                Text(subtitle)
                     .settingsRowValue()
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
@@ -744,7 +744,7 @@ struct ReviewSortOrderSettingRow: View {
         } label: {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("照片顺序"))
+                    Text(L10n.string("Photo Order"))
                         .settingsRowTitle()
                         .multilineTextAlignment(.leading)
 
@@ -768,7 +768,7 @@ struct ReviewSortOrderSettingRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(L10n.string("照片顺序")))
+        .accessibilityLabel(Text(L10n.string("Photo Order")))
         .accessibilityValue(Text(selectedOrder.title))
     }
 }
@@ -795,7 +795,7 @@ struct RandomReviewBatchSizeSettingRow: View {
         } label: {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("每轮照片数量"))
+                    Text(L10n.string("Photos per round"))
                         .settingsRowTitle()
                         .multilineTextAlignment(.leading)
 
@@ -819,7 +819,7 @@ struct RandomReviewBatchSizeSettingRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(L10n.string("每轮照片数量")))
+        .accessibilityLabel(Text(L10n.string("Photos per round")))
         .accessibilityValue(Text(selectedSize.subtitle))
         .accessibilityIdentifier("random-review-batch-size-setting")
     }
@@ -908,12 +908,12 @@ struct GestureSettingsView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .navigationTitle(L10n.string("手势与播放"))
+            .navigationTitle(L10n.string("Gestures & Playback"))
             .navigationBarTitleDisplayMode(.inline)
             .settingsNavigationChrome()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                     .foregroundStyle(SettingsChrome.accent)
@@ -924,7 +924,7 @@ struct GestureSettingsView: View {
 
     private var reviewSortOrderSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("浏览顺序"))
+            Text(L10n.string("Browsing Order"))
                 .settingsSectionHeading()
 
             ReviewSortOrderSettingRow(selectedValue: $reviewSortOrderValue)
@@ -934,7 +934,7 @@ struct GestureSettingsView: View {
 
     private var randomReviewSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("随机浏览"))
+            Text(L10n.string("Random Browse"))
                 .settingsSectionHeading()
 
             VStack(spacing: 0) {
@@ -943,8 +943,8 @@ struct GestureSettingsView: View {
                 SettingsHairline()
 
                 SettingToggleRow(
-                    title: L10n.string("隐藏已归类照片"),
-                    subtitle: L10n.string("默认不再显示已加入用户相册的照片"),
+                    title: L10n.string("Hide filed photos"),
+                    subtitle: L10n.string("Photos already added to your albums are hidden by default"),
                     isOn: $randomReviewHideFiledPhotos
                 )
             }
@@ -954,37 +954,37 @@ struct GestureSettingsView: View {
 
     private var mediaPlaybackSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("播放"))
+            Text(L10n.string("Playback"))
                 .settingsSectionHeading()
 
             VStack(spacing: 0) {
                 SettingToggleRow(
-                    title: L10n.string("视频自动播放"),
-                    subtitle: L10n.string("只播放当前视频，切换后会自动停止"),
+                    title: L10n.string("Auto-play videos"),
+                    subtitle: L10n.string("Only the current video plays. Playback stops when you switch photos."),
                     isOn: $reviewVideoAutoPlay
                 )
 
                 SettingsHairline()
 
                 SettingToggleRow(
-                    title: L10n.string("实况照片自动播放"),
-                    subtitle: L10n.string("进入当前照片时只播放一次，也可点右上角手动控制"),
+                    title: L10n.string("Auto-play Live Photos"),
+                    subtitle: L10n.string("Plays once when you open the current photo. You can also control it from the top-right button."),
                     isOn: $reviewLivePhotoAutoPlay
                 )
 
                 SettingsHairline()
 
                 SettingToggleRow(
-                    title: L10n.string("视频和实况照片静音播放"),
-                    subtitle: L10n.string("开启后每次进入整理页默认静音；整理页可临时打开声音"),
+                    title: L10n.string("Play videos and Live Photos muted"),
+                    subtitle: L10n.string("When on, each review session starts muted. You can turn sound on temporarily in the review screen."),
                     isOn: $reviewVideoMuted
                 )
 
                 SettingsHairline()
 
                 SettingToggleRow(
-                    title: L10n.string("触感反馈"),
-                    subtitle: L10n.string("滑动、撤销和归类时提供轻微反馈"),
+                    title: L10n.string("Haptic Feedback"),
+                    subtitle: L10n.string("Light feedback while swiping, undoing, and sorting"),
                     isOn: $hapticsEnabled
                 )
             }
@@ -1009,10 +1009,10 @@ private struct LanguageSettingsView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(L10n.string("显示语言"))
+                            Text(L10n.string("Display Language"))
                                 .settingsSectionHeading()
 
-                            Text(L10n.string("默认跟随 iPhone 系统语言。也可以在这里固定删图的显示语言。"))
+                            Text(L10n.string("By default, OnePhoto follows your iPhone language. You can also pin a display language here."))
                                 .font(.body)
                                 .foregroundStyle(SettingsChrome.muted)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -1029,12 +1029,12 @@ private struct LanguageSettingsView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .navigationTitle(L10n.string("语言"))
+            .navigationTitle(L10n.string("Language"))
             .navigationBarTitleDisplayMode(.inline)
             .settingsNavigationChrome()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                     .foregroundStyle(SettingsChrome.accent)
@@ -1073,14 +1073,14 @@ private struct LanguageSettingsView: View {
             TextField(
                 "",
                 text: $searchText,
-                prompt: Text(L10n.string("搜索语言")).foregroundColor(SettingsChrome.muted)
+                prompt: Text(L10n.string("Search languages")).foregroundColor(SettingsChrome.muted)
             )
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             .font(.body)
             .foregroundStyle(SettingsChrome.ink)
             .submitLabel(.search)
-            .accessibilityLabel(Text(L10n.string("搜索语言")))
+            .accessibilityLabel(Text(L10n.string("Search languages")))
 
             if !searchText.isEmpty {
                 Button {
@@ -1093,7 +1093,7 @@ private struct LanguageSettingsView: View {
                         .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text(L10n.string("清除搜索")))
+                .accessibilityLabel(Text(L10n.string("Clear search")))
             }
         }
         .padding(.horizontal, 16)
@@ -1102,7 +1102,7 @@ private struct LanguageSettingsView: View {
             RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous)
                 .fill(SettingsChrome.surface)
         )
-        .accessibilityHint(Text(L10n.string("按语言名称、地区或代码搜索")))
+        .accessibilityHint(Text(L10n.string("Search by language name, region, or code")))
     }
 
     @ViewBuilder
@@ -1113,7 +1113,7 @@ private struct LanguageSettingsView: View {
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(SettingsChrome.muted)
 
-                Text(L10n.string("未找到匹配语言"))
+                Text(L10n.string("No matching languages"))
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(SettingsChrome.muted)
             }
@@ -1174,7 +1174,7 @@ private struct LanguageSettingsView: View {
         .accessibilityLabel(Text(language.title))
         .accessibilityHint(Text(language.detail))
         .accessibilityAddTraits(selectedLanguage == language ? .isSelected : [])
-        .accessibilityValue(Text(selectedLanguage == language ? L10n.string("已选") : L10n.string("未选择")))
+        .accessibilityValue(Text(selectedLanguage == language ? L10n.string("Selected") : L10n.string("Not Set")))
     }
 
     private func matches(_ language: AppLanguage, query: String) -> Bool {
@@ -1192,7 +1192,7 @@ struct MailComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> MFMailComposeViewController {
         let composer = MFMailComposeViewController()
         composer.mailComposeDelegate = context.coordinator
-        composer.setSubject(L10n.string("删图 App 反馈"))
+        composer.setSubject(L10n.string("OnePhoto Feedback"))
         composer.setToRecipients([AppConstants.feedbackEmail])
         composer.setMessageBody(FeedbackDiagnostics.emailBody(), isHTML: false)
 
@@ -1231,7 +1231,7 @@ struct PrivacyInfoView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(L10n.string("隐私优先"))
+                            Text(L10n.string("Privacy First"))
                                 .font(.title.weight(.semibold))
                                 .foregroundStyle(PhotoDeleteStyle.primaryText)
 
@@ -1243,20 +1243,20 @@ struct PrivacyInfoView: View {
                         VStack(spacing: 12) {
                             PrivacyInfoRow(
                                 icon: "iphone",
-                                title: L10n.string("本机整理"),
-                                detail: L10n.string("预览、待确认列表和删除确认都保存在你的设备上。")
+                                title: L10n.string("On-device cleanup"),
+                                detail: L10n.string("Previews, pending lists, and delete confirmations stay on your device.")
                             )
 
                             PrivacyInfoRow(
                                 icon: "icloud.slash",
-                                title: L10n.string("不上传照片"),
-                                detail: L10n.string("删图不接入自己的云端服务，也不会把照片发到服务器。")
+                                title: L10n.string("No photo uploads"),
+                                detail: L10n.string("OnePhoto does not use its own cloud service and never sends photos to a server.")
                             )
 
                             PrivacyInfoRow(
                                 icon: "person.crop.circle.badge.xmark",
-                                title: L10n.string("不需要账号"),
-                                detail: L10n.string("授权照片后即可使用，不需要注册或登录。")
+                                title: L10n.string("No account needed"),
+                                detail: L10n.string("Grant photo access and start using it. No sign-up or login required.")
                             )
                         }
                     }
@@ -1265,11 +1265,11 @@ struct PrivacyInfoView: View {
                     .padding(.bottom, 24)
                 }
             }
-            .navigationTitle(L10n.string("隐私"))
+            .navigationTitle(L10n.string("Privacy"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.accent)
@@ -1343,10 +1343,10 @@ struct AboutView: View {
                                 .font(.largeTitle.weight(.bold))
                                 .foregroundStyle(PhotoDeleteStyle.primaryText)
 
-                            Text(L10n.string("版本 \(AppConstants.displayVersion)"))
+                            Text(L10n.string("Version \(AppConstants.displayVersion)"))
                                 .photoDeleteSecondaryLabel(.body)
 
-                            Text(L10n.string("一个免费的相册整理工具。滑动判断照片去留，完成后再统一确认。"))
+                            Text(L10n.string("A free photo cleanup tool. Swipe to decide what stays, then confirm everything at the end."))
                                 .photoDeleteSecondaryLabel(.body)
                                 .multilineTextAlignment(.center)
                                 .lineLimit(nil)
@@ -1357,11 +1357,11 @@ struct AboutView: View {
                     .padding(.bottom, 32)
                 }
             }
-            .navigationTitle(L10n.string("关于"))
+            .navigationTitle(L10n.string("About"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.accent)

@@ -27,7 +27,7 @@ struct LocationOrganizeView: View {
                 .padding(.bottom, 28)
             }
         }
-        .navigationTitle(L10n.string("地点整理"))
+        .navigationTitle(L10n.string("Place Organizing"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .task {
@@ -53,17 +53,17 @@ struct LocationOrganizeView: View {
         if shouldShowLoading {
             LocationOrganizeStateCard(
                 icon: "location.magnifyingglass",
-                title: L10n.string("正在整理地点"),
-                message: L10n.string("读取完成后会显示可按地点整理的照片。"),
+                title: L10n.string("Organizing places"),
+                message: L10n.string("Photos you can organize by place appear after loading."),
                 showsProgress: true
             )
         } else if dataManager.locationGroups.isEmpty {
             LocationOrganizeStateCard(
                 icon: "location.slash",
-                title: L10n.string("还没有可按地点整理的照片"),
+                title: L10n.string("No photos to organize by place yet"),
                 message: emptyStateMessage,
                 showsProgress: false,
-                actionTitle: dataManager.unresolvedLocationGroupCount > 0 ? L10n.string("重试识别地名") : nil,
+                actionTitle: dataManager.unresolvedLocationGroupCount > 0 ? L10n.string("Retry Place Names") : nil,
                 action: dataManager.unresolvedLocationGroupCount > 0 ? {
                     refreshLocationGroups(force: true)
                 } : nil
@@ -106,9 +106,9 @@ struct LocationOrganizeView: View {
 
     private var emptyStateMessage: String {
         if dataManager.unresolvedLocationGroupCount > 0 {
-            return L10n.string("暂时没能识别出地名，可以稍后重试。")
+            return L10n.string("Place names could not be recognized for now. Try again later.")
         }
-        return L10n.string("只显示能识别出地名的照片。")
+        return L10n.string("Only photos with readable place names are shown.")
     }
 
     private func refreshLocationGroups(force: Bool) {

@@ -160,7 +160,7 @@ struct PhotoDeleteTests {
     }
 
     @Test func localizedMarkdownHelperReturnsReadableText() async throws {
-        let text = L10n.attributedMarkdown("喜欢旅行和探索世界，也用 AI 做一些有趣的小产品。博客和作品集在 [makerjackie.com](https://makerjackie.com)。")
+        let text = L10n.attributedMarkdown("I like traveling, exploring the world, and building small AI-powered products. Blog and portfolio at [makerjackie.com](https://makerjackie.com).")
         let plainText = String(text.characters)
 
         #expect(plainText.contains("makerjackie.com"))
@@ -238,15 +238,15 @@ struct PhotoDeleteTests {
     }
 
     @Test func photoAssetMetadataFormatterUsesReadableFallbacks() async throws {
-        #expect(PhotoAssetMetadataFormatter.shortCaptureDate(for: nil) == L10n.string("拍摄时间未知"))
-        #expect(PhotoAssetMetadataFormatter.detailCaptureDate(for: nil) == L10n.string("未保存拍摄时间"))
-        #expect(PhotoAssetMetadataFormatter.locationText(locationTitle: nil, coordinate: nil) == L10n.string("无地点信息"))
+        #expect(PhotoAssetMetadataFormatter.shortCaptureDate(for: nil) == L10n.string("Capture time unknown"))
+        #expect(PhotoAssetMetadataFormatter.detailCaptureDate(for: nil) == L10n.string("No capture time saved"))
+        #expect(PhotoAssetMetadataFormatter.locationText(locationTitle: nil, coordinate: nil) == L10n.string("No Location Info"))
         #expect(PhotoAssetMetadataFormatter.optionalLocationText(locationTitle: nil, coordinate: nil) == nil)
         #expect(
             PhotoAssetMetadataFormatter.locationText(
                 locationTitle: "31.2304, 121.4737",
                 coordinate: CLLocationCoordinate2D(latitude: 31.2304, longitude: 121.4737)
-            ) == L10n.string("无地点信息")
+            ) == L10n.string("No Location Info")
         )
         #expect(
             PhotoAssetMetadataFormatter.optionalLocationText(
@@ -299,11 +299,11 @@ struct PhotoDeleteTests {
     @Test func photoAssetSourceFormatterUsesOnlyPublicPhotoKitMetadata() async throws {
         #expect(
             PhotoAssetSourceFormatter.sourceDescription(for: .typeUserLibrary) ==
-                L10n.string("个人图库")
+                L10n.string("Personal Library")
         )
         #expect(
             PhotoAssetSourceFormatter.sourceDescription(for: [.typeCloudShared, .typeiTunesSynced]) ==
-                "\(L10n.string("iCloud 共享相册")) · \(L10n.string("Mac 或 PC 同步"))"
+                "\(L10n.string("iCloud Shared Album")) · \(L10n.string("Synced from Mac or PC"))"
         )
         #expect(PhotoAssetSourceFormatter.sourceDescription(for: []) == nil)
         #expect(PhotoAssetSourceFormatter.cleanedFilename(" /tmp/QQ Image.jpg ") == "QQ Image.jpg")
@@ -1022,16 +1022,16 @@ struct PhotoDeleteTests {
         #expect(achievement.subtitle == "完成第一轮照片整理")
         #expect(AdvancedCleanupKind.similarPhotos.title == "相似照片")
         #expect(PhotoCategory.unclassified.title == "未归类照片")
-        #expect(L10n.string("保留首张") == "保留首张")
-        #expect(String(format: L10n.string("%lld 张相近候选"), Int64(3)) == "3 张相近候选")
+        #expect(L10n.string("Keep First") == "保留首张")
+        #expect(String(format: L10n.string("%lld similar candidates"), Int64(3)) == "3 张相近候选")
 
         defaults.set(AppLanguage.en.rawValue, forKey: AppConstants.appLanguageKey)
         #expect(achievement.title == "First Cleanup")
         #expect(achievement.subtitle == "Complete your first photo cleanup")
         #expect(AdvancedCleanupKind.similarPhotos.title == "Similar Photos")
         #expect(PhotoCategory.unclassified.title == "Unfiled Photos")
-        #expect(L10n.string("保留首张") == "Keep First")
-        #expect(String(format: L10n.string("%lld 张相近候选"), Int64(3)) == "3 similar candidates")
+        #expect(L10n.string("Keep First") == "Keep First")
+        #expect(String(format: L10n.string("%lld similar candidates"), Int64(3)) == "3 similar candidates")
     }
 
     @MainActor
@@ -1048,49 +1048,49 @@ struct PhotoDeleteTests {
 
         let localizedExpectations: [(AppLanguage, [String: String])] = [
             (.ar, [
-                "%lld 个相册删除失败，请稍后再试": "تعذر حذف %lld ألبومًا. حاول مرة أخرى لاحقًا.",
-                "下滑动作": "السحب للأسفل",
-                "下滑可移出当前相册，不会删除照片": "اسحب للأسفل للإزالة من هذا الألبوم دون حذف الصورة",
-                "下滑移出相册，不删除照片": "اسحب للأسفل للإزالة من الألبوم، وليس الحذف",
-                "只会删除空相册，不会删除任何照片。": "سيتم حذف الألبومات الفارغة فقط. لن يتم حذف أي صور.",
-                "删除 %lld 个空相册": "حذف %lld ألبومًا فارغًا",
-                "删除空相册": "حذف الألبومات الفارغة",
-                "发现 %lld 个空相册": "تم العثور على %lld ألبومًا فارغًا",
-                "普通整理": "مراجعة عادية",
-                "正在删除 %lld/%lld": "جارٍ الحذف %lld/%lld",
-                "没有空相册": "لا توجد ألبومات فارغة",
-                "相册操作": "إجراءات الألبوم",
-                "移出相册，不删除照片": "إزالة من الألبوم، وليس حذفًا"
+                "%lld albums could not be deleted. Try again later.": "تعذر حذف %lld ألبومًا. حاول مرة أخرى لاحقًا.",
+                "Down Swipe": "السحب للأسفل",
+                "Swipe down to remove from this album without deleting the photo": "اسحب للأسفل للإزالة من هذا الألبوم دون حذف الصورة",
+                "Swipe down to remove from album, not delete": "اسحب للأسفل للإزالة من الألبوم، وليس الحذف",
+                "Only empty albums will be deleted. No photos will be deleted.": "سيتم حذف الألبومات الفارغة فقط. لن يتم حذف أي صور.",
+                "Delete %lld Empty Albums": "حذف %lld ألبومًا فارغًا",
+                "Delete Empty Albums": "حذف الألبومات الفارغة",
+                "%lld Empty Albums Found": "تم العثور على %lld ألبومًا فارغًا",
+                "Regular Review": "مراجعة عادية",
+                "Deleting %lld/%lld": "جارٍ الحذف %lld/%lld",
+                "No Empty Albums": "لا توجد ألبومات فارغة",
+                "Album Actions": "إجراءات الألبوم",
+                "Remove from album, not delete": "إزالة من الألبوم، وليس حذفًا"
             ]),
             (.de, [
-                "%lld 个相册删除失败，请稍后再试": "%lld Alben konnten nicht gelöscht werden. Versuche es später erneut.",
-                "下滑动作": "Nach unten wischen",
-                "下滑可移出当前相册，不会删除照片": "Wische nach unten, um aus diesem Album zu entfernen, ohne das Foto zu löschen",
-                "下滑移出相册，不删除照片": "Nach unten wischen: aus Album entfernen, nicht löschen",
-                "只会删除空相册，不会删除任何照片。": "Es werden nur leere Alben gelöscht. Keine Fotos werden gelöscht.",
-                "删除 %lld 个空相册": "%lld leere Alben löschen",
-                "删除空相册": "Leere Alben löschen",
-                "发现 %lld 个空相册": "%lld leere Alben gefunden",
-                "普通整理": "Normale Durchsicht",
-                "正在删除 %lld/%lld": "Löschen %lld/%lld",
-                "没有空相册": "Keine leeren Alben",
-                "相册操作": "Albumaktionen",
-                "移出相册，不删除照片": "Aus Album entfernen, nicht löschen"
+                "%lld albums could not be deleted. Try again later.": "%lld Alben konnten nicht gelöscht werden. Versuche es später erneut.",
+                "Down Swipe": "Nach unten wischen",
+                "Swipe down to remove from this album without deleting the photo": "Wische nach unten, um aus diesem Album zu entfernen, ohne das Foto zu löschen",
+                "Swipe down to remove from album, not delete": "Nach unten wischen: aus Album entfernen, nicht löschen",
+                "Only empty albums will be deleted. No photos will be deleted.": "Es werden nur leere Alben gelöscht. Keine Fotos werden gelöscht.",
+                "Delete %lld Empty Albums": "%lld leere Alben löschen",
+                "Delete Empty Albums": "Leere Alben löschen",
+                "%lld Empty Albums Found": "%lld leere Alben gefunden",
+                "Regular Review": "Normale Durchsicht",
+                "Deleting %lld/%lld": "Löschen %lld/%lld",
+                "No Empty Albums": "Keine leeren Alben",
+                "Album Actions": "Albumaktionen",
+                "Remove from album, not delete": "Aus Album entfernen, nicht löschen"
             ]),
             (.ja, [
-                "%lld 个相册删除失败，请稍后再试": "%lld個のアルバムを削除できませんでした。あとでもう一度お試しください。",
-                "下滑动作": "下スワイプ",
-                "下滑可移出当前相册，不会删除照片": "下にスワイプすると、このアルバムから外せます。写真は削除されません",
-                "下滑移出相册，不删除照片": "下スワイプでアルバムから外す（削除しません）",
-                "只会删除空相册，不会删除任何照片。": "空のアルバムだけを削除します。写真は削除されません。",
-                "删除 %lld 个空相册": "%lld個の空のアルバムを削除",
-                "删除空相册": "空のアルバムを削除",
-                "发现 %lld 个空相册": "%lld個の空のアルバムが見つかりました",
-                "普通整理": "通常の整理",
-                "正在删除 %lld/%lld": "削除中 %lld/%lld",
-                "没有空相册": "空のアルバムはありません",
-                "相册操作": "アルバム操作",
-                "移出相册，不删除照片": "アルバムから外す（削除しません）"
+                "%lld albums could not be deleted. Try again later.": "%lld個のアルバムを削除できませんでした。あとでもう一度お試しください。",
+                "Down Swipe": "下スワイプ",
+                "Swipe down to remove from this album without deleting the photo": "下にスワイプすると、このアルバムから外せます。写真は削除されません",
+                "Swipe down to remove from album, not delete": "下スワイプでアルバムから外す（削除しません）",
+                "Only empty albums will be deleted. No photos will be deleted.": "空のアルバムだけを削除します。写真は削除されません。",
+                "Delete %lld Empty Albums": "%lld個の空のアルバムを削除",
+                "Delete Empty Albums": "空のアルバムを削除",
+                "%lld Empty Albums Found": "%lld個の空のアルバムが見つかりました",
+                "Regular Review": "通常の整理",
+                "Deleting %lld/%lld": "削除中 %lld/%lld",
+                "No Empty Albums": "空のアルバムはありません",
+                "Album Actions": "アルバム操作",
+                "Remove from album, not delete": "アルバムから外す（削除しません）"
             ])
         ]
 
@@ -3339,9 +3339,9 @@ struct PhotoDeleteTests {
         let now = makeDate(year: 2026, month: 6, day: 21, calendar: calendar)
         let threeYearsAgo = makeDate(year: 2023, month: 6, day: 21, calendar: calendar)
 
-        #expect(PhotoMemoryCaptionFormatter.relativeTitle(for: nil, now: now, calendar: calendar) == L10n.string("拍摄时间未知"))
-        #expect(PhotoMemoryCaptionFormatter.relativeTitle(for: now, now: now, calendar: calendar) == L10n.string("今天"))
-        #expect(PhotoMemoryCaptionFormatter.relativeTitle(for: threeYearsAgo, now: now, calendar: calendar) == String(format: L10n.string("%lld 年前"), Int64(3)))
+        #expect(PhotoMemoryCaptionFormatter.relativeTitle(for: nil, now: now, calendar: calendar) == L10n.string("Capture time unknown"))
+        #expect(PhotoMemoryCaptionFormatter.relativeTitle(for: now, now: now, calendar: calendar) == L10n.string("Today"))
+        #expect(PhotoMemoryCaptionFormatter.relativeTitle(for: threeYearsAgo, now: now, calendar: calendar) == String(format: L10n.string("%lld years ago"), Int64(3)))
         #expect(PhotoMemoryCaptionFormatter.dateSubtitle(for: threeYearsAgo) != nil)
     }
 
@@ -3349,9 +3349,9 @@ struct PhotoDeleteTests {
         let apps = OneAppsPromotionCatalog.apps
 
         #expect(!apps.contains(where: { $0.id == "onepack" }))
-        #expect(apps.first(where: { $0.id == "onescan" })?.subtitleKey == "PDF 扫描")
-        #expect(apps.first(where: { $0.id == "onehabit" })?.subtitleKey == "习惯追踪")
-        #expect(apps.allSatisfy { !$0.subtitleKey.contains("私密") && !$0.summaryKey.contains("私密") })
+        #expect(apps.first(where: { $0.id == "onescan" })?.subtitleKey == "PDF scanning")
+        #expect(apps.first(where: { $0.id == "onehabit" })?.subtitleKey == "Habit tracking")
+        #expect(apps.allSatisfy { !$0.subtitleKey.localizedCaseInsensitiveContains("private") && !$0.summaryKey.localizedCaseInsensitiveContains("private") })
     }
 
     // MARK: - Helpers

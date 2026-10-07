@@ -291,7 +291,7 @@ struct HomeView: View {
     /// 首页大标题（对齐原型：34/700）+ 右上角操作（最近整理 / 统计入口）。
     private var homeTitleBar: some View {
         HStack(alignment: .center, spacing: 12) {
-            Text(L10n.string("整理"))
+            Text(L10n.string("Organize"))
                 .font(.system(size: 34, weight: .bold))
                 .foregroundColor(PhotoDeleteStyle.primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -345,8 +345,8 @@ struct HomeView: View {
 
     private var trashBinAccessibilityLabel: String {
         pendingDeleteCount > 0
-            ? L10n.string("垃圾桶，\(pendingDeleteCount) 张待删除")
-            : L10n.string("垃圾桶")
+            ? L10n.string("Trash, \(pendingDeleteCount) photos pending deletion")
+            : L10n.string("Trash")
     }
 
     /// 待删除角标：数量 > 0 时显示，最多 99+（对齐原型 tbadge：红底白字 + 背景色描边环）。
@@ -387,7 +387,7 @@ struct HomeView: View {
             .buttonStyle(.glass)
             .buttonBorderShape(.circle)
             .foregroundStyle(PhotoDeleteStyle.primaryText)
-            .accessibilityLabel(L10n.string("使用统计"))
+            .accessibilityLabel(L10n.string("Usage stats"))
             .accessibilityIdentifier("home-stats-entry")
         } else {
             Button {
@@ -400,7 +400,7 @@ struct HomeView: View {
                     .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("使用统计"))
+            .accessibilityLabel(L10n.string("Usage stats"))
             .accessibilityIdentifier("home-stats-entry")
         }
     }
@@ -417,11 +417,11 @@ struct HomeView: View {
                     )
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(L10n.string("快速上手"))
+                        Text(L10n.string("Quick Start"))
                             .font(.system(size: 17, weight: .semibold))
                             .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                        Text(L10n.string("默认左滑删除、右滑保留、上滑收藏；想换手势，可以在整理页底部打开设置。"))
+                        Text(L10n.string("By default, swipe left to delete, right to keep, and up to favorite. To change gestures, open settings at the bottom of the review screen."))
                             .font(.system(size: 14, weight: .regular))
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
                             .fixedSize(horizontal: false, vertical: true)
@@ -436,7 +436,7 @@ struct HomeView: View {
                         cornerRadius: PhotoDeleteStyle.Metrics.compactRadius
                     )
 
-                    Text(L10n.string("隐私优先：\(AppConstants.privacyShortText)"))
+                    Text(L10n.string("Privacy first: \(AppConstants.privacyShortText)"))
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
@@ -447,7 +447,7 @@ struct HomeView: View {
                         hasSeenPhotoDeleteIntro = true
                     }
                 } label: {
-                    Text(L10n.string("知道了"))
+                    Text(L10n.string("Got it"))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.accent)
                         .frame(maxWidth: .infinity)
@@ -506,7 +506,7 @@ struct HomeView: View {
     // MARK: - 权限授权区域
     private var authorizationSection: some View {
         PhotoAuthorizationCard(
-            subtitle: String(format: L10n.string("删图需要照片库权限来整理相册。%@"), AppConstants.privacyShortText),
+            subtitle: String(format: L10n.string("OnePhoto needs photo library access to organize your albums. %@"), AppConstants.privacyShortText),
             onRequestAccess: { dataManager.requestPhotoLibraryAccess() }
         )
     }
@@ -517,7 +517,7 @@ struct HomeView: View {
             ScanningSwipeGlyph()
 
             VStack(spacing: 8) {
-                Text(L10n.string("正在读取照片"))
+                Text(L10n.string("Reading Photos"))
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -527,7 +527,7 @@ struct HomeView: View {
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
 
-                Text(L10n.string("准备完成后会自动显示分类和数量。整理过程只在本机完成。"))
+                Text(L10n.string("Categories and counts will appear automatically when ready. Everything stays on this device."))
                     .font(.system(size: 15, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .multilineTextAlignment(.center)
@@ -551,9 +551,9 @@ struct HomeView: View {
         VStack(spacing: 16) {
             if #available(iOS 17.0, *) {
                 ContentUnavailableView(
-                    L10n.string("没有可整理的照片"),
+                    L10n.string("No Photos to Organize"),
                     systemImage: "photo.on.rectangle.angled",
-                    description: Text(L10n.string("当前授权范围内没有照片。您可以在系统设置里调整删图的照片访问范围。"))
+                    description: Text(L10n.string("There are no photos in the current access scope. You can adjust OnePhoto's photo access in System Settings."))
                 )
                 .foregroundStyle(PhotoDeleteStyle.secondaryText)
             } else {
@@ -562,11 +562,11 @@ struct HomeView: View {
                         .font(.system(size: 52, weight: .medium))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
 
-                    Text(L10n.string("没有可整理的照片"))
+                    Text(L10n.string("No Photos to Organize"))
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(L10n.string("当前授权范围内没有照片。您可以在系统设置里调整删图的照片访问范围。"))
+                    Text(L10n.string("There are no photos in the current access scope. You can adjust OnePhoto's photo access in System Settings."))
                         .font(.system(size: 15, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .multilineTextAlignment(.center)
@@ -576,7 +576,7 @@ struct HomeView: View {
             Button {
                 dataManager.managePhotoLibraryAccessSettings()
             } label: {
-                Label(L10n.string("管理照片访问范围"), systemImage: dataManager.photoLibraryManager.hasLimitedPhotoLibraryAccess ? "photo.badge.plus" : "gearshape")
+                Label(L10n.string("Manage Photo Access"), systemImage: dataManager.photoLibraryManager.hasLimitedPhotoLibraryAccess ? "photo.badge.plus" : "gearshape")
             }
             .photoDeleteSecondaryButton()
         }
@@ -608,13 +608,13 @@ struct HomeView: View {
             navigationPath.append(SwipeViewDestination.category(.all))
         } label: {
             VStack(alignment: .leading, spacing: 0) {
-                Text(L10n.string("待整理"))
+                Text(L10n.string("To review"))
                     .font(.system(size: 16.5, weight: .bold))
 
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     RollingNumberText(target: pending)
                         .font(.system(size: 31, weight: .bold))
-                    Text(L10n.string("张"))
+                    Text(L10n.string("photos"))
                         .font(.system(size: 14, weight: .semibold))
                         .opacity(0.72)
                 }
@@ -623,7 +623,7 @@ struct HomeView: View {
                 Spacer(minLength: 0)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("预计可释放"))
+                    Text(L10n.string("Est. reclaimable"))
                         .font(.system(size: 11, weight: .regular))
                         .opacity(0.72)
                     Text(librarySizeText)
@@ -660,7 +660,7 @@ struct HomeView: View {
             navigationPath.append(SwipeViewDestination.random(.memories))
         } label: {
             VStack(alignment: .leading, spacing: 3) {
-                Text(L10n.string("随机整理"))
+                Text(L10n.string("Random Review"))
                     .font(.system(size: 16.5, weight: .bold))
                 Text(randomReviewDetail)
                     .font(.system(size: 12, weight: .medium))
@@ -689,7 +689,7 @@ struct HomeView: View {
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityLabel(L10n.string("随机整理"))
+        .accessibilityLabel(L10n.string("Random Review"))
         .accessibilityIdentifier("home-random-review")
     }
 
@@ -700,26 +700,26 @@ struct HomeView: View {
 
     private var periodBandSection: some View {
         VStack(alignment: .leading, spacing: 9) {
-            PhotoDeleteSectionHeader(title: L10n.string("按时间段开始"))
+            PhotoDeleteSectionHeader(title: L10n.string("By time period"))
 
             HStack(spacing: 0) {
                 periodBandSegment(
                     scope: .week,
-                    title: L10n.string("本周"),
+                    title: L10n.string("This week"),
                     identifier: "home-period-week",
                     rollDelay: 0.22
                 )
                 bandDivider
                 periodBandSegment(
                     scope: .month,
-                    title: L10n.string("本月"),
+                    title: L10n.string("This Month"),
                     identifier: "home-period-month",
                     rollDelay: 0.30
                 )
                 bandDivider
                 periodBandSegment(
                     scope: .year,
-                    title: L10n.string("本年"),
+                    title: L10n.string("This year"),
                     identifier: "home-period-year",
                     rollDelay: 0.38
                 )
@@ -760,7 +760,7 @@ struct HomeView: View {
                     .font(.system(size: 23, weight: .bold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                Text(String(format: L10n.string("可释放 %@"), summary.formattedEstimatedSize))
+                Text(String(format: L10n.string("Reclaimable %@"), summary.formattedEstimatedSize))
                     .font(.system(size: 10.5, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
             }
@@ -778,14 +778,14 @@ struct HomeView: View {
     private var specialCleanupSection: some View {
         VStack(alignment: .leading, spacing: 9) {
             PhotoDeleteSectionHeader(
-                title: L10n.string("专项清理"),
-                trailing: String(format: L10n.string("预计可清理 %@"), cleanupReclaimableSizeText)
+                title: L10n.string("Special cleanup"),
+                trailing: String(format: L10n.string("About %@ to clear"), cleanupReclaimableSizeText)
             )
 
             VStack(spacing: 0) {
                 cleanupRow(
                     icon: "rectangle.on.rectangle",
-                    title: L10n.string("相似与重复"),
+                    title: L10n.string("Similar"),
                     value: cleanupQueue(for: .similarPhotos)?.formattedSpace,
                     identifier: "home-cleanup-similar"
                 ) {
@@ -794,7 +794,7 @@ struct HomeView: View {
                 insetHairline
                 cleanupRow(
                     icon: "video",
-                    title: L10n.string("视频"),
+                    title: L10n.string("Videos"),
                     value: cleanupQueue(for: .videos)?.formattedSpace,
                     identifier: "home-cleanup-videos"
                 ) {
@@ -803,7 +803,7 @@ struct HomeView: View {
                 insetHairline
                 cleanupRow(
                     icon: "iphone",
-                    title: L10n.string("截图"),
+                    title: L10n.string("Screenshots"),
                     value: nil,
                     identifier: "home-cleanup-screenshots"
                 ) {
@@ -812,7 +812,7 @@ struct HomeView: View {
                 insetHairline
                 cleanupRow(
                     icon: "internaldrive",
-                    title: L10n.string("大文件"),
+                    title: L10n.string("Large Files"),
                     value: cleanupQueue(for: .largeFiles)?.formattedSpace,
                     identifier: "home-cleanup-large-files"
                 ) {
@@ -874,12 +874,12 @@ struct HomeView: View {
 
     private var toolSection: some View {
         VStack(alignment: .leading, spacing: 9) {
-            PhotoDeleteSectionHeader(title: L10n.string("工具"))
+            PhotoDeleteSectionHeader(title: L10n.string("Tools"))
 
             VStack(spacing: 0) {
                 if AppConstants.isImageCompressionVisible {
                     toolRow(
-                        title: L10n.string("图片压缩"),
+                        title: L10n.string("Image Compression"),
                         count: cleanupQueue(for: .imageCompression)?.assetCount,
                         identifier: "home-tool-image-compression"
                     ) {
@@ -889,7 +889,7 @@ struct HomeView: View {
                 }
 
                 toolRow(
-                    title: L10n.string("视频压缩"),
+                    title: L10n.string("Video Compression"),
                     count: cleanupQueue(for: .videoCompression)?.assetCount,
                     identifier: "home-tool-video-compression"
                 ) {
@@ -912,7 +912,7 @@ struct HomeView: View {
                     Text(title)
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
-                    Text(L10n.string("变小，不删除"))
+                    Text(L10n.string("Smaller, not deleted"))
                         .font(.system(size: 11.5, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
@@ -959,7 +959,7 @@ struct HomeView: View {
         let summaries = dataManager.periodSummariesByScope[.year] ?? []
         let totalMB = summaries.reduce(0) { $0 + $1.estimatedSizeMB }
         if totalMB <= 0 && (dataManager.isLoadingPeriodSummaries || !dataManager.photoLibraryManager.hasLoadedPhotoLibrary) {
-            return L10n.string("读取中")
+            return L10n.string("Reading")
         }
         return CleanupStatsFormatter.space(totalMB)
     }
@@ -971,18 +971,18 @@ struct HomeView: View {
             total + (cleanupQueue(for: kind)?.estimatedSpaceMB ?? 0)
         }
         if reclaimMB <= 0 && dataManager.isLoadingAdvancedCleanupQueues {
-            return L10n.string("读取中")
+            return L10n.string("Reading")
         }
         return CleanupStatsFormatter.space(reclaimMB)
     }
 
     private var randomReviewDetail: String {
         let count = PhotoRandomReviewBatchSize.normalized(randomReviewBatchSizeValue).rawValue
-        return String(format: L10n.string("最多 %@ 项"), PhotoDeleteCountFormat.plain(count))
+        return String(format: L10n.string("Up to %@"), PhotoDeleteCountFormat.plain(count))
     }
 
     private func countText(_ count: Int?) -> String {
-        guard let count else { return L10n.string("读取中") }
+        guard let count else { return L10n.string("Reading") }
         return PhotoDeleteCountFormat.plain(count)
     }
 

@@ -25,9 +25,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>删图需要权限来收藏照片、加入相册、保存压缩副本，并在您确认后执行选择的更改。</string>
+	<string>OnePhoto needs permission to favorite photos, add them to albums, save compressed copies, and apply changes after you confirm.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>删图需要访问照片库来读取、整理、收藏，并在您确认后删除选择的照片。我们不会上传您的照片；只有在您主动点击分享并选择目标 App 时，系统才会分享所选照片。</string>
+	<string>OnePhoto needs access to read, organize, favorite, and delete selected photos after you confirm. We never upload your photos; a selected photo is shared only when you tap Share and choose an app.</string>
 	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

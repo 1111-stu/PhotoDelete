@@ -3,13 +3,13 @@ name: iOS CI
 on:
   pull_request:
     paths:
-      - IOSAPP/**
+      - ios-app/**
       - scripts/**
       - .github/workflows/ios-ci.yml
   push:
     branches: [main]
     paths:
-      - IOSAPP/**
+      - ios-app/**
       - scripts/**
       - .github/workflows/ios-ci.yml
   workflow_dispatch:
@@ -32,22 +32,30 @@ jobs:
           echo "destination=$destination" >> "$GITHUB_OUTPUT"
           echo "$destination"
 
+      - name: Check localization sources
+        run: |
+          python3 -m unittest discover -s scripts/tests -v
+          python3 scripts/check-localization.py
+
       - name: Build for testing
         run: |
           xcodebuild build-for-testing \
-            -project IOSAPP/PhotoDelete.xcodeproj \
+            -project ios-app/PhotoDelete.xcodeproj \
             -scheme PhotoDelete \
             -destination "${{ steps.simulator.outputs.destination }}" \
-            -derivedDataPath IOSAPP/DerivedData \
+            -derivedDataPath ios-app/DerivedData \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Check compiled localizations
+        run: python3 scripts/check-localization.py --derived-data ios-app/DerivedData
 
       - name: Run unit tests
         run: |
           xcodebuild test-without-building \
-            -project IOSAPP/PhotoDelete.xcodeproj \
+            -project ios-app/PhotoDelete.xcodeproj \
             -scheme PhotoDelete \
             -destination "${{ steps.simulator.outputs.destination }}" \
-            -derivedDataPath IOSAPP/DerivedData \
+            -derivedDataPath ios-app/DerivedData \
             -only-testing:PhotoDeleteTests \
             CODE_SIGNING_ALLOWED=NO
 
@@ -71,18 +79,18 @@ jobs:
       - name: Build for UI testing
         run: |
           xcodebuild build-for-testing \
-            -project IOSAPP/PhotoDelete.xcodeproj \
+            -project ios-app/PhotoDelete.xcodeproj \
             -scheme PhotoDelete \
             -destination "${{ steps.simulator.outputs.destination }}" \
-            -derivedDataPath IOSAPP/DerivedData \
+            -derivedDataPath ios-app/DerivedData \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run UI smoke tests
         run: |
           xcodebuild test-without-building \
-            -project IOSAPP/PhotoDelete.xcodeproj \
+            -project ios-app/PhotoDelete.xcodeproj \
             -scheme PhotoDelete \
             -destination "${{ steps.simulator.outputs.destination }}" \
-            -derivedDataPath IOSAPP/DerivedData \
+            -derivedDataPath ios-app/DerivedData \
             -only-testing:PhotoDeleteUITests \
             CODE_SIGNING_ALLOWED=NO

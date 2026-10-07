@@ -14,20 +14,20 @@ struct PendingDeletionView: View {
 
     var body: some View {
         DeletionQueueScreen(
-            title: L10n.string("待删除"),
-            subtitle: L10n.string("点击缩略图选择或取消选择"),
+            title: L10n.string("To delete"),
+            subtitle: L10n.string("Tap thumbnails to select or deselect"),
             assets: assets,
             selectedIDs: $selectedIDs,
             tint: PhotoDeleteStyle.destructive,
-            emptyTitle: L10n.string("还没有待删除的照片"),
-            emptyMessage: L10n.string("上滑照片后，会先放到这里确认。"),
+            emptyTitle: L10n.string("No Photos Pending Deletion"),
+            emptyMessage: L10n.string("Swipe up to place photos here for confirmation."),
             previewAsset: $previewAsset,
             onRemove: { asset in
                 dataManager.removeFromDeleteCandidates(asset)
                 selectedIDs.remove(asset.localIdentifier)
             },
             onPrimaryAction: { dismiss() },
-            primaryTitle: L10n.string("继续整理")
+            primaryTitle: L10n.string("Keep Organizing")
         )
         .onAppear { selectedIDs = Set(assets.map(\.localIdentifier)) }
         .onChange(of: assets.map(\.localIdentifier)) { _ in
@@ -51,36 +51,36 @@ struct TrashBinView: View {
 
     var body: some View {
         DeletionQueueScreen(
-            title: L10n.string("垃圾桶"),
-            subtitle: L10n.string("本次预计删除 (assets.count) 项"),
+            title: L10n.string("Trash"),
+            subtitle: L10n.string("\(assets.count) items pending deletion"),
             assets: assets,
             selectedIDs: $selectedIDs,
             tint: PhotoDeleteStyle.destructive,
-            emptyTitle: L10n.string("垃圾桶是空的"),
-            emptyMessage: L10n.string("上滑照片加入待删除队列后，会显示在这里。"),
+            emptyTitle: L10n.string("Trash Is Empty"),
+            emptyMessage: L10n.string("Photos appear here after you swipe up to add them to the deletion queue."),
             previewAsset: $previewAsset,
             onRemove: { asset in
                 dataManager.removeFromDeleteCandidates(asset)
                 selectedIDs.remove(asset.localIdentifier)
             },
             onPrimaryAction: { showingDeleteConfirmation = true },
-            primaryTitle: L10n.string("删除 (selectedIDs.count) 项")
+            primaryTitle: L10n.string("Delete \(selectedIDs.count) items")
         )
         .onAppear { selectedIDs = Set(assets.map(\.localIdentifier)) }
         .onChange(of: assets.map(\.localIdentifier)) { _ in
             selectedIDs.formIntersection(Set(assets.map(\.localIdentifier)))
         }
         .confirmationDialog(
-            L10n.string("确认删除所选照片？"),
+            L10n.string("Delete selected photos?"),
             isPresented: $showingDeleteConfirmation,
             titleVisibility: .visible
         ) {
-            Button(L10n.string("确认删除"), role: .destructive) {
+            Button(L10n.string("Confirm Deletion"), role: .destructive) {
                 showingBatchConfirm = true
             }
-            Button(L10n.string("取消"), role: .cancel) {}
+            Button(L10n.string("Cancel"), role: .cancel) {}
         } message: {
-            Text(L10n.string("照片会进入系统“最近删除”，你仍可在系统照片中恢复。"))
+            Text(L10n.string("Photos move to Recently Deleted. You can still recover them in the Photos app."))
         }
         .fullScreenCover(isPresented: $showingBatchConfirm) {
             BatchConfirmView()
@@ -115,7 +115,7 @@ private struct DeletionQueueScreen: View {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(alignment: .firstTextBaseline) {
                             VStack(alignment: .leading, spacing: 5) {
-                                Text(L10n.string("已选 (selectedIDs.count) / (assets.count)"))
+                                Text(L10n.string("Selected \(selectedIDs.count) / \(assets.count)"))
                                     .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(PhotoDeleteStyle.primaryText)
                                 Text(subtitle)
@@ -123,7 +123,7 @@ private struct DeletionQueueScreen: View {
                                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                             }
                             Spacer()
-                            Button(selectedIDs.count == assets.count ? L10n.string("取消全选") : L10n.string("全选")) {
+                            Button(selectedIDs.count == assets.count ? L10n.string("Deselect All") : L10n.string("Select All")) {
                                 if selectedIDs.count == assets.count { selectedIDs.removeAll() }
                                 else { selectedIDs = Set(assets.map(\.localIdentifier)) }
                             }
@@ -156,7 +156,7 @@ private struct DeletionQueueScreen: View {
                 Button {
                     for asset in assets where selectedIDs.contains(asset.localIdentifier) { onRemove(asset) }
                 } label: {
-                    Label(L10n.string("恢复"), systemImage: "arrow.uturn.backward")
+                    Label(L10n.string("Restore"), systemImage: "arrow.uturn.backward")
                         .frame(maxWidth: .infinity)
                 }
                 .photoDeleteSecondaryButton()

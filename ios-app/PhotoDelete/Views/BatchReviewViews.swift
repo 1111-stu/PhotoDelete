@@ -107,7 +107,7 @@ struct BatchConfirmView: View {
                             .font(.system(size: 48, weight: .medium))
                             .foregroundColor(selectedDeleteAssets.isEmpty ? PhotoDeleteStyle.positive : PhotoDeleteStyle.destructive)
 
-                        Text(L10n.string("确认清理"))
+                        Text(L10n.string("Confirm Cleanup"))
                             .font(.system(size: 27, weight: .bold))
                             .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -127,15 +127,15 @@ struct BatchConfirmView: View {
                         VStack(alignment: .leading, spacing: 0) {
                             if !deleteAssets.isEmpty {
                                 CandidatePreviewSection(
-                                    title: L10n.string("将删除 · 已选 \(selectedDeleteAssets.count)/\(deleteAssets.count)"),
+                                    title: L10n.string("To Delete · \(selectedDeleteAssets.count)/\(deleteAssets.count) Selected"),
                                     assets: deleteAssets,
                                     selectedCount: selectedDeleteAssets.count,
                                     selectedAssetIDs: selectedDeleteIDs,
                                     color: PhotoDeleteStyle.destructive,
                                     icon: "trash.fill",
                                     photoLibraryManager: dataManager.photoLibraryManager,
-                                    selectAccessibilityLabel: L10n.string("勾选这张照片"),
-                                    deselectAccessibilityLabel: L10n.string("取消勾选这张照片"),
+                                    selectAccessibilityLabel: L10n.string("Check this photo"),
+                                    deselectAccessibilityLabel: L10n.string("Uncheck this photo"),
                                     onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
                                     onToggleSelection: toggleDeleteSelection
                                 )
@@ -143,15 +143,15 @@ struct BatchConfirmView: View {
 
                             if !favoriteAssets.isEmpty {
                                 CandidatePreviewSection(
-                                    title: L10n.string("将收藏 · 已选 \(selectedFavoriteAssets.count)/\(favoriteAssets.count)"),
+                                    title: L10n.string("To Favorite · \(selectedFavoriteAssets.count)/\(favoriteAssets.count) Selected"),
                                     assets: favoriteAssets,
                                     selectedCount: selectedFavoriteAssets.count,
                                     selectedAssetIDs: selectedFavoriteIDs,
                                     color: PhotoDeleteStyle.iconTint(for: "favorite"),
                                     icon: "heart.fill",
                                     photoLibraryManager: dataManager.photoLibraryManager,
-                                    selectAccessibilityLabel: L10n.string("勾选这张照片"),
-                                    deselectAccessibilityLabel: L10n.string("取消勾选这张照片"),
+                                    selectAccessibilityLabel: L10n.string("Check this photo"),
+                                    deselectAccessibilityLabel: L10n.string("Uncheck this photo"),
                                     onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
                                     onToggleSelection: toggleFavoriteSelection
                                 )
@@ -167,7 +167,7 @@ struct BatchConfirmView: View {
                                 )
                         )
                     } else {
-                        Text(L10n.string("没有待执行的操作"))
+                        Text(L10n.string("No pending operations"))
                             .font(.body)
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
                             .frame(maxWidth: .infinity)
@@ -176,8 +176,8 @@ struct BatchConfirmView: View {
 
                     if hasPendingOperations {
                         VStack(alignment: .leading, spacing: 8) {
-                            Label(L10n.string("默认已全部选中，取消选择后不会执行。"), systemImage: "checkmark.circle.fill")
-                            Label(L10n.string("删除后会进入系统“最近删除”，空间可能不会立即释放。"), systemImage: "info.circle")
+                            Label(L10n.string("All items are selected by default. Deselected items will be skipped."), systemImage: "checkmark.circle.fill")
+                            Label(L10n.string("Deleted items move to Recently Deleted, so storage may not be freed immediately."), systemImage: "info.circle")
                         }
                         .font(.subheadline)
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
@@ -197,19 +197,19 @@ struct BatchConfirmView: View {
 
             VStack(spacing: 10) {
                 Button(action: executeBatchOperations) {
-                    Text(isProcessing ? L10n.string("正在执行...") : L10n.string("确认执行"))
+                    Text(isProcessing ? L10n.string("Running...") : L10n.string("Confirm"))
                 }
                 .photoDeletePrimaryButton()
                 .disabled(isProcessing || !hasSelectedOperations)
 
                 Button(action: cancelOperations) {
-                    Text(L10n.string("返回继续整理"))
+                    Text(L10n.string("Back to Organizing"))
                 }
                 .photoDeleteSecondaryButton()
                 .disabled(isProcessing)
 
                 Button(role: .destructive, action: cancelAllPendingOperations) {
-                    Text(L10n.string("取消所有操作"))
+                    Text(L10n.string("Cancel All Actions"))
                 }
                 .font(.subheadline.weight(.semibold))
                 .foregroundColor(PhotoDeleteStyle.destructive)
@@ -232,15 +232,15 @@ struct BatchConfirmView: View {
 
     private func batchSummaryText(deleteCount: Int, favoriteCount: Int) -> String {
         if deleteCount > 0 && favoriteCount > 0 {
-            return L10n.string("删除 \(deleteCount) 张 · 收藏 \(favoriteCount) 张")
+            return L10n.string("Deleted \(deleteCount) · Favorited \(favoriteCount)")
         }
         if deleteCount > 0 {
-            return L10n.string("删除 \(deleteCount) 张照片")
+            return L10n.string("Delete \(deleteCount) photos")
         }
         if favoriteCount > 0 {
-            return L10n.string("收藏 \(favoriteCount) 张照片")
+            return L10n.string("Favorite \(favoriteCount) photos")
         }
-        return L10n.string("没有待执行的操作")
+        return L10n.string("No pending operations")
     }
 
     private func executeBatchOperations() {
@@ -285,7 +285,7 @@ struct BatchConfirmView: View {
                         )
                     }
                 } else {
-                    errorMessage = error?.localizedDescription ?? L10n.string("操作失败，请稍后重试。")
+                    errorMessage = error?.localizedDescription ?? L10n.string("Operation failed. Try again later.")
                 }
             }
         }
@@ -300,26 +300,26 @@ struct BatchConfirmView: View {
     private func deletedContentSizeText(_ summary: DeletedContentSizeSummary) -> some View {
         if summary.knownAssetCount > 0 {
             VStack(spacing: 3) {
-                Text(L10n.string("已知删除内容约 \(CleanupStatsFormatter.fileSize(summary.knownSizeMB))"))
+                Text(L10n.string("Known deleted content: about \(CleanupStatsFormatter.fileSize(summary.knownSizeMB))"))
                 if isLoadingFileSizes {
                     Text(
                         L10n.string(
-                            "正在读取文件大小 \(summary.knownAssetCount)/\(summary.totalAssetCount)"
+                            "Reading file sizes \(summary.knownAssetCount)/\(summary.totalAssetCount)"
                         )
                     )
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                 } else if summary.unknownAssetCount > 0 {
-                    Text(L10n.string("\(summary.unknownAssetCount) 项大小暂时无法读取"))
+                    Text(L10n.string("Size unavailable for \(summary.unknownAssetCount) items"))
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                 }
             }
         } else if isLoadingFileSizes {
-            Text(L10n.string("正在读取文件大小"))
+            Text(L10n.string("Reading file sizes"))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
         } else {
-            Text(L10n.string("暂时无法读取文件大小"))
+            Text(L10n.string("File sizes are currently unavailable"))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
         }
     }
@@ -541,7 +541,7 @@ private struct BatchCleanupCompletionView: View {
     }
 
     private var completionHeader: some View {
-        Text(L10n.string("清理完成"))
+        Text(L10n.string("Cleanup Complete"))
             .font(.system(size: 31, weight: .semibold))
             .foregroundColor(PhotoDeleteStyle.primaryText)
     }
@@ -550,9 +550,9 @@ private struct BatchCleanupCompletionView: View {
         HStack(spacing: 0) {
             summaryItem(
                 icon: "trash.fill",
-                title: L10n.string("本次删除"),
+                title: L10n.string("Deleted This Time"),
                 value: L10n.shortPhotoCount(celebration.deletedPhotos),
-                detail: L10n.string("删除内容约 \(celebration.formattedSpaceSaved)"),
+                detail: L10n.string("Deleted content: about \(celebration.formattedSpaceSaved)"),
                 tint: PhotoDeleteStyle.destructive
             )
 
@@ -563,9 +563,9 @@ private struct BatchCleanupCompletionView: View {
 
             summaryItem(
                 icon: "chart.bar.fill",
-                title: L10n.string("累计删除"),
+                title: L10n.string("Total Deleted"),
                 value: L10n.shortPhotoCount(celebration.totalDeletedPhotos),
-                detail: L10n.string("删除内容约 \(celebration.formattedTotalSpaceSaved)"),
+                detail: L10n.string("Deleted content: about \(celebration.formattedTotalSpaceSaved)"),
                 tint: PhotoDeleteStyle.accent
             )
         }
@@ -616,7 +616,7 @@ private struct BatchCleanupCompletionView: View {
         VStack(spacing: 10) {
             if AppConstants.achievementsEnabled {
                 Button(action: onViewAchievements) {
-                    Label(L10n.string("查看成就"), systemImage: "seal.fill")
+                    Label(L10n.string("View Achievements"), systemImage: "seal.fill")
                         .font(.system(size: 15, weight: .semibold))
                         .frame(maxWidth: .infinity)
                 }
@@ -634,7 +634,7 @@ private struct BatchCleanupCompletionView: View {
             }
 
             Button(action: onContinue) {
-                Text(L10n.string("继续整理"))
+                Text(L10n.string("Keep Organizing"))
             }
             .photoDeletePrimaryButton()
         }
@@ -646,7 +646,7 @@ private struct BatchCleanupCompletionView: View {
                 compactStatusRow(
                     icon: newestAchievement.systemImage,
                     tint: newestAchievement.tint.color,
-                    title: String(format: L10n.string("新徽章：%@"), newestAchievement.title),
+                    title: String(format: L10n.string("New Badge: %@"), newestAchievement.title),
                     subtitle: newestAchievement.subtitle
                 )
 
@@ -657,8 +657,8 @@ private struct BatchCleanupCompletionView: View {
             compactStatusRow(
                 icon: "flame.fill",
                 tint: PhotoDeleteStyle.warning,
-                title: L10n.string("连续整理 \(streakDaysForDisplay) 天"),
-                subtitle: L10n.string("保持节奏，相册会越来越轻。")
+                title: L10n.string("\(streakDaysForDisplay)-Day Cleanup Streak"),
+                subtitle: L10n.string("Keep the rhythm. Your library will feel lighter.")
             )
 
             Divider()
@@ -670,8 +670,8 @@ private struct BatchCleanupCompletionView: View {
                 compactStatusRow(
                     icon: "checkmark.seal.fill",
                     tint: PhotoDeleteStyle.positive,
-                    title: L10n.string("全部徽章已完成"),
-                    subtitle: L10n.string("可以在成就页回看完整记录。")
+                    title: L10n.string("All Badges Complete"),
+                    subtitle: L10n.string("You can review the full record on the achievements page.")
                 )
             }
         }
@@ -728,7 +728,7 @@ private struct BatchCleanupCompletionView: View {
                 )
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("下一个目标：\(progress.achievement.title)"))
+                    Text(L10n.string("Next goal: \(progress.achievement.title)"))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
                         .lineLimit(1)
@@ -808,7 +808,7 @@ private struct CandidatePreviewSection: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(color)
 
-                Text(L10n.string("\(title) \(selectedCount) 张"))
+                Text(L10n.string("\(title) \(selectedCount) photos"))
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -833,7 +833,7 @@ private struct CandidatePreviewSection: View {
 
             if hasMoreAssets {
                 Button(action: showMoreAssets) {
-                    Label(L10n.string("显示更多"), systemImage: "chevron.down")
+                    Label(L10n.string("Show More"), systemImage: "chevron.down")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(color)
                         .frame(maxWidth: .infinity)
@@ -886,7 +886,7 @@ private struct CandidateThumbnailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("放大查看照片"))
+            .accessibilityLabel(L10n.string("View photo larger"))
 
             Image(systemName: badgeIcon)
                 .font(.system(size: 9, weight: .bold))
@@ -910,7 +910,7 @@ private struct CandidateThumbnailView: View {
                     .photoDeleteMinimumTapTarget()
             }
             .buttonStyle(.plain)
-            .accessibilityHint(L10n.string("取消勾选后不会执行这项操作"))
+            .accessibilityHint(L10n.string("Unchecked items will not be included in this action."))
             .offset(x: 3, y: 3)
         }
         .frame(width: 76, height: 76)
@@ -1166,7 +1166,7 @@ struct PhotoAssetVideoPlayerView: View {
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
                     }
 
-                    Text(isLoading ? L10n.string("正在读取视频") : L10n.string("无法播放这个视频"))
+                    Text(isLoading ? L10n.string("Loading video") : L10n.string("This video cannot be played"))
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .multilineTextAlignment(.center)
@@ -1524,7 +1524,7 @@ private struct VideoPlaybackPlayPauseButton: View {
     var body: some View {
         Button(action: action) {
             Label(
-                L10n.string(isPlaying ? "暂停视频" : "播放视频"),
+                L10n.string(isPlaying ? "Pause video" : "Play video"),
                 systemImage: isPlaying ? "pause.fill" : "play.fill"
             )
             .labelStyle(.iconOnly)
@@ -1538,7 +1538,7 @@ private struct VideoPlaybackPlayPauseButton: View {
         .buttonStyle(.plain)
         .photoDeleteMinimumTapTarget()
         .accessibilityIdentifier("video-playback-toggle-button")
-        .accessibilityLabel(L10n.string(isPlaying ? "暂停视频" : "播放视频"))
+        .accessibilityLabel(L10n.string(isPlaying ? "Pause video" : "Play video"))
     }
 }
 
@@ -1551,7 +1551,7 @@ private struct VideoPlaybackTapRevealArea: View {
             .simultaneousGesture(TapGesture().onEnded { action() }, including: .gesture)
             .accessibilityElement(children: .ignore)
             .accessibilityIdentifier("photo-asset-video-player")
-            .accessibilityLabel(L10n.string("视频预览"))
+            .accessibilityLabel(L10n.string("Video Preview"))
             .accessibilityAddTraits(.isButton)
     }
 }
@@ -1584,7 +1584,7 @@ private struct VideoPlaybackProgressBar: View {
         )
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(L10n.string("视频预览"))
+        .accessibilityLabel(L10n.string("Video Preview"))
         .accessibilityValue(L10n.percent(Int(displayedProgress * 100)))
         .accessibilityIdentifier("video-playback-progress-bar")
     }
@@ -1835,11 +1835,11 @@ struct CandidatePhotoPreviewView: View {
                         .frame(width: 44, height: 44)
                     }
                     .disabled(isPreparingShare)
-                    .accessibilityLabel(L10n.string("分享"))
+                    .accessibilityLabel(L10n.string("Share"))
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("关闭")) {
+                    Button(L10n.string("Close")) {
                         dismiss()
                     }
                 }
@@ -1848,8 +1848,8 @@ struct CandidatePhotoPreviewView: View {
         .sheet(item: $sharePayload, onDismiss: cleanupSharePayload) { payload in
             SystemShareSheet(activityItems: [payload.fileURL])
         }
-        .alert(L10n.string("操作失败，请稍后重试。"), isPresented: $showShareError) {
-            Button(L10n.string("知道了"), role: .cancel) {}
+        .alert(L10n.string("Operation failed. Try again later."), isPresented: $showShareError) {
+            Button(L10n.string("Got it"), role: .cancel) {}
         }
         .onDisappear {
             photoLibraryManager.cancelImageRequest(imageRequestID)
@@ -1878,18 +1878,18 @@ struct CandidatePhotoPreviewView: View {
                         contentIdentifier: asset.localIdentifier
                     )
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .accessibilityLabel(L10n.string("实况照片"))
+                        .accessibilityLabel(L10n.string("Live Photos"))
                 } else if let image {
                     ZoomablePhotoPreview(image: image)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .accessibilityLabel(L10n.string("放大的照片"))
+                        .accessibilityLabel(L10n.string("Enlarged photo"))
                 } else {
                     loadingContent
                 }
             } else if let image {
                 ZoomablePhotoPreview(image: image)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .accessibilityLabel(L10n.string("放大的照片"))
+                    .accessibilityLabel(L10n.string("Enlarged photo"))
             } else {
                 loadingContent
             }
@@ -1908,12 +1908,12 @@ struct CandidatePhotoPreviewView: View {
 
     private var navigationTitle: String {
         if asset.mediaType == .video {
-            return L10n.string("视频预览")
+            return L10n.string("Video Preview")
         }
         if isLivePhotoAsset {
-            return L10n.string("实况照片")
+            return L10n.string("Live Photos")
         }
-        return L10n.string("照片预览")
+        return L10n.string("Photo Preview")
     }
 
     private var loadingContent: some View {
@@ -1927,7 +1927,7 @@ struct CandidatePhotoPreviewView: View {
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
             }
 
-            Text(isLoading ? L10n.string("正在读取照片") : L10n.string("无法读取这张照片"))
+            Text(isLoading ? L10n.string("Reading Photos") : L10n.string("Unable to load this photo"))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
         }
@@ -2025,44 +2025,44 @@ private struct PhotoAssetDetailsPanel: View {
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.accent)
 
-                Text(L10n.string("照片信息"))
+                Text(L10n.string("Photo Info"))
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
             }
 
             VStack(spacing: 0) {
-                detailRow(label: L10n.string("拍摄时间"), value: captureDateText, icon: "calendar")
+                detailRow(label: L10n.string("Captured"), value: captureDateText, icon: "calendar")
                 if let locationText {
                     detailDivider
-                    detailRow(label: L10n.string("地点"), value: locationText, icon: "location")
+                    detailRow(label: L10n.string("Location"), value: locationText, icon: "location")
                 }
                 if let modificationDateText {
                     detailDivider
-                    detailRow(label: L10n.string("修改时间"), value: modificationDateText, icon: "clock.arrow.circlepath")
+                    detailRow(label: L10n.string("Modified"), value: modificationDateText, icon: "clock.arrow.circlepath")
                 }
                 if let sourceText {
                     detailDivider
-                    detailRow(label: L10n.string("图库来源"), value: sourceText, icon: "photo.stack")
+                    detailRow(label: L10n.string("Library Source"), value: sourceText, icon: "photo.stack")
                 }
                 if let originalFilenameText {
                     detailDivider
-                    detailRow(label: L10n.string("原始文件名"), value: originalFilenameText, icon: "doc.text")
+                    detailRow(label: L10n.string("Original Filename"), value: originalFilenameText, icon: "doc.text")
                 }
                 Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
-                detailRow(label: L10n.string("类型"), value: mediaTypeText, icon: mediaTypeIcon)
+                detailRow(label: L10n.string("Type"), value: mediaTypeText, icon: mediaTypeIcon)
                 Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
-                detailRow(label: L10n.string("尺寸"), value: pixelSizeText, icon: "aspectratio")
+                detailRow(label: L10n.string("Dimensions"), value: pixelSizeText, icon: "aspectratio")
                 Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
-                detailRow(label: L10n.string("方向"), value: orientationText, icon: "rectangle")
+                detailRow(label: L10n.string("Orientation"), value: orientationText, icon: "rectangle")
 
                 if asset.mediaType == .video {
                     Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
-                    detailRow(label: L10n.string("时长"), value: durationText, icon: "clock")
+                    detailRow(label: L10n.string("Duration"), value: durationText, icon: "clock")
                 }
 
                 if asset.isFavorite {
                     Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
-                    detailRow(label: L10n.string("状态"), value: L10n.string("已收藏"), icon: "heart.fill")
+                    detailRow(label: L10n.string("Status"), value: L10n.string("Already favorite"), icon: "heart.fill")
                 }
             }
             .photoDeleteCard()
@@ -2122,15 +2122,15 @@ private struct PhotoAssetDetailsPanel: View {
 
     private var mediaTypeText: String {
         if asset.mediaType == .video {
-            return L10n.string("视频")
+            return L10n.string("Videos")
         }
         if photoLibraryManager.isLivePhoto(asset) {
-            return L10n.string("实况照片")
+            return L10n.string("Live Photos")
         }
         if photoLibraryManager.isScreenshot(asset) {
-            return L10n.string("截图")
+            return L10n.string("Screenshots")
         }
-        return L10n.string("照片")
+        return L10n.string("Photos")
     }
 
     private var mediaTypeIcon: String {
@@ -2142,22 +2142,22 @@ private struct PhotoAssetDetailsPanel: View {
 
     private var pixelSizeText: String {
         guard asset.pixelWidth > 0, asset.pixelHeight > 0 else {
-            return L10n.string("未知")
+            return L10n.string("Unknown")
         }
         return "\(asset.pixelWidth) × \(asset.pixelHeight)"
     }
 
     private var orientationText: String {
         guard asset.pixelWidth > 0, asset.pixelHeight > 0 else {
-            return L10n.string("未知")
+            return L10n.string("Unknown")
         }
         if asset.pixelWidth > asset.pixelHeight {
-            return L10n.string("横向")
+            return L10n.string("Landscape")
         }
         if asset.pixelHeight > asset.pixelWidth {
-            return L10n.string("竖向")
+            return L10n.string("Portrait")
         }
-        return L10n.string("方形")
+        return L10n.string("Square")
     }
 
     private var durationText: String {

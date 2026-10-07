@@ -34,7 +34,7 @@ struct CleanupAchievementsEntryCard: View {
 
             VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 7) {
-                    Text(L10n.string("清理成就"))
+                    Text(L10n.string("Cleanup Achievements"))
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
@@ -66,14 +66,14 @@ struct CleanupAchievementsEntryCard: View {
         .photoDeleteCard()
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(L10n.string("清理成就，已获得 \(unlockedCount) 枚，共 \(totalCount) 枚"))
+        .accessibilityLabel(L10n.string("Cleanup achievements, \(unlockedCount) of \(totalCount) unlocked"))
     }
 
     private var subtitle: String {
         if let nextProgress {
-            return L10n.string("下一个目标：\(nextProgress.achievement.title)，\(nextProgress.remainingDescription)。")
+            return L10n.string("Next goal: \(nextProgress.achievement.title), \(nextProgress.remainingDescription).")
         }
-        return L10n.string("全部徽章已获得，继续保持整理节奏。")
+        return L10n.string("All badges unlocked. Keep the cleanup rhythm going.")
     }
 }
 
@@ -134,33 +134,33 @@ struct CleanupAchievementsView: View {
             }
             .scrollIndicators(.hidden)
         }
-        .navigationTitle(showsHistory ? L10n.string("成就与历史") : L10n.string("清理成就"))
+        .navigationTitle(showsHistory ? L10n.string("Achievements & History") : L10n.string("Cleanup Achievements"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .toolbar {
             if showsDoneButton {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("完成")) {
+                    Button(L10n.string("Done")) {
                         dismiss()
                     }
                     .foregroundColor(PhotoDeleteStyle.accent)
                 }
             }
         }
-        .confirmationDialog(L10n.string("清空本机统计记录？"), isPresented: $showingClearConfirmation, titleVisibility: .visible) {
-            Button(L10n.string("清空统计记录"), role: .destructive) {
+        .confirmationDialog(L10n.string("Clear local stats?"), isPresented: $showingClearConfirmation, titleVisibility: .visible) {
+            Button(L10n.string("Clear Stats"), role: .destructive) {
                 statsStore.clearAll()
             }
-            Button(L10n.string("取消"), role: .cancel) {}
+            Button(L10n.string("Cancel"), role: .cancel) {}
         } message: {
-            Text(L10n.string("只会清空删图的本机统计，不会影响照片。"))
+            Text(L10n.string("This only clears OnePhoto's local stats. Your photos are not affected."))
         }
     }
 
     private var archiveSummarySection: some View {
         VStack(spacing: 16) {
             HStack {
-                Text(showsHistory ? L10n.string("清理档案") : L10n.string("清理成就"))
+                Text(showsHistory ? L10n.string("Cleanup Archive") : L10n.string("Cleanup Achievements"))
                     .photoDeleteSectionHeading()
 
                 Spacer()
@@ -176,12 +176,12 @@ struct CleanupAchievementsView: View {
                     )
 
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(L10n.string("徽章、连续整理和删除内容进度"))
+                        Text(L10n.string("Badges, cleanup streaks, and deleted content progress"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(PhotoDeleteStyle.primaryText)
                             .lineLimit(2)
 
-                        Text(L10n.string("所有记录只保存在本机。"))
+                        Text(L10n.string("All records stay on this device."))
                             .font(.system(size: 12, weight: .regular))
                             .foregroundColor(PhotoDeleteStyle.secondaryText)
                             .lineLimit(1)
@@ -206,22 +206,22 @@ struct CleanupAchievementsView: View {
                 HStack(spacing: 8) {
                     StatCard(
                         value: "\(unlockedProgress.count)/\(allProgress.count)",
-                        label: L10n.string("已获得"),
+                        label: L10n.string("Earned"),
                         color: PhotoDeleteStyle.warning
                     )
                     StatCard(
                         value: "\(summary.sessions)",
-                        label: L10n.string("清理次数"),
+                        label: L10n.string("Cleanup Sessions"),
                         color: PhotoDeleteStyle.accent
                     )
                     StatCard(
                         value: "\(summary.deletedPhotos)",
-                        label: L10n.string("累计删除"),
+                        label: L10n.string("Total Deleted"),
                         color: PhotoDeleteStyle.destructive
                     )
                     StatCard(
                         value: summary.formattedSpaceSaved,
-                        label: L10n.string("累计删除内容"),
+                        label: L10n.string("Total Deleted Content"),
                         color: PhotoDeleteStyle.positive
                     )
                 }
@@ -236,7 +236,7 @@ struct CleanupAchievementsView: View {
     private var nextBadgeSection: some View {
         VStack(spacing: 16) {
             HStack {
-                Text(L10n.string("下一个徽章"))
+                Text(L10n.string("Next Badge"))
                     .photoDeleteSectionHeading()
 
                 Spacer()
@@ -256,18 +256,18 @@ struct CleanupAchievementsView: View {
     private var badgeWallSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.string("里程碑徽章"))
+                Text(L10n.string("Milestone Badges"))
                     .photoDeleteSectionHeading()
 
-                Text(L10n.string("按类型点亮每一枚清理徽章"))
+                Text(L10n.string("Light up each cleanup badge by category"))
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
             }
 
             if groupedAllProgress.isEmpty {
                 CleanupAchievementEmptyCard(
-                    title: L10n.string("暂无徽章"),
-                    subtitle: L10n.string("完成清理后会在这里记录。")
+                    title: L10n.string("No Badges"),
+                    subtitle: L10n.string("Cleanup records will appear here.")
                 )
             } else {
                 LazyVStack(spacing: 14) {
@@ -294,7 +294,7 @@ struct CleanupAchievementsView: View {
             Button(role: .destructive) {
                 showingClearConfirmation = true
             } label: {
-                Text(L10n.string("清空统计记录"))
+                Text(L10n.string("Clear Stats"))
                     .frame(maxWidth: .infinity)
             }
             .photoDeleteSecondaryButton()
@@ -315,11 +315,11 @@ struct RecentOrganizedPhotosSection: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(L10n.string("最近整理"))
+                    Text(L10n.string("Recently Organized"))
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                    Text(L10n.string("点按再次整理，会移出待删除并重新出现在整理列表。"))
+                    Text(L10n.string("Tap Organize Again to remove it from pending deletion and return it to review."))
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(PhotoDeleteStyle.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
@@ -328,7 +328,7 @@ struct RecentOrganizedPhotosSection: View {
                 Spacer(minLength: 8)
 
                 if !items.isEmpty {
-                    Button(L10n.string("清空"), role: .destructive) {
+                    Button(L10n.string("Clear"), role: .destructive) {
                         showingClearConfirmation = true
                     }
                     .font(.system(size: 13, weight: .semibold))
@@ -336,7 +336,7 @@ struct RecentOrganizedPhotosSection: View {
             }
 
             if items.isEmpty {
-                Text(L10n.string("整理过的照片会显示在这里，方便回头修改。"))
+                Text(L10n.string("Recently organized photos appear here so you can revise them."))
                     .font(.system(size: 13, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -371,16 +371,16 @@ struct RecentOrganizedPhotosSection: View {
             )
         }
         .confirmationDialog(
-            L10n.string("清空最近整理记录？"),
+            L10n.string("Clear recent organization history?"),
             isPresented: $showingClearConfirmation,
             titleVisibility: .visible
         ) {
-            Button(L10n.string("清空记录"), role: .destructive) {
+            Button(L10n.string("Clear History"), role: .destructive) {
                 dataManager.clearRecentOrganizedPhotoHistory()
             }
-            Button(L10n.string("取消"), role: .cancel) {}
+            Button(L10n.string("Cancel"), role: .cancel) {}
         } message: {
-            Text(L10n.string("只会清空本机记录，不会修改照片或待删除列表。"))
+            Text(L10n.string("This clears only local history and won’t change photos or pending deletion."))
         }
     }
 }
@@ -400,14 +400,14 @@ private struct RecentOrganizedPhotoCard: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("放大查看照片"))
+            .accessibilityLabel(L10n.string("View photo larger"))
 
             Label(item.record.action.title, systemImage: actionIcon)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(actionTint)
                 .lineLimit(1)
 
-            Button(L10n.string("再次整理"), action: onReopen)
+            Button(L10n.string("Organize Again"), action: onReopen)
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(PhotoDeleteStyle.accent)
                 .frame(maxWidth: .infinity)
@@ -543,11 +543,11 @@ private struct CleanupAchievementAllUnlockedRow: View {
             )
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(L10n.string("全部徽章已点亮"))
+                Text(L10n.string("All Badges Unlocked"))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.primaryText)
 
-                Text(L10n.string("已经完成所有清理里程碑。"))
+                Text(L10n.string("Every cleanup milestone is complete."))
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
             }
@@ -629,7 +629,7 @@ private struct CleanupAchievementBadgeTile: View {
                 .minimumScaleFactor(0.72)
                 .frame(maxWidth: .infinity, minHeight: 28, alignment: .center)
 
-            Text(progress.isUnlocked ? L10n.string("已点亮") : progress.valueDescription)
+            Text(progress.isUnlocked ? L10n.string("Unlocked") : progress.valueDescription)
                 .font(.system(size: 9, weight: .semibold))
                 .foregroundColor(progress.isUnlocked ? progress.achievement.tint.color : PhotoDeleteStyle.secondaryText)
                 .lineLimit(1)
@@ -639,7 +639,7 @@ private struct CleanupAchievementBadgeTile: View {
         .padding(.vertical, 4)
         .opacity(progress.isUnlocked ? 1 : 0.58)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("\(progress.achievement.title)，\(progress.achievement.subtitle)，\(progress.valueDescription)"))
+        .accessibilityLabel(Text("\(progress.achievement.title); \(progress.achievement.subtitle); \(progress.valueDescription)"))
     }
 }
 

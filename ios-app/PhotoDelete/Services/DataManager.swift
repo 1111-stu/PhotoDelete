@@ -71,15 +71,15 @@ enum RecentOrganizedPhotoAction: String, Codable, Equatable {
     var title: String {
         switch self {
         case .kept:
-            return L10n.string("已保留")
+            return L10n.string("Kept")
         case .queuedForDeletion:
-            return L10n.string("待删除")
+            return L10n.string("To delete")
         case .favorited:
-            return L10n.string("已收藏")
+            return L10n.string("Already favorite")
         case .unfavorited:
-            return L10n.string("已取消收藏")
+            return L10n.string("Removed from favorites")
         case .filedToAlbum:
-            return L10n.string("已归类")
+            return L10n.string("Filed")
         }
     }
 }
@@ -797,7 +797,7 @@ class DataManager: ObservableObject {
 
         guard photoLibraryManager.hasPhotoLibraryAccess else {
             let error = NSError(domain: "PhotoDeleteError", code: 1001, userInfo: [
-                NSLocalizedDescriptionKey: L10n.string("当前照片权限不可用")
+                NSLocalizedDescriptionKey: L10n.string("Photo access is not available")
             ])
             completion(false, error, nil)
             return
@@ -833,8 +833,8 @@ class DataManager: ObservableObject {
                 }
 
                 let enhancedError = NSError(domain: "PhotoDeleteError", code: 1002, userInfo: [
-                    NSLocalizedDescriptionKey: L10n.string("操作失败，请稍后重试。"),
-                    NSLocalizedFailureReasonErrorKey: L10n.string("真实照片库未完成这次批量操作，请稍后重试")
+                    NSLocalizedDescriptionKey: L10n.string("Operation failed. Try again later."),
+                    NSLocalizedFailureReasonErrorKey: L10n.string("The photo library did not complete this batch operation. Please try again later.")
                 ])
                 completion(false, enhancedError, nil)
                 return
@@ -973,7 +973,7 @@ class DataManager: ObservableObject {
                 await MainActor.run {
                     self.imageCompressionJob.processedCount = index
                     self.imageCompressionJob.currentProgress = 0
-                    self.imageCompressionJob.message = String(format: L10n.string("正在处理第 %lld 张图片"), Int64(index + 1))
+                    self.imageCompressionJob.message = String(format: L10n.string("Processing image %lld"), Int64(index + 1))
                 }
 
                 do {
@@ -1029,12 +1029,12 @@ class DataManager: ObservableObject {
                     )
                     HapticManager.notify(.success)
                 } else if !wasCancelled {
-                    self.imageCompressionJob.errorMessage = completedFirstErrorMessage ?? L10n.string("图片压缩失败，请稍后再试。")
+                    self.imageCompressionJob.errorMessage = completedFirstErrorMessage ?? L10n.string("Image compression failed. Please try again later.")
                     HapticManager.notify(.warning)
                 }
 
                 if completedFailedCount > 0 && !completedResultItems.isEmpty {
-                    self.imageCompressionJob.errorMessage = String(format: L10n.string("有 %lld 张图片未完成"), Int64(completedFailedCount))
+                    self.imageCompressionJob.errorMessage = String(format: L10n.string("There are %lld unfinished images"), Int64(completedFailedCount))
                 }
 
                 Self.endAdvancedCompressionBackgroundTask(backgroundTaskID)
@@ -1064,7 +1064,7 @@ class DataManager: ObservableObject {
                 await MainActor.run {
                     self.videoCompressionJob.processedCount = index
                     self.videoCompressionJob.currentProgress = 0
-                    self.videoCompressionJob.message = String(format: L10n.string("正在处理第 %lld 个视频"), Int64(index + 1))
+                    self.videoCompressionJob.message = String(format: L10n.string("Processing video %lld"), Int64(index + 1))
                 }
 
                 do {
@@ -1121,12 +1121,12 @@ class DataManager: ObservableObject {
                     self.cacheVideoCompressionSizeEstimates(from: completedResultItems)
                     HapticManager.notify(.success)
                 } else if !wasCancelled {
-                    self.videoCompressionJob.errorMessage = completedFirstErrorMessage ?? L10n.string("视频压缩失败，请稍后再试。")
+                    self.videoCompressionJob.errorMessage = completedFirstErrorMessage ?? L10n.string("Video compression failed. Please try again later.")
                     HapticManager.notify(.warning)
                 }
 
                 if completedFailedCount > 0 && !completedResultItems.isEmpty {
-                    self.videoCompressionJob.errorMessage = String(format: L10n.string("有 %lld 个视频未完成"), Int64(completedFailedCount))
+                    self.videoCompressionJob.errorMessage = String(format: L10n.string("There are %lld unfinished videos"), Int64(completedFailedCount))
                 }
 
                 Self.endAdvancedCompressionBackgroundTask(backgroundTaskID)
@@ -2603,7 +2603,7 @@ class DataManager: ObservableObject {
     }
 
     func locationDisplayText(for asset: PHAsset) -> String {
-        locationDisplayTextIfAvailable(for: asset) ?? L10n.string("无地点信息")
+        locationDisplayTextIfAvailable(for: asset) ?? L10n.string("No Location Info")
     }
 
     func locationDisplayTextIfAvailable(for asset: PHAsset) -> String? {
@@ -3862,7 +3862,7 @@ class DataManager: ObservableObject {
                 self.recordAddedPhotoToAlbum(asset, albumID: album.localIdentifier)
                 self.recordAlbumMembershipAdded(
                     for: asset.localIdentifier,
-                    albumTitle: album.localizedTitle ?? L10n.string("未命名相册")
+                    albumTitle: album.localizedTitle ?? L10n.string("Untitled Album")
                 )
             }
             completion(success, insertedCount > 0)

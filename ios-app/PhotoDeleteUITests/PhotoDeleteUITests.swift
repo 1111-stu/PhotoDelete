@@ -822,10 +822,15 @@ final class PhotoDeleteUITests: XCTestCase {
         openSettingsTab(in: app)
 
         XCTAssertTrue(app.staticTexts["Preferences"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Rate OnePhoto"].exists)
-        XCTAssertTrue(app.staticTexts["Email Feedback"].exists)
-        XCTAssertTrue(app.staticTexts["Privacy Notes"].exists)
-        XCTAssertFalse(app.staticTexts["微信反馈"].exists)
+        // Settings rows expose their title as a button accessibility label.
+        for _ in 0..<3 where !app.buttons["Privacy Notes"].isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(app.buttons["Rate OnePhoto"].exists)
+        let emailFeedback = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Email Feedback")).firstMatch
+        XCTAssertTrue(emailFeedback.isHittable)
+        XCTAssertTrue(app.buttons["Privacy Notes"].isHittable)
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "微信反馈")).firstMatch.exists)
     }
 
     @MainActor

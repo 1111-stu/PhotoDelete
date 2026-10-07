@@ -22,15 +22,15 @@ enum L10n {
     }
 
     static func photoCount(_ count: Int) -> String {
-        string("\(count) 张照片")
+        string("\(count) photos")
     }
 
     static func shortPhotoCount(_ count: Int) -> String {
-        string("\(count) 张")
+        string("\(count) images")
     }
 
     static var favoritesCategoryTitle: String {
-        AppLanguage.current.usesChineseText ? string("收藏") : "Favorites"
+        string("Favorites")
     }
 }
 
@@ -82,11 +82,5 @@ enum AppDateFormatter {
             formatter.locale = locale
             formatter.setLocalizedDateFormatFromTemplate(template)
         }
-    }
-}
-
-extension String {
-    var appLocalized: String {
-        L10n.key(self)
     }
 }
