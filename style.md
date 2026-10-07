@@ -55,7 +55,7 @@
 | `amberGradientBottom` | 0.941/0.604/0.133 | `#F09A22` |
 | `amberInk` | 0.102/0.071/0.024 | `#1A1206` |
 
-渐变方向：`LinearGradient(topLeading → bottomTrailing)`（对应原型 135°）。待整理卡亮部在轴上停到约 25%（`coralEntryGradient`），暗部收到右下角；琥珀卡仍为均分双停。
+渐变方向：`LinearGradient(topLeading → bottomTrailing)`（对应原型 135°）。待整理 / 随机整理均为均分双停。
 
 ### 2.3 琥珀使用规则（硬约束）
 

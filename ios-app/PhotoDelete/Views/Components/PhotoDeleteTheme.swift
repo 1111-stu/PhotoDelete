@@ -88,18 +88,6 @@ enum PhotoDeleteTheme: String, CaseIterable, Identifiable, Equatable {
     var coralGradientTop: Color { palette.coralGradientTop.color }
     var coralGradientBottom: Color { palette.coralGradientBottom.color }
     var coralInk: Color { palette.coralInk.color }
-    /// 待整理卡：色停不变，亮部沿 135° 轴停到约 25%（均分与 45% 停点之间），暗部收到右下角。
-    var coralEntryGradient: LinearGradient {
-        LinearGradient(
-            stops: [
-                .init(color: coralGradientTop, location: 0),
-                .init(color: coralGradientTop, location: 0.25),
-                .init(color: coralGradientBottom, location: 1)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
     var amberGradientTop: Color { palette.amberGradientTop.color }
     var amberGradientBottom: Color { palette.amberGradientBottom.color }
     var amberInk: Color { palette.amberInk.color }
