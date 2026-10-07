@@ -7,12 +7,12 @@
     "·" : {
 
     },
-    "%@ · %lld/%lld" : {
+    "%@ · %@/%@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$@ · %2$lld/%3$lld"
+            "value" : "%1$@ · %2$@/%3$@"
           }
         }
       }
@@ -6254,6 +6254,7 @@
       }
     },
     "All items are selected by default. Deselected items will be skipped." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7898,6 +7899,7 @@
       }
     },
     "Back to Organizing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -9473,12 +9475,42 @@
     },
     "Cancel Pending Deletions" : {
       "localizations" : {
-        "ar" : { "stringUnit" : { "state" : "translated", "value" : "إلغاء الحذف المعلق" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Geplante Löschungen abbrechen" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel Pending Deletions" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "削除予定を取り消す" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "取消待删除" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "取消待刪除" } }
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إلغاء الحذف المعلق"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geplante Löschungen abbrechen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel Pending Deletions"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除予定を取り消す"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消待删除"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消待刪除"
+          }
+        }
       }
     },
     "Capture time unknown" : {
@@ -9643,6 +9675,7 @@
       }
     },
     "Check this photo" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -15378,6 +15411,7 @@
       }
     },
     "Delete %lld photos" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -17942,6 +17976,7 @@
       }
     },
     "Favorite %lld photos" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -47315,6 +47350,7 @@
       }
     },
     "Uncheck this photo" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -47396,6 +47432,7 @@
       }
     },
     "Unchecked items will not be included in this action." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

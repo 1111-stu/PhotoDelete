@@ -150,14 +150,14 @@ struct BatchConfirmView: View {
                                     }
                                 )
                             }
-                            VStack(alignment: .leading, spacing: 10) {
-                                Label(L10n.string("Unchecked items will not be included in this action."), systemImage: "checkmark.circle")
-                                if !deleteAssets.isEmpty {
-                                    Label(L10n.string("Deleted items move to Recently Deleted, so storage may not be freed immediately."), systemImage: "info.circle")
-                                }
+                            if !deleteAssets.isEmpty {
+                                Label(
+                                    L10n.string("Deleted items move to Recently Deleted, so storage may not be freed immediately."),
+                                    systemImage: "info.circle"
+                                )
+                                .font(.subheadline)
+                                .foregroundColor(PhotoDeleteStyle.secondaryText)
                             }
-                            .font(.subheadline)
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
                         } else {
                             Text(L10n.string("No pending operations"))
                                 .font(.body)
