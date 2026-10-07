@@ -1675,6 +1675,26 @@ final class PhotoDeleteUITests: XCTestCase {
         return false
     }
 
+    // TEMP: 底栏 52 + 无遮罩 截图，跑完即删。
+    @MainActor
+    func testZZZScratchReviewChromeCapture() throws {
+        installPhotoLibraryInterruptionMonitor(allowDeletionConfirmation: true)
+        let app = makeApp(completedOnboarding: true, appLanguage: "zh-Hans", seedLibrary: true, supporterTrialActive: true)
+        app.launch()
+        _ = allowFullPhotoLibraryAccessIfNeeded(app: app)
+        dismissMarketingSystemPrompts(app: app, allowDeletionConfirmation: true)
+        XCTAssertTrue(waitForHomeReady(in: app, language: "zh-Hans", timeout: 30))
+        let entry = app.buttons["home-random-review"]
+        XCTAssertTrue(entry.waitForExistence(timeout: 10))
+        entry.tap()
+        XCTAssertNotNil(waitForReviewDoneButton(in: app, timeout: 30))
+        let hint = app.buttons["知道了"]
+        if hint.exists, hint.isHittable { hint.tap() }
+        sleep(2)
+        let dir = URL(fileURLWithPath: "/tmp/pd-measure", isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try capture("review", in: dir, app: app)
+    }
 }
 
 private enum AppLaunchEnvironmentKey {

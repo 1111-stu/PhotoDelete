@@ -12,9 +12,9 @@ struct ReviewNavigationHeader: View {
             HStack(spacing: 8) {
                 Button(action: onBack) {
                     Image(systemName: "arrow.left")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 19, weight: .bold, design: .rounded))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
-                        .frame(width: 38, height: 38)
+                        .frame(width: 52, height: 52)
                 }
                 .modifier(ReviewGlassCircleChrome())
                 .accessibilityLabel(L10n.string("返回"))
@@ -37,9 +37,9 @@ struct ReviewNavigationHeader: View {
             Button(action: onDelete) {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "trash")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 19, weight: .bold, design: .rounded))
                         .foregroundColor(PhotoDeleteStyle.primaryText)
-                        .frame(width: 38, height: 38)
+                        .frame(width: 52, height: 52)
 
                     if deleteCount > 0 {
                         // 颜色只承担"数量"语义：图标中性、角标珊瑚红（>99 显示 99+）。
@@ -224,7 +224,7 @@ struct ReviewActionToolbar: View {
                 )
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 1)
+            .padding(.vertical, 4)
             .modifier(ReviewGlassCapsuleChrome())
             .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 12, y: 6)
 
@@ -260,7 +260,7 @@ struct ReviewActionToolbar: View {
                 Image(systemName: "archivebox")
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundColor(PhotoDeleteStyle.primaryButtonText)
-                    .frame(width: 46, height: 46)
+                    .frame(width: 52, height: 52)
                     .glassEffect(.regular.tint(PhotoDeleteStyle.accent), in: .circle)
             }
             .buttonStyle(.plain)
@@ -270,7 +270,7 @@ struct ReviewActionToolbar: View {
                 Image(systemName: "archivebox")
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundColor(PhotoDeleteStyle.primaryButtonText)
-                    .frame(width: 46, height: 46)
+                    .frame(width: 52, height: 52)
                     .background(
                         Circle().fill(
                             LinearGradient(
@@ -297,8 +297,8 @@ struct ReviewGlassCircleChrome: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
             content
-                .buttonStyle(.glass)
-                .buttonBorderShape(.circle)
+                .buttonStyle(.plain)
+                .glassEffect(.regular, in: .circle)
         } else {
             content
                 .buttonStyle(.plain)

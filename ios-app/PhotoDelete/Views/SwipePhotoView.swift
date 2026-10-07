@@ -731,7 +731,7 @@ struct SwipePhotoView: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 8)
-        .background(PhotoDeleteStyle.reviewCanvas)
+        // 不垫底色遮罩：下滑的卡片直接滑到玻璃条后面，由玻璃虚化（去掉"切割感"）。
     }
 
     private var landscapeSidebar: some View {
