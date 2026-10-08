@@ -30,33 +30,6 @@ enum AlbumDisplayStyle: String, CaseIterable, Identifiable {
     }
 }
 
-enum AlbumSortMode: String, CaseIterable, Identifiable {
-    case recent
-    case count
-    case name
-    case custom
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .recent: return L10n.string("Recently updated")
-        case .count: return L10n.string("Most items")
-        case .name: return L10n.string("Name")
-        case .custom: return L10n.string("Custom")
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .recent: return "clock"
-        case .count: return "number"
-        case .name: return "textformat"
-        case .custom: return "line.3.horizontal"
-        }
-    }
-}
-
 enum AlbumBrowserContentFilter: String, CaseIterable, Identifiable {
     case all
     case photos
@@ -216,9 +189,7 @@ enum AlbumBrowserGroupingBuilder {
 
 struct AlbumDisplayStyleSheet: View {
     @Binding var style: AlbumDisplayStyle
-    @Binding var sortMode: AlbumSortMode
     let onReorder: () -> Void
-    let onDeleteEmpty: () -> Void
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -231,20 +202,6 @@ struct AlbumDisplayStyleSheet: View {
                         }
                     }
 
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(L10n.string("Sort"))
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(PhotoDeleteStyle.secondaryText)
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(AlbumSortMode.allCases) { mode in
-                                    sortChip(mode)
-                                }
-                            }
-                        }
-                    }
-
                     Button(action: onReorder) {
                         Label(L10n.string("Reorder"), systemImage: "line.3.horizontal")
                             .font(.body.weight(.semibold))
@@ -253,15 +210,6 @@ struct AlbumDisplayStyleSheet: View {
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(PhotoDeleteStyle.primaryText)
-
-                    Button(action: onDeleteEmpty) {
-                        Text(L10n.string("Delete Empty Albums"))
-                            .font(.body.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .frame(minHeight: 44)
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(PhotoDeleteStyle.destructive)
                 }
                 .padding(20)
             }
@@ -301,25 +249,6 @@ struct AlbumDisplayStyleSheet: View {
             RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
                     .fill(isSelected ? PhotoDeleteStyle.accent.opacity(0.16) : PhotoDeleteStyle.surface)
             )
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    private func sortChip(_ mode: AlbumSortMode) -> some View {
-        let isSelected = sortMode == mode
-        return Button {
-            sortMode = mode
-        } label: {
-            Text(mode.title)
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 14)
-                .frame(minHeight: 36)
-                .foregroundStyle(isSelected ? PhotoDeleteStyle.primaryText : PhotoDeleteStyle.secondaryText)
-                .background(
-                    Capsule(style: .continuous)
-                        .fill(isSelected ? PhotoDeleteStyle.elevatedSurface : PhotoDeleteStyle.surface)
-                )
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
