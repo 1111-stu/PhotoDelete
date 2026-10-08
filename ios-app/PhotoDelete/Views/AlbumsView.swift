@@ -59,26 +59,6 @@ struct AlbumsView: View {
                         albumToastView(albumToast)
                     }
                 }
-                .navigationTitle(L10n.string("Albums"))
-                .navigationBarTitleDisplayMode(.large)
-                .toolbar {
-                    if dataManager.photoLibraryManager.hasPhotoLibraryAccess {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            if editMode == .active {
-                                Button(L10n.string("Done"), action: toggleReordering)
-                                    .font(.body.weight(.semibold))
-                            } else {
-                                Button {
-                                    showsDisplayStyle = true
-                                } label: {
-                                    Image(systemName: "square.grid.2x2")
-                                }
-                                .accessibilityLabel(L10n.string("Display"))
-                                .accessibilityIdentifier("album-display-style")
-                            }
-                        }
-                    }
-                }
                 .navigationDestination(for: AlbumNavigationDestination.self) { destination in
                     switch destination {
                     case .swipeAlbum(let selectedSwipeAlbum):
@@ -89,13 +69,6 @@ struct AlbumsView: View {
                             navigationPath.append(AlbumNavigationDestination.swipeAlbum(album))
                         }
                         .environmentObject(dataManager)
-                    }
-                }
-                .overlay(alignment: .bottomTrailing) {
-                    if dataManager.photoLibraryManager.hasPhotoLibraryAccess && editMode != .active {
-                        createAlbumButton
-                            .padding(.trailing, 20)
-                            .padding(.bottom, PhotoDeleteStyle.Metrics.contentBottomPadding)
                     }
                 }
         }
@@ -127,12 +100,68 @@ struct AlbumsView: View {
         }
     }
 
-    @ViewBuilder
     private var rootContent: some View {
-        if !dataManager.photoLibraryManager.hasPhotoLibraryAccess {
-            authorizationSection
+        VStack(alignment: .leading, spacing: 0) {
+            albumsTitleBar
+
+            if !dataManager.photoLibraryManager.hasPhotoLibraryAccess {
+                authorizationSection
+            } else {
+                albumsList
+            }
+        }
+    }
+
+    /// 相册页顶栏（对齐 style.md §4.5：左侧大标题 34/700 + 右上圆钮）。
+    private var albumsTitleBar: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text(L10n.string("Albums"))
+                .font(.system(size: 34, weight: .bold))
+                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            if editMode == .active {
+                Button(L10n.string("Done"), action: toggleReordering)
+                    .font(.body.weight(.semibold))
+                    .foregroundColor(PhotoDeleteStyle.accent)
+            } else if dataManager.photoLibraryManager.hasPhotoLibraryAccess {
+                displayStyleEntryButton
+            }
+        }
+        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+        .padding(.top, 10)
+        .padding(.bottom, 6)
+    }
+
+    /// 右上角显示方式入口：iOS 26+ 用液态玻璃，老系统回落实心圆钮。
+    @ViewBuilder
+    private var displayStyleEntryButton: some View {
+        if #available(iOS 26.0, *) {
+            Button {
+                showsDisplayStyle = true
+            } label: {
+                Image(systemName: "square.grid.2x2")
+                    .font(.system(size: 17, weight: .semibold))
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.circle)
+            .foregroundStyle(PhotoDeleteStyle.primaryText)
+            .accessibilityLabel(L10n.string("Display"))
+            .accessibilityIdentifier("album-display-style")
         } else {
-            albumsList
+            Button {
+                showsDisplayStyle = true
+            } label: {
+                Image(systemName: "square.grid.2x2")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .frame(width: 44, height: 44)
+                    .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.string("Display"))
+            .accessibilityIdentifier("album-display-style")
         }
     }
 
@@ -147,16 +176,21 @@ struct AlbumsView: View {
         )
     }
 
-    private var createAlbumButton: some View {
-        Button(action: createAlbum) {
-            Image(systemName: "plus")
-                .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(PhotoDeleteStyle.primaryText)
-                .frame(width: 56, height: 56)
-                .background(PhotoDeleteStyle.surface, in: Circle())
-                .shadow(color: PhotoDeleteStyle.floatingShadow.opacity(0.18), radius: 10, y: 4)
+    /// 搜索框 + 新建相册：新建入口贴着搜索栏右侧，同高 44。
+    private var albumSearchRow: some View {
+        HStack(spacing: 10) {
+            albumSearchField
+
+            Button(action: createAlbum) {
+                Image(systemName: "plus")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(PhotoDeleteStyle.primaryText)
+                    .frame(width: 44, height: 44)
+                    .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.string("Create Album"))
         }
-        .accessibilityLabel(L10n.string("Create Album"))
     }
 
     private var albumSearchField: some View {
@@ -212,7 +246,7 @@ struct AlbumsView: View {
                     .font(.subheadline)
                     .foregroundStyle(PhotoDeleteStyle.secondaryText)
 
-                albumSearchField
+                albumSearchRow
 
                 if isLoadingAlbums {
                     loadingRow
@@ -291,7 +325,7 @@ struct AlbumsView: View {
                 // Keep count in the section header (not its own Section) so insetGrouped
                 // does not leave a large empty gap under "N 个相册".
                 Section {
-                    albumSearchField
+                    albumSearchRow
                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)

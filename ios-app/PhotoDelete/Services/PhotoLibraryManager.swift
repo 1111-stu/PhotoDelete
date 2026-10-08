@@ -25,6 +25,7 @@ struct PhotoLibraryLivePhotoResult {
 struct PhotoLibraryAssetClassification: Equatable {
     let isVideo: Bool
     let isScreenshot: Bool
+    let isScreenRecording: Bool
     let isLivePhoto: Bool
     let isFavorite: Bool
 
@@ -34,7 +35,8 @@ struct PhotoLibraryAssetClassification: Equatable {
         pixelWidth: Int,
         pixelHeight: Int,
         screenPixelSize: CGSize,
-        isFavorite: Bool
+        isFavorite: Bool,
+        isUITestScreenRecording: Bool = false
     ) -> PhotoLibraryAssetClassification {
         let isVideo = mediaType == .video
         let hasScreenshotSubtype = mediaSubtypes.contains(.photoScreenshot)
@@ -48,9 +50,26 @@ struct PhotoLibraryAssetClassification: Equatable {
         return PhotoLibraryAssetClassification(
             isVideo: isVideo,
             isScreenshot: !isVideo && (hasScreenshotSubtype || matchesScreenSize),
+            isScreenRecording: resolveIsScreenRecording(
+                mediaType: mediaType,
+                mediaSubtypes: mediaSubtypes,
+                isUITestScreenRecording: isUITestScreenRecording
+            ),
             isLivePhoto: mediaType == .image && mediaSubtypes.contains(.photoLive),
             isFavorite: isFavorite
         )
+    }
+
+    /// 录屏判定只看系统子类型（iOS 13+ 由 Photos 在入库时打标）。
+    /// `isUITestScreenRecording` 仅供 UI 测试种子库伪造录屏 —— `PHAssetChangeRequest`
+    /// 无法设置 `mediaSubtypes`，只能按原始文件名在测试进程里补判。
+    static func resolveIsScreenRecording(
+        mediaType: PHAssetMediaType,
+        mediaSubtypes: PHAssetMediaSubtype,
+        isUITestScreenRecording: Bool = false
+    ) -> Bool {
+        mediaType == .video &&
+            (mediaSubtypes.contains(.videoScreenRecording) || isUITestScreenRecording)
     }
 }
 
@@ -706,6 +725,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
     @Published var allPhotos: [PHAsset] = []
     @Published var videos: [PHAsset] = []
     @Published var screenshots: [PHAsset] = []
+    @Published var screenRecordings: [PHAsset] = []
     @Published var livePhotos: [PHAsset] = []
     @Published var favorites: [PHAsset] = [] {
         didSet {
@@ -812,6 +832,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
         allPhotos = []
         videos = []
         screenshots = []
+        screenRecordings = []
         livePhotos = []
         favorites = []
         isLoading = false
@@ -973,6 +994,14 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             let assetByID = Dictionary(uniqueKeysWithValues: restoredAssets.map { ($0.localIdentifier, $0) })
             let restoredVideos = snapshot.videoIDs.compactMap { assetByID[$0] }
             let restoredScreenshots = snapshot.screenshotIDs.compactMap { assetByID[$0] }
+            // 录屏是视频的子集，快照里已有 videoIDs，无需新增快照字段。
+            let restoredScreenRecordings = restoredVideos.filter {
+                PhotoLibraryAssetClassification.resolveIsScreenRecording(
+                    mediaType: $0.mediaType,
+                    mediaSubtypes: $0.mediaSubtypes,
+                    isUITestScreenRecording: Self.isUITestScreenRecording($0)
+                )
+            }
             let restoredLivePhotos = snapshot.livePhotoIDs.compactMap { assetByID[$0] }
             let restoredFavorites = snapshot.favoriteIDs.compactMap { assetByID[$0] }
             let fetchResult = PHAsset.fetchAssets(with: self.defaultPhotoFetchOptions())
@@ -996,6 +1025,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
                 self.allPhotos = restoredAssets
                 self.videos = restoredVideos
                 self.screenshots = restoredScreenshots
+                self.screenRecordings = restoredScreenRecordings
                 self.livePhotos = restoredLivePhotos
                 self.favorites = restoredFavorites
                 self.loadingProgress = 1
@@ -1117,6 +1147,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             var allPhotosArray: [PHAsset] = []
             var videosArray: [PHAsset] = []
             var screenshotsArray: [PHAsset] = []
+            var screenRecordingsArray: [PHAsset] = []
             var livePhotosArray: [PHAsset] = []
             var favoritesArray: [PHAsset] = []
 
@@ -1130,6 +1161,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
                     self.allPhotos = []
                     self.videos = []
                     self.screenshots = []
+                    self.screenRecordings = []
                     self.livePhotos = []
                     self.favorites = []
                     self.loadingProgress = 1.0
@@ -1161,6 +1193,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
                         screenPixelSize: screenPixelSize,
                         videos: &videosArray,
                         screenshots: &screenshotsArray,
+                        screenRecordings: &screenRecordingsArray,
                         livePhotos: &livePhotosArray,
                         favorites: &favoritesArray
                     )
@@ -1201,6 +1234,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
                 self.allPhotos = allPhotosArray
                 self.videos = videosArray
                 self.screenshots = screenshotsArray
+                self.screenRecordings = screenRecordingsArray
                 self.livePhotos = livePhotosArray
                 self.favorites = favoritesArray
                 self.loadingProgress = 1.0
@@ -1229,13 +1263,14 @@ class PhotoLibraryManager: NSObject, ObservableObject {
     private func categorizePhotos(
         _ photos: [PHAsset],
         screenPixelSize: CGSize,
-        completion: @escaping ([PHAsset], [PHAsset], [PHAsset], [PHAsset]) -> Void
+        completion: @escaping ([PHAsset], [PHAsset], [PHAsset], [PHAsset], [PHAsset]) -> Void
     ) {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             guard let self = self else { return }
 
             var videos: [PHAsset] = []
             var screenshots: [PHAsset] = []
+            var screenRecordings: [PHAsset] = []
             var livePhotos: [PHAsset] = []
 
             var favoritesArray: [PHAsset] = []
@@ -1245,12 +1280,13 @@ class PhotoLibraryManager: NSObject, ObservableObject {
                     screenPixelSize: screenPixelSize,
                     videos: &videos,
                     screenshots: &screenshots,
+                    screenRecordings: &screenRecordings,
                     livePhotos: &livePhotos,
                     favorites: &favoritesArray
                 )
             }
 
-            completion(videos, screenshots, livePhotos, favoritesArray)
+            completion(videos, screenshots, screenRecordings, livePhotos, favoritesArray)
         }
     }
 
@@ -1259,6 +1295,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
         screenPixelSize: CGSize,
         videos: inout [PHAsset],
         screenshots: inout [PHAsset],
+        screenRecordings: inout [PHAsset],
         livePhotos: inout [PHAsset],
         favorites: inout [PHAsset]
     ) {
@@ -1267,6 +1304,10 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             videos.append(asset)
         } else if classification.isScreenshot {
             screenshots.append(asset)
+        }
+
+        if classification.isScreenRecording {
+            screenRecordings.append(asset)
         }
 
         if classification.isLivePhoto {
@@ -1283,6 +1324,14 @@ class PhotoLibraryManager: NSObject, ObservableObject {
         assetClassification(asset, screenPixelSize: Self.currentScreenPixelSize()).isScreenshot
     }
 
+    func isScreenRecording(_ asset: PHAsset) -> Bool {
+        PhotoLibraryAssetClassification.resolveIsScreenRecording(
+            mediaType: asset.mediaType,
+            mediaSubtypes: asset.mediaSubtypes,
+            isUITestScreenRecording: Self.isUITestScreenRecording(asset)
+        )
+    }
+
     func isLivePhoto(_ asset: PHAsset) -> Bool {
         asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive)
     }
@@ -1290,6 +1339,25 @@ class PhotoLibraryManager: NSObject, ObservableObject {
     func isFavorite(_ asset: PHAsset) -> Bool {
         favoriteAssetIdentifiers.contains(asset.localIdentifier)
     }
+
+    /// UI 测试种子库用 `RPReplay_Final*` 命名伪造录屏：`PHAssetChangeRequest` 无法设置
+    /// `mediaSubtypes`，所以只在 UI 测试进程里按原始文件名补一次判断。Release 恒为 false。
+    private static func isUITestScreenRecording(_ asset: PHAsset) -> Bool {
+        #if DEBUG
+        guard isUITestSeedingEnabled else { return false }
+        let filename = PHAssetResource.assetResources(for: asset).first?.originalFilename ?? ""
+        return filename.lowercased().hasPrefix(uiTestScreenRecordingFilenamePrefix)
+        #else
+        return false
+        #endif
+    }
+
+    #if DEBUG
+    private static let uiTestScreenRecordingFilenamePrefix = "rpreplay_final"
+
+    private static let isUITestSeedingEnabled =
+        ProcessInfo.processInfo.environment["PHOTO_DELETE_UI_TEST"] == "1"
+    #endif
 
     private func assetClassification(
         _ asset: PHAsset,
@@ -1301,7 +1369,8 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             pixelWidth: asset.pixelWidth,
             pixelHeight: asset.pixelHeight,
             screenPixelSize: screenPixelSize,
-            isFavorite: asset.isFavorite
+            isFavorite: asset.isFavorite,
+            isUITestScreenRecording: asset.mediaType == .video && Self.isUITestScreenRecording(asset)
         )
     }
 
@@ -2009,6 +2078,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             removeAssets(with: deletedIDs, from: &allPhotos)
             removeAssets(with: deletedIDs, from: &videos)
             removeAssets(with: deletedIDs, from: &screenshots)
+            removeAssets(with: deletedIDs, from: &screenRecordings)
             removeAssets(with: deletedIDs, from: &livePhotos)
             removeAssets(with: deletedIDs, from: &favorites)
             imageCache.removeAllObjects()
@@ -2897,6 +2967,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             removeAssets(with: removedIDs, from: &allPhotos)
             removeAssets(with: removedIDs, from: &videos)
             removeAssets(with: removedIDs, from: &screenshots)
+            removeAssets(with: removedIDs, from: &screenRecordings)
             removeAssets(with: removedIDs, from: &livePhotos)
             removeAssets(with: removedIDs, from: &favorites)
         }
@@ -2957,7 +3028,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             }
 
             let screenPixelSize = Self.currentScreenPixelSize()
-            self.categorizePhotos(photos, screenPixelSize: screenPixelSize) { videos, screenshots, livePhotos, favorites in
+            self.categorizePhotos(photos, screenPixelSize: screenPixelSize) { videos, screenshots, screenRecordings, livePhotos, favorites in
                 DispatchQueue.main.async {
                     if let generation, self.rebuildCachedAssetsGeneration != generation {
                         return
@@ -2965,6 +3036,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
                     self.allPhotos = photos
                     self.videos = videos
                     self.screenshots = screenshots
+                    self.screenRecordings = screenRecordings
                     self.livePhotos = livePhotos
                     self.favorites = favorites
                     self.loadingProgress = 1
@@ -3012,6 +3084,12 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             upsertAsset(asset, in: &screenshots)
         } else {
             screenshots.removeAll { $0.localIdentifier == asset.localIdentifier }
+        }
+
+        if isScreenRecording(asset) {
+            upsertAsset(asset, in: &screenRecordings)
+        } else {
+            screenRecordings.removeAll { $0.localIdentifier == asset.localIdentifier }
         }
 
         if isLivePhoto(asset) {

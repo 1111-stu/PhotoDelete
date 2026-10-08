@@ -15,6 +15,7 @@ enum PhotoCategory: String, CaseIterable {
     case unclassified = "未归类照片"
     case videos = "视频"
     case screenshots = "截图"
+    case screenRecordings = "录屏"
     case livePhotos = "实况照片"
     case favorites = "收藏"
 
@@ -24,6 +25,7 @@ enum PhotoCategory: String, CaseIterable {
         case .unclassified: return L10n.string("Unfiled Photos")
         case .videos: return L10n.string("Videos")
         case .screenshots: return L10n.string("Screenshots")
+        case .screenRecordings: return L10n.string("Screen Recordings")
         case .livePhotos: return L10n.string("Live Photos")
         case .favorites: return L10n.favoritesCategoryTitle
         }
@@ -35,6 +37,7 @@ enum PhotoCategory: String, CaseIterable {
         case .unclassified: return "tray"
         case .videos: return "video"
         case .screenshots: return "iphone"
+        case .screenRecordings: return "record.circle"
         case .livePhotos: return "livephoto"
         case .favorites: return "heart"
         }
@@ -487,6 +490,7 @@ enum AdvancedCleanupKind: String, CaseIterable, Identifiable {
     case imageCompression
     case videoCompression
     case videos
+    case screenRecordings
 
     var id: String { rawValue }
 
@@ -508,6 +512,7 @@ enum AdvancedCleanupKind: String, CaseIterable, Identifiable {
         case .imageCompression: return L10n.string("Image Compression")
         case .videoCompression: return L10n.string("Video Compression")
         case .videos: return L10n.string("Videos")
+        case .screenRecordings: return L10n.string("Screen Recordings")
         }
     }
 
@@ -518,6 +523,7 @@ enum AdvancedCleanupKind: String, CaseIterable, Identifiable {
         case .imageCompression: return "photo.badge.arrow.down"
         case .videoCompression: return "arrow.down.forward.and.arrow.up.backward"
         case .videos: return "video.fill"
+        case .screenRecordings: return "record.circle"
         }
     }
 
@@ -528,6 +534,7 @@ enum AdvancedCleanupKind: String, CaseIterable, Identifiable {
         case .imageCompression: return PhotoDeleteStyle.accent
         case .videoCompression: return PhotoDeleteStyle.positive
         case .videos: return PhotoDeleteStyle.iconTint(for: "video")
+        case .screenRecordings: return PhotoDeleteStyle.iconTint(for: "video")
         }
     }
 }
@@ -774,7 +781,8 @@ struct AdvancedLibrarySnapshot: Equatable {
                 AdvancedCleanupQueue(kind: .largeFiles, assetCount: 46, estimatedSpaceMB: 3_240),
                 AdvancedCleanupQueue(kind: .imageCompression, assetCount: 96, estimatedSpaceMB: 720),
                 AdvancedCleanupQueue(kind: .videoCompression, assetCount: 28, estimatedSpaceMB: 2_760),
-                AdvancedCleanupQueue(kind: .videos, assetCount: 62, estimatedSpaceMB: 7_800)
+                AdvancedCleanupQueue(kind: .videos, assetCount: 62, estimatedSpaceMB: 7_800),
+                AdvancedCleanupQueue(kind: .screenRecordings, assetCount: 18, estimatedSpaceMB: 620)
             ].filter { AdvancedCleanupKind.visibleCases.contains($0.kind) }
         )
     }

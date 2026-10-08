@@ -1451,6 +1451,8 @@ class DataManager: ObservableObject {
             return photoLibraryManager.videos
         case .screenshots:
             return photoLibraryManager.screenshots
+        case .screenRecordings:
+            return photoLibraryManager.screenRecordings
         case .livePhotos:
             return photoLibraryManager.livePhotos
         case .favorites:
@@ -1672,6 +1674,10 @@ class DataManager: ObservableObject {
             return photoLibraryManager.videos.sorted {
                 estimatedAssetSizeMB($0) > estimatedAssetSizeMB($1)
             }
+        case .screenRecordings:
+            return photoLibraryManager.screenRecordings.sorted {
+                estimatedAssetSizeMB($0) > estimatedAssetSizeMB($1)
+            }
         }
     }
 
@@ -1682,6 +1688,7 @@ class DataManager: ObservableObject {
         let photos = photoLibraryManager.allPhotos
         let videos = photoLibraryManager.videos
         let screenshotIDs = Set(photoLibraryManager.screenshots.map(\.localIdentifier))
+        let screenRecordings = photoLibraryManager.screenRecordings
         let processedImageIDs = imageCompressionProcessedAssetIDs()
 
         DispatchQueue.global(qos: .userInitiated).async {
@@ -1708,6 +1715,10 @@ class DataManager: ObservableObject {
                 loadedAssets = Self.videoCompressionCandidates(from: videos)
             case .videos:
                 loadedAssets = videos.sorted(by: Self.defaultVideoListOrder)
+            case .screenRecordings:
+                loadedAssets = screenRecordings.sorted {
+                    Self.estimatedAssetSizeMBForAsset($0) > Self.estimatedAssetSizeMBForAsset($1)
+                }
             }
 
             DispatchQueue.main.async {
@@ -1885,6 +1896,7 @@ class DataManager: ObservableObject {
 
         let photos = photoLibraryManager.allPhotos
         let videos = photoLibraryManager.videos
+        let screenRecordings = photoLibraryManager.screenRecordings
         let screenshotIDs = Set(photoLibraryManager.screenshots.map(\.localIdentifier))
         let imageSessions = AppConstants.isImageCompressionVisible ? imageCompressionHistoryStore.sessions : []
         let processedIDs = Self.imageCompressionProcessedAssetIDs(from: imageSessions)
@@ -1917,6 +1929,7 @@ class DataManager: ObservableObject {
             let queues = Self.makeAdvancedCleanupQueues(
                 photos: photos,
                 videos: videos,
+                screenRecordings: screenRecordings,
                 screenshotIDs: screenshotIDs,
                 imageCompressionProcessedIDs: processedIDs
             )
@@ -1939,6 +1952,7 @@ class DataManager: ObservableObject {
     private static func makeAdvancedCleanupQueues(
         photos: [PHAsset],
         videos: [PHAsset],
+        screenRecordings: [PHAsset],
         screenshotIDs: Set<String>,
         imageCompressionProcessedIDs: Set<String>
     ) -> [AdvancedCleanupQueue] {
@@ -1969,6 +1983,11 @@ class DataManager: ObservableObject {
                 kind: .videos,
                 assetCount: videos.count,
                 estimatedSpaceMB: 0
+            ),
+            AdvancedCleanupQueue(
+                kind: .screenRecordings,
+                assetCount: screenRecordings.count,
+                estimatedSpaceMB: screenRecordings.reduce(0) { $0 + estimatedAssetSizeMBForAsset($1) }
             )
         ]
 

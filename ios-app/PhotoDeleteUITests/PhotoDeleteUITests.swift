@@ -299,6 +299,26 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertNotNil(waitForReviewDoneButton(in: app, timeout: 30))
         if app.buttons["知道了"].exists { app.buttons["知道了"].tap() }
         dragCardUp(in: app)
+        try XCTUnwrap(waitForReviewDoneButton(in: app, timeout: 10)).tap()
+        XCTAssertTrue(app.buttons["cleanup-confirm"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.navigationBars["待删除 · 1/1"].exists)
+        XCTAssertTrue(app.buttons["取消全选"].exists, "The approved layout retains the toggle for a single item.")
+        let size = app.descendants(matching: .any)["cleanup-size-summary"].firstMatch
+        let toggle = app.buttons["取消全选"]
+        XCTAssertTrue(size.exists)
+        XCTAssertGreaterThan(toggle.frame.minX, size.frame.minX)
+        XCTAssertLessThan(abs(toggle.frame.midY - size.frame.midY), 28,
+                          "Size and selection toggle should share one row.")
+        app.buttons["取消全选"].tap()
+        XCTAssertTrue(app.navigationBars["待删除 · 0/1"].exists)
+        XCTAssertTrue(app.staticTexts["未选择项目"].exists)
+        XCTAssertFalse(app.buttons["cleanup-confirm"].isEnabled)
+        app.buttons["全选"].tap()
+        let output = ProcessInfo.processInfo.environment["PHOTO_DELETE_REVIEW_CAPTURE_DIR"] ?? "/tmp/photodelete-cleanup-review"
+        let directory = URL(fileURLWithPath: output, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try capture("cleanup-single-\(appearance)", in: directory, app: app)
+        app.buttons["cleanup-back"].tap()
         dragCardUp(in: app)
         dragCardUp(in: app)
         dragCardUp(in: app)
@@ -309,6 +329,13 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertTrue(confirm.isEnabled)
         XCTAssertTrue(app.buttons["cleanup-back"].exists)
         XCTAssertFalse(app.tabBars.firstMatch.exists)
+        XCTAssertTrue(app.navigationBars["待删除 · 4/4"].exists)
+        let cancel = app.buttons["cleanup-cancel-all"]
+        let consequence = app.descendants(matching: .any)["cleanup-consequence"].firstMatch
+        XCTAssertLessThan(cancel.frame.maxX, confirm.frame.minX)
+        XCTAssertEqual(cancel.frame.minY, confirm.frame.minY, accuracy: 2)
+        XCTAssertEqual(cancel.frame.height, confirm.frame.height, accuracy: 2)
+        XCTAssertLessThan(consequence.frame.maxY, confirm.frame.minY)
         let selections = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "cleanup-selection-"))
         XCTAssertEqual(selections.count, 4)
         selections.element(boundBy: 0).tap()
@@ -323,12 +350,7 @@ final class PhotoDeleteUITests: XCTestCase {
         XCTAssertFalse(confirm.isEnabled)
         app.buttons["全选"].tap()
 
-        do {
-            let output = ProcessInfo.processInfo.environment["PHOTO_DELETE_REVIEW_CAPTURE_DIR"] ?? "/tmp/photodelete-cleanup-review"
-            let directory = URL(fileURLWithPath: output, isDirectory: true)
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            try capture("cleanup-confirmation-\(appearance)", in: directory, app: app)
-        }
+        try capture("cleanup-confirmation-\(appearance)", in: directory, app: app)
         app.buttons["cleanup-back"].tap()
         XCTAssertNotNil(waitForReviewDoneButton(in: app, timeout: 10))
         try XCTUnwrap(waitForReviewDoneButton(in: app, timeout: 10)).tap()
@@ -1765,6 +1787,21 @@ final class PhotoDeleteUITests: XCTestCase {
         let dir = URL(fileURLWithPath: "/tmp/pd-measure", isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         try capture("review", in: dir, app: app)
+    }
+
+    @MainActor
+    func testZZZScratchAlbumsHeaderCapture() throws {
+        installPhotoLibraryInterruptionMonitor(allowDeletionConfirmation: true)
+        let app = makeApp(completedOnboarding: true, appLanguage: "zh-Hans", seedLibrary: false, supporterTrialActive: true)
+        app.launch()
+        _ = allowFullPhotoLibraryAccessIfNeeded(app: app)
+        dismissMarketingSystemPrompts(app: app, allowDeletionConfirmation: true)
+        XCTAssertTrue(waitForHomeReady(in: app, language: "zh-Hans", timeout: 30))
+        openAlbumsTab(in: app)
+        sleep(3)
+        let dir = URL(fileURLWithPath: "/tmp/pd-albums", isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try capture("albums-header", in: dir, app: app)
     }
 }
 

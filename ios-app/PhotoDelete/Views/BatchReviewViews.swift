@@ -16,6 +16,7 @@ import UIKit
 struct BatchConfirmView: View {
     @EnvironmentObject var dataManager: DataManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var isProcessing = false
     @State private var errorMessage: String?
     @State private var previewAsset: CandidatePreviewAsset?
@@ -110,6 +111,10 @@ struct BatchConfirmView: View {
         deletedContentSizeSummary: DeletedContentSizeSummary
     ) -> some View {
         let hasVisiblePendingOperations = !deleteAssets.isEmpty || !favoriteAssets.isEmpty
+        let showsOnlyDeletions = !deleteAssets.isEmpty && favoriteAssets.isEmpty
+        let navigationTitle = showsOnlyDeletions
+            ? L10n.string("To Delete · \(selectedDeleteAssets.count)/\(deleteAssets.count)")
+            : L10n.string("Confirm Cleanup")
 
         return NavigationStack {
             ZStack {
@@ -118,22 +123,20 @@ struct BatchConfirmView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         if hasVisiblePendingOperations {
                             if !deleteAssets.isEmpty {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    CandidatePreviewSection(
-                                        title: L10n.string("Delete"),
-                                        assets: deleteAssets,
-                                        selectedCount: selectedDeleteAssets.count,
-                                        selectedAssetIDs: selectedDeleteIDs,
-                                        photoLibraryManager: dataManager.photoLibraryManager,
-                                        onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
-                                        onToggleSelection: toggleDeleteSelection,
-                                        onToggleAll: {
-                                            selectedDeleteIDs = selectedDeleteAssets.count == deleteAssets.count
-                                                ? [] : Set(deleteAssets.map(\.localIdentifier))
-                                        },
-                                        sizeSummary: selectedDeleteAssets.isEmpty ? nil : AnyView(deletedContentSizeText(deletedContentSizeSummary))
-                                    )
-                                }
+                                CandidatePreviewSection(
+                                    title: showsOnlyDeletions ? nil : L10n.string("To delete"),
+                                    assets: deleteAssets,
+                                    selectedCount: selectedDeleteAssets.count,
+                                    selectedAssetIDs: selectedDeleteIDs,
+                                    photoLibraryManager: dataManager.photoLibraryManager,
+                                    onPreview: { previewAsset = CandidatePreviewAsset(asset: $0) },
+                                    onToggleSelection: toggleDeleteSelection,
+                                    onToggleAll: {
+                                        selectedDeleteIDs = selectedDeleteAssets.count == deleteAssets.count
+                                            ? [] : Set(deleteAssets.map(\.localIdentifier))
+                                    },
+                                    sizeSummary: AnyView(deletedContentSizeText(deletedContentSizeSummary))
+                                )
                             }
                             if !favoriteAssets.isEmpty {
                                 CandidatePreviewSection(
@@ -149,14 +152,6 @@ struct BatchConfirmView: View {
                                             ? [] : Set(favoriteAssets.map(\.localIdentifier))
                                     }
                                 )
-                            }
-                            if !deleteAssets.isEmpty {
-                                Label(
-                                    L10n.string("Deleted items move to Recently Deleted, so storage may not be freed immediately."),
-                                    systemImage: "info.circle"
-                                )
-                                .font(.subheadline)
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
                             }
                         } else {
                             Text(L10n.string("No pending operations"))
@@ -174,13 +169,14 @@ struct BatchConfirmView: View {
                     }
                     .frame(maxWidth: 620, alignment: .leading)
                     .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                    .padding(.vertical, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
                     .frame(maxWidth: .infinity)
                 }
                 .scrollIndicators(.hidden)
                 .disabled(isProcessing)
             }
-            .navigationTitle(L10n.string("Confirm Cleanup"))
+            .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)
             .toolbar {
@@ -193,25 +189,27 @@ struct BatchConfirmView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                VStack(spacing: 4) {
-                    Button(action: executeBatchOperations) {
-                        HStack(spacing: 8) {
-                            if isProcessing { ProgressView().tint(PhotoDeleteStyle.primaryButtonText) }
-                            Text(isProcessing ? L10n.string("Running...") : L10n.string("Confirm Cleanup"))
+                VStack(alignment: .leading, spacing: 16) {
+                    if !deleteAssets.isEmpty {
+                        Label(
+                            L10n.string("Deleted items move to Recently Deleted, so storage may not be freed immediately."),
+                            systemImage: "info.circle"
+                        )
+                        .font(.footnote)
+                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .accessibilityIdentifier("cleanup-consequence")
+                    }
+                    if dynamicTypeSize.isAccessibilitySize {
+                        VStack(spacing: 10) {
+                            cancelPendingButton(hasVisiblePendingOperations: hasVisiblePendingOperations)
+                            confirmButton
+                        }
+                    } else {
+                        HStack(spacing: 10) {
+                            cancelPendingButton(hasVisiblePendingOperations: hasVisiblePendingOperations)
+                            confirmButton
                         }
                     }
-                    .photoDeletePrimaryButton()
-                    .disabled(isProcessing || !hasSelectedOperations)
-                    .accessibilityIdentifier("cleanup-confirm")
-
-                    Button(role: .destructive, action: cancelAllPendingOperations) {
-                        Text(deleteOnly ? L10n.string("Cancel Pending Deletions") : L10n.string("Cancel All Actions"))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(PhotoDeleteStyle.destructive)
-                    .disabled(isProcessing || !hasVisiblePendingOperations)
-                    .accessibilityIdentifier("cleanup-cancel-all")
                 }
                 .frame(maxWidth: 620)
                 .frame(maxWidth: .infinity)
@@ -219,6 +217,29 @@ struct BatchConfirmView: View {
             }
         }
         .interactiveDismissDisabled(isProcessing)
+    }
+
+    private var confirmButton: some View {
+        Button(action: executeBatchOperations) {
+            HStack(spacing: 8) {
+                if isProcessing { ProgressView().tint(PhotoDeleteStyle.primaryButtonText) }
+                Text(isProcessing ? L10n.string("Running...") : L10n.string("Confirm Cleanup"))
+            }
+            .frame(maxWidth: .infinity, minHeight: 22)
+        }
+        .photoDeletePrimaryButton()
+        .disabled(isProcessing || !hasSelectedOperations)
+        .accessibilityIdentifier("cleanup-confirm")
+    }
+
+    private func cancelPendingButton(hasVisiblePendingOperations: Bool) -> some View {
+        Button(role: .destructive, action: cancelAllPendingOperations) {
+            Text(deleteOnly ? L10n.string("Cancel Pending Deletions") : L10n.string("Cancel All Actions"))
+                .frame(maxWidth: .infinity, minHeight: 22)
+        }
+        .buttonStyle(CleanupReviewSecondaryButtonStyle())
+        .disabled(isProcessing || !hasVisiblePendingOperations)
+        .accessibilityIdentifier("cleanup-cancel-all")
     }
 
     private func executeBatchOperations() {
@@ -282,9 +303,15 @@ struct BatchConfirmView: View {
 
     @ViewBuilder
     private func deletedContentSizeText(_ summary: DeletedContentSizeSummary) -> some View {
-        if summary.knownAssetCount > 0 {
+        if summary.totalAssetCount == 0 {
+            Text(L10n.string("No items selected"))
+        } else if summary.knownAssetCount > 0 {
             VStack(alignment: .leading, spacing: 3) {
-                Text(L10n.string("Known deleted content: about \(CleanupStatsFormatter.fileSize(summary.knownSizeMB))"))
+                if summary.unknownAssetCount > 0 {
+                    Text(L10n.string("Estimated known space to reclaim: about \(CleanupStatsFormatter.fileSize(summary.knownSizeMB))"))
+                } else {
+                    Text(L10n.string("Estimated space to reclaim: about \(CleanupStatsFormatter.fileSize(summary.knownSizeMB))"))
+                }
                 if isLoadingFileSizes {
                     Text(
                         L10n.string(
@@ -762,7 +789,7 @@ private struct BatchCleanupCompletionView: View {
 }
 
 private struct CandidatePreviewSection: View {
-    let title: String
+    let title: String?
     let assets: [PHAsset]
     let selectedCount: Int
     let selectedAssetIDs: Set<String>
@@ -785,22 +812,29 @@ private struct CandidatePreviewSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(title) · \(PhotoDeleteCountFormat.plain(selectedCount))/\(PhotoDeleteCountFormat.plain(assets.count))")
-                    .font(.title3.weight(.bold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                if let title {
+                    Text("\(title) · \(PhotoDeleteCountFormat.plain(selectedCount))/\(PhotoDeleteCountFormat.plain(assets.count))")
+                        .font(.headline)
+                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                } else if let sizeSummary {
+                    sizeSummary
+                        .font(.subheadline)
+                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .accessibilityIdentifier("cleanup-size-summary")
+                }
                 Spacer(minLength: 8)
                 Button(selectedCount == assets.count ? L10n.string("Deselect All") : L10n.string("Select All"), action: onToggleAll)
                     .font(.subheadline.weight(.semibold))
                     .foregroundColor(PhotoDeleteStyle.accent)
                     .frame(minHeight: 44)
+                    .fixedSize()
             }
-            if let sizeSummary {
+            if title != nil, let sizeSummary {
                 sizeSummary
                     .font(.subheadline)
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
-                    .padding(.top, -8)
             }
             LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(visibleAssets, id: \.localIdentifier) { asset in

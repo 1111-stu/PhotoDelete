@@ -867,6 +867,7 @@
       }
     },
     "%lld albums could not be deleted. Try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1251,6 +1252,7 @@
       }
     },
     "%lld Empty Albums Found" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -14863,6 +14865,7 @@
       }
     },
     "Custom" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -15348,6 +15351,7 @@
       }
     },
     "Delete %lld Empty Albums" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -15738,6 +15742,7 @@
       }
     },
     "Delete Empty Albums" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -16456,6 +16461,7 @@
       }
     },
     "Deleting %lld/%lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -17652,6 +17658,47 @@
         }
       }
     },
+    "Estimated known space to reclaim: about %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المساحة المتوقع تحريرها من المحتوى المعروف: نحو %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bekannte Inhalte: voraussichtlich ca. %@ Speicher freigeben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimated known space to reclaim: about %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サイズが判明した項目で約%@の空き容量を確保できる見込み"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已知内容预计可释放约 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已知內容預計可釋放約 %@"
+          }
+        }
+      }
+    },
     "Estimated reduction %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -17810,6 +17857,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "預估大小會因原影片編碼、動態複雜度和 HDR 狀態產生偏差，最終以壓縮完成報告為準。"
+          }
+        }
+      }
+    },
+    "Estimated space to reclaim: about %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المساحة المتوقع تحريرها: نحو %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voraussichtlich freizugebender Speicher: ca. %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimated space to reclaim: about %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "約%@の空き容量を確保できる見込み"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "预计可释放约 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "預計可釋放約 %@"
           }
         }
       }
@@ -21873,6 +21961,7 @@
       }
     },
     "Known deleted content: about %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24953,6 +25042,7 @@
       }
     },
     "Most items" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -25258,6 +25348,7 @@
       }
     },
     "Name" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -26467,6 +26558,7 @@
       }
     },
     "No Empty Albums" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -26623,6 +26715,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "當前照片庫里暫時沒有符合這個入口的項目。"
+          }
+        }
+      }
+    },
+    "No items selected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لم يتم تحديد أي عناصر"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Elemente ausgewählt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No items selected"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目が選択されていません"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未选择项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未選擇項目"
           }
         }
       }
@@ -28913,6 +29046,7 @@
       }
     },
     "Only empty albums will be deleted. No photos will be deleted." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -35520,6 +35654,7 @@
       }
     },
     "Recently updated" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -45724,6 +45859,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "待刪除"
+          }
+        }
+      }
+    },
+    "To Delete · %lld/%lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "للحذف · %lld/%lld"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu löschen · %lld/%lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To Delete · %lld/%lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除予定 · %lld/%lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待删除 · %lld/%lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待刪除 · %lld/%lld"
           }
         }
       }

@@ -1637,21 +1637,6 @@ struct PhotoDeleteTests {
         #expect(album.thumbnailAsset == nil)
     }
 
-    @Test func emptyAlbumCleanupPlannerOnlyIncludesDeletableEmptyUserAlbums() async throws {
-        let albums = [
-            AlbumInfo(id: "empty-user", title: "Empty", assetCollection: nil, type: .userCreated, photosCount: 0),
-            AlbumInfo(id: "filled-user", title: "Filled", assetCollection: nil, type: .userCreated, photosCount: 2),
-            AlbumInfo(id: "empty-system", title: "Favorites", assetCollection: nil, type: .favorites, photosCount: 0),
-            AlbumInfo(id: "protected-user", title: "Protected", assetCollection: nil, type: .userCreated, photosCount: 0)
-        ]
-
-        let candidates = EmptyAlbumCleanupPlanner.cleanupCandidates(from: albums) { album in
-            album.id != "protected-user"
-        }
-
-        #expect(candidates.map(\.id) == ["empty-user"])
-    }
-
     @Test func albumsSortedByCustomOrderPrioritizesSavedIDs() async throws {
         let albums = [
             AlbumInfo(id: "album-a", title: "A", assetCollection: nil, type: .userCreated, photosCount: 1),

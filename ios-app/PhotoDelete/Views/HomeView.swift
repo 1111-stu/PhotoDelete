@@ -811,12 +811,12 @@ struct HomeView: View {
                 }
                 insetHairline
                 cleanupRow(
-                    icon: "internaldrive",
-                    title: L10n.string("Large Files"),
-                    value: cleanupQueue(for: .largeFiles)?.formattedSpace,
-                    identifier: "home-cleanup-large-files"
+                    icon: "record.circle",
+                    title: L10n.string("Screen Recordings"),
+                    value: screenRecordingsQueueValue,
+                    identifier: "home-cleanup-screen-recordings"
                 ) {
-                    navigationPath.append(SwipeViewDestination.cleanup(.largeFiles))
+                    navigationPath.append(SwipeViewDestination.category(.screenRecordings))
                 }
             }
             .photoDeleteCard(radius: 22)
@@ -951,6 +951,12 @@ struct HomeView: View {
         dataManager.advancedCleanupQueues.first { $0.kind == kind }
     }
 
+    /// 没有录屏时留空，避免像视频行那样显示 "0.0 MB"。
+    private var screenRecordingsQueueValue: String? {
+        guard let queue = cleanupQueue(for: .screenRecordings), queue.assetCount > 0 else { return nil }
+        return queue.formattedSpace
+    }
+
     private var libraryStats: AdvancedLibraryStats {
         dataManager.makeSettingsStatsSummary()
     }
@@ -964,9 +970,9 @@ struct HomeView: View {
         return CleanupStatsFormatter.space(totalMB)
     }
 
-    /// 专项清理头部合计（相似 + 视频 + 大文件；视频/截图的估算数据待补齐，当前可能显示 0）。
+    /// 专项清理头部合计（相似 + 视频 + 录屏；视频/截图的估算数据待补齐，当前可能显示 0）。
     private var cleanupReclaimableSizeText: String {
-        let kinds: [AdvancedCleanupKind] = [.similarPhotos, .videos, .largeFiles]
+        let kinds: [AdvancedCleanupKind] = [.similarPhotos, .videos, .screenRecordings]
         let reclaimMB = kinds.reduce(0.0) { total, kind in
             total + (cleanupQueue(for: kind)?.estimatedSpaceMB ?? 0)
         }
