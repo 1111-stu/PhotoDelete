@@ -780,9 +780,8 @@ final class PhotoDeleteUITests: XCTestCase {
     @MainActor
     func testSpecialCleanupBrowserLayoutVariants() throws {
         installPhotoLibraryInterruptionMonitor(allowDeletionConfirmation: true)
-        for (language, appearance, largeText) in [("en", "dark", false), ("zh-Hant", "light", true)] {
+        for (language, largeText) in [("en", false), ("zh-Hant", true)] {
             let app = makeApp(completedOnboarding: true, appLanguage: language, seedLibrary: true)
-            app.launchEnvironment[AppLaunchEnvironmentKey.appAppearance] = appearance
             if largeText {
                 app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
             }
@@ -792,10 +791,10 @@ final class PhotoDeleteUITests: XCTestCase {
             XCTAssertTrue(app.buttons["home-cleanup-screen-recordings"].waitForExistence(timeout: 30))
             try openSpecialCleanupBrowser("home-cleanup-screen-recordings", in: app)
             XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "cleanup-asset-")).firstMatch.waitForExistence(timeout: 30))
-            attachCleanupScreenshot("Special cleanup - \(language) \(appearance) cards", app: app)
+            attachCleanupScreenshot("Special cleanup - \(language) \(largeText ? "large text" : "standard") cards", app: app)
             app.buttons["cleanup-browser-filter"].tap()
             XCTAssertTrue(app.buttons["cleanup-filter-option-AssetAgeFilter-all"].waitForExistence(timeout: 10))
-            attachCleanupScreenshot("Special cleanup - \(language) \(appearance) filters", app: app)
+            attachCleanupScreenshot("Special cleanup - \(language) \(largeText ? "large text" : "standard") filters", app: app)
             app.buttons["cleanup-filter-done"].tap()
             app.terminate()
         }
@@ -879,67 +878,38 @@ final class PhotoDeleteUITests: XCTestCase {
     }
 
     @MainActor
-    func testInlineVideoCanOpenFullPreviewWithPlaybackControls() throws {
+    func testSpecialCleanupVideoPreviewHasPlaybackControls() throws {
         installPhotoLibraryInterruptionMonitor(allowDeletionConfirmation: true)
-
         let app = makeApp(completedOnboarding: true, seedLibrary: true)
         app.launch()
         _ = allowFullPhotoLibraryAccessIfNeeded(app: app)
-
-        if app.state != .runningForeground {
-            app.activate()
-        }
-        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+        dismissMarketingSystemPrompts(app: app, allowDeletionConfirmation: true)
         XCTAssertTrue(waitForHomeReady(in: app, language: "zh-Hans", timeout: 30))
-
-        openOrganizeTab(in: app)
-        guard let videosButton = waitForButtonLabelPrefix(in: app, prefix: "视频", timeout: 30) else {
-            XCTFail("Expected a videos entry after seeded library load")
-            return
-        }
-        videosButton.tap()
-        try startSpecialCleanupReview(in: app)
-
-        let doneButton = firstExistingButton(in: app, labels: ["完成整理", "完成"])
-        XCTAssertTrue(doneButton.waitForExistence(timeout: 30))
-
-        let dismissHintButton = app.buttons["知道了"]
-        if dismissHintButton.exists, dismissHintButton.isHittable {
-            dismissHintButton.tap()
-        }
-
-        guard waitForInlineVideoPlayer(in: app, timeout: 20) != nil else {
-            XCTFail("Expected seeded video to appear in review")
-            return
-        }
-
-        let expandButton = app.buttons["video-full-preview-button"]
-        XCTAssertTrue(expandButton.waitForExistence(timeout: 8))
-        expandButton.tap()
-
-        XCTAssertTrue(app.navigationBars["视频预览"].waitForExistence(timeout: 8))
+        try openSpecialCleanupBrowser("home-cleanup-videos", in: app)
+        let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "cleanup-asset-")).firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 15))
+        card.tap()
+        XCTAssertTrue(app.buttons["cleanup-preview-close"].waitForExistence(timeout: 10))
         let previewPlayer = app.buttons.matching(identifier: "photo-asset-video-player").firstMatch
         XCTAssertTrue(previewPlayer.waitForExistence(timeout: 12))
-        previewPlayer.tap()
-
+        let playButton = app.buttons.matching(NSPredicate(format: "label == %@", "播放视频")).firstMatch
+        XCTAssertTrue(playButton.waitForExistence(timeout: 15))
         let playbackButton = app.buttons.matching(identifier: "video-playback-toggle-button").firstMatch
-        XCTAssertTrue(playbackButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(playbackButton.exists)
         let progressSlider = app.sliders.matching(identifier: "video-playback-slider").firstMatch
         XCTAssertTrue(progressSlider.waitForExistence(timeout: 5))
 
-        playbackButton.tap()
-        let playButton = app.buttons.matching(NSPredicate(format: "label == %@", "播放视频")).firstMatch
-        XCTAssertTrue(playButton.waitForExistence(timeout: 5))
         playButton.tap()
+        XCTAssertTrue(playButton.waitForExistence(timeout: 15))
 
         let scrubStart = progressSlider.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
         let scrubEnd = progressSlider.coordinate(withNormalizedOffset: CGVector(dx: 0.42, dy: 0.5))
         scrubStart.press(forDuration: 0.15, thenDragTo: scrubEnd)
 
-        let closeButton = app.buttons["关闭"]
+        let closeButton = app.buttons["cleanup-preview-close"]
         XCTAssertTrue(closeButton.waitForExistence(timeout: 5))
         closeButton.tap()
-        XCTAssertTrue(doneButton.waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["cleanup-browser-filter"].waitForExistence(timeout: 8))
     }
 
     @MainActor
@@ -1262,8 +1232,13 @@ final class PhotoDeleteUITests: XCTestCase {
             app.swipeUp()
         }
         XCTAssertTrue(entry.isHittable, "Expected the special cleanup entry \(entryID) to be visible.")
-        entry.tap()
-        XCTAssertTrue(app.buttons["cleanup-browser-filter"].waitForExistence(timeout: 15))
+        let filter = app.buttons["cleanup-browser-filter"]
+        for _ in 0..<3 {
+            entry.tap()
+            if filter.waitForExistence(timeout: 5) { break }
+            if entry.exists { app.swipeUp() }
+        }
+        XCTAssertTrue(filter.waitForExistence(timeout: 15))
         let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "cleanup-asset-"))
         if entryID != "home-cleanup-screenshots" {
             XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 60))

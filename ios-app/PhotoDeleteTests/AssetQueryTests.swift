@@ -118,6 +118,30 @@ struct AssetQueryTests {
         #expect(result.summary.knownSizeMB == 4)
     }
 
+    @Test func cancelledQueryThrowsWhileNonthrowingQueryRemainsUsable() async throws {
+        let query = query()
+        let assets = [AssetQueryMetadata(id: "asset", creationDate: nil, size: .knownMB(4))]
+        let task = Task.detached {
+            // Synchronize on cancellation before entering the engine, avoiding
+            // a race where a tiny query finishes before the caller cancels it.
+            while !Task.isCancelled { await Task.yield() }
+            let expected = AssetQueryEngine.execute(query: query, assets: assets)
+            #expect(expected.assetIDs == ["asset"])
+            #expect(expected.summary.knownSizeMB == 4)
+            return try AssetQueryEngine.executeCancellable(query: query, assets: assets)
+        }
+        task.cancel()
+        do {
+            _ = try await task.value
+            Issue.record("A cancelled query returned a result")
+        } catch is CancellationError {
+            // Expected: the nonthrowing entry point above still returned the
+            // complete result while the opt-in cancellable one rejects work.
+        } catch {
+            Issue.record("Expected CancellationError, received \(error)")
+        }
+    }
+
     @Test @MainActor func sourceAdaptersPreserveStableCategoryAndAlbumIdentity() {
         #expect(AssetSourceResolver.photoCategory(for: .screenRecordings) == .screenRecordings)
         #expect(AssetSourceResolver.photoCategory(for: .unclassified) == .unclassified)

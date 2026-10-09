@@ -8,7 +8,7 @@ struct CleanupAssetFilterSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var selectedDetent: PresentationDetent = .fraction(0.75)
+    @State private var selectedDetent: PresentationDetent = .fraction(0.85)
 
     var body: some View {
         NavigationStack {
@@ -87,7 +87,7 @@ struct CleanupAssetFilterSheet: View {
                 }
             }
         }
-        .presentationDetents([.fraction(0.75), .large], selection: $selectedDetent)
+        .presentationDetents([.fraction(0.85), .large], selection: $selectedDetent)
         .presentationDragIndicator(.visible)
         .onAppear {
             if dynamicTypeSize.isAccessibilitySize {

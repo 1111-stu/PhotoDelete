@@ -7,9 +7,32 @@ enum AssetQueryEngine {
         now: Date = Date(),
         calendar: Calendar = .current
     ) -> AssetQueryResult {
+        execute(query: query, assets: assets, now: now, calendar: calendar, checkCancellation: {})
+    }
+
+    static func executeCancellable(
+        query: AssetQuery,
+        assets: [AssetQueryMetadata],
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) throws -> AssetQueryResult {
+        try execute(query: query, assets: assets, now: now, calendar: calendar) {
+            try Task.checkCancellation()
+        }
+    }
+
+    private static func execute(
+        query: AssetQuery,
+        assets: [AssetQueryMetadata],
+        now: Date,
+        calendar: Calendar,
+        checkCancellation: () throws -> Void
+    ) rethrows -> AssetQueryResult {
+        try checkCancellation()
         let cutoff = query.age.cutoff(now: now, calendar: calendar)
         var seen = Set<String>()
-        let matching = assets.filter { asset in
+        let matching = try assets.filter { asset in
+            try checkCancellation()
             guard seen.insert(asset.id).inserted else { return false }
             if query.age != .all {
                 guard let date = asset.creationDate, let cutoff, date < cutoff else { return false }
@@ -30,16 +53,31 @@ enum AssetQueryEngine {
         let ordered: [AssetQueryMetadata]
         let sections: [AssetQuerySection]
         if query.grouping == .none {
-            ordered = matching.sorted { precedes($0, $1, sort: query.sort) }
+            ordered = try matching.sorted {
+                try checkCancellation()
+                return precedes($0, $1, sort: query.sort)
+            }
             sections = ordered.isEmpty ? [] : [.init(id: .ungrouped, assetIDs: ordered.map(\.id))]
         } else {
-            let groups = Dictionary(grouping: matching) { asset -> AssetQuerySectionID in
-                guard let date = asset.creationDate else { return .undated }
-                if query.grouping == .day { return .day(calendar.startOfDay(for: date)) }
-                guard let month = calendar.dateInterval(of: .month, for: date)?.start else { return .undated }
-                return .month(month)
+            var groups: [AssetQuerySectionID: [AssetQueryMetadata]] = [:]
+            for asset in matching {
+                try checkCancellation()
+                let key: AssetQuerySectionID
+                if let date = asset.creationDate {
+                    if query.grouping == .day {
+                        key = .day(calendar.startOfDay(for: date))
+                    } else if let month = calendar.dateInterval(of: .month, for: date)?.start {
+                        key = .month(month)
+                    } else {
+                        key = .undated
+                    }
+                } else {
+                    key = .undated
+                }
+                groups[key, default: []].append(asset)
             }
-            let keys = groups.keys.sorted { lhs, rhs in
+            let keys = try groups.keys.sorted { lhs, rhs in
+                try checkCancellation()
                 switch (lhs.date, rhs.date) {
                 case let (left?, right?): return query.sort == .oldestFirst ? left < right : left > right
                 case (_?, nil): return true
@@ -47,24 +85,43 @@ enum AssetQueryEngine {
                 case (nil, nil): return false
                 }
             }
-            let buckets = keys.map { key in
-                (key, groups[key, default: []].sorted { precedes($0, $1, sort: query.sort) })
+            let buckets = try keys.map { key in
+                try checkCancellation()
+                let sorted = try groups[key, default: []].sorted {
+                    try checkCancellation()
+                    return precedes($0, $1, sort: query.sort)
+                }
+                return (key, sorted)
             }
             sections = buckets.map { .init(id: $0.0, assetIDs: $0.1.map(\.id)) }
             ordered = buckets.flatMap(\.1)
         }
-        let pendingIDs = ordered.filter { !$0.isReviewed }.map(\.id)
-        let knownSizes = ordered.compactMap { $0.size.knownSizeMB }
+        var pendingIDs: [String] = []
+        var knownSizeMB = 0.0
+        var knownSizeCount = 0
+        var assetIDs: [String] = []
+        var metadataByID: [String: AssetQueryMetadata] = [:]
+        for asset in ordered {
+            try checkCancellation()
+            assetIDs.append(asset.id)
+            metadataByID[asset.id] = asset
+            if !asset.isReviewed { pendingIDs.append(asset.id) }
+            if let size = asset.size.knownSizeMB {
+                knownSizeMB += size
+                knownSizeCount += 1
+            }
+        }
+        try checkCancellation()
         return AssetQueryResult(
             query: query,
             sections: sections,
-            assetIDs: ordered.map(\.id),
+            assetIDs: assetIDs,
             pendingIDs: pendingIDs,
-            metadataByID: Dictionary(uniqueKeysWithValues: ordered.map { ($0.id, $0) }),
+            metadataByID: metadataByID,
             summary: .init(
                 count: ordered.count, pendingCount: pendingIDs.count,
-                knownSizeMB: knownSizes.reduce(0, +),
-                unknownSizeCount: ordered.count - knownSizes.count
+                knownSizeMB: knownSizeMB,
+                unknownSizeCount: ordered.count - knownSizeCount
             )
         )
     }

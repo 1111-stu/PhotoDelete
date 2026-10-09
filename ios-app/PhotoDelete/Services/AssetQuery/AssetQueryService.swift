@@ -198,11 +198,15 @@ private final class AssetQuerySubscription {
         let now = Date()
         let calendar = Calendar.current
         let work = Task.detached(priority: .userInitiated) {
-            AssetQueryEngine.execute(query: query, assets: snapshot, now: now, calendar: calendar)
+            try AssetQueryEngine.executeCancellable(query: query, assets: snapshot, now: now, calendar: calendar)
         }
         return await withTaskCancellationHandler {
-            let result = await work.value
-            return Task.isCancelled ? nil : result
+            do {
+                let result = try await work.value
+                return Task.isCancelled ? nil : result
+            } catch {
+                return nil
+            }
         } onCancel: { work.cancel() }
     }
 
