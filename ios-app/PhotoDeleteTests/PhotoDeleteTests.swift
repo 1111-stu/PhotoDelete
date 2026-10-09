@@ -548,41 +548,50 @@ struct PhotoDeleteTests {
         #expect(AppConstants.termsOfUseURL.host == "www.apple.com")
     }
 
-    @Test func supporterEntitlementStateOnlyUnlocksVerifiedOrCachedOffline() async throws {
-        #expect(!SupporterEntitlementState.unknown.allowsSupporterAccess)
-        #expect(!SupporterEntitlementState.verifying.allowsSupporterAccess)
-        #expect(SupporterEntitlementState.verified.allowsSupporterAccess)
-        #expect(SupporterEntitlementState.cachedOffline.allowsSupporterAccess)
-        #expect(!SupporterEntitlementState.locked.allowsSupporterAccess)
+    @MainActor
+    @Test func subscriptionTypesMapToTheConfiguredStoreKitProducts() async throws {
+        let types = SubscriptionManager.SubscriptionType.allCases
+
+        #expect(SubscriptionManager.SubscriptionType.quarterly.productID == "com.01mvp.photodelete.pro.quarterly")
+        #expect(SubscriptionManager.SubscriptionType.yearly.productID == "com.01mvp.photodelete.pro.annual")
+        #expect(SubscriptionManager.SubscriptionType.lifetime.productID == "com.01mvp.photodelete.supporter.stats")
+        // 商品 ID 只从 AppConstants 取，且三档互不相同——防止字面量在多处漂移
+        #expect(Set(types.map(\.productID)).count == types.count)
+        #expect(AppConstants.supporterProductIDs == Set(types.map(\.productID)))
     }
 
-    @Test func supporterEntitlementCacheDoesNotStartAsVerified() async throws {
-        let initialState = SupporterEntitlementState.initial(hasCachedEntitlement: true)
+    @MainActor
+    @Test func subscriptionTypeRoundTripsFromProductID() async throws {
+        for type in SubscriptionManager.SubscriptionType.allCases {
+            #expect(SubscriptionManager.SubscriptionType.from(productID: type.productID) == type)
+        }
 
-        #expect(initialState == .cachedOffline)
-        #expect(initialState != .verified)
-        #expect(initialState.allowsSupporterAccess)
+        #expect(SubscriptionManager.SubscriptionType.from(productID: "io.xion.dofirst.pro") == nil)
+        #expect(SubscriptionManager.SubscriptionType.from(productID: "") == nil)
     }
 
-    @Test func supporterEntitlementStartsLockedWithoutCache() async throws {
-        let initialState = SupporterEntitlementState.initial(hasCachedEntitlement: false)
+    @MainActor
+    @Test func onlyQuarterlyCanUpgradeToAYearlyPlan() async throws {
+        typealias Type = SubscriptionManager.SubscriptionType
 
-        #expect(initialState == .locked)
-        #expect(!initialState.allowsSupporterAccess)
+        #expect(Type.quarterly.canUpgrade(to: .yearly))
+        #expect(!Type.quarterly.canUpgrade(to: .lifetime))
+        #expect(!Type.yearly.canUpgrade(to: .quarterly))
+        #expect(!Type.yearly.canUpgrade(to: .lifetime))
+        #expect(!Type.lifetime.canUpgrade(to: .quarterly))
+        #expect(!Type.lifetime.canUpgrade(to: .yearly))
     }
 
-    @Test func supporterEntitlementVerificationStateKeepsCacheExplicit() async throws {
-        #expect(SupporterEntitlementState.verificationStarted(hasCachedEntitlement: true) == .cachedOffline)
-        #expect(SupporterEntitlementState.verificationStarted(hasCachedEntitlement: false) == .verifying)
+    @MainActor
+    @Test func subscriptionTypeFlagsLifetimeAsTheOnlyNonSubscription() async throws {
+        typealias Type = SubscriptionManager.SubscriptionType
+
+        #expect(Type.quarterly.isSubscription)
+        #expect(Type.yearly.isSubscription)
+        #expect(!Type.lifetime.isSubscription)
     }
 
-    @Test func supporterPlansUseDistinctStoreKitProducts() async throws {
-        #expect(SupporterPurchasePlan.annual.productID == "com.01mvp.photodelete.pro.annual")
-        #expect(SupporterPurchasePlan.lifetime.productID == "com.01mvp.photodelete.supporter.stats")
-        #expect(AppConstants.supporterProductIDs == Set(SupporterPurchasePlan.allCases.map(\.productID)))
-    }
-
-    @Test func storeKitConfigurationContainsBothProPlansAtTargetChinesePrices() async throws {
+    @Test func storeKitConfigurationContainsQuarterlyAnnualAndLifetimePlans() async throws {
         let storeKitURL = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
@@ -591,37 +600,69 @@ struct PhotoDeleteTests {
         let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
         let products = try #require(json["products"] as? [[String: Any]])
         let groups = try #require(json["subscriptionGroups"] as? [[String: Any]])
-        let subscriptions = groups.flatMap { $0["subscriptions"] as? [[String: Any]] ?? [] }
 
         let lifetime = products.first { $0["productID"] as? String == AppConstants.supporterLifetimeProductID }
-        let annual = subscriptions.first { $0["productID"] as? String == AppConstants.supporterAnnualProductID }
-
         #expect(lifetime?["displayPrice"] as? String == "29.90")
-        #expect(annual?["displayPrice"] as? String == "9.90")
-        #expect(annual?["recurringSubscriptionPeriod"] as? String == "P1Y")
+
+        // 订阅档必须同处一个订阅组：跨组的 intro offer 资格判定不是 Apple 的语义
+        let subscriptionGroup = try #require(groups.first { group in
+            let subs = group["subscriptions"] as? [[String: Any]] ?? []
+            return subs.contains { $0["productID"] as? String == AppConstants.supporterAnnualProductID }
+        })
+        let subscriptions = try #require(subscriptionGroup["subscriptions"] as? [[String: Any]])
+        let annual = try #require(subscriptions.first { $0["productID"] as? String == AppConstants.supporterAnnualProductID })
+        let quarterly = try #require(subscriptions.first { $0["productID"] as? String == AppConstants.supporterQuarterlyProductID })
+
+        #expect(annual["displayPrice"] as? String == "9.90")
+        #expect(annual["recurringSubscriptionPeriod"] as? String == "P1Y")
+        #expect(quarterly["displayPrice"] as? String == "4.99")
+        #expect(quarterly["recurringSubscriptionPeriod"] as? String == "P3M")
+
+        // 年订的 7 天免费试用：缺这段 isTrialEligible 永远为 false，试用 CTA 不会出现
+        let offer = try #require(annual["introductoryOffer"] as? [String: Any])
+        #expect(offer["paymentMode"] as? String == "free")
+        #expect(offer["subscriptionPeriod"] as? String == "P1W")
+        #expect(offer["numberOfPeriods"] as? Int == 1)
+
+        // 三档都要有 zh-Hans / zh-Hant / en-US 展示名
+        let requiredLocales: Set<String> = ["zh-Hans", "zh-Hant", "en-US"]
+        for product in [try #require(lifetime), annual, quarterly] {
+            let localizations = product["localizations"] as? [[String: Any]] ?? []
+            let locales = Set(localizations.compactMap { $0["locale"] as? String })
+            #expect(requiredLocales.isSubset(of: locales))
+        }
     }
 
-    @Test func annualCachedEntitlementRequiresAFutureExpirationDate() async throws {
+    @Test func subscriptionCachedEntitlementsRequireAFutureExpirationDate() async throws {
         let now = Date(timeIntervalSince1970: 1_800_000_000)
 
-        #expect(SupporterCachedEntitlementPolicy.isValid(
-            isUnlocked: true,
-            productID: AppConstants.supporterAnnualProductID,
-            expirationDate: now.addingTimeInterval(60),
-            now: now
-        ))
-        #expect(!SupporterCachedEntitlementPolicy.isValid(
-            isUnlocked: true,
-            productID: AppConstants.supporterAnnualProductID,
-            expirationDate: now.addingTimeInterval(-1),
-            now: now
-        ))
-        #expect(!SupporterCachedEntitlementPolicy.isValid(
-            isUnlocked: true,
-            productID: AppConstants.supporterAnnualProductID,
-            expirationDate: nil,
-            now: now
-        ))
+        for productID in [AppConstants.supporterQuarterlyProductID, AppConstants.supporterAnnualProductID] {
+            #expect(SupporterCachedEntitlementPolicy.isValid(
+                isUnlocked: true,
+                productID: productID,
+                expirationDate: now.addingTimeInterval(60),
+                now: now
+            ))
+            #expect(!SupporterCachedEntitlementPolicy.isValid(
+                isUnlocked: true,
+                productID: productID,
+                expirationDate: now.addingTimeInterval(-1),
+                now: now
+            ))
+            #expect(!SupporterCachedEntitlementPolicy.isValid(
+                isUnlocked: true,
+                productID: productID,
+                expirationDate: nil,
+                now: now
+            ))
+        }
+    }
+
+    @Test func quarterlyEntitlementResolvesToTheQuarterlyAccessKind() async throws {
+        #expect(SupporterAccessKind(productID: AppConstants.supporterQuarterlyProductID) == .quarterly)
+        #expect(SupporterAccessKind(productID: AppConstants.supporterAnnualProductID) == .annual)
+        #expect(SupporterAccessKind(productID: AppConstants.supporterLifetimeProductID) == .lifetime)
+        #expect(SupporterAccessKind(productID: "com.example.unknown") == nil)
     }
 
     @Test func lifetimeAndLegacyCachedEntitlementsRemainValid() async throws {
@@ -655,157 +696,94 @@ struct PhotoDeleteTests {
         #expect(features.contains { $0.titleID == .imageCompression && $0.free == .notIncluded && $0.supporter == .included })
     }
 
-    @MainActor
-    @Test func supporterTrialDoesNotStartAutomaticallyForNewUsers() async throws {
-        let suiteName = "PhotoDeleteSupporterTrial-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+    // MARK: - PaywallPricing
 
-        let now = Date(timeIntervalSince1970: 1_800_000_000)
-        let manager = PurchaseManager(
-            userDefaults: defaults,
-            nowProvider: { now },
-            startsStoreKitTasks: false
-        )
-
-        #expect(manager.supporterTrialStartDate == nil)
-        #expect(defaults.object(forKey: AppConstants.supporterTrialStartDateKey) == nil)
-        #expect(!manager.hasPaidSupporterAccess)
-        #expect(!manager.isUsingTrialSupporterAccess)
-        #expect(!manager.isSupporter)
-        #expect(manager.canStartSupporterTrial)
+    /// `Product` 没有公开构造器，因此价格 / 节省百分比分支无法在单测里造假数据；
+    /// 这里覆盖「不依赖真实 Product」的全部文案分支——正是最容易漂移的那部分。
+    private func makePaywallPricing() -> PaywallPricing {
+        PaywallPricing(quarterly: nil, yearly: nil, lifetime: nil)
     }
 
     @MainActor
-    @Test func storeKitNetworkWorkDoesNotStartUntilTheStoreIsOpened() async throws {
-        let suiteName = "PhotoDeleteDeferredStoreKit-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+    @Test func paywallPlansAreOrderedYearlyQuarterlyLifetime() async throws {
+        let types = PaywallPlan.all.map(\.type)
 
-        let manager = PurchaseManager(userDefaults: defaults)
-
-        #expect(!manager.hasActivatedStoreKit)
-        #expect(manager.products.isEmpty)
-        #expect(manager.entitlementState == .locked)
+        #expect(types == [.yearly, .quarterly, .lifetime])
+        #expect(PaywallPlan.all.allSatisfy { !$0.name.isEmpty && !$0.priceCaption.isEmpty })
+        #expect(Set(PaywallPlan.all.map(\.id)).count == PaywallPlan.all.count)
     }
 
     @MainActor
-    @Test func supporterTrialStartsWhenUserChoosesTrial() async throws {
-        let suiteName = "PhotoDeleteSupporterTrialStart-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+    @Test func trialCTAOnlyAppearsForAnEligibleYearlyPlan() async throws {
+        let pricing = makePaywallPricing()
 
-        let now = Date(timeIntervalSince1970: 1_800_000_000)
-        let manager = PurchaseManager(
-            userDefaults: defaults,
-            nowProvider: { now },
-            startsStoreKitTasks: false
-        )
-
-        manager.startSupporterTrial()
-
-        #expect(manager.supporterTrialStartDate == now)
-        #expect(defaults.object(forKey: AppConstants.supporterTrialStartDateKey) as? Date == now)
-        #expect(!manager.hasPaidSupporterAccess)
-        #expect(manager.isUsingTrialSupporterAccess)
-        #expect(manager.isSupporter)
-        #expect(manager.supporterTrialDaysRemaining == 3)
-        #expect(!manager.canStartSupporterTrial)
+        // 年订 + 有资格 + 正好 7 天：用带天数的专用译文
+        #expect(pricing.ctaTitle(for: .yearly, isTrialEligible: true, trialDayCount: 7) == L10n.string("Try 7 days free"))
+        // 其他试用时长退回不含天数的通用文案，避免语序错乱
+        #expect(pricing.ctaTitle(for: .yearly, isTrialEligible: true, trialDayCount: 3) == L10n.string("Start free trial"))
+        #expect(pricing.ctaTitle(for: .yearly, isTrialEligible: true, trialDayCount: nil) == L10n.string("Start free trial"))
+        // 无资格或非年订：一律普通解锁文案
+        #expect(pricing.ctaTitle(for: .yearly, isTrialEligible: false, trialDayCount: 7) == L10n.string("Unlock Now"))
+        #expect(pricing.ctaTitle(for: .quarterly, isTrialEligible: true, trialDayCount: 7) == L10n.string("Unlock Now"))
+        #expect(pricing.ctaTitle(for: .lifetime, isTrialEligible: true, trialDayCount: 7) == L10n.string("Unlock Now"))
     }
 
     @MainActor
-    @Test func supporterTrialExpiresAfterThreeDays() async throws {
-        let suiteName = "PhotoDeleteSupporterTrialExpired-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+    @Test func trialSublineIsOnlyProducedForTheTrialOffer() async throws {
+        let pricing = makePaywallPricing()
 
-        let startDate = Date(timeIntervalSince1970: 1_800_000_000)
-        defaults.set(startDate, forKey: AppConstants.supporterTrialStartDateKey)
-
-        let afterTrial = startDate.addingTimeInterval((3 * 24 * 60 * 60) + 1)
-        let manager = PurchaseManager(
-            userDefaults: defaults,
-            nowProvider: { afterTrial },
-            startsStoreKitTasks: false
-        )
-
-        #expect(!manager.hasPaidSupporterAccess)
-        #expect(!manager.isUsingTrialSupporterAccess)
-        #expect(!manager.isSupporter)
-        #expect(manager.isSupporterTrialExpired)
-        #expect(manager.supporterTrialDaysRemaining == 0)
-        #expect(!manager.canStartSupporterTrial)
+        // 无产品时拿不到价格，因此副文案为 nil
+        #expect(pricing.trialSubline(for: .yearly, isTrialEligible: true) == nil)
+        // 非试用态永远没有副文案
+        #expect(pricing.trialSubline(for: .yearly, isTrialEligible: false) == nil)
+        #expect(pricing.trialSubline(for: .quarterly, isTrialEligible: true) == nil)
+        #expect(pricing.trialSubline(for: .lifetime, isTrialEligible: true) == nil)
     }
 
     @MainActor
-    @Test func releaseConfigurationRetiresLegacyLocalTrialWithoutGrantingAccess() async throws {
-        let suiteName = "PhotoDeleteRetiredSupporterTrial-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+    @Test func planDisplayDegradesToPlaceholdersWithoutLoadedProducts() async throws {
+        let pricing = makePaywallPricing()
 
-        defaults.set(Date(), forKey: AppConstants.supporterTrialStartDateKey)
+        for type in [PaywallPlanType.yearly, .quarterly, .lifetime] {
+            // 产品未就绪只降级价格，其余文案照常
+            #expect(pricing.display(for: type).priceText == "--")
+        }
 
-        let manager = PurchaseManager(
-            userDefaults: defaults,
-            startsStoreKitTasks: false,
-            allowsLocalSupporterTrial: false
-        )
+        // 年订/季订的副标题是「月均价」，必须等产品到位才算得出来
+        #expect(pricing.display(for: .yearly).subtitleText == nil)
+        #expect(pricing.display(for: .quarterly).subtitleText == nil)
 
-        #expect(manager.supporterTrialStartDate == nil)
-        #expect(defaults.object(forKey: AppConstants.supporterTrialStartDateKey) == nil)
-        #expect(!manager.canStartSupporterTrial)
-        #expect(!manager.isUsingTrialSupporterAccess)
-        #expect(!manager.isSupporter)
-
-        manager.startSupporterTrial()
-        #expect(manager.supporterTrialStartDate == nil)
+        // 年订算不出节省时退回通用推荐徽章，而不是留空
+        #expect(pricing.display(for: .yearly).badgeText == L10n.string("Recommended"))
+        #expect(pricing.display(for: .yearly).valueNoteText == nil)
+        // 季度 / 买断没有徽章，但有各自的说明
+        #expect(pricing.display(for: .quarterly).badgeText == nil)
+        #expect(pricing.display(for: .quarterly).valueNoteText == L10n.string("Flexible subscription for short-term use"))
+        #expect(pricing.display(for: .lifetime).badgeText == nil)
+        #expect(pricing.display(for: .lifetime).subtitleText == L10n.string("Permanent buyout"))
+        #expect(pricing.display(for: .lifetime).valueNoteText == L10n.string("Pay once, enjoy lifetime access"))
     }
 
     @MainActor
-    @Test func cachedPaidSupporterDoesNotStartTrial() async throws {
-        let suiteName = "PhotoDeletePaidSupporterTrial-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+    @Test func paywallPricingRoutesEachTypeToItsOwnProduct() async throws {
+        let pricing = makePaywallPricing()
 
-        defaults.set(true, forKey: AppConstants.supporterEntitlementKey)
-
-        let manager = PurchaseManager(
-            userDefaults: defaults,
-            nowProvider: { Date(timeIntervalSince1970: 1_800_000_000) },
-            startsStoreKitTasks: false
-        )
-
-        #expect(manager.hasPaidSupporterAccess)
-        #expect(manager.isSupporter)
-        #expect(!manager.isUsingTrialSupporterAccess)
-        #expect(manager.supporterTrialStartDate == nil)
-        #expect(!manager.canStartSupporterTrial)
+        #expect(pricing.product(for: .quarterly) == nil)
+        #expect(pricing.product(for: .yearly) == nil)
+        #expect(pricing.product(for: .lifetime) == nil)
     }
 
-    @MainActor
-    @Test func paidSupporterAccessOverridesExistingTrialState() async throws {
-        let suiteName = "PhotoDeleteRedeemedSupporterTrial-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+    @Test func savingsBadgeKeepsTheLiteralPercentEscaped() async throws {
+        // xcstrings 的 key 与译文都必须写 %%——key 少了查不到译文，value 少了会把 % 吞掉
+        let badge = String(format: L10n.string("SAVE %lld%%"), 37)
 
-        let now = Date(timeIntervalSince1970: 1_800_000_000)
-        defaults.set(true, forKey: AppConstants.supporterEntitlementKey)
-        defaults.set(now.addingTimeInterval(-86_400), forKey: AppConstants.supporterTrialStartDateKey)
+        #expect(badge.contains("37"))
+        #expect(badge.contains("%"))
+        #expect(!badge.contains("%%"))
 
-        let manager = PurchaseManager(
-            userDefaults: defaults,
-            nowProvider: { now },
-            startsStoreKitTasks: false
-        )
-
-        #expect(manager.hasPaidSupporterAccess)
-        #expect(manager.isSupporter)
-        #expect(!manager.isUsingTrialSupporterAccess)
-        #expect(!manager.isSupporterTrialActive)
-        #expect(manager.supporterTrialStartDate == nil)
-        #expect(defaults.object(forKey: AppConstants.supporterTrialStartDateKey) == nil)
-        #expect(manager.supporterTrialStatusText == nil)
-        #expect(!manager.canStartSupporterTrial)
+        let note = String(format: L10n.string("Save %lld%% vs quarterly"), 37)
+        #expect(note.contains("37"))
+        #expect(!note.contains("%%"))
     }
 
     // MARK: - CleanupStatsStore tests

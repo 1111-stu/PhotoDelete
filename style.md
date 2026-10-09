@@ -180,8 +180,18 @@
 - 数据：`makeSettingsStatsSummary` / `CleanupStatsStore.sessions`（按 `monthKey` 分组，`CleanupStatsFormatter.month` 出标题）。
 - 共享组件注意：`SupporterMonthlySection` / `SupporterHistorySection` / `RecentOrganizedPhotosSection` 同时被支持者页与成就页复用——改样式前先查这三处，勿破坏其他页面（它们的整体改版另行 review）。
 
+### 6.4 相册页（2026-10-09 排序交互重做）
+
+- **三种展示方式**（紧凑 / 封面 / 列表）**共用一套长按拖拽排序**：长按 0.45s 抬起 → 拖动换位 → 松手落位。**不再有编辑模式**：显示方式 sheet 的「调整顺序」按钮、列表拖动把手、页头提示卡（`AlbumSwipeHintRow` + `hasDismissedAlbumSwipeHintKey`）一并下线。
+- **站位（空位）**：被拿起的那一格留在原位变成空槽，与封面同尺寸同圆角。画法为 **2.5pt 虚线、白 34%、虚实间隔 11/9**（`AlbumDropSlot`，token `PhotoDeleteStyle.dropSlot*`）。中性色是有意的——琥珀只留给「会执行的行动」，虚线本身已表达「这里可以插入」，同时与空相册的深色封面区分开（视觉基准 `designs/albums-reorder-prototype.html`）。
+- **让位与落位**：越过其他项中心时其余项 0.22s 平移让位（每次换位一次 light 触觉），松手后写回 `saveCustomAlbumOrder`；拖动期间冻结列表刷新，拖到滚动区上下边缘 70pt 内自动滚动。
+- **列表 = 每个相册一张独立卡片**（surface 底、圆角 16、间距 8、最小高 64）：**这是 §4.1「同一组内容用一个外层卡片」的明确例外**——拖拽要把整张托出、空位要是同样的卡槽，分组卡 + 分隔线做不到这件事。
+- **长按菜单**是自绘浮层（替代系统 contextMenu）：整理 / 编辑 / 删除，最后一行小字「按住拖动即可调整顺序」。系统菜单只放得下可点条目，而这行小字是排序的唯一入口提示，所以必须自绘。
+- 搜索非空时禁用排序（沿用「请先清除搜索再调整顺序」文案）。无障碍路径：每项提供「上移 / 下移」动作与「第 N 个，共 M 个」位置播报。
+
 ## 7. 边界与待办（本轮之外）
 
+- **付费页（`Views/Paywall/`）是本规范的唯一有意例外**：它自带一套冷调画布 token（`Views/Paywall/PaywallTheme.swift`：`#121722` 画布 + 24pt 点阵 + 樱粉 `#F0AAC8` 强调色 + 纯黑卡片 + 反色白 CTA），不复用 `PhotoDeleteStyle` / `PhotoDeleteTheme` 的暖黑与琥珀。这是刻意的语境切换（产品内 vs 购买决策），**不要按本文件把它「修」回琥珀体系**。其余页面仍严格遵循本规范。
 - 底部为系统 TabView（未做浮动胶囊标签栏）。
 - 回收站 / 最近删除功能未做（顶栏仅占位）。
 - iPad 宽屏下 158 高双卡会被拉宽，如需限制可给 dashboard 列 `frame(maxWidth: 560)`。

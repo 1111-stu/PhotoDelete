@@ -42,12 +42,6 @@ body.hole-grey{--hole-line:rgba(224,224,229,.32);--hole-glow:rgba(224,224,229,.0
 .search-field input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font-size:16px}
 .search-field input::placeholder{color:var(--muted)}
 .search-note{margin:-6px 2px 12px;font-size:12px;color:var(--amber)}
-.hint{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;margin-bottom:16px;border-radius:16px;background:var(--surface)}
-.hint > svg{width:17px;height:17px;margin-top:1px;flex:0 0 auto;fill:none;stroke:var(--amber);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.hint div{flex:1;min-width:0}
-.hint b{display:block;font-size:13px;font-weight:600}
-.hint small{display:block;margin-top:3px;font-size:12px;color:var(--muted);line-height:1.45}
-.hint button{background:transparent;color:var(--amber);font-size:13px;font-weight:600;padding:4px 0 4px 8px;min-height:44px}
 
 /* ---------- 相册：三种布局 ---------- */
 .board{position:relative}
@@ -103,15 +97,20 @@ body.hole-grey{--hole-line:rgba(224,224,229,.32);--hole-glow:rgba(224,224,229,.0
 .art-desk i:nth-child(2){left:34%;right:34%;bottom:56%;height:5%;background:#596270}
 
 /* ---------- 站位（被拿起的那一格留下的空位） ---------- */
-.board.cover .album.source .cover > *, .board.compact .album.source .cover > *{opacity:0}
-.board.cover .album.source .cover, .board.compact .album.source .cover{background:var(--hole-fill);box-shadow:inset 0 0 0 1.5px var(--hole-line), inset 0 0 22px var(--hole-glow)}
+.board.cover .album.source .cover > *:not(.hole-outline),
+.board.compact .album.source .cover > *:not(.hole-outline),
+.board.list .album.source > *:not(.hole-outline){opacity:0}
+.board.cover .album.source .cover, .board.compact .album.source .cover, .board.list .album.source{background:var(--hole-fill);box-shadow:inset 0 0 22px var(--hole-glow)}
 /* 虚线变体：更淡的底 + 虚线框，读作「待插入的槽」 */
 body.hole-dashed .board.cover .album.source .cover,
 body.hole-dashed .board.compact .album.source .cover,
-body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-shadow:none;border:1.5px dashed var(--hole-line)}
+body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-shadow:none}
+/* 站位描边用 SVG 画：虚线疏密与线宽可精确控制（对应原生 StrokeStyle(lineWidth:dash:)） */
+.hole-outline{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hole-outline rect{fill:none;stroke:var(--hole-line);stroke-width:2.5;stroke-dasharray:11 9}
+body:not(.hole-dashed) .hole-outline rect{stroke-dasharray:none}
 .board.cover .album.source .name, .board.compact .album.source .name{opacity:0}
-.board.list .album.source{background:var(--hole-fill);box-shadow:inset 0 0 0 1.5px var(--hole-line), inset 0 0 22px var(--hole-glow)}
-.board.list .album.source > *{opacity:0}
+.board.list .album.source{background:var(--hole-fill);box-shadow:inset 0 0 22px var(--hole-glow)}
 
 /* ---------- 跟手的浮起卡 ---------- */
 .ghost{position:absolute;z-index:40;pointer-events:none;transform-origin:center;left:0;top:0}
@@ -133,6 +132,7 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
 .menu button:active{background:#ffffff12}
 .menu button:disabled{color:#ffffff47}
 .menu button.danger{color:var(--danger)}
+.menu-tip{margin:4px 0 0;padding:9px 12px 5px;border-top:1px solid var(--hairline);font-size:11.5px;line-height:1.4;color:var(--muted)}
 .scrim{position:absolute;inset:0;z-index:10;background:transparent;border:0;width:100%}
 .toast{position:absolute;z-index:20;left:24px;right:24px;bottom:96px;padding:14px;border:1px solid var(--hairline);border-radius:14px;background:var(--elevated);text-align:center;font-size:13px;box-shadow:0 4px 20px #0004;animation:rise .2s ease-out}
 .sheet{position:absolute;z-index:14;bottom:0;left:0;right:0;background:var(--elevated);border-radius:28px 28px 0 0;padding-bottom:26px;box-shadow:0 -8px 48px #0003;animation:rise .24s ease-out}
@@ -144,7 +144,6 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
 .style-card{flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;padding:16px 4px;border-radius:16px;background:var(--surface);color:var(--ink);font-size:13px}
 .style-card svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .style-card[aria-pressed=true]{color:var(--amber);background:#f3b14c1f}
-.sheet-hint{margin:0;padding:0 20px;font-size:12.5px;line-height:1.6;color:var(--muted)}
 
 /* ---------- 右侧说明栏 ---------- */
 .panel{padding-top:14px}
@@ -169,7 +168,7 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
 @media(max-width:720px){.stage{display:flex;flex-direction:column;align-items:center;padding:20px 12px 40px;gap:32px}.phone{width:min(390px,calc(100vw - 24px));height:auto;aspect-ratio:390/844;border-radius:36px}.panel{max-width:390px;width:100%}}
 </style>
 </head>
-<body>
+<body class="hole-dashed hole-white">
 <main class="stage">
   <section class="phone" id="phone" aria-label="相册拖拽排序交互原型">
     <div class="status" aria-hidden="true"><span>09:41</span><span class="island"></span><span class="status-right">▮▮▮ ▰</span></div>
@@ -191,11 +190,6 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
         <button class="round-button" aria-label="新建相册"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       </div>
       <p class="search-note" id="search-note" hidden>搜索中不能调整顺序，清除搜索后可长按拖动。</p>
-      <div class="hint" id="hint">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V6.5a1.5 1.5 0 0 1 3 0V11m0-1.5v-2a1.5 1.5 0 0 1 3 0V11m0-1v-1a1.5 1.5 0 0 1 3 0v5.5a5.5 5.5 0 0 1-5.5 5.5h-1.2a5 5 0 0 1-3.6-1.5L5 16.4a1.6 1.6 0 0 1 2.3-2.2L8 15"/></svg>
-        <div><b>长按相册拖动即可排序</b><small>松手前的空位就是新位置；原地松手仍是整理 / 编辑 / 删除菜单。</small></div>
-        <button id="hint-dismiss">知道了</button>
-      </div>
       <div class="board cover" id="board"></div>
     </div>
 
@@ -218,7 +212,6 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
         <button class="style-card" data-layout="cover" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3.5" width="12" height="17" rx="2"/></svg>封面</button>
         <button class="style-card" data-layout="list" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg>列表</button>
       </div>
-      <p class="sheet-hint">长按任意相册拖动即可排序，不再需要先切换布局。列表与网格共用同一套手势。</p>
     </section>
   </section>
 
@@ -243,20 +236,20 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
 
     <p class="panel-label">站位形状</p>
     <div class="chips" id="hole-chips">
-      <button class="chip" data-hole="solid" aria-pressed="true">实心空位</button>
-      <button class="chip" data-hole="dashed" aria-pressed="false">虚线空位</button>
+      <button class="chip" data-hole="solid" aria-pressed="false">实心空位</button>
+      <button class="chip" data-hole="dashed" aria-pressed="true">虚线空位</button>
     </div>
 
     <p class="panel-label">站位描边颜色</p>
     <div class="chips" id="hole-color-chips">
-      <button class="chip" data-hole-color="amber" aria-pressed="true">琥珀</button>
-      <button class="chip" data-hole-color="white" aria-pressed="false">白</button>
+      <button class="chip" data-hole-color="amber" aria-pressed="false">琥珀</button>
+      <button class="chip" data-hole-color="white" aria-pressed="true">白</button>
       <button class="chip" data-hole-color="grey" aria-pressed="false">灰白</button>
     </div>
 
     <div class="notes">
-      <div class="note"><b>01 / 长按与菜单共存</b><p>长按 0.45s 抬起。手指移动即进入排序；原地松手仍是原来的整理 / 编辑 / 删除菜单，两个入口互不吃掉。</p></div>
-      <div class="note"><b>02 / 空位就是站位</b><p>拿起的那一格留在原位变成空槽——与封面同尺寸、同圆角，空槽始终占着新位置。画法可切两种：<b>实心空位</b>（浮层色底 + 琥珀细描边，最安静）；<b>虚线空位</b>（更淡的底 + 琥珀虚线框，更像「待插入的槽」，与空相册的封面区分得更彻底）。</p></div>
+      <div class="note"><b>01 / 长按与菜单共存</b><p>长按 0.45s 抬起。手指移动即进入排序；原地松手仍是原来的整理 / 编辑 / 删除菜单，两个入口互不吃掉。排序的说明收在这个菜单最下面一行小字里——页头不再放提示卡，相册页保持干净。</p></div>
+      <div class="note"><b>02 / 空位就是站位</b><p>拿起的那一格留在原位变成空槽——与封面同尺寸、同圆角，空槽始终占着新位置。默认画法是<b>虚线（2.5pt、白 34%、虚实间隔 11/9）</b>：虚线本身已经说明「这里可以插入」，颜色不必再喊，琥珀留给真正会执行的行动。实心款是另一种画法，但它只有用琥珀才撑得住识别度——形状和颜色是耦合的，右边可以逐一切换对比。</p></div>
       <div class="note"><b>03 / 让位与落位</b><p>越过其他相册中心时，它们 0.22s 平移让位，每次换位一次 selection 触觉；松手后卡片 0.18s 落回空位，轻触觉，随后写入顺序。</p></div>
       <div class="note"><b>04 / 三种布局一致</b><p>封面 / 紧凑 / 列表同一套状态机，只有站位尺寸跟随布局。列表改成每个相册一张独立卡片（圆角 16、间距 8），托出的卡片与空位都是完整卡片形状，和网格的站位语言对齐；不再需要「调整顺序」按钮与编辑模式，拖动把手一并去掉。</p></div>
       <div class="note"><b>05 / 边界</b><p>搜索非空时禁用排序（沿用现有文案）；拖到滚动区上下边缘 90pt 内自动滚动；无障碍路径为每项「上移 / 下移」动作 + 位置播报。</p></div>
@@ -290,14 +283,13 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
   var searchInput = document.getElementById('search');
   var searchNote = document.getElementById('search-note');
   var subtitle = document.getElementById('subtitle');
-  var hint = document.getElementById('hint');
   var menuEl = document.getElementById('menu');
   var scrim = document.getElementById('scrim');
   var toastEl = document.getElementById('toast');
   var sheet = document.getElementById('sheet');
   var sheetButton = document.getElementById('open-display');
 
-  var state = { layout:'cover', search:'', hint:true };
+  var state = { layout:'cover', search:'' };
   var order = ALBUMS.map(function(a){ return a.id; });
   var drag = null;        // { el, ghost, startX, startY, pointerX, pointerY, grabX, grabY, moved, raf }
   var pending = null;     // { el, x, y, lastX, lastY, timer }
@@ -330,7 +322,6 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
     visibleAlbums().forEach(function(a){ board.appendChild(makeItem(a)); });
     subtitle.textContent = order.length + ' 个相册';
     searchNote.hidden = !state.search.trim();
-    hint.hidden = !state.hint;
     syncChips();
   }
 
@@ -412,6 +403,36 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
     pending = null;
   }
 
+  // 站位描边：网格画在封面上，列表画在整张卡片上
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  function holeTarget(el){ return state.layout === 'list' ? el : el.querySelector('.cover'); }
+
+  function addHoleOutline(el){
+    var target = holeTarget(el);
+    if (!target) return;
+    var w = target.offsetWidth, h = target.offsetHeight;
+    var radius = parseFloat(getComputedStyle(target).borderTopLeftRadius) || 16;
+    var inset = 1.75;                              // 2.5pt 描边压在卡片内缘
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', 'hole-outline');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    var rect = document.createElementNS(SVG_NS, 'rect');
+    rect.setAttribute('x', inset);
+    rect.setAttribute('y', inset);
+    rect.setAttribute('width', Math.max(1, w - inset * 2));
+    rect.setAttribute('height', Math.max(1, h - inset * 2));
+    rect.setAttribute('rx', Math.max(2, radius - inset));
+    svg.appendChild(rect);
+    target.appendChild(svg);
+  }
+
+  function removeHoleOutline(el){
+    var target = holeTarget(el);
+    var outline = target && target.querySelector('.hole-outline');
+    if (outline) outline.remove();
+  }
+
   function arm(el, x, y){
     if (drag) return;
     cancelPending();
@@ -427,6 +448,7 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
     ghost.style.top = (rect.top - phoneRect.top) + 'px';
     phone.appendChild(ghost);
     el.classList.add('source');
+    addHoleOutline(el);
     phone.classList.add('dragging');
 
     drag = {
@@ -510,6 +532,7 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
 
     if (!drag.moved) {                      // 原地松手 → 原菜单
       ghost.remove();
+      removeHoleOutline(el);
       el.classList.remove('source');
       phone.classList.remove('dragging');
       var rect = el.getBoundingClientRect();
@@ -524,6 +547,7 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
     ghost.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1)';
     setTimeout(function(){
       ghost.remove();
+      removeHoleOutline(el);
       el.classList.remove('source');
     }, 190);
     phone.classList.remove('dragging');
@@ -536,6 +560,7 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
   function cancelDrag(){
     if (!drag) return;
     drag.ghost.remove();
+    removeHoleOutline(drag.el);
     drag.el.classList.remove('source');
     phone.classList.remove('dragging');
     drag = null;
@@ -547,7 +572,8 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
     menuEl.innerHTML =
       '<button role="menuitem" data-act="organize"' + (a.count ? '' : ' disabled') + '>' + icon(ICON.organize) + '整理</button>' +
       '<button role="menuitem" data-act="edit">' + icon(ICON.edit) + '编辑</button>' +
-      '<button role="menuitem" class="danger" data-act="delete">' + icon(ICON.delete) + '删除</button>';
+      '<button role="menuitem" class="danger" data-act="delete">' + icon(ICON.delete) + '删除</button>' +
+      '<p class="menu-tip">按住拖动即可调整顺序</p>';
     menuEl.hidden = false;
     scrim.hidden = false;
     menuOpen = true;
@@ -684,11 +710,6 @@ body.hole-dashed .board.list .album.source{background:var(--hole-fill-soft);box-
     state.search = searchInput.value;
     if (drag) cancelDrag();
     render();
-  });
-
-  document.getElementById('hint-dismiss').addEventListener('click', function(){
-    state.hint = false;
-    hint.hidden = true;
   });
 
   /* ---------- 自动演示 ---------- */

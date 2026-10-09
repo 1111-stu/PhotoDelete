@@ -189,7 +189,6 @@ enum AlbumBrowserGroupingBuilder {
 
 struct AlbumDisplayStyleSheet: View {
     @Binding var style: AlbumDisplayStyle
-    let onReorder: () -> Void
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -201,15 +200,6 @@ struct AlbumDisplayStyleSheet: View {
                             styleCard(item)
                         }
                     }
-
-                    Button(action: onReorder) {
-                        Label(L10n.string("Reorder"), systemImage: "line.3.horizontal")
-                            .font(.body.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .frame(minHeight: 48)
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(PhotoDeleteStyle.primaryText)
                 }
                 .padding(20)
             }
@@ -255,31 +245,163 @@ struct AlbumDisplayStyleSheet: View {
     }
 }
 
+/// 拖拽排序的「站位」：被拿起的那一格留在原位的空槽。
+/// 尺寸与圆角跟随布局，画法与网格、列表一致（视觉基准见 designs/albums-reorder-prototype.html）。
+struct AlbumDropSlot: View {
+    var cornerRadius: CGFloat
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .fill(PhotoDeleteStyle.dropSlotFill)
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(
+                        PhotoDeleteStyle.dropSlotStroke,
+                        style: StrokeStyle(
+                            lineWidth: PhotoDeleteStyle.dropSlotLineWidth,
+                            dash: PhotoDeleteStyle.dropSlotDash
+                        )
+                    )
+            }
+            .accessibilityHidden(true)
+    }
+}
+
+/// 列表布局的每个相册：一张独立卡片（不再是「分组卡 + 分隔线」），
+/// 拖拽时整张托出，空位是同样形状的卡槽。
+struct AlbumListCard: View {
+    let id: String
+    let title: String
+    let photosCount: Int
+    let type: AlbumType
+    let thumbnailAssetID: String?
+    let photoLibraryManager: PhotoLibraryManager
+    var isDropSlot = false
+
+    var body: some View {
+        Group {
+            if isDropSlot {
+                AlbumDropSlot(cornerRadius: PhotoDeleteStyle.albumListCardRadius)
+                    .frame(maxWidth: .infinity, minHeight: PhotoDeleteStyle.albumListCardMinHeight)
+            } else {
+                AlbumInfoRow(
+                    id: id,
+                    title: title,
+                    photosCount: photosCount,
+                    type: type,
+                    thumbnailAssetID: thumbnailAssetID,
+                    photoLibraryManager: photoLibraryManager,
+                    showsChevron: true
+                )
+                .equatable()
+                .padding(.horizontal, 14)
+                .frame(
+                    maxWidth: .infinity,
+                    minHeight: PhotoDeleteStyle.albumListCardMinHeight,
+                    alignment: .leading
+                )
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.albumListCardRadius, style: .continuous)
+                .fill(isDropSlot ? Color.clear : PhotoDeleteStyle.surface)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.albumListCardRadius, style: .continuous))
+    }
+}
+
+/// 相册长按菜单：整理 / 编辑 / 删除，最后一行小字说明拖动排序。
+/// 用自绘浮层而不是系统 contextMenu —— 系统菜单只放得下可点条目，
+/// 放不下这行说明，而它就是排序能力的唯一入口提示（见 docs/albums-reorder-research.md）。
+struct AlbumActionMenu: View {
+    let canOrganize: Bool
+    let canEdit: Bool
+    let onOrganize: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if canOrganize {
+                row(L10n.string("Organize"), systemImage: "hand.draw", action: onOrganize)
+            }
+            if canEdit {
+                row(L10n.string("Edit"), systemImage: "pencil", action: onEdit)
+                row(L10n.string("Delete"), systemImage: "trash", isDestructive: true, action: onDelete)
+            }
+
+            Rectangle()
+                .fill(PhotoDeleteStyle.hairline)
+                .frame(height: 1)
+                .padding(.top, 4)
+
+            Text(L10n.string("Hold and drag to reorder"))
+                .font(.system(size: 11.5))
+                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 12)
+                .padding(.top, 9)
+                .padding(.bottom, 5)
+        }
+        .padding(6)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(PhotoDeleteStyle.elevatedSurface)
+        )
+        .shadow(color: .black.opacity(0.45), radius: 22, x: 0, y: 12)
+    }
+
+    private func row(
+        _ title: String,
+        systemImage: String,
+        isDestructive: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .font(.system(size: 16))
+                .foregroundStyle(isDestructive ? PhotoDeleteStyle.destructive : PhotoDeleteStyle.primaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 11)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 struct AlbumCoverTile: View {
     let title: String
     let photosCount: Int
     let thumbnailAssetID: String?
     let photoLibraryManager: PhotoLibraryManager
     let isCompact: Bool
+    /// 拖拽排序时，被拿起的那一格渲染成空位（标题保留占位但不显示）。
+    var isDropSlot = false
 
     var body: some View {
         VStack(spacing: 8) {
             ZStack(alignment: .bottomTrailing) {
-                AlbumAssetThumbnail(
-                    assetID: thumbnailAssetID,
-                    photoLibraryManager: photoLibraryManager,
-                    cornerRadius: isCompact ? 14 : 18,
-                    emptyIcon: "photo.on.rectangle.angled"
-                )
-                .aspectRatio(1, contentMode: .fit)
+                if isDropSlot {
+                    AlbumDropSlot(cornerRadius: isCompact ? 14 : 18)
+                        .aspectRatio(1, contentMode: .fit)
+                } else {
+                    AlbumAssetThumbnail(
+                        assetID: thumbnailAssetID,
+                        photoLibraryManager: photoLibraryManager,
+                        cornerRadius: isCompact ? 14 : 18,
+                        emptyIcon: "photo.on.rectangle.angled"
+                    )
+                    .aspectRatio(1, contentMode: .fit)
 
-                Text(photosCount.formatted(.number.grouping(.automatic)))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.black.opacity(0.55), in: Capsule(style: .continuous))
-                    .padding(8)
+                    Text(photosCount.formatted(.number.grouping(.automatic)))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(.black.opacity(0.55), in: Capsule(style: .continuous))
+                        .padding(8)
+                }
             }
 
             Text(title)
@@ -288,6 +410,7 @@ struct AlbumCoverTile: View {
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
+                .opacity(isDropSlot ? 0 : 1)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(title), \(L10n.photoCount(photosCount))")

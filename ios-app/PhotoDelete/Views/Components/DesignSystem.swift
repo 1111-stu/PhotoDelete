@@ -96,6 +96,18 @@ enum PhotoDeleteStyle {
     static let rowIconSize = Metrics.rowIconSize
     static let rowMinHeight = Metrics.rowMinHeight
 
+    // MARK: 相册拖拽排序
+    // 站位（被拿起的那一格留下的空位）用中性虚线段：虚线本身已经说明「这里可以插入」，
+    // 不再占用琥珀的行动色语义（视觉基准 designs/albums-reorder-prototype.html）。
+    static let dropSlotStroke = Color.white.opacity(0.34)
+    static let dropSlotFill = Color.white.opacity(0.05)
+    static let dropSlotLineWidth: CGFloat = 2.5
+    static let dropSlotDash: [CGFloat] = [11, 9]
+    /// 相册页列表改为每个相册一张独立卡片。
+    static let albumListCardRadius: CGFloat = 16
+    static let albumListCardSpacing: CGFloat = 8
+    static let albumListCardMinHeight: CGFloat = 64
+
     static var contentBottomPadding: CGFloat { Metrics.contentBottomPadding }
 
     static func iconTint(for key: String) -> Color {
@@ -542,11 +554,15 @@ enum AppConstants {
     static let appThemeKey = "photoDeleteAppTheme"
     static let openAlbumsTabNotificationName = Notification.Name("photoDeleteOpenAlbumsTab")
     static let showsAlbumsTab = true
-    static let advancedPaywallEnabled = false
+    /// 「上线开关」：为 false 时进阶页不进入锁定态，付费页只在设置页横幅可达。
+    /// 订阅制付费页完成后打开（2026-10-09）；要临时收回只需改回 false。
+    static let advancedPaywallEnabled = true
     static let achievementsEnabled = false
+    static let supporterQuarterlyProductID = "com.01mvp.photodelete.pro.quarterly"
     static let supporterAnnualProductID = "com.01mvp.photodelete.pro.annual"
     static let supporterLifetimeProductID = "com.01mvp.photodelete.supporter.stats"
     static let supporterProductIDs: Set<String> = [
+        supporterQuarterlyProductID,
         supporterAnnualProductID,
         supporterLifetimeProductID
     ]
@@ -554,8 +570,9 @@ enum AppConstants {
     static let supporterPurchaseDateKey = "photoDeleteSupporterPurchaseDate"
     static let supporterProductIDKey = "photoDeleteSupporterProductID"
     static let supporterExpirationDateKey = "photoDeleteSupporterExpirationDate"
+    /// 已退役的本机 3 天试用遗留键（现由 Apple 年度 intro offer 承担试用）。
+    /// 保留常量只为让 SubscriptionManager 在解析权益时清掉旧值。
     static let supporterTrialStartDateKey = "photoDeleteSupporterTrialStartDate"
-    static let supporterTrialDuration: TimeInterval = 3 * 24 * 60 * 60
     static let isImageCompressionVisible = true
     static var privacyShortText: String {
         L10n.string("Photo cleanup happens only on this device. No account is required, and your photos are never uploaded.")

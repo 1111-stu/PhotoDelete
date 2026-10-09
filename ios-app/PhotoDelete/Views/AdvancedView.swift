@@ -13,7 +13,7 @@ import UIKit
 
 struct AdvancedView: View {
     @EnvironmentObject var dataManager: DataManager
-    @EnvironmentObject var purchaseManager: PurchaseManager
+    @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(AppConstants.appLanguageKey) private var appLanguageValue = AppLanguage.system.rawValue
     @State private var selectedScope: AdvancedTimeScope = .month
@@ -23,28 +23,15 @@ struct AdvancedView: View {
     @State private var advancedRefreshWorkItem: DispatchWorkItem?
     @State private var lastDashboardRefreshKey: AdvancedDashboardRefreshKey?
     @State private var showingSupporterBenefits = false
-    @State private var showingOfferCodeRedemption = false
+    @State private var showingPaywall = false
     @State private var visibleAdvancedPeriodLimit = 5
 
     private var isLocked: Bool {
-        AppConstants.advancedPaywallEnabled && !purchaseManager.isSupporter
+        AppConstants.advancedPaywallEnabled && !subscriptionManager.isPro
     }
 
     private var isAwaitingPhotoLibraryAccess: Bool {
         !isLocked && !dataManager.photoLibraryManager.hasPhotoLibraryAccess
-    }
-
-    private var entitlementStatusMessage: String? {
-        if let trialStatusText = purchaseManager.supporterTrialStatusText {
-            return trialStatusText
-        }
-
-        switch purchaseManager.entitlementState {
-        case .verifying:
-            return L10n.string("Checking purchase status...")
-        case .unknown, .verified, .cachedOffline, .locked:
-            return nil
-        }
     }
 
     var body: some View {
@@ -69,10 +56,7 @@ struct AdvancedView: View {
             visibleAdvancedPeriodLimit = 5
             refreshAdvancedDashboard(resetSelectedPeriod: false, force: true)
         }
-        .onChange(of: purchaseManager.entitlementState) { _ in
-            refreshAdvancedDashboard(resetSelectedPeriod: true, force: true)
-        }
-        .onChange(of: purchaseManager.supporterTrialStartDate) { _ in
+        .onChange(of: subscriptionManager.currentSubscriptionType) { _ in
             refreshAdvancedDashboard(resetSelectedPeriod: true, force: true)
         }
         .onChange(of: dataManager.cleanupStatsRevision) { _ in
@@ -93,7 +77,6 @@ struct AdvancedView: View {
         .task {
             dataManager.syncPhotoLibraryAuthorization()
             refreshAdvancedDashboard(resetSelectedPeriod: true)
-            await purchaseManager.activateStoreKit()
         }
     }
 
@@ -106,14 +89,6 @@ struct AdvancedView: View {
                 let periodSummaries = visiblePeriodSummaries
 
                 VStack(spacing: 16) {
-                    if purchaseManager.isUsingTrialSupporterAccess {
-                        AdvancedTrialStatusBanner(
-                            remainingDays: purchaseManager.supporterTrialDaysRemaining,
-                            isLoading: purchaseManager.isLoading,
-                            onPurchase: purchaseSupporter
-                        )
-                    }
-
                     if isAwaitingPhotoLibraryAccess {
                         PhotoAuthorizationCard(
                             subtitle: L10n.string("Advanced features need the local photo library to build real monthly progress and cleanup queues."),
@@ -148,16 +123,12 @@ struct AdvancedView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if isLocked {
-                AdvancedBottomPaywall(
-                    priceText: purchaseManager.supporterPriceText,
-                    canStartTrial: purchaseManager.canStartSupporterTrial,
-                    isLoading: purchaseManager.isLoading,
-                    errorMessage: purchaseManager.errorMessage,
-                    statusMessage: entitlementStatusMessage,
-                    onStartTrial: startSupporterTrial,
-                    onPurchase: purchaseSupporter,
+                AdvancedPaywallBar(
+                    yearlyPriceText: subscriptionManager.yearlyProduct?.displayPrice,
+                    isLoading: subscriptionManager.isLoading,
+                    errorMessage: subscriptionManager.errorMessage,
+                    onViewPlans: openLockedAdvancedFeature,
                     onRestore: restorePurchases,
-                    onRedeemCode: { showingOfferCodeRedemption = true },
                     onShowBenefits: { showingSupporterBenefits = true }
                 )
             }
@@ -165,8 +136,8 @@ struct AdvancedView: View {
         .sheet(isPresented: $showingSupporterBenefits) {
             SupporterBenefitsSheet()
         }
-        .offerCodeRedemption(isPresented: $showingOfferCodeRedemption) { result in
-            purchaseManager.handleOfferCodeRedemptionCompletion(result)
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
         }
     }
 
@@ -589,19 +560,11 @@ struct AdvancedView: View {
     }
 
     private func openLockedAdvancedFeature() {
-        showingSupporterBenefits = true
-    }
-
-    private func purchaseSupporter() {
-        Task { await purchaseManager.purchaseSupporter() }
-    }
-
-    private func startSupporterTrial() {
-        purchaseManager.startSupporterTrial()
+        showingPaywall = true
     }
 
     private func restorePurchases() {
-        Task { await purchaseManager.restorePurchases() }
+        Task { await subscriptionManager.restorePurchases() }
     }
 
     private func scheduleAdvancedDashboardRefresh() {
@@ -978,16 +941,14 @@ private struct AdvancedPeriodProgressBadge: View {
     }
 }
 
-private struct AdvancedBottomPaywall: View {
-    let priceText: String
-    let canStartTrial: Bool
+/// 进阶页锁定态底栏。只负责把用户带到唯一的购买入口（PaywallView），
+/// 不在底栏里复刻一套套餐选择——购买路径只留一处，避免两套价格逻辑。
+private struct AdvancedPaywallBar: View {
+    let yearlyPriceText: String?
     let isLoading: Bool
     let errorMessage: String?
-    let statusMessage: String?
-    let onStartTrial: () -> Void
-    let onPurchase: () -> Void
+    let onViewPlans: () -> Void
     let onRestore: () -> Void
-    let onRedeemCode: () -> Void
     let onShowBenefits: () -> Void
 
     var body: some View {
@@ -999,9 +960,9 @@ private struct AdvancedBottomPaywall: View {
 
             VStack(spacing: 5) {
                 HStack(spacing: 7) {
-                    Image(systemName: canStartTrial ? "timer" : "lock.fill")
+                    Image(systemName: "lock.fill")
                         .font(.system(size: 16, weight: .semibold))
-                    Text(canStartTrial ? L10n.string("Try Advanced Features") : L10n.string("Unlock All Advanced Features"))
+                    Text(L10n.string("Unlock All Advanced Features"))
                         .font(.system(size: 20, weight: .semibold))
                 }
                 .foregroundColor(PhotoDeleteStyle.primaryText)
@@ -1013,48 +974,32 @@ private struct AdvancedBottomPaywall: View {
                     .lineSpacing(2)
             }
 
-            if canStartTrial {
-                Button(action: onStartTrial) {
-                    Label(L10n.string("Start 3-Day Free Trial"), systemImage: "timer")
-                        .labelStyle(.titleAndIcon)
-                }
-                .photoDeletePrimaryButton()
-                .disabled(isLoading)
-
-                Button(action: onPurchase) {
-                    HStack(spacing: 8) {
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
-                                .scaleEffect(0.78)
-                        }
-                        Text(isLoading ? L10n.string("Processing...") : String(format: L10n.string("Start Annual Pro %@/year"), priceText))
-                    }
-                }
-                .photoDeleteSecondaryButton()
-                .disabled(isLoading)
-            } else {
-                Button(action: onPurchase) {
-                    HStack(spacing: 8) {
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.primaryButtonText))
-                                .scaleEffect(0.78)
-                        }
-                        Text(isLoading ? L10n.string("Processing...") : String(format: L10n.string("Start Annual Pro %@/year"), priceText))
-                    }
-                }
-                .photoDeletePrimaryButton()
-                .disabled(isLoading)
+            Button(action: onViewPlans) {
+                Text(L10n.string("View Plans"))
+                    .frame(maxWidth: .infinity)
             }
+            .photoDeletePrimaryButton()
+            .accessibilityIdentifier("advanced-view-plans-button")
 
-            SupporterPurchaseAuxiliaryActionsRow(
-                isLoading: isLoading,
-                onRestore: onRestore,
-                onRedeemCode: onRedeemCode
-            )
+            Button(action: onRestore) {
+                Text(L10n.string("Restore Purchase"))
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .background(
+                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
+                            .fill(PhotoDeleteStyle.elevatedSurface)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
+                                    .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                            )
+                    )
+            }
+            .buttonStyle(.plain)
+            .disabled(isLoading)
+            .accessibilityLabel(L10n.string("Restore Purchase"))
 
-            Text(billingDisclosure)
+            Text(L10n.string("Subscriptions renew automatically unless canceled in Apple ID settings. Lifetime Pro is a one-time purchase. Basic cleanup remains free."))
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(PhotoDeleteStyle.secondaryText)
                 .multilineTextAlignment(.center)
@@ -1063,21 +1008,13 @@ private struct AdvancedBottomPaywall: View {
             SupporterLegalLinksRow()
 
             Button(action: onShowBenefits) {
-                Text(L10n.string("View Annual and Lifetime Pro plans"))
+                Text(L10n.string("Feature differences"))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(PhotoDeleteStyle.secondaryText)
                     .underline()
             }
             .buttonStyle(.plain)
             .disabled(isLoading)
-
-            if let statusMessage {
-                Text(statusMessage)
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
 
             if let errorMessage {
                 Text(errorMessage)
@@ -1103,69 +1040,14 @@ private struct AdvancedBottomPaywall: View {
     }
 
     private var subtitle: String {
-        if canStartTrial {
-            return L10n.string("Try advanced features free for 3 days or start Annual Pro. Lifetime Pro is available on the plans screen.")
-        }
-
-        return L10n.string("Annual Pro unlocks the full timeline, large-file cleanup, video compression, and similar-photo cleanup.")
-    }
-
-    private var billingDisclosure: String {
-        if canStartTrial {
-            return L10n.string("The 3-day trial does not charge you. Annual Pro auto-renews and can be canceled anytime in Apple ID settings. Basic cleanup is always free.")
+        guard let yearlyPriceText else {
+            return L10n.string("Quarterly or annual subscription, or a one-time Lifetime purchase.")
         }
 
         return String(
-            format: L10n.string("Annual Pro is %@/year. Billing starts when you confirm and renews automatically unless canceled in Apple ID settings. Lifetime Pro is a one-time purchase. Basic cleanup remains free."),
-            priceText
+            format: L10n.string("From %@/year, or a one-time Lifetime purchase."),
+            yearlyPriceText
         )
-    }
-}
-
-private struct AdvancedTrialStatusBanner: View {
-    let remainingDays: Int
-    let isLoading: Bool
-    let onPurchase: () -> Void
-
-    var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Image(systemName: "timer")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.accent)
-                .frame(width: 30, height: 30)
-                .background(
-                    Circle()
-                        .fill(PhotoDeleteStyle.accent.opacity(0.12))
-                )
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(L10n.string("Supporter Trial Active"))
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-
-                Text(String(format: L10n.string("%lld days remaining"), Int64(remainingDays)))
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-            }
-
-            Spacer(minLength: 8)
-
-            Button(action: onPurchase) {
-                Text(isLoading ? L10n.string("Processing...") : L10n.string("Unlock"))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
-                    .padding(.horizontal, 14)
-                    .frame(minHeight: 44)
-                    .background(
-                        Capsule(style: .continuous)
-                            .fill(PhotoDeleteStyle.accent)
-                    )
-            }
-            .buttonStyle(.plain)
-            .disabled(isLoading)
-        }
-        .padding(14)
-        .photoDeleteCard()
     }
 }
 
@@ -6724,5 +6606,4 @@ private enum AdvancedPeriodFormatter {
 #Preview {
     AdvancedView()
         .environmentObject(DataManager())
-        .environmentObject(PurchaseManager())
 }

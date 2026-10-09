@@ -34,17 +34,36 @@ private struct AlbumListRowModel: Identifiable, Equatable {
 struct AlbumsView: View {
     @EnvironmentObject var dataManager: DataManager
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @AppStorage(AppConstants.hasDismissedAlbumSwipeHintKey) private var hasDismissedAlbumSwipeHint = false
     @State private var navigationPath = NavigationPath()
     @State private var searchText = ""
     @State private var activeSheet: AlbumSheet?
     @AppStorage(AppConstants.albumDisplayStyleKey) private var albumDisplayStyleValue = AlbumDisplayStyle.cover.rawValue
     @State private var showsDisplayStyle = false
-    @State private var editMode: EditMode = .inactive
     @State private var albumToast: PhotoDeleteToast?
     @State private var displayedRows: [AlbumListRowModel] = []
     @State private var albumsByID: [String: AlbumInfo] = [:]
     @State private var displayedAlbumCount = 0
+
+    // MARK: - 长按拖拽排序
+    @State private var reorder = AlbumReorderSession()
+    /// 按下瞬间的槽位（内容坐标系，已排除被拿起的那一格），换位判定以这份快照为准，
+    /// 避免让位动画把实时 frame 喂回判定里造成抖动。
+    @State private var reorderSlots: [String: CGRect] = [:]
+    @State private var reorderSlotOrder: [String] = []
+    @State private var itemFrames: [String: CGRect] = [:]
+    @State private var dragStartFrame: CGRect = .zero
+    @State private var dragGrabPoint: CGPoint?
+    @State private var dragTranslation: CGSize = .zero
+    @State private var lastViewportPoint: CGPoint?
+    @State private var contentScrollOffset: CGFloat = 0
+    @State private var viewportSize: CGSize = .zero
+    @State private var actionMenu: AlbumActionMenuTarget?
+    @State private var menuSize: CGSize = .zero
+    @State private var suppressItemTapUntil = Date.distantPast
+    @State private var lastAutoScrollAt = Date.distantPast
+
+    private static let contentSpace = "albums-content"
+    private static let viewportSpace = "albums-viewport"
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -73,10 +92,7 @@ struct AlbumsView: View {
                 }
         }
         .sheet(isPresented: $showsDisplayStyle) {
-            AlbumDisplayStyleSheet(
-                style: displayStyleBinding,
-                onReorder: beginReorderingFromDisplaySheet
-            )
+            AlbumDisplayStyleSheet(style: displayStyleBinding)
         }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
@@ -90,6 +106,9 @@ struct AlbumsView: View {
         }
         .onChange(of: searchText) { _ in
             rebuildDisplayedRows()
+        }
+        .onChange(of: albumDisplayStyleValue) { _ in
+            endReorderIfNeeded()
         }
         .onReceive(dataManager.$userAlbums) { _ in
             rebuildDisplayedRows()
@@ -107,12 +126,13 @@ struct AlbumsView: View {
             if !dataManager.photoLibraryManager.hasPhotoLibraryAccess {
                 authorizationSection
             } else {
-                albumsList
+                albumBrowser
             }
         }
     }
 
     /// 相册页顶栏（对齐 style.md §4.5：左侧大标题 34/700 + 右上圆钮）。
+    /// 排序不再有编辑模式：长按即可拖动，右上只保留显示方式入口。
     private var albumsTitleBar: some View {
         HStack(alignment: .center, spacing: 12) {
             Text(L10n.string("Albums"))
@@ -120,11 +140,7 @@ struct AlbumsView: View {
                 .foregroundColor(PhotoDeleteStyle.primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            if editMode == .active {
-                Button(L10n.string("Done"), action: toggleReordering)
-                    .font(.body.weight(.semibold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
-            } else if dataManager.photoLibraryManager.hasPhotoLibraryAccess {
+            if dataManager.photoLibraryManager.hasPhotoLibraryAccess {
                 displayStyleEntryButton
             }
         }
@@ -224,151 +240,141 @@ struct AlbumsView: View {
         }
     }
 
-    // MARK: - 相册列表
-    @ViewBuilder
-    private var albumsList: some View {
-        if editMode == .active || displayStyle == .list {
-            albumRowsList
-        } else {
-            albumCoverBrowser
-        }
-    }
+    // MARK: - 相册列表（三种布局共用一个滚动容器）
+    private var albumBrowser: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    scrollOffsetReader
 
-    private var albumCoverBrowser: some View {
-        let columnCount = displayStyle == .compact
-            ? (horizontalSizeClass == .regular ? 5 : 3)
-            : (horizontalSizeClass == .regular ? 4 : 2)
-        let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: columnCount)
+                    Text(albumHeaderSubtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
 
-        return ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                Text(albumHeaderSubtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                    albumSearchRow
 
-                albumSearchRow
-
-                if isLoadingAlbums {
-                    loadingRow
-                } else if displayedRows.isEmpty {
-                    emptyRow
-                } else {
-                    LazyVGrid(columns: columns, spacing: 18) {
-                        ForEach(displayedRows) { row in
-                            albumCoverButton(row)
-                        }
+                    if isLoadingAlbums {
+                        loadingRow
+                    } else if displayedRows.isEmpty {
+                        emptyRow
+                    } else {
+                        albumItems(proxy: proxy)
                     }
                 }
+                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(.top, 4)
+                .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
+                .coordinateSpace(name: Self.contentSpace)
+                .overlay(alignment: .topLeading) {
+                    reorderOverlays
+                }
             }
-            .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-            .padding(.top, 4)
-            .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
-        }
-        .scrollDismissesKeyboard(.immediately)
-        .refreshable {
-            dataManager.loadAlbums(showLoading: false)
+            .coordinateSpace(name: Self.viewportSpace)
+            .scrollDisabled(reorder.isActive)
+            .scrollDismissesKeyboard(.immediately)
+            .background(viewportSizeReader)
+            .refreshable {
+                dataManager.loadAlbums(showLoading: false)
+            }
+            .onPreferenceChange(AlbumItemFramesKey.self) { frames in
+                itemFrames = frames
+            }
+            .onPreferenceChange(AlbumsScrollOffsetKey.self) { contentMinY in
+                // contentMinY 是内容顶部在视口里的位置：向下滚动时为负，取反才是滚动距离。
+                contentScrollOffset = -contentMinY
+                // 自动滚动会改变手指下方的内容，落点要跟着重算。
+                if reorder.isDragging, let viewportPoint = lastViewportPoint {
+                    updateReorder(viewportPoint: viewportPoint, proxy: proxy)
+                }
+            }
         }
     }
 
-    private func albumCoverButton(_ row: AlbumListRowModel) -> some View {
-        Button {
+    private var albumColumnCount: Int {
+        switch displayStyle {
+        case .compact:
+            return horizontalSizeClass == .regular ? 5 : 3
+        case .cover:
+            return horizontalSizeClass == .regular ? 4 : 2
+        case .list:
+            return 1
+        }
+    }
+
+    @ViewBuilder
+    private func albumItems(proxy: ScrollViewProxy) -> some View {
+        let rows = Array(displayedRows.enumerated())
+        if displayStyle == .list {
+            LazyVStack(spacing: PhotoDeleteStyle.albumListCardSpacing) {
+                ForEach(rows, id: \.element.id) { index, row in
+                    albumItem(row, index: index, proxy: proxy)
+                        .id(row.id)
+                }
+            }
+        } else {
+            LazyVGrid(columns: gridColumns, spacing: 18) {
+                ForEach(rows, id: \.element.id) { index, row in
+                    albumItem(row, index: index, proxy: proxy)
+                        .id(row.id)
+                }
+            }
+        }
+    }
+
+    private var gridColumns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: 14), count: albumColumnCount)
+    }
+
+    private func albumItem(_ row: AlbumListRowModel, index: Int, proxy: ScrollViewProxy) -> some View {
+        let isPlaceholder = reorder.itemID == row.id
+        return Button {
             openAlbum(id: row.id)
         } label: {
+            albumItemContent(row, isPlaceholder: isPlaceholder)
+                .background(itemFrameReader(row.id))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(L10n.string("Tap to organize this album"))
+        .accessibilityValue(positionText(for: index))
+        .accessibilityAction(named: Text(L10n.string("Move up"))) {
+            moveAlbum(id: row.id, by: -1)
+        }
+        .accessibilityAction(named: Text(L10n.string("Move down"))) {
+            moveAlbum(id: row.id, by: 1)
+        }
+        // 必须用 simultaneousGesture：`.gesture` 的优先级低于 Button 自带手势，
+        // 挂上去等于被按钮吃掉，长按永远不会触发（点按仍走 suppressItemTapUntil 兜住）。
+        .simultaneousGesture(reorderGesture(row: row, index: index, proxy: proxy))
+    }
+
+    @ViewBuilder
+    private func albumItemContent(_ row: AlbumListRowModel, isPlaceholder: Bool) -> some View {
+        if displayStyle == .list {
+            AlbumListCard(
+                id: row.id,
+                title: row.title,
+                photosCount: row.photosCount,
+                type: row.type,
+                thumbnailAssetID: row.thumbnailAssetID,
+                photoLibraryManager: dataManager.photoLibraryManager,
+                isDropSlot: isPlaceholder
+            )
+        } else {
             AlbumCoverTile(
                 title: row.title,
                 photosCount: row.photosCount,
                 thumbnailAssetID: row.thumbnailAssetID,
                 photoLibraryManager: dataManager.photoLibraryManager,
-                isCompact: displayStyle == .compact
+                isCompact: displayStyle == .compact,
+                isDropSlot: isPlaceholder
             )
         }
-        .buttonStyle(.plain)
-        .contextMenu {
-            if row.photosCount > 0 {
-                Button {
-                    openAlbumSwipe(id: row.id)
-                } label: {
-                    Label(L10n.string("Organize"), systemImage: "hand.draw")
-                }
-            }
-            if row.canEdit {
-                Button {
-                    editAlbum(id: row.id)
-                } label: {
-                    Label(L10n.string("Edit"), systemImage: "pencil")
-                }
-                Button(role: .destructive) {
-                    deleteAlbum(id: row.id)
-                } label: {
-                    Label(L10n.string("Delete"), systemImage: "trash")
-                }
-            }
-        }
     }
 
-    @ViewBuilder
-    private var albumRowsList: some View {
-        List {
-            if isLoadingAlbums {
-                Section {
-                    loadingRow
-                } header: {
-                    albumCountHeader
-                }
-            } else if displayedRows.isEmpty {
-                Section {
-                    emptyRow
-                } header: {
-                    albumCountHeader
-                }
-            } else {
-                // Keep count in the section header (not its own Section) so insetGrouped
-                // does not leave a large empty gap under "N 个相册".
-                Section {
-                    albumSearchRow
-                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-
-                    if shouldShowAlbumSwipeHint {
-                        AlbumSwipeHintRow {
-                            hasDismissedAlbumSwipeHint = true
-                        }
-                    }
-
-                    if editMode == .active {
-                        ForEach(displayedRows) { row in
-                            albumRow(row)
-                        }
-                        .onMove(perform: moveUserAlbums)
-                    } else {
-                        // Avoid always-on reorder handlers while scrolling.
-                        ForEach(displayedRows) { row in
-                            albumRow(row)
-                        }
-                    }
-                } header: {
-                    albumCountHeader
-                }
-            }
-        }
-        .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
-        .environment(\.editMode, $editMode)
-        .scrollDismissesKeyboard(.immediately)
-        .refreshable {
-            dataManager.loadAlbums(showLoading: false)
-        }
-    }
-
-    private var albumCountHeader: some View {
-        Text(albumHeaderSubtitle)
-            .font(.subheadline)
-            .foregroundStyle(PhotoDeleteStyle.secondaryText)
-            .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .textCase(nil)
-            .padding(.bottom, 2)
+    /// 读屏时的位置播报（「第 3 个，共 9 个」）。
+    private func positionText(for index: Int) -> String {
+        L10n.string("\(index + 1) of \(displayedRows.count)")
     }
 
     private var loadingRow: some View {
@@ -398,10 +404,7 @@ struct AlbumsView: View {
             }
         }
         .frame(maxWidth: .infinity)
-                .padding(.vertical, PhotoDeleteStyle.Metrics.contentBottomPadding)
-        .listRowInsets(EdgeInsets(top: 0, leading: PhotoDeleteStyle.screenHorizontalPadding, bottom: 0, trailing: PhotoDeleteStyle.screenHorizontalPadding))
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
+        .padding(.vertical, PhotoDeleteStyle.Metrics.contentBottomPadding)
     }
 
     private var emptyRow: some View {
@@ -433,9 +436,6 @@ struct AlbumsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 58)
-        .listRowInsets(EdgeInsets(top: 0, leading: PhotoDeleteStyle.screenHorizontalPadding, bottom: 0, trailing: PhotoDeleteStyle.screenHorizontalPadding))
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
     }
 
     private var emptyTitle: String {
@@ -444,45 +444,6 @@ struct AlbumsView: View {
 
     private var emptyMessage: String {
         searchText.isEmpty ? L10n.string("Tap the plus button in the top right to create a new album.") : L10n.string("Try another keyword.")
-    }
-
-    private func albumRow(_ row: AlbumListRowModel) -> some View {
-        Button {
-            openAlbum(id: row.id)
-        } label: {
-            AlbumInfoRow(
-                id: row.id,
-                title: row.title,
-                photosCount: row.photosCount,
-                type: row.type,
-                thumbnailAssetID: row.thumbnailAssetID,
-                photoLibraryManager: dataManager.photoLibraryManager,
-                showsChevron: editMode != .active
-            )
-            .equatable()
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityHint(L10n.string("Tap to organize this album"))
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            if row.canEdit {
-                Button(role: .destructive) {
-                    deleteAlbum(id: row.id)
-                } label: {
-                    Label(L10n.string("Delete"), systemImage: "trash")
-                }
-                .tint(PhotoDeleteStyle.destructive)
-
-                Button {
-                    editAlbum(id: row.id)
-                } label: {
-                    Label(L10n.string("Edit"), systemImage: "pencil")
-                }
-                .tint(PhotoDeleteStyle.accent)
-            }
-        }
-        .listRowBackground(PhotoDeleteStyle.surface)
-        .listRowSeparatorTint(PhotoDeleteStyle.hairline)
     }
 
     private var albumHeaderSubtitle: String {
@@ -524,14 +485,295 @@ struct AlbumsView: View {
             : L10n.string("Counting albums and loading covers.")
     }
 
-    private var shouldShowAlbumSwipeHint: Bool {
-        !hasDismissedAlbumSwipeHint &&
-            searchText.isEmpty &&
-            editMode != .active
+    // MARK: - 长按拖拽排序
+
+    /// 内容坐标系里的拖动点：视口坐标 + 当前滚动偏移。
+    private func contentPoint(for viewportPoint: CGPoint) -> CGPoint {
+        CGPoint(x: viewportPoint.x, y: viewportPoint.y + contentScrollOffset)
+    }
+
+    private func reorderGesture(row: AlbumListRowModel, index: Int, proxy: ScrollViewProxy) -> some Gesture {
+        LongPressGesture(minimumDuration: 0.45, maximumDistance: 14)
+            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .named(Self.viewportSpace)))
+            .onChanged { value in
+                switch value {
+                case .first(true):
+                    armReorder(row: row, index: index)
+                case .second(true, let drag):
+                    // 长按成功后 sequence 可能直接进 second(true, nil)：这里再 arm 一次兜底
+                    // （armReorder 自身幂等，已抬起时直接返回）。
+                    armReorder(row: row, index: index)
+                    if let drag {
+                        updateReorder(viewportPoint: drag.location, proxy: proxy)
+                    }
+                default:
+                    break
+                }
+            }
+            .onEnded { value in
+                guard reorder.itemID == row.id else { return }
+                if case .second(true, let drag) = value, let drag {
+                    updateReorder(viewportPoint: drag.location, proxy: proxy)
+                }
+                finishReorder()
+            }
+    }
+
+    /// 长按抬起：记下按下瞬间的槽位快照，卡片离手但还没有换位。
+    private func armReorder(row: AlbumListRowModel, index: Int) {
+        guard !reorder.isActive else { return }
+        guard searchText.isEmpty else {
+            showAlbumToast(
+                L10n.string("Clear search before reordering"),
+                icon: "magnifyingglass",
+                style: .warning
+            )
+            return
+        }
+        guard let frame = itemFrames[row.id] else { return }
+
+        reorderSlots = itemFrames.filter { $0.key != row.id }
+        reorderSlotOrder = displayedRows.map(\.id).filter { $0 != row.id }
+        dragStartFrame = frame
+        dragGrabPoint = nil
+        dragTranslation = .zero
+        lastViewportPoint = nil
+        suppressItemTapUntil = Date().addingTimeInterval(0.6)
+        reorder.arm(itemID: row.id, index: index)
+        HapticManager.impact(.medium)
+    }
+
+    private func updateReorder(viewportPoint: CGPoint, proxy: ScrollViewProxy) {
+        guard reorder.isActive else { return }
+        lastViewportPoint = viewportPoint
+
+        // 抓起的位置：保住抓取偏移，卡片不会在抬起的瞬间跳一下。
+        let point = contentPoint(for: viewportPoint)
+        if dragGrabPoint == nil { dragGrabPoint = point }
+        let grabPoint = dragGrabPoint ?? point
+        dragTranslation = CGSize(
+            width: point.x - grabPoint.x,
+            height: point.y - grabPoint.y
+        )
+
+        if !reorder.isDragging,
+           hypot(dragTranslation.width, dragTranslation.height) > 6 {
+            reorder.beginDragging()
+        }
+        guard reorder.isDragging else { return }
+
+        applyInsertion(for: point)
+        autoScrollIfNeeded(viewportPoint: viewportPoint, proxy: proxy)
+    }
+
+    /// 让位：越过其他格子中心时重排数组，其余卡片 0.22s 平移让开。
+    private func applyInsertion(for point: CGPoint) {
+        let frames = reorderSlotOrder.compactMap { reorderSlots[$0] }
+        let target = AlbumReorderGeometry.insertionIndex(for: point, itemFrames: frames)
+        guard reorder.updateInsertIndex(target) else { return }
+        guard let id = reorder.itemID,
+              let from = displayedRows.firstIndex(where: { $0.id == id }) else { return }
+
+        withAnimation(.easeOut(duration: 0.22)) {
+            displayedRows = AlbumReorderGeometry.moving(displayedRows, from: from, to: target)
+        }
+        HapticManager.impact(.light)
+    }
+
+    private func finishReorder() {
+        let itemID = reorder.itemID
+        let wasDragging = reorder.isDragging
+        let hasMove = reorder.hasPendingMove
+
+        reorder.reset()
+        reorderSlots = [:]
+        reorderSlotOrder = []
+        dragGrabPoint = nil
+        dragTranslation = .zero
+        lastViewportPoint = nil
+        suppressItemTapUntil = Date().addingTimeInterval(0.4)
+
+        guard let itemID else { return }
+
+        if wasDragging {
+            guard hasMove else { return }
+            dataManager.saveCustomAlbumOrder(displayedRows.map(\.id))
+            HapticManager.impact(.light)
+            showAlbumToast(L10n.string("Album order saved"), icon: "checkmark", style: .positive)
+        } else {
+            // 原地松手：仍是整理 / 编辑 / 删除菜单，排序说明收在菜单最后一行小字里。
+            suppressItemTapUntil = Date().addingTimeInterval(1.2)
+            actionMenu = AlbumActionMenuTarget(id: itemID)
+            HapticManager.impact(.light)
+        }
+    }
+
+    private func endReorderIfNeeded() {
+        guard reorder.isActive else {
+            actionMenu = nil
+            return
+        }
+        finishReorder()
+    }
+
+    /// 拖到滚动区上下边缘时自动滚动（滚动本身会改内容，落点由偏移变化的回调重算）。
+    private func autoScrollIfNeeded(viewportPoint: CGPoint, proxy: ScrollViewProxy) {
+        guard viewportSize.height > 0 else { return }
+        let band: CGFloat = 70
+        let targetIndex: Int
+        if viewportPoint.y < band {
+            targetIndex = max(reorder.insertIndex - 1, 0)
+        } else if viewportPoint.y > viewportSize.height - band {
+            targetIndex = min(reorder.insertIndex + 1, displayedRows.count - 1)
+        } else {
+            return
+        }
+        guard displayedRows.indices.contains(targetIndex) else { return }
+
+        let now = Date()
+        guard now.timeIntervalSince(lastAutoScrollAt) > 0.28 else { return }
+        lastAutoScrollAt = now
+
+        let id = displayedRows[targetIndex].id
+        withAnimation(.easeOut(duration: 0.22)) {
+            proxy.scrollTo(id, anchor: .center)
+        }
+    }
+
+    /// 无障碍路径：没有长按拖动的用户，用「上移 / 下移」动作改顺序。
+    private func moveAlbum(id: String, by offset: Int) {
+        guard let from = displayedRows.firstIndex(where: { $0.id == id }) else { return }
+        let to = from + offset
+        guard displayedRows.indices.contains(to) else { return }
+
+        withAnimation(.easeOut(duration: 0.22)) {
+            displayedRows.swapAt(from, to)
+        }
+        dataManager.saveCustomAlbumOrder(displayedRows.map(\.id))
+        HapticManager.impact(.light)
+    }
+
+    // MARK: 排序相关的浮层与测量
+
+    private func itemFrameReader(_ id: String) -> some View {
+        GeometryReader { geometry in
+            Color.clear.preference(
+                key: AlbumItemFramesKey.self,
+                value: [id: geometry.frame(in: .named(Self.contentSpace))]
+            )
+        }
+    }
+
+    private var scrollOffsetReader: some View {
+        GeometryReader { geometry in
+            Color.clear.preference(
+                key: AlbumsScrollOffsetKey.self,
+                value: geometry.frame(in: .named(Self.viewportSpace)).minY
+            )
+        }
+        .frame(height: 0)
+    }
+
+    private var viewportSizeReader: some View {
+        GeometryReader { geometry in
+            Color.clear
+                .onAppear { viewportSize = geometry.size }
+                .onChange(of: geometry.size) { newValue in
+                    viewportSize = newValue
+                }
+        }
+    }
+
+    @ViewBuilder
+    private var reorderOverlays: some View {
+        if let actionMenu {
+            actionMenuOverlay(actionMenu)
+        }
+        if let id = reorder.itemID,
+           let row = displayedRows.first(where: { $0.id == id }) {
+            floatingCard(row)
+        }
+    }
+
+    /// 浮起的卡片：跟手移动、带阴影，形状与原来那一格一致。
+    private func floatingCard(_ row: AlbumListRowModel) -> some View {
+        let lift: CGFloat = displayStyle == .list ? 1.035 : 1.06
+        return albumItemContent(row, isPlaceholder: false)
+            .frame(width: dragStartFrame.width)
+            .scaleEffect(lift)
+            .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
+            .offset(
+                x: dragStartFrame.minX + dragTranslation.width,
+                y: dragStartFrame.minY + dragTranslation.height
+            )
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .zIndex(30)
+    }
+
+    private func actionMenuOverlay(_ target: AlbumActionMenuTarget) -> some View {
+        let anchor = itemFrames[target.id] ?? .zero
+        let menuWidth = max(menuSize.width, 208)
+        let x = min(
+            max(anchor.minX, 16),
+            max(16, viewportSize.width - menuWidth - 16)
+        )
+        let visibleTop = contentScrollOffset + 12
+        let visibleBottom = contentScrollOffset + viewportSize.height - 12
+        var y = anchor.maxY + 8
+        if y + menuSize.height > visibleBottom {
+            y = anchor.minY - menuSize.height - 8
+        }
+        y = max(visibleTop, min(y, max(visibleTop, visibleBottom - menuSize.height)))
+
+        return ZStack(alignment: .topLeading) {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { actionMenu = nil }
+
+            AlbumActionMenu(
+                canOrganize: albumPhotosCount(target.id) > 0,
+                canEdit: displayedRows.first(where: { $0.id == target.id })?.canEdit == true,
+                onOrganize: {
+                    let id = target.id
+                    actionMenu = nil
+                    openAlbumSwipe(id: id)
+                },
+                onEdit: {
+                    let id = target.id
+                    actionMenu = nil
+                    editAlbum(id: id)
+                },
+                onDelete: {
+                    let id = target.id
+                    actionMenu = nil
+                    deleteAlbum(id: id)
+                }
+            )
+            .frame(width: menuWidth)
+            .background(
+                GeometryReader { geometry in
+                    Color.clear
+                        .onAppear { menuSize = geometry.size }
+                        .onChange(of: geometry.size) { newValue in
+                            menuSize = newValue
+                        }
+                }
+            )
+            .offset(x: x, y: y)
+        }
+        .zIndex(20)
+    }
+
+    private func albumPhotosCount(_ id: String) -> Int {
+        displayedRows.first(where: { $0.id == id })?.photosCount ?? 0
     }
 
     // MARK: - 方法
     private func rebuildDisplayedRows() {
+        // 拖动期间冻结列表：图库刷新或 DataManager 发布会打断手势与落点。
+        guard !reorder.isActive else { return }
+
         let sourceAlbums = dataManager.getUserAlbums()
         displayedAlbumCount = sourceAlbums.count
 
@@ -578,39 +820,8 @@ struct AlbumsView: View {
         albumsByID = nextAlbumsByID
     }
 
-    private func beginReorderingFromDisplaySheet() {
-        showsDisplayStyle = false
-        albumDisplayStyleValue = AlbumDisplayStyle.list.rawValue
-        guard editMode != .active else { return }
-        toggleReordering()
-    }
-
-    private func toggleReordering() {
-        if editMode != .active && !searchText.isEmpty {
-            showAlbumToast(L10n.string("Clear search before reordering"), icon: "magnifyingglass", style: .warning)
-            return
-        }
-
-        HapticManager.impact(.light)
-        withAnimation(.easeInOut(duration: 0.18)) {
-            editMode = editMode == .active ? .inactive : .active
-        }
-    }
-
-    private func moveUserAlbums(from source: IndexSet, to destination: Int) {
-        guard searchText.isEmpty else {
-            showAlbumToast(L10n.string("Clear search before reordering"), icon: "magnifyingglass", style: .warning)
-            return
-        }
-
-        var rows = displayedRows
-        rows.move(fromOffsets: source, toOffset: destination)
-        displayedRows = rows
-        dataManager.saveCustomAlbumOrder(rows.map(\.id))
-        HapticManager.impact(.light)
-    }
-
     private func openAlbum(id: String) {
+        guard Date() >= suppressItemTapUntil else { return }
         guard let albumInfo = albumsByID[id] ?? dataManager.userAlbums.first(where: { $0.id == id }) else {
             HapticManager.impact(.light)
             showAlbumToast(L10n.string("This album no longer exists. The list has been updated."), icon: "arrow.clockwise", style: .warning)
@@ -743,44 +954,24 @@ private enum AlbumSheet: Identifiable {
     }
 }
 
-private struct AlbumSwipeHintRow: View {
-    let onDismiss: () -> Void
+/// 长按原地松手时打开的菜单目标（位置取自按下的那一格）。
+private struct AlbumActionMenuTarget: Identifiable, Equatable {
+    let id: String
+}
 
-    var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "hand.draw")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.accent)
-                .frame(width: 24, height: 24)
+/// 每格在内容坐标系里的 frame，供落点判定、浮起卡起点与菜单锚点使用。
+private struct AlbumItemFramesKey: PreferenceKey {
+    static var defaultValue: [String: CGRect] = [:]
+    static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
+        value.merge(nextValue()) { _, new in new }
+    }
+}
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text(L10n.string("Use Sort in the top right to reorder"))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.82)
-
-                Text(L10n.string("Swipe left on an album to edit or delete it"))
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.82)
-            }
-
-            Spacer(minLength: 8)
-
-            Button(action: onDismiss) {
-                Text(L10n.string("Got it"))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
-                    .frame(minWidth: 44, minHeight: 44)
-            }
-            .buttonStyle(.borderless)
-        }
-        .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
-        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-        .listRowBackground(PhotoDeleteStyle.surface)
-        .listRowSeparator(.hidden)
+/// 滚动偏移：手指在视口坐标里，落点判定在内容坐标里，两者靠这个值换算。
+private struct AlbumsScrollOffsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

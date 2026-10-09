@@ -77,6 +77,12 @@
 
 ## 付费
 
+> **2026-10-09 决策更新：本节「一次买断」目标作废。**
+> 付费模型改为订阅制三档：季度 / 年度 / 买断，年度含 7 天免费试用。
+> 商品沿用 `com.01mvp.photodelete.pro.annual`（年度订阅）与 `com.01mvp.photodelete.supporter.stats`（永久买断），
+> 新增季度 `com.01mvp.photodelete.pro.quarterly`。付费页见 `ios-app/PhotoDelete/Views/Paywall/`。
+> 下表保留为历史记录，不再作为实施依据。
+
 只卖两件事：相似照片、大文件。
 
 | | 现在 | 改成 |

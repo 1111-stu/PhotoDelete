@@ -65,7 +65,13 @@
           "familyShareable": false,
           "groupNumber": 1,
           "internalID": "BE0F2D0D-D626-457B-BC58-4D4B93F4FA52",
-          "introductoryOffer": null,
+          "introductoryOffer": {
+            "displayPrice": "0",
+            "internalID": "ANNUALTRIAL7DAY",
+            "numberOfPeriods": 1,
+            "paymentMode": "free",
+            "subscriptionPeriod": "P1W"
+          },
           "localizations": [
             {
               "description": "一年内使用长期统计和进阶清理工具，基础清理始终免费。",
@@ -86,6 +92,37 @@
           "productID": "com.01mvp.photodelete.pro.annual",
           "recurringSubscriptionPeriod": "P1Y",
           "referenceName": "OnePhoto Pro Annual",
+          "subscriptionGroupID": "0C3D8592-5D0F-4D39-9A9A-6E32462F65A8",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "4.99",
+          "familyShareable": false,
+          "groupNumber": 2,
+          "internalID": "9C4A1E77-2B84-4C5F-9F31-6D0E5B7A2C48",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "一季内使用长期统计和进阶清理工具，基础清理始终免费。",
+              "displayName": "OnePhoto 季度 Pro",
+              "locale": "zh-Hans"
+            },
+            {
+              "description": "一季內使用長期統計和進階清理工具，基礎清理始終免費。",
+              "displayName": "OnePhoto 季度 Pro",
+              "locale": "zh-Hant"
+            },
+            {
+              "description": "Advanced cleanup tools and long-term stats for one quarter.",
+              "displayName": "OnePhoto Quarterly Pro",
+              "locale": "en-US"
+            }
+          ],
+          "productID": "com.01mvp.photodelete.pro.quarterly",
+          "recurringSubscriptionPeriod": "P3M",
+          "referenceName": "OnePhoto Pro Quarterly",
           "subscriptionGroupID": "0C3D8592-5D0F-4D39-9A9A-6E32462F65A8",
           "type": "RecurringSubscription"
         }

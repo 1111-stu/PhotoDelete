@@ -14,7 +14,7 @@ struct PhotoDeleteApp: App {
             forKey: AppConstants.appLanguageKey,
             fallback: AppLanguage.system.rawValue
         )
-    @StateObject private var purchaseManager = PurchaseManager()
+    @ObservedObject private var subscriptionManager = SubscriptionManager.shared
 
     init() {
         ReviewPlaybackPreferences.applyLaunchDefaults()
@@ -23,13 +23,19 @@ struct PhotoDeleteApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(purchaseManager)
                 .environment(\.locale, selectedLanguage.locale)
                 .modifier(AppLayoutDirectionModifier(language: selectedLanguage))
                 .environment(\.photoDeleteTheme, PhotoDeleteTheme.defaultTheme)
                 .tint(PhotoDeleteTheme.defaultTheme.navigationTint)
                 .preferredColorScheme(.dark)
                 .statusBarHidden(false)
+                .task {
+                    // 启动即挂上交易监听并解析权益 / 拉品：付费页首屏不会出现价格占位符，
+                    // 已订阅用户也不会闪一下试用 CTA。
+                    subscriptionManager.startListeningForTransactions()
+                    await subscriptionManager.checkSubscriptionStatus()
+                    await subscriptionManager.fetchProducts()
+                }
         }
     }
 
@@ -92,8 +98,13 @@ private enum PhotoDeleteUITestDefaults {
             defaults: defaults
         )
 
-        if environment["PHOTO_DELETE_UI_TEST_SUPPORTER_TRIAL_ACTIVE"] == "1" {
-            defaults.set(Date(), forKey: AppConstants.supporterTrialStartDateKey)
+        // 已解锁态：写入缓存权益，由 SubscriptionManager 的 DEBUG 钩子在
+        // StoreKit 返回空交易时合成快照（见 SubscriptionManager.debugUITestEntitlementOverride）。
+        // 用买断档，避免订阅档的过期时间边界。
+        if environment["PHOTO_DELETE_UI_TEST_SUPPORTER_UNLOCKED"] == "1" {
+            defaults.set(true, forKey: AppConstants.supporterEntitlementKey)
+            defaults.set(AppConstants.supporterLifetimeProductID, forKey: AppConstants.supporterProductIDKey)
+            defaults.set(Date(), forKey: AppConstants.supporterPurchaseDateKey)
         }
     }
 
@@ -121,8 +132,7 @@ private enum PhotoDeleteUITestDefaults {
             AppConstants.supporterEntitlementKey,
             AppConstants.supporterPurchaseDateKey,
             AppConstants.supporterProductIDKey,
-            AppConstants.supporterExpirationDateKey,
-            AppConstants.supporterTrialStartDateKey
+            AppConstants.supporterExpirationDateKey
         ].forEach(defaults.removeObject)
     }
 

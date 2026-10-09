@@ -12,7 +12,7 @@ import UIKit
 
 struct MainTabView: View {
     @EnvironmentObject var dataManager: DataManager
-    @EnvironmentObject var purchaseManager: PurchaseManager
+    @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.photoDeleteTheme) private var theme
     @AppStorage(AppConstants.appAppearanceKey) private var appAppearanceValue = AppAppearance.system.rawValue
@@ -26,9 +26,6 @@ struct MainTabView: View {
                 configureTabBarAppearance()
             }
             dataManager.syncPhotoLibraryAuthorization()
-            Task {
-                await purchaseManager.activateStoreKit()
-            }
             #if DEBUG
             UITestPhotoLibrarySeeder.seedIfRequested {
                 dataManager.syncPhotoLibraryAuthorization(showPreparing: true)
@@ -49,7 +46,9 @@ struct MainTabView: View {
             }
             configureTabBarAppearance()
             dataManager.syncPhotoLibraryAuthorization()
-            purchaseManager.refreshEntitlementsAfterForegroundActivationIfNeeded()
+            Task {
+                await subscriptionManager.checkSubscriptionStatus()
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: AppConstants.openAlbumsTabNotificationName)) { _ in
             guard AppConstants.showsAlbumsTab else { return }
@@ -101,14 +100,12 @@ struct MainTabView: View {
         case .advanced:
             AdvancedView()
                 .environmentObject(dataManager)
-                .environmentObject(purchaseManager)
         case .stats:
             StatsView()
                 .environmentObject(dataManager)
         case .settings:
             SettingsView()
                 .environmentObject(dataManager)
-                .environmentObject(purchaseManager)
         }
     }
 
@@ -237,5 +234,4 @@ private enum PhotoDeleteMainTab: CaseIterable, Identifiable, Hashable {
 #Preview {
     MainTabView()
         .environmentObject(DataManager())
-        .environmentObject(PurchaseManager())
 }

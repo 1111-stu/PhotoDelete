@@ -202,4 +202,6 @@ sheet 通过类型化枚举更新 query；可用分区由页面配置指定。�
 
 卡片打开独立只读预览，不改变 reviewed 状态或候选库。开始整理冻结当前结果的 pendingIDs 和显示顺序，交给既有 SwipePhotoView 会话；查询切换未完成时按钮禁用，避免开始旧范围。显式范围保持撤销与批确认流程，新素材不会加入当前会话，删除或权限变化时移除不可用素材，不写全局分类游标。
 
-验证：原生 build-for-testing 已通过；首轮 208 个单元测试通过，专项完整 UI 流程通过（预览、筛选保留/重置、已整理空结果、截图入口、视频范围计数）。最后一次取消测试与 UI 布局回归结果见后续验证记录。真机 iCloud、有限权限和 Photos 写入仍遵循项目既有真机验证要求。
+验证：原生 build-for-testing 已通过；最终 209 个单元测试通过，包含查询取消测试。专项完整 UI 流程、视频整理进度条手势、英文普通字号与繁体中文最大辅助字号布局通过。原生截图保存于 `designs/screen-recordings-native-cards.png` 和 `designs/screen-recordings-native-filter.png`。只读视频预览播放结束、重新播放、进度拖动与返回也已通过；四条相关 UI 流程均验证通过。真机 iCloud、有限权限和 Photos 写入仍遵循项目既有真机验证要求。
+
+工作区并行新增的 `Services/Subscrition.swift` 缺少 `AnalyticsService` / `AppSettings`，会使默认构建失败；最终补充验证仅在 xcodebuild 命令中以 `EXCLUDED_SOURCE_FILE_NAMES=Subscrition.swift` 排除此无关文件，未修改或删除它。专项代码在该文件出现前的标准构建已通过。

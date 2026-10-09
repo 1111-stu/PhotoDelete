@@ -291,7 +291,7 @@ OnePhoto 当前标准：
 规则：
 
 - 不把基础功能描述成订阅专属。
-- 如果是一次性买断，不写 subscription、weekly、yearly 等误导词。
+- Pro 权益按季度 / 年度订阅或一次性买断销售。订阅词（subscription、quarterly、yearly、free trial）允许出现，但必须与实际商品一致；一次性买断商品不得写成订阅。
 - 内购 Product ID 可以保留历史技术 ID，不为品牌改名随意更换。
 - App Store Connect 的内购展示名要和本地 StoreKit 配置一致。
 

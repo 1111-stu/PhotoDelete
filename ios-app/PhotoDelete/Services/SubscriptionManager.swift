@@ -1,8 +1,10 @@
 //
 //  SubscriptionManager.swift
-//  eisenhower-matrix-ios-app
+//  PhotoDelete
 //
-//  Created by xion da on 2026/2/22.
+//  订阅权益的唯一真相来源：季度 / 年度 / 永久买断三档。
+//  权益解析结果会写回 AppConstants 的 supporter UserDefaults 键，
+//  离线解锁与主题门禁（PhotoDeleteTheme.hasStoredThemeAccess）据此工作。
 //
 
 import Foundation
@@ -22,19 +24,20 @@ enum SubscriptionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .productNotFound:
-            return NSLocalizedString("Product not found", comment: "")
+            return L10n.string("Product not found")
         case .purchaseCancelled:
-            return NSLocalizedString("Purchase cancelled", comment: "")
+            return L10n.string("Purchase cancelled")
         case .purchasePending:
-            return NSLocalizedString("Purchase pending approval", comment: "")
+            return L10n.string("Purchase pending approval")
         case .verificationFailed:
-            return NSLocalizedString("Purchase verification failed", comment: "")
+            return L10n.string("Purchase verification failed")
         case .networkError:
-            return NSLocalizedString("Network error, please try again", comment: "")
+            return L10n.string("Network error, please try again")
         case .unknown(let error):
             return error.localizedDescription
         }
     }
+
 }
 
 // MARK: - Subscription Manager
@@ -50,32 +53,22 @@ final class SubscriptionManager: ObservableObject {
         case upgradeOnly
     }
 
-    // MARK: - Product IDs
-
-    private enum ProductID {
-        // NOTE: 季度/年度是占位 ID，接入 App Store Connect 后替换为最终值。
-        static let quarterly = "io.xion.dofirst.subscription.quarterly"
-        static let yearly = "io.xion.dofirst.subscription.yearly"
-        static let lifetime = "io.xion.dofirst.pro"
-
-        static let all: Set<String> = [quarterly, yearly, lifetime]
-    }
-
     // MARK: - Subscription Type
 
-    enum SubscriptionType: String, CaseIterable {
-        case quarterly = "io.xion.dofirst.subscription.quarterly"
-        case yearly = "io.xion.dofirst.subscription.yearly"
-        case lifetime = "io.xion.dofirst.pro"
+    /// 三档套餐。商品 ID 只从 `AppConstants` 取一处，避免字面量在多处漂移。
+    enum SubscriptionType: CaseIterable {
+        case quarterly
+        case yearly
+        case lifetime
 
-        var displayName: String {
+        var productID: String {
             switch self {
             case .quarterly:
-                return NSLocalizedString("Quarterly", comment: "")
+                return AppConstants.supporterQuarterlyProductID
             case .yearly:
-                return NSLocalizedString("Yearly", comment: "")
+                return AppConstants.supporterAnnualProductID
             case .lifetime:
-                return NSLocalizedString("Lifetime", comment: "")
+                return AppConstants.supporterLifetimeProductID
             }
         }
 
@@ -93,7 +86,7 @@ final class SubscriptionManager: ObservableObject {
         }
 
         static func from(productID: String) -> SubscriptionType? {
-            return SubscriptionType(rawValue: productID)
+            allCases.first { $0.productID == productID }
         }
     }
 
@@ -107,13 +100,16 @@ final class SubscriptionManager: ObservableObject {
     private struct ActiveSubscription {
         let type: SubscriptionType
         let expirationDate: Date
+        let purchaseDate: Date?
     }
 
     private struct EntitlementSnapshot {
         let type: SubscriptionType?
         let expirationDate: Date?
+        /// 购买日期，缓存到 UserDefaults 供设置页展示（买断无到期时间）。
+        let purchaseDate: Date?
 
-        static let none = EntitlementSnapshot(type: nil, expirationDate: nil)
+        static let none = EntitlementSnapshot(type: nil, expirationDate: nil, purchaseDate: nil)
     }
 
     // MARK: - Published State
@@ -179,13 +175,8 @@ final class SubscriptionManager: ObservableObject {
         return offer.period.value * unitDays * offer.periodCount
     }
 
-    // 兼容旧引用命名，后续可移除。
-    var monthlyProduct: Product? {
-        quarterlyProduct
-    }
-
     var currentProductID: String? {
-        currentSubscriptionType?.rawValue
+        currentSubscriptionType?.productID
     }
 
     var membershipStatus: MembershipStatus {
@@ -237,7 +228,12 @@ final class SubscriptionManager: ObservableObject {
 
     // MARK: - Public Methods
 
+    /// 幂等：重复调用（如视图重建再次进 `.task`）不会重复起监听。
     func startListeningForTransactions() {
+        if let transactionListener, transactionListener.isCancelled == false {
+            return
+        }
+
         transactionListener?.cancel()
         transactionListener = Task { [weak self] in
             for await result in Transaction.updates {
@@ -253,7 +249,7 @@ final class SubscriptionManager: ObservableObject {
         errorMessage = nil
 
         do {
-            let storeProducts = try await Product.products(for: ProductID.all)
+            let storeProducts = try await Product.products(for: Set(SubscriptionType.allCases.map(\.productID)))
             guard !storeProducts.isEmpty else {
                 products = []
                 isTrialEligible = false
@@ -277,13 +273,11 @@ final class SubscriptionManager: ObservableObject {
         errorMessage = nil
         defer { isLoading = false }
 
-        let type = SubscriptionType.from(productID: product.id)
         do {
             let result = try await product.purchase()
-            return await handlePurchaseResult(result, type: type)
+            return await handlePurchaseResult(result)
         } catch {
             errorMessage = SubscriptionError.unknown(error).errorDescription
-            trackPurchaseFailureIfPossible(type: type, reason: errorMessage)
             return false
         }
     }
@@ -294,7 +288,6 @@ final class SubscriptionManager: ObservableObject {
         guard let blockReason = purchaseBlockReason(for: type) else {
             guard let product = product(for: type) else {
                 errorMessage = SubscriptionError.productNotFound.errorDescription
-                AnalyticsService.trackPurchaseFailed(plan: type, reason: "product_not_found")
                 return false
             }
 
@@ -302,7 +295,6 @@ final class SubscriptionManager: ObservableObject {
         }
 
         errorMessage = purchaseBlockReasonMessage(blockReason)
-        AnalyticsService.trackPurchaseFailed(plan: type, reason: "purchase_blocked")
         return false
     }
 
@@ -382,13 +374,13 @@ final class SubscriptionManager: ObservableObject {
     private func purchaseBlockReasonMessage(_ reason: PurchaseBlockReason) -> String {
         switch reason {
         case .lifetimeAlreadyOwned:
-            return NSLocalizedString("You already have lifetime access", comment: "")
+            return L10n.string("You already have lifetime access")
         case .lifetimePurchaseBlockedDuringActiveSubscription:
-            return NSLocalizedString("Lifetime purchase is available after your current subscription expires", comment: "")
+            return L10n.string("Lifetime purchase is available after your current subscription expires")
         case .currentPlanAlreadyActive:
-            return NSLocalizedString("Current plan is already active", comment: "")
+            return L10n.string("Current plan is already active")
         case .upgradeOnly:
-            return NSLocalizedString("Only upgrades to a higher plan are supported", comment: "")
+            return L10n.string("Only upgrades to a higher plan are supported")
         }
     }
 
@@ -401,71 +393,31 @@ final class SubscriptionManager: ObservableObject {
         await transaction.finish()
     }
 
-    private func handlePurchaseResult(
-        _ result: Product.PurchaseResult,
-        type: SubscriptionType?
-    ) async -> Bool {
+    private func handlePurchaseResult(_ result: Product.PurchaseResult) async -> Bool {
         switch result {
         case .success(let verification):
             guard case .verified(let transaction) = verification else {
                 errorMessage = SubscriptionError.verificationFailed.errorDescription
-                trackPurchaseFailureIfPossible(type: type, reason: "verification_failed")
                 return false
             }
 
-            let isTrialStart = transaction.offerType == .introductory
             await refreshEntitlementState()
             await transaction.finish()
-            trackPurchaseCompletedIfPossible(type: type, isTrialStart: isTrialStart)
             return true
 
         case .userCancelled:
-            errorMessage = SubscriptionError.purchaseCancelled.errorDescription
-            trackPurchaseCancelledIfPossible(type: type)
+            // 用户主动取消不是错误，不该在付费页弹红字（与旧 PurchaseManager 的既有行为一致）。
+            errorMessage = nil
             return false
 
         case .pending:
             errorMessage = SubscriptionError.purchasePending.errorDescription
-            trackPurchasePendingIfPossible(type: type)
             return false
 
         @unknown default:
             errorMessage = SubscriptionError.verificationFailed.errorDescription
-            trackPurchaseFailureIfPossible(type: type, reason: "unknown_purchase_result")
             return false
         }
-    }
-
-    /// - Parameter isTrialStart: 本笔交易是否实际开启试用（来自 StoreKit offerType）
-    private func trackPurchaseCompletedIfPossible(
-        type: SubscriptionType?,
-        isTrialStart: Bool
-    ) {
-        guard let type else {
-            return
-        }
-        AnalyticsService.trackPurchaseCompleted(plan: type, isTrialStart: isTrialStart)
-    }
-
-    private func trackPurchaseCancelledIfPossible(type: SubscriptionType?) {
-        guard let type else {
-            return
-        }
-        AnalyticsService.trackPurchaseCancelled(plan: type)
-    }
-
-    private func trackPurchasePendingIfPossible(type: SubscriptionType?) {
-        guard let type else {
-            return
-        }
-        AnalyticsService.trackPurchasePending(plan: type)
-    }
-
-    private func trackPurchaseFailureIfPossible(type: SubscriptionType?, reason: String?) {
-        guard let type else {
-            return
-        }
-        AnalyticsService.trackPurchaseFailed(plan: type, reason: reason)
     }
 
     private func refreshEntitlementState() async {
@@ -484,7 +436,7 @@ final class SubscriptionManager: ObservableObject {
     /// 5. 否则在有效订阅里选择到期时间最晚的一个
     private func resolveCurrentEntitlement() async -> EntitlementSnapshot {
         var activeSubscription: ActiveSubscription?
-        var hasLifetimeAccess = false
+        var lifetimePurchaseDate: Date?
         let now = Date()
 
         for await result in Transaction.currentEntitlements {
@@ -506,7 +458,7 @@ final class SubscriptionManager: ObservableObject {
 
             // lifetime 是永久买断，只要存在一条有效 entitlement，最终就优先返回 lifetime。
             if type == .lifetime {
-                hasLifetimeAccess = true
+                lifetimePurchaseDate = transaction.purchaseDate
                 continue
             }
 
@@ -526,25 +478,58 @@ final class SubscriptionManager: ObservableObject {
             }
 
             // 如果存在多个有效订阅，保留到期时间更晚的那个。
-            let candidate = ActiveSubscription(type: type, expirationDate: expirationDate)
+            let candidate = ActiveSubscription(
+                type: type,
+                expirationDate: expirationDate,
+                purchaseDate: transaction.purchaseDate
+            )
             activeSubscription = mostRecentSubscription(existing: activeSubscription, candidate: candidate)
         }
 
         // lifetime 的优先级最高，高于季度/年度订阅。
-        guard hasLifetimeAccess == false else {
-            return EntitlementSnapshot(type: .lifetime, expirationDate: nil)
+        if let lifetimePurchaseDate {
+            return EntitlementSnapshot(
+                type: .lifetime,
+                expirationDate: nil,
+                purchaseDate: lifetimePurchaseDate
+            )
         }
 
         // 没有 lifetime 且没有任何有效订阅时，视为 free。
         guard let activeSubscription else {
-            return .none
+            return debugUITestEntitlementOverride() ?? .none
         }
 
         // 返回当前最合适的有效订阅及其过期时间，供 UI 和业务层统一使用。
         return EntitlementSnapshot(
             type: activeSubscription.type,
-            expirationDate: activeSubscription.expirationDate
+            expirationDate: activeSubscription.expirationDate,
+            purchaseDate: activeSubscription.purchaseDate
         )
+    }
+
+    /// UI 测试用的解锁钩子：本地 StoreKit 在 UI 测试进程里返回空交易，
+    /// 会把启动前写好的缓存权益清掉，因此在这里合成一份权益快照。
+    private func debugUITestEntitlementOverride() -> EntitlementSnapshot? {
+        #if DEBUG
+        guard ProcessInfo.processInfo.environment["PHOTO_DELETE_UI_TEST_SUPPORTER_UNLOCKED"] == "1" else {
+            return nil
+        }
+
+        let defaults = UserDefaults.standard
+        guard let rawProductID = defaults.string(forKey: AppConstants.supporterProductIDKey),
+              let type = SubscriptionType.from(productID: rawProductID) else {
+            return nil
+        }
+
+        return EntitlementSnapshot(
+            type: type,
+            expirationDate: defaults.object(forKey: AppConstants.supporterExpirationDateKey) as? Date,
+            purchaseDate: defaults.object(forKey: AppConstants.supporterPurchaseDateKey) as? Date
+        )
+        #else
+        return nil
+        #endif
     }
 
     private func mostRecentSubscription(
@@ -565,10 +550,40 @@ final class SubscriptionManager: ObservableObject {
     private func apply(_ snapshot: EntitlementSnapshot) {
         currentSubscriptionType = snapshot.type
         expirationDate = snapshot.expirationDate
-        AppSettings.shared.isPremiumUser = snapshot.type != nil
+        persistSupporterCache(snapshot)
+    }
+
+    /// 把权益写回既有的 supporter UserDefaults 键。
+    /// `PhotoDeleteTheme.hasStoredThemeAccess` 与 `SupporterCachedEntitlementPolicy`
+    /// 直接读这些键，因此离线主题门禁与离线解锁都依赖这里。
+    private func persistSupporterCache(_ snapshot: EntitlementSnapshot) {
+        let defaults = UserDefaults.standard
+
+        // 本机 3 天试用已退役（改由 Apple 年度 intro offer 承担），清掉旧值避免残留。
+        defaults.removeObject(forKey: AppConstants.supporterTrialStartDateKey)
+
+        guard let type = snapshot.type else {
+            defaults.removeObject(forKey: AppConstants.supporterEntitlementKey)
+            defaults.removeObject(forKey: AppConstants.supporterProductIDKey)
+            defaults.removeObject(forKey: AppConstants.supporterPurchaseDateKey)
+            defaults.removeObject(forKey: AppConstants.supporterExpirationDateKey)
+            return
+        }
+
+        defaults.set(true, forKey: AppConstants.supporterEntitlementKey)
+        defaults.set(type.productID, forKey: AppConstants.supporterProductIDKey)
+        if let purchaseDate = snapshot.purchaseDate {
+            defaults.set(purchaseDate, forKey: AppConstants.supporterPurchaseDateKey)
+        }
+        if let expirationDate = snapshot.expirationDate {
+            defaults.set(expirationDate, forKey: AppConstants.supporterExpirationDateKey)
+        } else {
+            // 买断没有到期时间，留着旧订阅的过期时间会误判为已过期。
+            defaults.removeObject(forKey: AppConstants.supporterExpirationDateKey)
+        }
     }
 
     private func product(for type: SubscriptionType) -> Product? {
-        products.first(where: { $0.id == type.rawValue })
+        products.first(where: { $0.id == type.productID })
     }
 }

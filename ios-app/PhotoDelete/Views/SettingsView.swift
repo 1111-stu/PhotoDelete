@@ -88,7 +88,7 @@ extension View {
 
 struct SettingsView: View {
     @EnvironmentObject var dataManager: DataManager
-    @EnvironmentObject var purchaseManager: PurchaseManager
+    @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(AppConstants.hasSeenIntroKey) private var hasSeenPhotoDeleteIntro = false
     @AppStorage(AppConstants.hasCompletedOnboardingKey) private var hasCompletedOnboarding = false
@@ -160,9 +160,7 @@ struct SettingsView: View {
             case .privacy:
                 PrivacyInfoView()
             case .supporter:
-                SupporterView()
-                    .environmentObject(dataManager)
-                    .environmentObject(purchaseManager)
+                PaywallView()
             case .gestureSettings:
                 GestureSettingsView()
             case .languageSettings:
@@ -239,43 +237,27 @@ struct SettingsView: View {
     }
 
     private var supporterRowTitle: String {
-        if purchaseManager.hasPaidSupporterAccess {
-            return purchaseManager.supporterAccessKind == .annual
-                ? L10n.string("Annual Pro Active")
-                : L10n.string("Lifetime Pro Unlocked")
+        switch subscriptionManager.currentSubscriptionType {
+        case .quarterly:
+            return L10n.string("Quarterly Pro Active")
+        case .yearly:
+            return L10n.string("Annual Pro Active")
+        case .lifetime:
+            return L10n.string("Lifetime Pro Unlocked")
+        case nil:
+            return L10n.string("Unlock Advanced Features")
         }
-
-        if purchaseManager.isUsingTrialSupporterAccess {
-            return L10n.string("Supporter Trial Active")
-        }
-
-        if purchaseManager.isSupporterTrialExpired {
-            return L10n.string("Trial Ended")
-        }
-
-        return L10n.string("Unlock Advanced Features")
     }
 
     private var supporterRowSubtitle: String {
-        if purchaseManager.hasPaidSupporterAccess {
-            return purchaseManager.supporterAccessKind == .annual
-                ? L10n.string("View subscription status and plan features")
-                : L10n.string("View purchase info and feature differences")
+        switch subscriptionManager.currentSubscriptionType {
+        case .quarterly, .yearly:
+            return L10n.string("View subscription status and plan features")
+        case .lifetime:
+            return L10n.string("View purchase info and feature differences")
+        case nil:
+            return L10n.string("Choose a quarterly or annual subscription, or a one-time Lifetime Pro purchase.")
         }
-
-        if purchaseManager.isUsingTrialSupporterAccess {
-            return String(format: L10n.string("%lld days remaining. Choose Annual or Lifetime Pro anytime."), purchaseManager.supporterTrialDaysRemaining)
-        }
-
-        if purchaseManager.isSupporterTrialExpired {
-            return L10n.string("The 3-day trial has ended. Choose Annual or Lifetime Pro.")
-        }
-
-        if purchaseManager.canStartSupporterTrial {
-            return L10n.string("Try free for 3 days, or choose Annual or Lifetime Pro.")
-        }
-
-        return L10n.string("Choose an annual subscription or a one-time Lifetime Pro purchase.")
     }
 
     // MARK: - 关于与支持
@@ -1374,5 +1356,4 @@ struct AboutView: View {
 #Preview {
     SettingsView()
         .environmentObject(DataManager())
-        .environmentObject(PurchaseManager())
 }

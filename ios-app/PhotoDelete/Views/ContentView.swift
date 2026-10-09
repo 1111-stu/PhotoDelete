@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var purchaseManager: PurchaseManager
     @AppStorage(AppConstants.hasCompletedOnboardingKey) private var hasCompletedOnboarding = false
     @AppStorage(AppConstants.hasSeenIntroKey) private var hasSeenHomeIntro = false
     @StateObject private var dataManager = DataManager()
@@ -17,7 +16,6 @@ struct ContentView: View {
         if hasCompletedOnboarding {
             MainTabView()
                 .environmentObject(dataManager)
-                .environmentObject(purchaseManager)
         } else {
             OnboardingFlowView(
                 onSkip: {
@@ -638,5 +636,4 @@ private struct MiniPhotoCard: View {
 
 #Preview {
     ContentView()
-        .environmentObject(PurchaseManager())
 }

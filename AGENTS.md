@@ -10,7 +10,7 @@ The project is licensed under AGPL-3.0. Do not relicense it, and do not describe
 - When the work can be split cleanly, use independent subagents for non-overlapping read-only research or disjoint file scopes, then integrate and verify in the main thread.
 - Treat the worktree as shared. Check `git status --short` before edits, do not revert user changes, and keep staging/commits narrowly scoped when asked to commit.
 - Public UI text must be concise, user-facing, and localized through `L10n` / `Localizable.xcstrings`. Avoid leaking raw technical failures unless they are only for diagnostics.
-- Core cleanup remains free. Supporter features are a one-time StoreKit unlock; do not describe the app as subscription-only or imply that basic cleanup requires payment.
+- Core cleanup remains free. Pro features unlock through a quarterly or annual subscription, or a one-time lifetime purchase; do not describe the app as subscription-only or imply that basic cleanup requires payment.
 
 ## Project Overview
 
@@ -110,7 +110,8 @@ BUILD_NUMBER=202606111630 scripts/release-testflight.sh
 - `LibrarySnapshotStore.swift`: Local JSON snapshots for photo-library and album-list IDs to speed up reloads.
 - `CleanupStatsStore.swift`: Local cleanup-session history, monthly summaries, streaks, and persisted cleanup totals.
 - `CleanupAchievements.swift`: Achievement definitions, progress, newly unlocked milestone evaluation.
-- `PurchaseManager.swift`: StoreKit product loading, supporter purchase, restore, entitlement refresh, and transaction updates.
+- `SubscriptionManager.swift`: The single source of truth for Pro entitlement. Loads the quarterly / annual / lifetime products, drives purchase and restore, refreshes entitlement, listens for transaction updates, and caches the resolved entitlement into the supporter UserDefaults keys.
+- `SupporterEntitlementPolicy.swift`: Validates that cached entitlement (lifetime is permanent; subscriptions need a future expiration date). Read by offline gating and by the theme picker.
 - `FeedbackDiagnostics.swift`: User-facing email diagnostic body. Keep this concise and do not duplicate system mail signatures.
 - `AppLanguage.swift`, `Localization.swift`, `Localizable.xcstrings`: Runtime language selection for system, `zh-Hans`, `zh-Hant`, and `en`.
 - `DesignSystem.swift`: Shared colors, layout constants, app constants, haptics, toasts, buttons, and permission cards.
@@ -124,7 +125,7 @@ BUILD_NUMBER=202606111630 scripts/release-testflight.sh
 - `CleanupAchievementsView.swift`: Achievement list and progress display.
 - `SettingsView.swift`: Usage stats, supporter entry, gesture/language/appearance preferences, data and permission controls, feedback, creator, and privacy sheets.
 - `SettingsSupportDetailViews.swift`: Creator/01MVP support sections used by Settings.
-- `SupporterView.swift`: Supporter paywall, unlocked long-term stats, monthly summaries, history, and badge. Theme switching is a supporter feature exposed from Settings.
+- `Views/Paywall/`: The Pro paywall. `PaywallView` is the screen (cold-canvas + dot-grid backdrop, glass footer CTA), `PaywallSections` holds the feature list / plan cards / footer, `PaywallPricing` is the pure value type translating `Product` into display copy, `PaywallTheme` holds the paywall-scoped design tokens. `SupporterBenefitsSheet` (also opened from the Advanced screen) carries the free-vs-Pro comparison. Replaces the removed `SupporterView.swift`.
 
 ### Website And Marketing
 
@@ -169,7 +170,7 @@ BUILD_NUMBER=202606111630 scripts/release-testflight.sh
 - For native SwiftUI UI, navigation, accessibility, and iOS 26 Liquid Glass rules, use `IOSAPP/UI_GUIDELINES.md` as the source of truth.
 - Keep photo-library mutations behind `DataManager` and `PhotoLibraryManager`; do not write Photos changes directly from random views.
 - Keep user-visible strings localized. If adding text, update `Localizable.xcstrings` for Simplified Chinese, Traditional Chinese, and English.
-- Keep advanced/supporter-only behavior behind `PurchaseManager.isSupporter`. Locked advanced screens should remain demo/preview only.
+- Keep advanced/pro-only behavior behind `SubscriptionManager.shared.isPro`. Locked advanced screens should remain demo/preview only.
 - Keep local persistence small and transparent: UserDefaults for preferences/reviewed IDs, Application Support JSON for snapshots and cleanup history.
 - Do not add analytics, tracking SDKs, or network photo upload paths without explicit product approval and privacy-policy updates.
 
