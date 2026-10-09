@@ -11,6 +11,7 @@ struct PhotoReviewSource {
     let selectedLocationGroupID: String?
     let randomReviewScope: PhotoRandomReviewScope?
     let selectedHistoricalToday: Bool
+    var explicitReviewScope: ExplicitAssetReviewScope? = nil
 
     func photos(
         dataManager: DataManager,
@@ -25,7 +26,13 @@ struct PhotoReviewSource {
         }
 
         let photos: [PHAsset]
-        if let randomReviewScope {
+        if let explicitReviewScope {
+            let result = PHAsset.fetchAssets(withLocalIdentifiers: explicitReviewScope.orderedAssetIDs, options: nil)
+            var availableAssets: [PHAsset] = []
+            availableAssets.reserveCapacity(result.count)
+            result.enumerateObjects { asset, _, _ in availableAssets.append(asset) }
+            return explicitReviewScope.orderedElements(from: availableAssets, identifier: \.localIdentifier)
+        } else if let randomReviewScope {
             photos = dataManager.makeRandomReviewPhotos(
                 for: randomReviewScope,
                 seed: randomSeed,
@@ -61,7 +68,11 @@ struct PhotoReviewSource {
     }
 
     var usesChronologicalOrder: Bool {
-        randomReviewScope == nil && selectedAdvancedCleanup == nil
+        explicitReviewScope == nil && randomReviewScope == nil && selectedAdvancedCleanup == nil
+    }
+
+    var persistsProgress: Bool {
+        explicitReviewScope == nil && randomReviewScope == nil
     }
 
     func title(dataManager: DataManager, activeAlbumInfo: AlbumInfo?) -> String {
@@ -89,6 +100,9 @@ struct PhotoReviewSource {
     }
 
     var progressScopeID: String {
+        if let explicitReviewScope {
+            return explicitReviewScope.progressScopeID
+        }
         if let randomReviewScope {
             return "random:\(randomReviewScope.rawValue)"
         }

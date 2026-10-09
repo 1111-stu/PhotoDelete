@@ -255,6 +255,7 @@ class DataManager: ObservableObject {
     /// Cached so Home does not re-filter the full library on every body refresh.
     @Published private(set) var unclassifiedPhotosCount = 0
     @Published private(set) var cleanupStatsRevision = UUID()
+    @Published private(set) var assetLibraryRevision = UUID()
     @Published private(set) var videoCompressionHistoryRevision = UUID()
     @Published private(set) var imageCompressionHistoryRevision = UUID()
     @Published private(set) var imageCompressionJob = AdvancedImageCompressionJobState()
@@ -325,6 +326,8 @@ class DataManager: ObservableObject {
     private var pendingFavoriteCandidateIDs: Set<String> = []
     private var videoFileSizeEstimateCache: [String: VideoFileSizeEstimate] = [:]
     private var assetFileSizeEstimateCache: [String: AssetFileSizeEstimate] = [:]
+    private struct AssetSizeCacheVersion: Equatable { let modificationDate: Date? }
+    private var assetSizeCacheVersions: [String: AssetSizeCacheVersion] = [:]
     private var imageCompressionTask: Task<Void, Never>?
     private var videoCompressionTask: Task<Void, Never>?
     private var cancellables: Set<AnyCancellable> = []
@@ -433,12 +436,13 @@ class DataManager: ObservableObject {
             .sink { [weak self] isLoading in
                 guard !isLoading else { return }
                 self?.resumePendingAlbumRefreshIfNeeded()
+                self?.assetLibraryRevision = UUID()
             }
             .store(in: &cancellables)
 
         photoLibraryManager.onLibraryDataChanged = { [weak self] in
             guard let self else { return }
-            self.videoFileSizeEstimateCache.removeAll()
+            self.assetLibraryRevision = UUID()
             let shouldRefreshDerivedData = !self.suppressNextDerivedLibraryRefresh
             self.suppressNextDerivedLibraryRefresh = false
 
@@ -460,7 +464,14 @@ class DataManager: ObservableObject {
         // album-list/membership pass without suppressing external changes.
         photoLibraryManager.onAlbumDataChanged = { [weak self] in
             self?.scheduleAlbumDataReconciliation()
+            self?.assetLibraryRevision = UUID()
         }
+
+        photoLibraryManager.$authorizationStatus
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.assetLibraryRevision = UUID() }
+            .store(in: &cancellables)
 
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
             .receive(on: DispatchQueue.main)
@@ -1240,6 +1251,10 @@ class DataManager: ObservableObject {
         isFetchingAlbums = false
         albumMembershipGeneration += 1
         albumLoadingProgress = 0
+        videoFileSizeEstimateCache.removeAll()
+        assetFileSizeEstimateCache.removeAll()
+        assetSizeCacheVersions.removeAll()
+        assetLibraryRevision = UUID()
     }
 
     private func resetLocationGroupState(clearTitleCache: Bool) {
@@ -2381,7 +2396,7 @@ class DataManager: ObservableObject {
     }
 
     func estimatedSizeMB(for asset: PHAsset) -> Double {
-        if let estimate = assetFileSizeEstimateCache[asset.localIdentifier],
+        if let estimate = cachedAssetFileSizeEstimate(for: asset),
            estimate.isReliable {
             return estimate.sizeMB
         }
@@ -2389,11 +2404,13 @@ class DataManager: ObservableObject {
     }
 
     func cachedAssetFileSizeEstimate(for asset: PHAsset) -> AssetFileSizeEstimate? {
-        assetFileSizeEstimateCache[asset.localIdentifier]
+        guard assetSizeCacheVersions[asset.localIdentifier] == AssetSizeCacheVersion(modificationDate: asset.modificationDate) else { return nil }
+        return assetFileSizeEstimateCache[asset.localIdentifier]
     }
 
     func cacheAssetFileSizeEstimate(_ estimate: AssetFileSizeEstimate, for asset: PHAsset) {
-        cacheAssetFileSizeEstimate(estimate, forAssetIdentifier: asset.localIdentifier)
+        assetFileSizeEstimateCache[asset.localIdentifier] = estimate
+        assetSizeCacheVersions[asset.localIdentifier] = AssetSizeCacheVersion(modificationDate: asset.modificationDate)
     }
 
     func cacheAssetFileSizeEstimate(
@@ -2401,6 +2418,9 @@ class DataManager: ObservableObject {
         forAssetIdentifier identifier: String
     ) {
         assetFileSizeEstimateCache[identifier] = estimate
+        if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil).firstObject {
+            assetSizeCacheVersions[identifier] = AssetSizeCacheVersion(modificationDate: asset.modificationDate)
+        }
     }
 
     func deletedContentSizeSummary(for assets: [PHAsset]) -> DeletedContentSizeSummary {
@@ -2411,17 +2431,19 @@ class DataManager: ObservableObject {
     }
 
     func cachedVideoFileSizeEstimate(for asset: PHAsset) -> VideoFileSizeEstimate? {
-        videoFileSizeEstimateCache[asset.localIdentifier] ??
+        guard assetSizeCacheVersions[asset.localIdentifier] == AssetSizeCacheVersion(modificationDate: asset.modificationDate) else { return nil }
+        return videoFileSizeEstimateCache[asset.localIdentifier] ??
             assetFileSizeEstimateCache[asset.localIdentifier]
     }
 
     func cacheVideoFileSizeEstimate(_ estimate: VideoFileSizeEstimate, for asset: PHAsset) {
-        cacheVideoFileSizeEstimate(estimate, forAssetIdentifier: asset.localIdentifier)
+        videoFileSizeEstimateCache[asset.localIdentifier] = estimate
+        cacheAssetFileSizeEstimate(estimate, for: asset)
     }
 
     func cacheVideoFileSizeEstimate(_ estimate: VideoFileSizeEstimate, forAssetIdentifier identifier: String) {
         videoFileSizeEstimateCache[identifier] = estimate
-        assetFileSizeEstimateCache[identifier] = estimate
+        cacheAssetFileSizeEstimate(estimate, forAssetIdentifier: identifier)
     }
 
     func pruneCachedVideoFileSizeEstimates(keeping assetIdentifiers: Set<String>) {

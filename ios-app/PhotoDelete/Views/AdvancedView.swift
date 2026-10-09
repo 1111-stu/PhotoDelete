@@ -450,7 +450,7 @@ struct AdvancedView: View {
             AdvancedAssetListView(mode: .cleanup(kind))
                 .environmentObject(dataManager)
         case .screenRecordings:
-            SwipePhotoView(selectedCategory: .screenRecordings, selectedTimeGroup: nil, selectedAlbumInfo: nil)
+            CleanupAssetBrowserView(category: .screenRecordings)
                 .environmentObject(dataManager)
         }
     }
@@ -6441,7 +6441,7 @@ struct AdvancedCleanupDestination: View {
             AdvancedAssetListView(mode: .cleanup(kind))
                 .environmentObject(dataManager)
         case .screenRecordings:
-            SwipePhotoView(selectedCategory: .screenRecordings, selectedTimeGroup: nil, selectedAlbumInfo: nil)
+            CleanupAssetBrowserView(category: .screenRecordings)
                 .environmentObject(dataManager)
         }
     }

@@ -9,6 +9,7 @@ import SwiftUI
 
 enum SwipeViewDestination: Hashable {
     case category(PhotoCategory)
+    case assetBrowser(AssetCategoryID)
     case timeGroup(String)
     case album(AlbumInfo)
     case random(PhotoRandomReviewScope)
@@ -23,6 +24,8 @@ enum SwipeViewDestination: Hashable {
 
     static func == (lhs: SwipeViewDestination, rhs: SwipeViewDestination) -> Bool {
         switch (lhs, rhs) {
+        case (.assetBrowser(let lhsCategory), .assetBrowser(let rhsCategory)):
+            return lhsCategory == rhsCategory
         case (.category(let lhsCategory), .category(let rhsCategory)):
             return lhsCategory == rhsCategory
         case (.timeGroup(let lhsTimeGroup), .timeGroup(let rhsTimeGroup)):
@@ -54,6 +57,9 @@ enum SwipeViewDestination: Hashable {
 
     func hash(into hasher: inout Hasher) {
         switch self {
+        case .assetBrowser(let category):
+            hasher.combine("assetBrowser")
+            hasher.combine(category)
         case .category(let category):
             hasher.combine("category")
             hasher.combine(category)
@@ -189,6 +195,9 @@ struct HomeView: View {
             }
             .navigationDestination(for: SwipeViewDestination.self) { destination in
                 switch destination {
+                case .assetBrowser(let category):
+                    CleanupAssetBrowserView(category: category)
+                        .environmentObject(dataManager)
                 case .category(let category):
                     SwipePhotoView(selectedCategory: category, selectedTimeGroup: nil, selectedAlbumInfo: nil)
                         .environmentObject(dataManager)
@@ -798,7 +807,7 @@ struct HomeView: View {
                     value: cleanupQueue(for: .videos)?.formattedSpace,
                     identifier: "home-cleanup-videos"
                 ) {
-                    navigationPath.append(SwipeViewDestination.category(.videos))
+                    navigationPath.append(SwipeViewDestination.assetBrowser(.videos))
                 }
                 insetHairline
                 cleanupRow(
@@ -807,7 +816,7 @@ struct HomeView: View {
                     value: nil,
                     identifier: "home-cleanup-screenshots"
                 ) {
-                    navigationPath.append(SwipeViewDestination.category(.screenshots))
+                    navigationPath.append(SwipeViewDestination.assetBrowser(.screenshots))
                 }
                 insetHairline
                 cleanupRow(
@@ -816,7 +825,7 @@ struct HomeView: View {
                     value: screenRecordingsQueueValue,
                     identifier: "home-cleanup-screen-recordings"
                 ) {
-                    navigationPath.append(SwipeViewDestination.category(.screenRecordings))
+                    navigationPath.append(SwipeViewDestination.assetBrowser(.screenRecordings))
                 }
             }
             .photoDeleteCard(radius: 22)

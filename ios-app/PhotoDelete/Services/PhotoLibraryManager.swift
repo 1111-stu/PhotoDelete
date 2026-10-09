@@ -2001,19 +2001,27 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             throw ImageCompressionError.notImage
         }
 
-        try Task.checkCancellation()
-        let result: (data: Data?, isInCloud: Bool) = await withCheckedContinuation { continuation in
-            let options = PHImageRequestOptions()
-            options.deliveryMode = .highQualityFormat
-            options.version = .current
-            options.isNetworkAccessAllowed = false
-            options.isSynchronous = false
-
-            imageManager.requestImageDataAndOrientation(for: asset, options: options) { data, _, _, info in
-                let isCancelled = (info?[PHImageCancelledKey] as? Bool) == true
-                let isInCloud = (info?[PHImageResultIsInCloudKey] as? Bool) == true
-                continuation.resume(returning: (isCancelled ? nil : data, isInCloud))
+        let cancellation = PhotoLibraryImageRequestCancellation(manager: imageManager)
+        let result: (data: Data?, isInCloud: Bool) = try await withTaskCancellationHandler {
+            try Task.checkCancellation()
+            return try await withCheckedThrowingContinuation { continuation in
+                let options = PHImageRequestOptions()
+                options.deliveryMode = .highQualityFormat
+                options.version = .current
+                options.isNetworkAccessAllowed = false
+                options.isSynchronous = false
+                let requestID = imageManager.requestImageDataAndOrientation(for: asset, options: options) { data, _, _, info in
+                    guard (info?[PHImageCancelledKey] as? Bool) != true, !cancellation.wasCancelled else {
+                        continuation.resume(throwing: CancellationError())
+                        return
+                    }
+                    let isInCloud = (info?[PHImageResultIsInCloudKey] as? Bool) == true
+                    continuation.resume(returning: (data, isInCloud))
+                }
+                cancellation.setRequestID(requestID)
             }
+        } onCancel: {
+            cancellation.cancel()
         }
         try Task.checkCancellation()
 

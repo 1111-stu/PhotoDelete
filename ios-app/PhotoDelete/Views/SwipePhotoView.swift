@@ -30,6 +30,7 @@ struct SwipePhotoView: View {
     let selectedLocationGroupID: String?
     let randomReviewScope: PhotoRandomReviewScope?
     let selectedHistoricalToday: Bool
+    let explicitReviewScope: ExplicitAssetReviewScope?
 
     @StateObject private var session = PhotoReviewSession()
     @State private var showBatchConfirm = false
@@ -74,17 +75,19 @@ struct SwipePhotoView: View {
         selectedAdvancedCleanup: AdvancedCleanupKind? = nil,
         selectedLocationGroupID: String? = nil,
         randomReviewScope: PhotoRandomReviewScope? = nil,
-        selectedHistoricalToday: Bool = false
+        selectedHistoricalToday: Bool = false,
+        explicitReviewScope: ExplicitAssetReviewScope? = nil
     ) {
         self.selectedCategory = selectedCategory
         self.selectedTimeGroup = selectedTimeGroup
-        self.selectedAlbumInfo = selectedAlbumInfo
+        self.selectedAlbumInfo = selectedAlbumInfo ?? explicitReviewScope?.albumInfo
         self.selectedDate = selectedDate
         self.selectedAdvancedTimeScope = selectedAdvancedTimeScope
         self.selectedAdvancedCleanup = selectedAdvancedCleanup
         self.selectedLocationGroupID = selectedLocationGroupID
         self.randomReviewScope = randomReviewScope
         self.selectedHistoricalToday = selectedHistoricalToday
+        self.explicitReviewScope = explicitReviewScope
     }
 
     private var currentRealPhoto: PHAsset? {
@@ -101,7 +104,8 @@ struct SwipePhotoView: View {
             selectedAdvancedTimeScope: selectedAdvancedTimeScope,
             selectedAdvancedCleanup: selectedAdvancedCleanup,
             selectedLocationGroupID: selectedLocationGroupID,
-            randomReviewScope: randomReviewScope, selectedHistoricalToday: selectedHistoricalToday
+            randomReviewScope: randomReviewScope, selectedHistoricalToday: selectedHistoricalToday,
+            explicitReviewScope: explicitReviewScope
         )
     }
 
@@ -355,6 +359,10 @@ struct SwipePhotoView: View {
         .onChange(of: dataManager.photoLibraryManager.allPhotos.count) { _ in
             refreshSessionForSourceChangeIfNeeded()
         }
+        .onChange(of: dataManager.assetLibraryRevision) { _ in
+            guard explicitReviewScope != nil else { return }
+            refreshSessionForSourceChangeIfNeeded(force: true)
+        }
         .onChange(of: dataManager.photoLibraryManager.favorites.count) { _ in
             guard selectedCategory == .favorites || activeAlbumInfo?.type == .favorites else { return }
             refreshSessionForSourceChangeIfNeeded(force: true)
@@ -381,6 +389,9 @@ struct SwipePhotoView: View {
             refreshSessionForSourceChangeIfNeeded(force: true)
         }
         .onChange(of: dataManager.photoLibraryManager.hasPhotoLibraryAccess) { hasAccess in
+            if explicitReviewScope != nil {
+                refreshSessionForSourceChangeIfNeeded(force: true)
+            }
             guard hasAccess else { return }
             loadAlbumShortcutsIfNeeded()
         }
@@ -972,7 +983,11 @@ struct SwipePhotoView: View {
             return true
         }
 
-        refreshSessionPhotos(dataManager.getPhotosForAlbum(latestAlbumInfo))
+        if explicitReviewScope != nil {
+            refreshSessionForSourceChangeIfNeeded(force: true)
+        } else {
+            refreshSessionPhotos(dataManager.getPhotosForAlbum(latestAlbumInfo))
+        }
         return true
     }
 
@@ -984,7 +999,7 @@ struct SwipePhotoView: View {
             isRandomReview: randomReviewScope != nil,
             hasPhotos: !photos.isEmpty,
             isWaitingForSourceData: isWaitingForSourceData,
-            requiresCompleteSource: selectedCategory == .all,
+            requiresCompleteSource: explicitReviewScope == nil && selectedCategory == .all,
             isSourceComplete: dataManager.photoLibraryManager.hasLoadedPhotoLibrary
         ) {
             return
@@ -995,7 +1010,8 @@ struct SwipePhotoView: View {
     }
 
     private var isWaitingForSourceData: Bool {
-        PhotoReviewSourceReadiness.isWaiting(
+        guard explicitReviewScope == nil else { return false }
+        return PhotoReviewSourceReadiness.isWaiting(
             selectedCategory: selectedCategory,
             selectedLocationGroupID: selectedLocationGroupID,
             hasLoadedAllCategoryPhotos: dataManager.photoLibraryManager.hasLoadedPhotoLibrary,
@@ -1027,7 +1043,17 @@ struct SwipePhotoView: View {
             return
         }
 
-        let photos = filteredRealPhotos
+        let photos: [PHAsset]
+        if let explicitReviewScope {
+            // Once an ID disappears, it cannot rejoin this temporary session.
+            photos = explicitReviewScope.orderedElements(
+                from: filteredRealPhotos,
+                retainingAssetIDs: Set(session.assetIdentifiers),
+                identifier: \.localIdentifier
+            )
+        } else {
+            photos = filteredRealPhotos
+        }
         if photos.isEmpty, isWaitingForSourceData, !session.allPhotos.isEmpty {
             return
         }
@@ -1056,7 +1082,8 @@ struct SwipePhotoView: View {
         showCompletionMessage = session.refresh(
             photos: photos ?? filteredRealPhotos,
             persistedReviewedIDs: dataManager.reviewedAssetIDs,
-            usesPersistedReviewedState: !isAlbumMode && !isRandomMemoriesMode,
+            usesPersistedReviewedState: explicitReviewScope?.usesPersistedReviewedState(hasAlbumContext: isAlbumMode)
+                ?? (!isAlbumMode && !isRandomMemoriesMode),
             preservesSessionReviewedState: didInitializeSession,
             savedAssetIdentifier: restoredSessionProgressAssetID,
             prefersFirstUnreviewedBeforeSavedProgress: shouldPrioritizeNewPhotosBeforeSavedProgress,
@@ -1269,15 +1296,17 @@ struct SwipePhotoView: View {
     }
 
     private var restoredSessionProgressAssetID: String? {
-        guard randomReviewScope == nil else { return nil }
+        guard source.persistsProgress else { return nil }
         return PhotoReviewProgressStore.load(scopeID: sessionProgressScopeID)
     }
 
     private var shouldPrioritizeNewPhotosBeforeSavedProgress: Bool {
-        (selectedCategory == .all || selectedCategory == .unclassified) && randomReviewScope == nil
+        explicitReviewScope == nil &&
+            (selectedCategory == .all || selectedCategory == .unclassified) && randomReviewScope == nil
     }
 
     private func scheduleSessionProgressSave() {
+        guard source.persistsProgress else { return }
         sessionProgressSaveWorkItem?.cancel()
         let workItem = DispatchWorkItem {
             persistSessionProgressIfPossible()
@@ -1294,7 +1323,7 @@ struct SwipePhotoView: View {
     }
 
     private func persistSessionProgressIfPossible() {
-        guard randomReviewScope == nil,
+        guard source.persistsProgress,
               didInitializeSession,
               let asset = currentRealPhoto else { return }
         PhotoReviewProgressStore.save(

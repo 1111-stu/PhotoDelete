@@ -270,7 +270,11 @@ enum UITestPhotoLibrarySeeder {
     private static func makeAssetRequest(for seed: PhotoSeed) -> PHAssetChangeRequest? {
         if let videoIndex = seed.generatedVideoIndex,
            let url = makeGeneratedVideoURL(index: videoIndex) {
-            return PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
+            let request = PHAssetCreationRequest.forAsset()
+            let options = PHAssetResourceCreationOptions()
+            options.originalFilename = url.lastPathComponent
+            request.addResource(with: .video, fileURL: url, options: options)
+            return request
         }
 
         if let resourceName = seed.resourceName {
@@ -305,6 +309,7 @@ enum UITestPhotoLibrarySeeder {
         guard collections.count == albumPlan.count else { return false }
 
         var hasVideo = false
+        var hasScreenRecording = false
         for collection in collections {
             guard let title = collection.localizedTitle,
                   let expectedCount = expectedCounts[title] else {
@@ -314,9 +319,14 @@ enum UITestPhotoLibrarySeeder {
             guard assets.count >= expectedCount else { return false }
             assets.enumerateObjects { asset, _, _ in
                 hasVideo = hasVideo || asset.mediaType == .video
+                if asset.mediaType == .video {
+                    hasScreenRecording = hasScreenRecording || PHAssetResource.assetResources(for: asset).contains {
+                        $0.originalFilename.lowercased().hasPrefix("rpreplay_final")
+                    }
+                }
             }
         }
-        return hasVideo
+        return hasVideo && hasScreenRecording
     }
 
     private static func assets(in collections: [PHAssetCollection]) -> [PHAsset] {
