@@ -133,7 +133,7 @@
 大标题「整理」+ 右上删除占位
 渐变双卡：待整理（珊瑚） | 随机整理（琥珀）
 按时间段开始：本周 / 本月 / 本年（点任一段 → 周期选择弹窗：标题「按周/按月/按年整理」，首行「本期全部」，下面列更细周期——本周→每天 / 本月→其他月份 / 本年→其他年份；选行进入对应整理。**每张弹窗的「本期全部」行数字为琥珀**——三档一致；明细行数字白字）
-专项清理：相似与重复 / 视频 / 截图 / 大文件（头部合计 = 各项之和）
+专项清理：相似与重复 / 视频 / 截图 / 录屏（头部合计 = 各项之和）
 工具：图片压缩 / 视频压缩
 ```
 
@@ -147,6 +147,10 @@
 | 专项清理 | `cleanupQueue(for:)` 的 `estimatedSpaceMB` / `assetCount` |
 
 已知缺口（如实显示，待数据侧补齐）：视频队列 `estimatedSpaceMB` 恒为 0、无截图队列 → 两行可能显示 0.0 MB / 无值。
+
+录屏行：数值取 `cleanupQueue(for: .screenRecordings)` 的估算空间（`estimatedAssetSizeMBForAsset` 启发式，不读真实文件大小）；`assetCount == 0` 时右侧留空，不显示 0.0 MB。点击进入**滑动逐张整理**（`PhotoCategory.screenRecordings` → `SwipePhotoView`），与截图/视频一致，**不走**列表多选。
+
+大文件清理代码保留（`AdvancedCleanupKind.largeFiles` / `AdvancedAssetListView`），但首页暂不给入口，后续可能恢复。
 
 ### 6.1 使用统计页（回望页，2026-10-05 重构）
 

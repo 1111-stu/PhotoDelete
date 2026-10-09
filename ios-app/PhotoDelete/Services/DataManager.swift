@@ -1879,6 +1879,7 @@ class DataManager: ObservableObject {
         Self.makeAdvancedCleanupQueues(
             photos: photoLibraryManager.allPhotos,
             videos: photoLibraryManager.videos,
+            screenRecordings: photoLibraryManager.screenRecordings,
             screenshotIDs: Set(photoLibraryManager.screenshots.map(\.localIdentifier)),
             imageCompressionProcessedIDs: imageCompressionProcessedAssetIDs()
         )

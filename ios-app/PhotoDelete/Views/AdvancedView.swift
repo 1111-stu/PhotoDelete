@@ -449,6 +449,9 @@ struct AdvancedView: View {
         case .largeFiles, .videos:
             AdvancedAssetListView(mode: .cleanup(kind))
                 .environmentObject(dataManager)
+        case .screenRecordings:
+            SwipePhotoView(selectedCategory: .screenRecordings, selectedTimeGroup: nil, selectedAlbumInfo: nil)
+                .environmentObject(dataManager)
         }
     }
 
@@ -1358,7 +1361,7 @@ private struct AdvancedAssetListView: View {
 
     private var prefersSizeFirstOrder: Bool {
         switch mode {
-        case .cleanup(.largeFiles), .cleanup(.videos), .cleanup(.videoCompression):
+        case .cleanup(.largeFiles), .cleanup(.videos), .cleanup(.videoCompression), .cleanup(.screenRecordings):
             return true
         case .cleanup(.similarPhotos), .cleanup(.imageCompression):
             return false
@@ -1542,7 +1545,8 @@ private struct AdvancedAssetListView: View {
             return String(format: L10n.string("%lld compressible images"), Int64(snapshot.assets.count))
         case .cleanup(.videoCompression):
             return String(format: L10n.string("%lld videos ready to compress"), Int64(snapshot.assets.count))
-        case .cleanup(.videos):
+        // 录屏是视频子集；该列表不承载录屏（录屏走 SwipePhotoView），此分支仅为穷尽性。
+        case .cleanup(.videos), .cleanup(.screenRecordings):
             return String(format: L10n.string("%lld videos total"), Int64(snapshot.assets.count))
         case .cleanup(.similarPhotos):
             return String(format: L10n.string("%lld similar photos total"), Int64(snapshot.assets.count))
@@ -1565,7 +1569,7 @@ private struct AdvancedAssetListView: View {
             return L10n.string("Select images to compress. Actual file sizes appear when complete.")
         case .cleanup(.videoCompression):
             return L10n.string("Select videos to compress. Actual file sizes appear when complete.")
-        case .cleanup(.videos):
+        case .cleanup(.videos), .cleanup(.screenRecordings):
             if snapshot.hasUnresolvedVideoSizes {
                 return String(
                     format: L10n.string("%lld/%lld video sizes read. Known size is about %@."),
@@ -6369,6 +6373,8 @@ private enum AdvancedCleanupFilter: String, Hashable, Identifiable {
             return [.all, .large, .long]
         case .videos:
             return [.all, .large, .long]
+        case .screenRecordings:
+            return [.all, .large, .long]
         }
     }
 }
@@ -6433,6 +6439,9 @@ struct AdvancedCleanupDestination: View {
                 .environmentObject(dataManager)
         case .largeFiles, .videos:
             AdvancedAssetListView(mode: .cleanup(kind))
+                .environmentObject(dataManager)
+        case .screenRecordings:
+            SwipePhotoView(selectedCategory: .screenRecordings, selectedTimeGroup: nil, selectedAlbumInfo: nil)
                 .environmentObject(dataManager)
         }
     }

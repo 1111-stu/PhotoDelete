@@ -1342,11 +1342,14 @@ class PhotoLibraryManager: NSObject, ObservableObject {
 
     /// UI 测试种子库用 `RPReplay_Final*` 命名伪造录屏：`PHAssetChangeRequest` 无法设置
     /// `mediaSubtypes`，所以只在 UI 测试进程里按原始文件名补一次判断。Release 恒为 false。
+    ///
+    /// 要遍历全部资源而不是只看 `.first` —— 视频资产的资源顺序没有文档保证。
     private static func isUITestScreenRecording(_ asset: PHAsset) -> Bool {
         #if DEBUG
         guard isUITestSeedingEnabled else { return false }
-        let filename = PHAssetResource.assetResources(for: asset).first?.originalFilename ?? ""
-        return filename.lowercased().hasPrefix(uiTestScreenRecordingFilenamePrefix)
+        return PHAssetResource.assetResources(for: asset).contains { resource in
+            resource.originalFilename.lowercased().hasPrefix(uiTestScreenRecordingFilenamePrefix)
+        }
         #else
         return false
         #endif

@@ -11,8 +11,8 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ · %2$@/%3$@"
+            "state" : "translated",
+            "value" : "%@ · %@/%@"
           }
         }
       }
@@ -37766,6 +37766,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "掃描紙本文件，在本地整理最近掃描，並按需匯出清晰 PDF。"
+          }
+        }
+      }
+    },
+    "Screen Recordings" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تسجيلات الشاشة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildschirmaufnahmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Recordings"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画面収録"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "录屏"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "錄屏"
           }
         }
       }

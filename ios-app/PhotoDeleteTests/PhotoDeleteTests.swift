@@ -429,9 +429,11 @@ struct PhotoDeleteTests {
     }
 
     @Test func photoCategoryIncludesLivePhotosQuickEntry() async throws {
-        #expect(PhotoCategory.allCases == [.all, .unclassified, .videos, .screenshots, .livePhotos, .favorites])
+        #expect(PhotoCategory.allCases == [.all, .unclassified, .videos, .screenshots, .screenRecordings, .livePhotos, .favorites])
         #expect(PhotoCategory.unclassified.rawValue == "未归类照片")
         #expect(PhotoCategory.unclassified.icon == "tray")
+        #expect(PhotoCategory.screenRecordings.rawValue == "录屏")
+        #expect(PhotoCategory.screenRecordings.icon == "record.circle")
         #expect(PhotoCategory.livePhotos.icon == "livephoto")
     }
 

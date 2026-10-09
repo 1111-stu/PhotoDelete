@@ -1086,20 +1086,20 @@ final class PhotoDeleteUITests: XCTestCase {
         navigateBack(in: app)
         XCTAssertTrue(app.staticTexts[focusedCleanupTitle].waitForExistence(timeout: 10))
 
-        let largeFilesPrefix = appLanguage.hasPrefix("en") ? "Large Files" : "大文件"
-        guard let largeFilesButton = waitForButtonLabelPrefix(
+        let screenRecordingsPrefix = appLanguage.hasPrefix("en") ? "Screen Recordings" : "录屏"
+        guard let screenRecordingsButton = waitForButtonLabelPrefix(
             in: app,
-            prefix: largeFilesPrefix,
+            prefix: screenRecordingsPrefix,
             timeout: 30,
             excluding: appLanguage.hasPrefix("en") ? "0 items" : "0 项"
         ) else {
-            XCTFail("Expected a non-empty large files cleanup entry for marketing capture")
+            XCTFail("Expected a non-empty screen recordings cleanup entry for marketing capture")
             return
         }
-        largeFilesButton.tap()
-        XCTAssertTrue(app.staticTexts[largeFilesPrefix].waitForExistence(timeout: 10))
+        screenRecordingsButton.tap()
+        XCTAssertTrue(app.staticTexts[screenRecordingsPrefix].waitForExistence(timeout: 10))
         sleep(2)
-        try capture("08-large-files", in: outputDirectory, app: app)
+        try capture("08-screen-recordings", in: outputDirectory, app: app)
     }
 
     @MainActor

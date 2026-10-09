@@ -106,6 +106,9 @@ enum UITestPhotoLibrarySeeder {
         let generatedVideoIndex: Int?
     }
 
+    /// 该 index 的生成视频用 `RPReplay_Final*` 命名，作为录屏专项的种子资产。
+    private static let screenRecordingVideoIndex = 1
+
     private static func makeAlbumPlan(language: String) -> [AlbumSeed] {
         if language.hasPrefix("en") {
             return [
@@ -152,6 +155,13 @@ enum UITestPhotoLibrarySeeder {
                     date: day(-1),
                     location: CLLocation(latitude: 40.7128, longitude: -74.0060),
                     generatedVideoIndex: nil
+                ))
+                seeds.append(PhotoSeed(
+                    resourceName: nil,
+                    albumTitle: album.title,
+                    date: day(-0.5),
+                    location: nil,
+                    generatedVideoIndex: screenRecordingVideoIndex
                 ))
             case .beach:
                 seeds.append(PhotoSeed(
@@ -321,8 +331,13 @@ enum UITestPhotoLibrarySeeder {
     }
 
     private static func makeGeneratedVideoURL(index: Int) -> URL? {
+        // `PHAssetChangeRequest` 无法设置 mediaSubtypes，所以录屏种子靠文件名让
+        // `PhotoLibraryManager.isUITestScreenRecording` 在测试进程里识别。
+        let filename = index == screenRecordingVideoIndex
+            ? "RPReplay_Final_uitest.mov"
+            : "photodelete-ui-test-video-\(index).mov"
         let outputURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("photodelete-ui-test-video-\(index).mov")
+            .appendingPathComponent(filename)
         try? FileManager.default.removeItem(at: outputURL)
 
         let width = 720
