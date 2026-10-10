@@ -18,7 +18,6 @@ enum SwipeViewDestination: Hashable {
     case historicalToday
     case location(String)
     case period(AdvancedTimeScope, Date)
-    case stats
     case cleanup(AdvancedCleanupKind)
     case trashBin
 
@@ -44,8 +43,6 @@ enum SwipeViewDestination: Hashable {
             return lhsGroupID == rhsGroupID
         case (.period(let lhsScope, let lhsDate), .period(let rhsScope, let rhsDate)):
             return lhsScope == rhsScope && lhsDate == rhsDate
-        case (.stats, .stats):
-            return true
         case (.cleanup(let lhsKind), .cleanup(let rhsKind)):
             return lhsKind == rhsKind
         case (.trashBin, .trashBin):
@@ -85,8 +82,6 @@ enum SwipeViewDestination: Hashable {
             hasher.combine("period")
             hasher.combine(scope)
             hasher.combine(date)
-        case .stats:
-            hasher.combine("stats")
         case .cleanup(let kind):
             hasher.combine("cleanup")
             hasher.combine(kind)
@@ -246,9 +241,6 @@ struct HomeView: View {
                         selectedAdvancedTimeScope: scope
                     )
                     .environmentObject(dataManager)
-                case .stats:
-                    StatsView()
-                        .environmentObject(dataManager)
                 case .cleanup(let kind):
                     AdvancedCleanupDestination(kind: kind)
                         .environmentObject(dataManager)
@@ -297,7 +289,7 @@ struct HomeView: View {
         }
     }
 
-    /// 首页大标题（对齐原型：34/700）+ 右上角操作（最近整理 / 统计入口）。
+    /// 首页大标题（对齐原型：34/700）+ 右上角垃圾桶入口。
     private var homeTitleBar: some View {
         HStack(alignment: .center, spacing: 12) {
             Text(L10n.string("Organize"))
@@ -305,10 +297,7 @@ struct HomeView: View {
                 .foregroundColor(PhotoDeleteStyle.primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            HStack(spacing: 10) {
-                trashBinEntryButton
-                statsEntryButton
-            }
+            trashBinEntryButton
         }
         .padding(.top, 10)
     }
@@ -379,38 +368,6 @@ struct HomeView: View {
                 )
                 .offset(x: 3, y: -3)
                 .accessibilityHidden(true)
-        }
-    }
-
-    /// 右上角统计入口：柱状图图标，进入「使用统计」（StatsView）。
-    @ViewBuilder
-    private var statsEntryButton: some View {
-        if #available(iOS 26.0, *) {
-            Button {
-                navigationPath.append(SwipeViewDestination.stats)
-            } label: {
-                Image(systemName: "chart.bar.xaxis")
-                    .font(.system(size: 17, weight: .semibold))
-                    .frame(width: 44, height: 44)
-            }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.circle)
-            .foregroundStyle(PhotoDeleteStyle.primaryText)
-            .accessibilityLabel(L10n.string("Usage stats"))
-            .accessibilityIdentifier("home-stats-entry")
-        } else {
-            Button {
-                navigationPath.append(SwipeViewDestination.stats)
-            } label: {
-                Image(systemName: "chart.bar.xaxis")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-                    .frame(width: 44, height: 44)
-                    .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("Usage stats"))
-            .accessibilityIdentifier("home-stats-entry")
         }
     }
 
@@ -702,8 +659,7 @@ struct HomeView: View {
         .accessibilityIdentifier("home-random-review")
     }
 
-    // 旧首屏三卡（库概览 / 随机整理 / 往年今日）已由上方 duoRow 双卡替代；
-    // 统计页入口迁移到设置页（「使用统计」）。
+    // 旧首屏三卡（库概览 / 随机整理 / 往年今日）已由上方 duoRow 双卡替代。
 
     // MARK: - 按时间段开始（三段 band，对齐原型）
 
