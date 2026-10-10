@@ -9,63 +9,38 @@ struct CleanupAssetFilterSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var selectedDetent: PresentationDetent = .fraction(0.85)
+    @State private var pane: FilterSheetPane = .filter
 
     var body: some View {
         NavigationStack {
-            GeometryReader { geometry in
+            VStack(spacing: 18) {
+                FilterSheetPanePicker(selection: $pane)
+                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.top, 8)
+
+                if let summary {
+                    Text(String(format: L10n.string("%lld items"), Int64(summary.count)))
+                        .font(.footnote)
+                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                        .accessibilityIdentifier("cleanup-filter-result-count")
+                }
+
                 ScrollView {
-                    VStack(alignment: .leading, spacing: PhotoDeleteStyle.sectionSpacing) {
-                        if let summary {
-                            Text(String(format: L10n.string("%lld items"), Int64(summary.count)))
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                                .accessibilityIdentifier("cleanup-filter-result-count")
+                    Group {
+                        switch pane {
+                        case .filter:
+                            filterPane
+                        case .display:
+                            displayPane
+                        case .sort:
+                            sortPane
                         }
-
-                        if showsContentFilter {
-                            optionSection(
-                                title: L10n.string("Content"),
-                                options: AssetContentFilter.allCases,
-                                selection: $query.content,
-                                columns: columns(for: geometry.size.width),
-                                label: contentTitle
-                            )
-                        }
-
-                        optionSection(
-                            title: L10n.string("Taken before"),
-                            options: AssetAgeFilter.allCases,
-                            selection: $query.age,
-                            columns: columns(for: geometry.size.width),
-                            label: ageTitle
-                        )
-
-                        optionSection(
-                            title: L10n.string("Review status"),
-                            options: AssetReviewFilter.allCases,
-                            selection: $query.reviewStatus,
-                            columns: columns(for: geometry.size.width),
-                            label: reviewTitle
-                        )
-
-                        optionSection(
-                            title: L10n.string("Group by time"),
-                            options: AssetTimeGrouping.allCases,
-                            selection: $query.grouping,
-                            columns: columns(for: geometry.size.width),
-                            label: groupingTitle
-                        )
-
-                        optionSection(
-                            title: L10n.string("Sort"),
-                            options: AssetSort.allCases,
-                            selection: $query.sort,
-                            columns: columns(for: geometry.size.width),
-                            label: sortTitle
-                        )
                     }
-                    .padding(PhotoDeleteStyle.screenHorizontalPadding)
-                    .padding(.bottom, 12)
+                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.bottom, 20)
+                    .animation(.easeInOut(duration: 0.18), value: pane)
                 }
             }
             .background(PhotoDeleteScreenBackground())
@@ -77,12 +52,19 @@ struct CleanupAssetFilterSheet: View {
                         query = defaultQuery
                     }
                     .disabled(query == defaultQuery)
+                    .foregroundStyle(
+                        query == defaultQuery
+                            ? PhotoDeleteStyle.tertiaryText
+                            : PhotoDeleteStyle.secondaryText
+                    )
                     .accessibilityIdentifier("cleanup-filter-reset")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(L10n.string("Done")) {
                         dismiss()
                     }
+                    .fontWeight(.semibold)
+                    .foregroundStyle(PhotoDeleteStyle.accent)
                     .accessibilityIdentifier("cleanup-filter-done")
                 }
             }
@@ -101,63 +83,59 @@ struct CleanupAssetFilterSheet: View {
         }
     }
 
-    private func columns(for width: CGFloat) -> [GridItem] {
-        let count = dynamicTypeSize.isAccessibilitySize ? 1 : (width < 360 ? 2 : 3)
-        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
-    }
-
-    private func optionSection<Value: Identifiable & Equatable>(
-        title: String,
-        options: [Value],
-        selection: Binding<Value>,
-        columns: [GridItem],
-        label: @escaping (Value) -> String
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            LazyVGrid(columns: columns, spacing: 8) {
-                ForEach(options) { option in
-                    let isSelected = selection.wrappedValue == option
-                    Button {
-                        selection.wrappedValue = option
-                    } label: {
-                        Text(label(option))
-                            .font(.subheadline.weight(.semibold))
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity, minHeight: 28)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 18)
-                            .foregroundStyle(.primary)
-                            .background(
-                                isSelected ? PhotoDeleteStyle.elevatedSurface : PhotoDeleteStyle.surface,
-                                in: RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                            )
-                            .overlay {
-                                RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                                    .stroke(
-                                        isSelected ? PhotoDeleteStyle.accent : PhotoDeleteStyle.cardStroke,
-                                        lineWidth: isSelected ? 1.5 : PhotoDeleteStyle.Metrics.cardStrokeWidth
-                                    )
-                            }
-                            .overlay(alignment: .topTrailing) {
-                                if isSelected {
-                                    Image(systemName: "checkmark")
-                                        .font(.caption2.weight(.bold))
-                                        .foregroundStyle(PhotoDeleteStyle.accent)
-                                        .padding(7)
-                                        .accessibilityHidden(true)
-                                }
-                            }
-                            .contentShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(isSelected ? .isSelected : [])
-                    .accessibilityIdentifier("cleanup-filter-option-\(String(describing: Value.self))-\(option.id)")
+    private var filterPane: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            if showsContentFilter {
+                FilterSheetSection(title: L10n.string("Content")) {
+                    FilterGlassSegmentedControl(
+                        options: AssetContentFilter.allCases.map {
+                            FilterSegmentOption(value: $0, title: contentTitle($0))
+                        },
+                        selection: $query.content
+                    )
                 }
             }
+
+            FilterSheetSection(title: L10n.string("Taken before")) {
+                FilterGlassChoiceGrid(
+                    options: AssetAgeFilter.allCases.map {
+                        FilterSegmentOption(value: $0, title: ageTitle($0))
+                    },
+                    selection: $query.age,
+                    columns: dynamicTypeSize.isAccessibilitySize ? 1 : 2
+                )
+            }
+
+            FilterSheetSection(title: L10n.string("Review status")) {
+                FilterGlassSegmentedControl(
+                    options: AssetReviewFilter.allCases.map {
+                        FilterSegmentOption(value: $0, title: reviewTitle($0))
+                    },
+                    selection: $query.reviewStatus
+                )
+            }
+        }
+    }
+
+    private var displayPane: some View {
+        FilterSheetSection(title: L10n.string("Group by time")) {
+            FilterGlassSegmentedControl(
+                options: AssetTimeGrouping.allCases.map {
+                    FilterSegmentOption(value: $0, title: groupingTitle($0))
+                },
+                selection: $query.grouping
+            )
+        }
+    }
+
+    private var sortPane: some View {
+        FilterSheetSection(title: L10n.string("Sort")) {
+            FilterGlassSegmentedControl(
+                options: AssetSort.allCases.map {
+                    FilterSegmentOption(value: $0, title: sortTitle($0))
+                },
+                selection: $query.sort
+            )
         }
     }
 

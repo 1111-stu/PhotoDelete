@@ -1811,6 +1811,28 @@
         }
       }
     },
+    "%lld items from OnePhoto deletions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld items from OnePhoto deletions"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来自 OnePhoto 删除的 %lld 项"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "來自 OnePhoto 刪除的 %lld 項"
+          }
+        }
+      }
+    },
     "%lld items left, %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4963,6 +4985,28 @@
         }
       }
     },
+    "About %@ still in Recently Deleted" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About %@ still in Recently Deleted"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "约 %@ 仍在「最近删除」"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "約 %@ 仍在「最近刪除」"
+          }
+        }
+      }
+    },
     "About %@ to clear" : {
       "localizations" : {
         "en" : {
@@ -5844,6 +5888,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "壓縮後"
+          }
+        }
+      }
+    },
+    "After you confirm deletions in OnePhoto, space estimates appear here until you empty Recently Deleted." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After you confirm deletions in OnePhoto, space estimates appear here until you empty Recently Deleted."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 OnePhoto 确认删除后，可腾空间会出现在这里，直到你清空系统「最近删除」。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 OnePhoto 確認刪除後，可騰空間會出現在這裡，直到你清空系統「最近刪除」。"
           }
         }
       }
@@ -17013,6 +17079,28 @@
         }
       }
     },
+    "Deleted photos stay in the system Recently Deleted album for 30 days. Empty that album in Photos to free storage now." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleted photos stay in the system Recently Deleted album for 30 days. Empty that album in Photos to free storage now."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除的照片会在系统「最近删除」中保留 30 天。到照片 App 清空后，空间才会真正释放。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除的照片會在系統「最近刪除」中保留 30 天。到照片 App 清空後，空間才會真正釋放。"
+          }
+        }
+      }
+    },
     "Deleted This Time" : {
       "localizations" : {
         "ar" : {
@@ -17984,6 +18072,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "郵件反饋：%@"
+          }
+        }
+      }
+    },
+    "Empty Recently Deleted" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty Recently Deleted"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清空最近删除"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清空最近刪除"
           }
         }
       }
@@ -19001,6 +19111,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "歸類中"
+          }
+        }
+      }
+    },
+    "Filter" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فلترة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フィルタ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "筛选"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "篩選"
           }
         }
       }
@@ -20846,6 +20996,28 @@
         }
       }
     },
+    "How to empty it" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to empty it"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "怎么清空"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "怎麼清空"
+          }
+        }
+      }
+    },
     "I built OnePhoto from scratch with AI — from finding the pain point to coding and launching. The whole journey is documented in 01MVP. Whether you want to build your own small product or are just curious how far AI coding can go, take a look." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -20924,6 +21096,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "喜歡旅行和探索世界，也用 AI 做一些有趣的小產品。博客和作品集在 [makerjackie.com](https://makerjackie.com)。"
+          }
+        }
+      }
+    },
+    "I've emptied it" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I've emptied it"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我已清空"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我已清空"
           }
         }
       }
@@ -28869,6 +29063,28 @@
         }
       }
     },
+    "No tracked items to reclaim" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No tracked items to reclaim"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无待腾出的空间"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暫無待騰出的空間"
+          }
+        }
+      }
+    },
     "No unfiled photos found" : {
       "localizations" : {
         "en" : {
@@ -29928,6 +30144,28 @@
         }
       }
     },
+    "OnePhoto can't empty Recently Deleted for you — Apple keeps that step in the Photos app." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto can't empty Recently Deleted for you — Apple keeps that step in the Photos app."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto 无法替你清空「最近删除」——这一步只能在系统照片 App 完成。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto 無法替你清空「最近刪除」——這一步只能在系統照片 App 完成。"
+          }
+        }
+      }
+    },
     "OnePhoto does not use its own cloud service and never sends photos to a server." : {
       "localizations" : {
         "ar" : {
@@ -30739,6 +30977,28 @@
         }
       }
     },
+    "Open Photos" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Photos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开照片"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開照片"
+          }
+        }
+      }
+    },
     "Open the Albums tab to manage albums" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -30776,6 +31036,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "打開相冊頁管理相冊"
+          }
+        }
+      }
+    },
+    "Open the Photos app and go to Albums." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the Photos app and go to Albums."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开「照片」App，进入「相簿」。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開「照片」App，進入「相簿」。"
+          }
+        }
+      }
+    },
+    "Open the Photos app and tap Collections." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the Photos app and tap Collections."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开「照片」App，点「精选」。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開「照片」App，點「精選」。"
           }
         }
       }
@@ -39955,6 +40259,28 @@
         }
       }
     },
+    "Scroll to Utilities, then open Recently Deleted." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scroll to Utilities, then open Recently Deleted."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "滑到「工具」，打开「最近删除」。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "滑到「工具」，打開「最近刪除」。"
+          }
+        }
+      }
+    },
     "Search albums" : {
       "localizations" : {
         "ar" : {
@@ -45336,6 +45662,28 @@
         }
       }
     },
+    "Tap Select, then Delete All, and confirm." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap Select, then Delete All, and confirm."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点「选择」，再点「删除全部」并确认。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點「選擇」，再點「刪除全部」並確認。"
+          }
+        }
+      }
+    },
     "Tap the plus button in the top right to create a new album." : {
       "localizations" : {
         "ar" : {
@@ -49011,7 +49359,30 @@
         }
       }
     },
+    "Trash, %lld items in Recently Deleted" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trash, %lld items in Recently Deleted"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "垃圾桶，最近删除中有 %lld 项"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "垃圾桶，最近刪除中有 %lld 項"
+          }
+        }
+      }
+    },
     "Trash, %lld photos pending deletion" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -50764,6 +51135,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "解鎖完整時間列表、壓縮和相似照片清理。"
+          }
+        }
+      }
+    },
+    "Unlock with Face ID, Touch ID, or your passcode if asked." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock with Face ID, Touch ID, or your passcode if asked."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如有提示，用面容、触控 ID 或密码解锁。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如有提示，用面容、觸控 ID 或密碼解鎖。"
           }
         }
       }

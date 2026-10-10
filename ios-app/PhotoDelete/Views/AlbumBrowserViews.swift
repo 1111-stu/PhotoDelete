@@ -681,63 +681,116 @@ struct AlbumBrowserFilterSheet: View {
     @Binding var density: AlbumBrowserDensity
     @Binding var sort: AlbumBrowserSort
     @Environment(\.dismiss) private var dismiss
+    @State private var pane: FilterSheetPane = .filter
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    if isDefault {
-                        Text(L10n.string("Showing the default view"))
-                            .font(.footnote)
-                            .foregroundStyle(PhotoDeleteStyle.secondaryText)
-                    }
+            VStack(spacing: 18) {
+                FilterSheetPanePicker(selection: $pane)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
 
-                    filterSection(title: L10n.string("Content")) {
-                        ForEach(AlbumBrowserContentFilter.allCases) { item in
-                            countChip(
-                                title: item.title,
-                                icon: item.icon,
-                                count: count(for: item),
-                                isSelected: contentFilter == item
-                            ) {
-                                contentFilter = item
-                            }
+                if isDefault {
+                    Text(L10n.string("Showing the default view"))
+                        .font(.footnote)
+                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                }
+
+                ScrollView {
+                    Group {
+                        switch pane {
+                        case .filter:
+                            filterPane
+                        case .display:
+                            displayPane
+                        case .sort:
+                            sortPane
                         }
                     }
-
-                    optionSection(title: L10n.string("Group by time"), options: AlbumBrowserGrouping.allCases.map(\.title), selection: grouping.title) { title in
-                        grouping = AlbumBrowserGrouping.allCases.first { $0.title == title } ?? .day
-                    }
-
-                    optionSection(title: L10n.string("Grid density"), options: AlbumBrowserDensity.allCases.map(\.title), selection: density.title) { title in
-                        density = AlbumBrowserDensity.allCases.first { $0.title == title } ?? .standard
-                    }
-
-                    optionSection(title: L10n.string("Sort"), options: AlbumBrowserSort.allCases.map(\.title), selection: sort.title) { title in
-                        sort = AlbumBrowserSort.allCases.first { $0.title == title } ?? .newest
-                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
+                    .animation(.easeInOut(duration: 0.18), value: pane)
                 }
-                .padding(20)
             }
             .background(PhotoDeleteScreenBackground())
             .navigationTitle(L10n.string("Filter and sort"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button(L10n.string("Reset")) {
                         contentFilter = .all
                         grouping = .day
                         density = .standard
                         sort = .newest
                     }
+                    .disabled(isDefault)
+                    .foregroundStyle(isDefault ? PhotoDeleteStyle.tertiaryText : PhotoDeleteStyle.secondaryText)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(L10n.string("Done")) {
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                    .foregroundStyle(PhotoDeleteStyle.accent)
                 }
             }
         }
         .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 
     private var isDefault: Bool {
         contentFilter == .all && grouping == .day && density == .standard && sort == .newest
+    }
+
+    private var filterPane: some View {
+        FilterSheetSection(title: L10n.string("Content")) {
+            FilterGlassSegmentedControl(
+                options: AlbumBrowserContentFilter.allCases.map { item in
+                    FilterSegmentOption(
+                        value: item,
+                        title: item.title,
+                        subtitle: count(for: item).formatted(.number.grouping(.automatic))
+                    )
+                },
+                selection: $contentFilter
+            )
+        }
+    }
+
+    private var displayPane: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            FilterSheetSection(title: L10n.string("Group by time")) {
+                FilterGlassSegmentedControl(
+                    options: AlbumBrowserGrouping.allCases.map {
+                        FilterSegmentOption(value: $0, title: $0.title)
+                    },
+                    selection: $grouping
+                )
+            }
+
+            FilterSheetSection(title: L10n.string("Grid density")) {
+                FilterGlassSegmentedControl(
+                    options: AlbumBrowserDensity.allCases.map {
+                        FilterSegmentOption(value: $0, title: $0.title)
+                    },
+                    selection: $density
+                )
+            }
+        }
+    }
+
+    private var sortPane: some View {
+        FilterSheetSection(title: L10n.string("Sort")) {
+            FilterGlassSegmentedControl(
+                options: AlbumBrowserSort.allCases.map {
+                    FilterSegmentOption(value: $0, title: $0.title)
+                },
+                selection: $sort
+            )
+        }
     }
 
     private func count(for filter: AlbumBrowserContentFilter) -> Int {
@@ -750,69 +803,6 @@ struct AlbumBrowserFilterSheet: View {
             return assets.filter { $0.mediaType == .video }.count
         case .favorites:
             return assets.filter(\.isFavorite).count
-        }
-    }
-
-    private func filterSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(PhotoDeleteStyle.secondaryText)
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
-                content()
-            }
-        }
-    }
-
-    private func countChip(title: String, icon: String, count: Int, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(spacing: 6) {
-                Image(systemName: icon)
-                Text(title)
-                    .font(.caption.weight(.semibold))
-                Text(count.formatted(.number.grouping(.automatic)))
-                    .font(.caption2)
-                    .foregroundStyle(PhotoDeleteStyle.secondaryText)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: 78)
-            .foregroundStyle(isSelected ? PhotoDeleteStyle.accent : PhotoDeleteStyle.primaryText)
-            .background(
-                RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                    .fill(PhotoDeleteStyle.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(isSelected ? PhotoDeleteStyle.accent : Color.clear, lineWidth: 1.5)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func optionSection(title: String, options: [String], selection: String, onSelect: @escaping (String) -> Void) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(PhotoDeleteStyle.secondaryText)
-            HStack(spacing: 8) {
-                ForEach(options, id: \.self) { option in
-                    let isSelected = option == selection
-                    Button {
-                        onSelect(option)
-                    } label: {
-                        Text(option)
-                            .font(.subheadline.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .frame(minHeight: 40)
-                            .foregroundStyle(isSelected ? PhotoDeleteStyle.primaryText : PhotoDeleteStyle.secondaryText)
-                            .background(
-                                Capsule(style: .continuous)
-                                    .fill(isSelected ? PhotoDeleteStyle.elevatedSurface : PhotoDeleteStyle.surface)
-                            )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
         }
     }
 }
