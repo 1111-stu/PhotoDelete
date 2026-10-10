@@ -51095,6 +51095,7 @@
       }
     },
     "Use a simple album name, like \"Travel\" or \"Family\"." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

@@ -503,6 +503,7 @@ struct AlbumAssetThumbnail: View {
 struct AlbumPhotoBrowserView: View {
     @EnvironmentObject private var dataManager: DataManager
     let album: AlbumInfo
+    /// 右上角「整理」：从相册整本开始（保留相册进度语义）。
     let onOrganize: () -> Void
 
     @State private var assets: [PHAsset] = []
@@ -512,6 +513,9 @@ struct AlbumPhotoBrowserView: View {
     @State private var grouping: AlbumBrowserGrouping = .day
     @State private var density: AlbumBrowserDensity = .standard
     @State private var sort: AlbumBrowserSort = .newest
+    /// 点缩略图：按当前筛选/排序，从该图起进入临时整理队列。
+    @State private var reviewScope: ExplicitAssetReviewScope?
+    @State private var showsReview = false
 
     var body: some View {
         ScrollView {
@@ -543,13 +547,20 @@ struct AlbumPhotoBrowserView: View {
 
                             LazyVGrid(columns: gridColumns, spacing: 6) {
                                 ForEach(section.assets, id: \.localIdentifier) { asset in
-                                    AlbumAssetThumbnail(
-                                        assetID: asset.localIdentifier,
-                                        photoLibraryManager: dataManager.photoLibraryManager,
-                                        cornerRadius: 10
-                                    )
-                                    .aspectRatio(1, contentMode: .fit)
+                                    Button {
+                                        startOrganize(from: asset)
+                                    } label: {
+                                        AlbumAssetThumbnail(
+                                            assetID: asset.localIdentifier,
+                                            photoLibraryManager: dataManager.photoLibraryManager,
+                                            cornerRadius: 10
+                                        )
+                                        .aspectRatio(1, contentMode: .fit)
+                                    }
+                                    .buttonStyle(.plain)
                                     .accessibilityLabel(L10n.photoCount(1))
+                                    .accessibilityHint(Text(L10n.string("Organize")))
+                                    .accessibilityIdentifier("album-browser-asset-\(asset.localIdentifier)")
                                 }
                             }
                         }
@@ -589,9 +600,35 @@ struct AlbumPhotoBrowserView: View {
                 sort: $sort
             )
         }
+        .navigationDestination(isPresented: $showsReview) {
+            if let reviewScope {
+                SwipePhotoView(
+                    selectedCategory: nil,
+                    selectedTimeGroup: nil,
+                    selectedAlbumInfo: album,
+                    explicitReviewScope: reviewScope
+                )
+                .environmentObject(dataManager)
+            }
+        }
         .task {
             await loadAssets()
         }
+    }
+
+    /// 从当前可见列表里点中的那张起，按现有顺序往后进入整理。
+    private func startOrganize(from asset: PHAsset) {
+        let ordered = visibleAssets
+        guard let index = ordered.firstIndex(where: { $0.localIdentifier == asset.localIdentifier }) else {
+            return
+        }
+
+        let ids = ordered[index...].map(\.localIdentifier)
+        guard !ids.isEmpty else { return }
+
+        HapticManager.impact(.light)
+        reviewScope = ExplicitAssetReviewScope(orderedAssetIDs: ids, albumInfo: album)
+        showsReview = true
     }
 
     private var gridColumns: [GridItem] {

@@ -102,15 +102,17 @@ struct AlbumsView: View {
         .sheet(isPresented: $showsDisplayStyle) {
             AlbumDisplayStyleSheet(style: displayStyleBinding)
         }
-        .sheet(item: $activeSheet) { sheet in
-            switch sheet {
-            case .create:
-                CreateAlbumView()
-                    .environmentObject(dataManager)
-            case .edit(let album):
-                EditAlbumView(album: album)
-                    .environmentObject(dataManager)
+        .fullScreenCover(item: $activeSheet) { sheet in
+            Group {
+                switch sheet {
+                case .create:
+                    CreateAlbumView()
+                case .edit(let album):
+                    EditAlbumView(album: album)
+                }
             }
+            .environmentObject(dataManager)
+            .presentationBackground(.clear)
         }
         .onChange(of: searchText) { _ in
             rebuildDisplayedRows()
@@ -1356,106 +1358,183 @@ struct AlbumInfoRow: View, Equatable {
     }
 }
 
-// MARK: - 创建相册视图
+// MARK: - 相册名称弹窗（创建 / 编辑共用）
+
+/// 居中对话框：遮罩 + 圆角卡 + 单字段输入。创建与编辑共用壳子，避免整页表单。
+private struct AlbumNameDialog: View {
+    let title: String
+    let iconSystemName: String
+    let placeholder: String
+    let primaryTitle: String
+    let busyTitle: String
+    @Binding var albumName: String
+    let isBusy: Bool
+    let errorMessage: String?
+    let onCancel: () -> Void
+    let onPrimary: () -> Void
+
+    @FocusState private var isNameFocused: Bool
+
+    private var trimmedName: String {
+        albumName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var canSubmit: Bool {
+        !trimmedName.isEmpty && !isBusy
+    }
+
+    var body: some View {
+        ZStack {
+            ZStack {
+                Rectangle().fill(.ultraThinMaterial)
+                Color.black.opacity(0.42)
+            }
+            .ignoresSafeArea()
+            .onTapGesture {
+                guard !isBusy else { return }
+                onCancel()
+            }
+
+            VStack {
+                Spacer(minLength: 24)
+
+                dialogCard
+                    .padding(.horizontal, 28)
+                    .frame(maxWidth: 360)
+
+                Spacer(minLength: 24)
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.async {
+                isNameFocused = true
+            }
+        }
+    }
+
+    private var dialogCard: some View {
+        VStack(spacing: 20) {
+            ZStack(alignment: .topTrailing) {
+                Text(title)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(PhotoDeleteStyle.primaryText)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 36)
+
+                Button(action: onCancel) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        .frame(width: 30, height: 30)
+                        .background(Circle().fill(PhotoDeleteStyle.elevatedSurface))
+                }
+                .buttonStyle(.plain)
+                .disabled(isBusy)
+                .accessibilityLabel(Text(L10n.string("Cancel")))
+            }
+
+            Image(systemName: iconSystemName)
+                .font(.system(size: 36, weight: .medium))
+                .foregroundStyle(PhotoDeleteStyle.accent)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(L10n.string("Album Name"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(PhotoDeleteStyle.primaryText)
+
+                TextField(placeholder, text: $albumName)
+                    .font(.body)
+                    .foregroundStyle(PhotoDeleteStyle.primaryText)
+                    .textInputAutocapitalization(.words)
+                    .autocorrectionDisabled()
+                    .focused($isNameFocused)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        guard canSubmit else { return }
+                        onPrimary()
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
+                            .fill(PhotoDeleteStyle.elevatedSurface)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
+                                    .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                            )
+                    )
+                    .disabled(isBusy)
+            }
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(PhotoDeleteStyle.warning)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            HStack(spacing: 12) {
+                Button(action: onCancel) {
+                    Text(L10n.string("Cancel"))
+                }
+                .photoDeleteSecondaryButton()
+                .disabled(isBusy)
+                .frame(maxWidth: .infinity)
+
+                Button(action: onPrimary) {
+                    HStack(spacing: 8) {
+                        if isBusy {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.primaryButtonText))
+                                .scaleEffect(0.85)
+                        }
+
+                        Text(isBusy ? busyTitle : primaryTitle)
+                    }
+                }
+                .photoDeletePrimaryButton()
+                .disabled(!canSubmit)
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 18)
+        .padding(.bottom, 18)
+        .background(
+            RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
+                .fill(PhotoDeleteStyle.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
+                        .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                )
+                .shadow(color: PhotoDeleteStyle.floatingShadow.opacity(0.35), radius: 24, y: 12)
+        )
+    }
+}
+
+// MARK: - 创建相册
 struct CreateAlbumView: View {
     @EnvironmentObject var dataManager: DataManager
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var albumName = ""
     @State private var isCreating = false
     @State private var errorMessage: String?
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                PhotoDeleteScreenBackground()
-
-                VStack(spacing: 32) {
-                    VStack(spacing: 16) {
-                        Image(systemName: "plus.rectangle.on.folder")
-                            .font(.system(size: 60, weight: .medium))
-                            .foregroundColor(PhotoDeleteStyle.accent)
-
-                        Text(L10n.string("Create New Album"))
-                            .font(.system(size: 24, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
-                    }
-
-                    VStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(L10n.string("Album Name"))
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.primaryText)
-
-                            TextField(L10n.string("Enter album name"), text: $albumName)
-                                .font(.system(size: 16, weight: .regular))
-                                .foregroundColor(PhotoDeleteStyle.primaryText)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                                        .fill(PhotoDeleteStyle.surface)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                                .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
-                                        )
-                                )
-                        }
-
-                        Text(L10n.string("Use a simple album name, like \"Travel\" or \"Family\"."))
-                            .font(.system(size: 14, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
-                            .multilineTextAlignment(.leading)
-                    }
-
-                    if let errorMessage {
-                        Text(errorMessage)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(PhotoDeleteStyle.warning)
-                    }
-
-                    VStack(spacing: 12) {
-                        Button(action: createAlbum) {
-                            HStack(spacing: 8) {
-                                if isCreating {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.primaryButtonText))
-                                        .scaleEffect(0.8)
-                                } else {
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 16, weight: .semibold))
-                                }
-
-                                Text(isCreating ? L10n.string("Creating...") : L10n.string("Create Album"))
-                            }
-                        }
-                        .photoDeletePrimaryButton()
-                        .disabled(albumName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isCreating)
-
-                        Button(action: { dismiss() }) {
-                            Text(L10n.string("Cancel"))
-                        }
-                        .photoDeleteSecondaryButton()
-                    }
-
-                    Spacer()
-                }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                .padding(.top, 40)
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
-                .frame(maxWidth: .infinity)
-            }
-            .navigationTitle(L10n.string("Create Album"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("Cancel")) {
-                        dismiss()
-                    }
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-                }
-            }
-        }
+        AlbumNameDialog(
+            title: L10n.string("Create New Album"),
+            iconSystemName: "plus.rectangle.on.folder",
+            placeholder: L10n.string("Enter album name"),
+            primaryTitle: L10n.string("Create Album"),
+            busyTitle: L10n.string("Creating..."),
+            albumName: $albumName,
+            isBusy: isCreating,
+            errorMessage: errorMessage,
+            onCancel: { dismiss() },
+            onPrimary: createAlbum
+        )
     }
 
     private func createAlbum() {
@@ -1463,6 +1542,7 @@ struct CreateAlbumView: View {
         guard !trimmedName.isEmpty else { return }
 
         isCreating = true
+        errorMessage = nil
         dataManager.createUserAlbum(named: trimmedName) { success in
             self.isCreating = false
             if success {
@@ -1474,12 +1554,11 @@ struct CreateAlbumView: View {
     }
 }
 
-// MARK: - 编辑相册视图
+// MARK: - 编辑相册
 struct EditAlbumView: View {
     let album: PHAssetCollection
     @EnvironmentObject var dataManager: DataManager
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var newName: String
     @State private var isUpdating = false
     @State private var errorMessage: String?
@@ -1490,91 +1569,18 @@ struct EditAlbumView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                PhotoDeleteScreenBackground()
-
-                VStack(spacing: 32) {
-                    VStack(spacing: 16) {
-                        Image(systemName: "pencil.circle")
-                            .font(.system(size: 60, weight: .medium))
-                            .foregroundColor(PhotoDeleteStyle.accent)
-
-                        Text(L10n.string("Edit Album"))
-                            .font(.system(size: 24, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
-                    }
-
-                    VStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(L10n.string("Album Name"))
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.primaryText)
-
-                            TextField(L10n.string("Enter album name"), text: $newName)
-                                .font(.system(size: 16, weight: .regular))
-                                .foregroundColor(PhotoDeleteStyle.primaryText)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                                        .fill(PhotoDeleteStyle.surface)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                                                .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
-                                        )
-                                )
-                        }
-                    }
-
-                    if let errorMessage {
-                        Text(errorMessage)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(PhotoDeleteStyle.warning)
-                    }
-
-                    VStack(spacing: 12) {
-                        Button(action: updateAlbum) {
-                            HStack(spacing: 8) {
-                                if isUpdating {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.primaryButtonText))
-                                        .scaleEffect(0.8)
-                                } else {
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 16, weight: .semibold))
-                                }
-
-                                Text(isUpdating ? L10n.string("Updating...") : L10n.string("Save Changes"))
-                            }
-                        }
-                        .photoDeletePrimaryButton()
-                        .disabled(newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isUpdating)
-
-                        Button(action: { dismiss() }) {
-                            Text(L10n.string("Cancel"))
-                        }
-                        .photoDeleteSecondaryButton()
-                    }
-
-                    Spacer()
-                }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                .padding(.top, 40)
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
-                .frame(maxWidth: .infinity)
-            }
-            .navigationTitle(L10n.string("Edit Album"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("Cancel")) {
-                        dismiss()
-                    }
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
-                }
-            }
-        }
+        AlbumNameDialog(
+            title: L10n.string("Edit Album"),
+            iconSystemName: "pencil.circle",
+            placeholder: L10n.string("Enter album name"),
+            primaryTitle: L10n.string("Save Changes"),
+            busyTitle: L10n.string("Updating..."),
+            albumName: $newName,
+            isBusy: isUpdating,
+            errorMessage: errorMessage,
+            onCancel: { dismiss() },
+            onPrimary: updateAlbum
+        )
     }
 
     private func updateAlbum() {
@@ -1587,6 +1593,7 @@ struct EditAlbumView: View {
         }
 
         isUpdating = true
+        errorMessage = nil
         dataManager.renameUserAlbum(album, title: trimmedName) { success in
             self.isUpdating = false
             if success {
