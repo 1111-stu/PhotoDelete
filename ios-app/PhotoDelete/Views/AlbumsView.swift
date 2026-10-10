@@ -336,11 +336,14 @@ struct AlbumsView: View {
     }
 
     private func albumItem(_ row: AlbumListRowModel, index: Int, proxy: ScrollViewProxy) -> some View {
-        let isPlaceholder = reorder.itemID == row.id
+        let isLifted = reorder.itemID == row.id
+        let isPlaceholder = isLifted && reorder.isDragging
         return Button {
             openAlbum(id: row.id)
         } label: {
             albumItemContent(row, isPlaceholder: isPlaceholder)
+                // Hide the armed card without changing its slot geometry.
+                .opacity(isLifted && !isPlaceholder ? 0 : 1)
                 .background(itemFrameReader(row.id))
                 .contentShape(Rectangle())
         }
@@ -719,14 +722,16 @@ struct AlbumsView: View {
         }
     }
 
-    @ViewBuilder
     private var reorderOverlays: some View {
-        if let actionMenu {
-            actionMenuOverlay(actionMenu)
-        }
-        if let id = reorder.itemID,
-           let row = displayedRows.first(where: { $0.id == id }) {
-            floatingCard(row)
+        // The full-size menu dismissal layer must not recenter the card.
+        ZStack(alignment: .topLeading) {
+            if let actionMenu {
+                actionMenuOverlay(actionMenu)
+            }
+            if let id = reorder.itemID,
+               let row = displayedRows.first(where: { $0.id == id }) {
+                floatingCard(row)
+            }
         }
     }
 
@@ -734,7 +739,11 @@ struct AlbumsView: View {
     private func floatingCard(_ row: AlbumListRowModel) -> some View {
         let lift: CGFloat = displayStyle == .list ? 1.035 : 1.06
         return albumItemContent(row, isPlaceholder: false)
-            .frame(width: dragStartFrame.width)
+            .frame(
+                width: dragStartFrame.width,
+                height: dragStartFrame.height,
+                alignment: .topLeading
+            )
             .scaleEffect(lift)
             .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
             .offset(
