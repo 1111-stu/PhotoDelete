@@ -46,6 +46,7 @@ struct AlbumsView: View {
 
     // MARK: - 长按拖拽排序
     @State private var reorder = AlbumReorderSession()
+    @GestureState private var reorderGestureIsActive = false
     /// 按下瞬间的槽位（内容坐标系，已排除被拿起的那一格），换位判定以这份快照为准，
     /// 避免让位动画把实时 frame 喂回判定里造成抖动。
     @State private var reorderSlots: [String: CGRect] = [:]
@@ -109,6 +110,15 @@ struct AlbumsView: View {
         }
         .onChange(of: albumDisplayStyleValue) { _ in
             endReorderIfNeeded()
+        }
+        .onChange(of: reorderGestureIsActive) { isActive in
+            // 被系统取消的手势不会调用 onEnded；GestureState 的自动复位负责兜底清理。
+            if !isActive, reorder.isActive {
+                cancelReorder()
+            }
+        }
+        .onDisappear {
+            cancelReorder()
         }
         .onReceive(dataManager.$userAlbums) { _ in
             rebuildDisplayedRows()
@@ -335,6 +345,7 @@ struct AlbumsView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("album-item-\(row.id)")
         .accessibilityHint(L10n.string("Tap to organize this album"))
         .accessibilityValue(positionText(for: index))
         .accessibilityAction(named: Text(L10n.string("Move up"))) {
@@ -495,16 +506,20 @@ struct AlbumsView: View {
     private func reorderGesture(row: AlbumListRowModel, index: Int, proxy: ScrollViewProxy) -> some Gesture {
         LongPressGesture(minimumDuration: 0.45, maximumDistance: 14)
             .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .named(Self.viewportSpace)))
+            .updating($reorderGestureIsActive) { _, isActive, _ in
+                isActive = true
+            }
             .onChanged { value in
                 switch value {
-                case .first(true):
-                    armReorder(row: row, index: index)
                 case .second(true, let drag):
-                    // 长按成功后 sequence 可能直接进 second(true, nil)：这里再 arm 一次兜底
-                    // （armReorder 自身幂等，已抬起时直接返回）。
+                    // first 只是开始按压，second 才代表长按成功；不要提前打断点按和滚动。
                     armReorder(row: row, index: index)
                     if let drag {
-                        updateReorder(viewportPoint: drag.location, proxy: proxy)
+                        updateReorder(
+                            viewportPoint: drag.location,
+                            startViewportPoint: drag.startLocation,
+                            proxy: proxy
+                        )
                     }
                 default:
                     break
@@ -513,7 +528,11 @@ struct AlbumsView: View {
             .onEnded { value in
                 guard reorder.itemID == row.id else { return }
                 if case .second(true, let drag) = value, let drag {
-                    updateReorder(viewportPoint: drag.location, proxy: proxy)
+                    updateReorder(
+                        viewportPoint: drag.location,
+                        startViewportPoint: drag.startLocation,
+                        proxy: proxy
+                    )
                 }
                 finishReorder()
             }
@@ -540,16 +559,24 @@ struct AlbumsView: View {
         lastViewportPoint = nil
         suppressItemTapUntil = Date().addingTimeInterval(0.6)
         reorder.arm(itemID: row.id, index: index)
+        // 长按确认后立即展示操作菜单；继续移动时会在进入拖动状态时收起。
+        actionMenu = AlbumActionMenuTarget(id: row.id)
         HapticManager.impact(.medium)
     }
 
-    private func updateReorder(viewportPoint: CGPoint, proxy: ScrollViewProxy) {
+    private func updateReorder(
+        viewportPoint: CGPoint,
+        startViewportPoint: CGPoint? = nil,
+        proxy: ScrollViewProxy
+    ) {
         guard reorder.isActive else { return }
         lastViewportPoint = viewportPoint
 
         // 抓起的位置：保住抓取偏移，卡片不会在抬起的瞬间跳一下。
         let point = contentPoint(for: viewportPoint)
-        if dragGrabPoint == nil { dragGrabPoint = point }
+        if dragGrabPoint == nil {
+            dragGrabPoint = startViewportPoint.map { contentPoint(for: $0) } ?? point
+        }
         let grabPoint = dragGrabPoint ?? point
         dragTranslation = CGSize(
             width: point.x - grabPoint.x,
@@ -558,6 +585,8 @@ struct AlbumsView: View {
 
         if !reorder.isDragging,
            hypot(dragTranslation.width, dragTranslation.height) > 6 {
+            // 菜单只服务于长按停留状态，手指一旦开始移动就让出视觉空间给排序。
+            actionMenu = nil
             reorder.beginDragging()
         }
         guard reorder.isDragging else { return }
@@ -581,7 +610,7 @@ struct AlbumsView: View {
     }
 
     private func finishReorder() {
-        let itemID = reorder.itemID
+        guard reorder.isActive else { return }
         let wasDragging = reorder.isDragging
         let hasMove = reorder.hasPendingMove
 
@@ -593,27 +622,33 @@ struct AlbumsView: View {
         lastViewportPoint = nil
         suppressItemTapUntil = Date().addingTimeInterval(0.4)
 
-        guard let itemID else { return }
-
         if wasDragging {
             guard hasMove else { return }
             dataManager.saveCustomAlbumOrder(displayedRows.map(\.id))
             HapticManager.impact(.light)
             showAlbumToast(L10n.string("Album order saved"), icon: "checkmark", style: .positive)
         } else {
-            // 原地松手：仍是整理 / 编辑 / 删除菜单，排序说明收在菜单最后一行小字里。
+            // 原地松手保留长按时已展示的菜单，并允许点击菜单操作。
             suppressItemTapUntil = Date().addingTimeInterval(1.2)
-            actionMenu = AlbumActionMenuTarget(id: itemID)
-            HapticManager.impact(.light)
         }
     }
 
     private func endReorderIfNeeded() {
-        guard reorder.isActive else {
-            actionMenu = nil
-            return
+        if reorder.isActive {
+            finishReorder()
         }
-        finishReorder()
+        actionMenu = nil
+    }
+
+    private func cancelReorder() {
+        reorder.reset()
+        reorderSlots = [:]
+        reorderSlotOrder = []
+        dragGrabPoint = nil
+        dragTranslation = .zero
+        lastViewportPoint = nil
+        actionMenu = nil
+        rebuildDisplayedRows()
     }
 
     /// 拖到滚动区上下边缘时自动滚动（滚动本身会改内容，落点由偏移变化的回调重算）。
@@ -751,6 +786,7 @@ struct AlbumsView: View {
                 }
             )
             .frame(width: menuWidth)
+            .accessibilityIdentifier("album-action-menu")
             .background(
                 GeometryReader { geometry in
                     Color.clear
@@ -763,6 +799,8 @@ struct AlbumsView: View {
             .offset(x: x, y: y)
         }
         .zIndex(20)
+        // 长按确认后菜单需要可见，但不能在同一根手指仍按住时拦截拖动手势。
+        .allowsHitTesting(!reorder.isActive)
     }
 
     private func albumPhotosCount(_ id: String) -> Int {
@@ -821,6 +859,7 @@ struct AlbumsView: View {
     }
 
     private func openAlbum(id: String) {
+        guard !reorder.isActive, actionMenu == nil else { return }
         guard Date() >= suppressItemTapUntil else { return }
         guard let albumInfo = albumsByID[id] ?? dataManager.userAlbums.first(where: { $0.id == id }) else {
             HapticManager.impact(.light)
@@ -954,7 +993,7 @@ private enum AlbumSheet: Identifiable {
     }
 }
 
-/// 长按原地松手时打开的菜单目标（位置取自按下的那一格）。
+/// 长按确认时打开的菜单目标（位置取自按下的那一格）。
 private struct AlbumActionMenuTarget: Identifiable, Equatable {
     let id: String
 }
