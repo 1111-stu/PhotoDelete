@@ -28,6 +28,8 @@ enum PhotoReviewActionEvent {
     )
     case restorePosition(asset: PHAsset, preferredIndex: Int, refreshSource: Bool)
     case albumSuccess(title: String)
+    /// 同步 sheet 勾选态：写入失败时清掉勾，取消归类失败时勾回去。
+    case albumFilingSelectionChange(albumID: String, isSelected: Bool)
     case haptic(PhotoReviewActionHaptic)
 }
 
@@ -68,6 +70,9 @@ final class PhotoReviewActions: ObservableObject {
     @Published private(set) var albumFilingAssetIDs: Set<String> = []
     @Published private(set) var recentlyFiledAlbumAssetIDs: Set<String> = []
     private var pendingAlbumFilingUndoKeys: Set<String> = []
+    /// Sheet 内点按取消：补偿进行中的写入，但不走 Undo Toast。
+    private var silentAlbumFilingUndoKeys: Set<String> = []
+    private var silentUnfileShouldRestoreByKey: [String: Bool] = [:]
     private var completedAlbumFilingKeys: Set<String> = []
     @Published private(set) var isUndoInProgress = false
     private var pendingAlbumUndoRefreshSources: [String: Bool] = [:]
@@ -316,6 +321,23 @@ final class PhotoReviewActions: ObservableObject {
             self.albumFilingAssetIDs.remove(assetID)
 
             if success, didInsert {
+                if self.silentAlbumFilingUndoKeys.remove(filingKey) != nil {
+                    let shouldRestore = self.silentUnfileShouldRestoreByKey.removeValue(forKey: filingKey) ?? true
+                    dataManager.removePhotoFromAlbum(asset, album: collection) { removeSuccess in
+                        self.completeSilentUnfile(
+                            asset: asset,
+                            albumID: currentAlbum.id,
+                            wasReviewed: wasReviewed,
+                            wasSessionReviewed: wasSessionReviewed,
+                            shouldRestoreReview: shouldRestore,
+                            success: removeSuccess,
+                            dataManager: dataManager,
+                            session: session
+                        )
+                    }
+                    return
+                }
+
                 if self.pendingAlbumFilingUndoKeys.contains(filingKey) {
                     dataManager.removePhotoFromAlbum(asset, album: collection) { removeSuccess in
                         self.completeAlbumUndo(
@@ -349,6 +371,22 @@ final class PhotoReviewActions: ObservableObject {
             } else if success {
                 // The asset was already in the album. It is still reviewed, but there
                 // is no successful insert that can be undone.
+                if self.silentAlbumFilingUndoKeys.remove(filingKey) != nil {
+                    let shouldRestore = self.silentUnfileShouldRestoreByKey.removeValue(forKey: filingKey) ?? true
+                    self.removeAction(filingKey: filingKey)
+                    if shouldRestore {
+                        self.restoreReviewState(
+                            asset: asset,
+                            wasReviewed: wasReviewed,
+                            wasSessionReviewed: wasSessionReviewed,
+                            dataManager: dataManager,
+                            session: session
+                        )
+                    }
+                    self.events.send(.haptic(.light))
+                    return
+                }
+
                 let wasUndoRequested = self.pendingAlbumFilingUndoKeys.remove(filingKey) != nil
                 let refreshSource = self.pendingAlbumUndoRefreshSources.removeValue(forKey: filingKey) ?? false
                 self.removeAction(filingKey: filingKey)
@@ -364,6 +402,19 @@ final class PhotoReviewActions: ObservableObject {
                     self.events.send(.restorePosition(asset: asset, preferredIndex: originalIndex, refreshSource: refreshSource))
                 }
             } else {
+                if self.silentAlbumFilingUndoKeys.remove(filingKey) != nil {
+                    _ = self.silentUnfileShouldRestoreByKey.removeValue(forKey: filingKey)
+                    self.removeAction(filingKey: filingKey)
+                    self.restoreReviewState(
+                        asset: asset,
+                        wasReviewed: wasReviewed,
+                        wasSessionReviewed: wasSessionReviewed,
+                        dataManager: dataManager,
+                        session: session
+                    )
+                    return
+                }
+
                 let wasUndoRequested = self.pendingAlbumFilingUndoKeys.remove(filingKey) != nil
                 let refreshSource = self.pendingAlbumUndoRefreshSources.removeValue(forKey: filingKey) ?? false
                 self.removeAction(filingKey: filingKey)
@@ -386,9 +437,94 @@ final class PhotoReviewActions: ObservableObject {
                         showsUndo: false,
                         duration: 3
                     ))
+                    self.events.send(.albumFilingSelectionChange(albumID: currentAlbum.id, isSelected: false))
                     self.events.send(.restorePosition(asset: asset, preferredIndex: originalIndex, refreshSource: false))
                 }
             }
+        }
+        return true
+    }
+
+    /// 取消把当前照片放入指定相册（sheet 内点按切换）。
+    @discardableResult
+    func unfileFromAlbum(
+        _ asset: PHAsset,
+        albumInfo: AlbumInfo,
+        dataManager: DataManager,
+        session: PhotoReviewSession
+    ) -> Bool {
+        guard canStartAction else { return false }
+        guard let currentAlbum = dataManager.cachedUserAlbumInfo(for: albumInfo),
+              currentAlbum.type == .userCreated,
+              let collection = currentAlbum.assetCollection,
+              collection.canPerform(.removeContent) else {
+            events.send(.feedback(
+                message: L10n.string("Could not remove from the album. Try again."),
+                icon: "exclamationmark.triangle",
+                style: .warning,
+                showsUndo: false,
+                duration: 3
+            ))
+            return false
+        }
+
+        let assetID = asset.localIdentifier
+        let albumID = currentAlbum.id
+
+        let earliestReviewState = earliestFileToAlbumReviewState(for: assetID)
+        let matchIndex = actionHistory.lastIndex { action in
+            if case .fileToAlbum(let actionAsset, _, let actionAlbumID, _, _, _, _) = action {
+                return actionAsset.localIdentifier == assetID && actionAlbumID == albumID
+            }
+            return false
+        }
+
+        var filingKey: String?
+        if let matchIndex,
+           case .fileToAlbum(_, _, _, _, _, _, let key) = actionHistory[matchIndex] {
+            filingKey = key
+            actionHistory.remove(at: matchIndex)
+        }
+
+        let shouldRestoreReview = earliestReviewState != nil && !hasFileToAlbumAction(for: assetID)
+
+        if let filingKey {
+            if albumFilingAssetIDs.contains(assetID) {
+                silentAlbumFilingUndoKeys.insert(filingKey)
+                silentUnfileShouldRestoreByKey[filingKey] = shouldRestoreReview
+                events.send(.haptic(.light))
+                return true
+            }
+
+            if completedAlbumFilingKeys.remove(filingKey) != nil {
+                dataManager.removePhotoFromAlbum(asset, album: collection) { success in
+                    self.completeSilentUnfile(
+                        asset: asset,
+                        albumID: albumID,
+                        wasReviewed: earliestReviewState?.wasReviewed ?? true,
+                        wasSessionReviewed: earliestReviewState?.wasSessionReviewed ?? true,
+                        shouldRestoreReview: shouldRestoreReview,
+                        success: success,
+                        dataManager: dataManager,
+                        session: session
+                    )
+                }
+                return true
+            }
+        }
+
+        // 无历史记录（例如照片本来就在相册里）：直接移出。
+        dataManager.removePhotoFromAlbum(asset, album: collection) { success in
+            self.completeSilentUnfile(
+                asset: asset,
+                albumID: albumID,
+                wasReviewed: earliestReviewState?.wasReviewed ?? true,
+                wasSessionReviewed: earliestReviewState?.wasSessionReviewed ?? true,
+                shouldRestoreReview: shouldRestoreReview,
+                success: success,
+                dataManager: dataManager,
+                session: session
+            )
         }
         return true
     }
@@ -598,6 +734,60 @@ final class PhotoReviewActions: ObservableObject {
             return false
         }) else { return }
         actionHistory.remove(at: index)
+    }
+
+    private func hasFileToAlbumAction(for assetID: String) -> Bool {
+        actionHistory.contains { action in
+            if case .fileToAlbum(let asset, _, _, _, _, _, _) = action {
+                return asset.localIdentifier == assetID
+            }
+            return false
+        }
+    }
+
+    private func earliestFileToAlbumReviewState(for assetID: String) -> (wasReviewed: Bool, wasSessionReviewed: Bool)? {
+        for action in actionHistory {
+            if case .fileToAlbum(let asset, _, _, _, let wasReviewed, let wasSessionReviewed, _) = action,
+               asset.localIdentifier == assetID {
+                return (wasReviewed, wasSessionReviewed)
+            }
+        }
+        return nil
+    }
+
+    private func completeSilentUnfile(
+        asset: PHAsset,
+        albumID: String,
+        wasReviewed: Bool,
+        wasSessionReviewed: Bool,
+        shouldRestoreReview: Bool,
+        success: Bool,
+        dataManager: DataManager,
+        session: PhotoReviewSession
+    ) {
+        if success {
+            if shouldRestoreReview {
+                dataManager.removeRecentOrganizedPhotoRecord(for: asset)
+                restoreReviewState(
+                    asset: asset,
+                    wasReviewed: wasReviewed,
+                    wasSessionReviewed: wasSessionReviewed,
+                    dataManager: dataManager,
+                    session: session
+                )
+            }
+            events.send(.haptic(.light))
+        } else {
+            events.send(.haptic(.error))
+            events.send(.feedback(
+                message: L10n.string("Could not remove from the album. Try again."),
+                icon: "exclamationmark.triangle",
+                style: .warning,
+                showsUndo: false,
+                duration: 3
+            ))
+            events.send(.albumFilingSelectionChange(albumID: albumID, isSelected: true))
+        }
     }
 
     private func restoreReviewState(

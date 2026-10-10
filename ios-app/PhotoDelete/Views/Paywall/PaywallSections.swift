@@ -152,68 +152,6 @@ struct PaywallFeatureSection: View {
 
 // MARK: - Review Prompt Section
 
-/// 评论引导：请满意的用户去 App Store 打分。
-///
-/// 刻意不做「展示他人评论」——本仓没有可引用的真实评论，编造评价不诚实。
-/// 引导本人去写评论则是真实且可用的转化手段，因此这里只做引导，不做展示。
-struct PaywallReviewPromptSection: View {
-
-    private static let starCount = 5
-
-    @Environment(\.openURL) private var openURL
-
-    var body: some View {
-        Button(action: openReviewPage) {
-            VStack(spacing: PaywallDS.Space.lg) {
-                HStack(spacing: PaywallDS.Space.xs) {
-                    ForEach(0..<Self.starCount, id: \.self) { _ in
-                        Image(systemName: "star.fill")
-                            .font(PaywallDS.Font.calloutSemibold)
-                            .foregroundStyle(PaywallDS.Color.accentGold)
-                    }
-                }
-                .accessibilityHidden(true)
-
-                VStack(spacing: PaywallDS.Space.xs) {
-                    Text(L10n.string("Enjoying OnePhoto Pro?"))
-                        .font(PaywallDS.Font.calloutSemibold)
-                        .foregroundStyle(PaywallDS.Color.textPrimary)
-                        .multilineTextAlignment(.center)
-
-                    Text(L10n.string("Leave a review on the App Store"))
-                        .font(PaywallDS.Font.caption)
-                        .foregroundStyle(PaywallDS.Color.textSecondary)
-                        .multilineTextAlignment(.center)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, PaywallDS.Space.xl)
-            .padding(.vertical, PaywallDS.Space.xl)
-            .background(
-                RoundedRectangle(cornerRadius: PaywallDS.Radius.listContainer, style: .continuous)
-                    .fill(PaywallDS.Color.surfacePrimary)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: PaywallDS.Radius.listContainer, style: .continuous)
-                            .stroke(PaywallDS.Color.borderSubtle, lineWidth: PaywallDS.Stroke.border)
-                    )
-            )
-        }
-        .buttonStyle(.plain)
-        // Button 本身已是无障碍元素，不要再叠 children: .combine——
-        // 在按钮 label 内部再套容器会让无障碍树退化成病态结构，UI 测试取快照时会卡死。
-        .accessibilityLabel(L10n.string("Leave a review on the App Store"))
-        .accessibilityIdentifier("paywall-review-prompt")
-    }
-
-    /// 与设置页同款兜底：`itms-apps://` 打不开时退回 App Store 商品页
-    private func openReviewPage() {
-        openURL(AppConstants.appStoreReviewURL) { accepted in
-            guard !accepted else { return }
-            openURL(AppConstants.appStoreProductURL)
-        }
-    }
-}
-
 // MARK: - Plan Section
 
 /// 套餐选择。选中项交回父级（Footer 的 CTA 要用），埋点与清错误由父级在 onSelect 里处理。

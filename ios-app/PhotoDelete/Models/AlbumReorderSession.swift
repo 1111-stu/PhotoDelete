@@ -11,6 +11,9 @@ import Foundation
 
 /// 一次长按拖拽排序的生命周期。
 /// `armed` = 长按已抬起但手指还没移动（此时松手是原菜单），`dragging` = 已经开始换位。
+///
+/// 视图侧用手势：iOS 18 `UIGestureRecognizerRepresentable` + `UILongPressGestureRecognizer`
+///（见 `AlbumReorderLongPressGesture`）。不要用 SwiftUI LongPress/Drag 序列抢 ScrollView pan。
 struct AlbumReorderSession: Equatable {
     enum Phase: Equatable {
         case idle

@@ -50,6 +50,9 @@ struct AdvancedView: View {
                             .environmentObject(dataManager)
                     }
                 }
+                .navigationDestination(isPresented: $showingPaywall) {
+                    PaywallView()
+                }
         }
         .onChange(of: selectedScope) { _ in
             selectedPeriodDate = Date()
@@ -135,9 +138,6 @@ struct AdvancedView: View {
         }
         .sheet(isPresented: $showingSupporterBenefits) {
             SupporterBenefitsSheet()
-        }
-        .sheet(isPresented: $showingPaywall) {
-            PaywallView()
         }
     }
 

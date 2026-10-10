@@ -59,6 +59,8 @@ struct SwipePhotoView: View {
     @State private var albumFilingSheetSelection: Set<String> = []
     @State private var albumFilingSheetAsset: PHAsset?
     @State private var pendingAlbumSuccessToastTitle: String?
+    /// 「完成并继续」已触发写入、sheet 正在关闭：成功 Toast 仍走 pending，避免异步回调连弹多次。
+    @State private var isCommittingAlbumFiling = false
 
     private static let countFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -280,12 +282,12 @@ struct SwipePhotoView: View {
             albumFilingSheetSelection.removeAll()
             albumFilingSheetAsset = nil
             pendingAlbumSuccessToastTitle = nil
+            isCommittingAlbumFiling = false
         }) {
             ReviewAlbumFilingSheet(
                 albums: dataManager.getUserAlbumsSortedByCustomOrder(),
-                shortcutAlbums: albumShortcutAlbums,
                 selectedAlbumIDs: albumFilingSheetSelection,
-                onFile: fileCurrentPhotoFromSheet(_:),
+                onToggle: toggleAlbumFilingFromSheet(_:),
                 onContinue: finishAlbumFilingSheet
             )
             .environmentObject(dataManager)
@@ -937,10 +939,6 @@ struct SwipePhotoView: View {
         Self.countFormatter.string(from: NSNumber(value: count)) ?? "\(count)"
     }
 
-    private var albumShortcutAlbums: [AlbumInfo] {
-        AlbumShortcutEligibility.filteredAlbums(dataManager.getUserAlbumsSortedByCustomOrder())
-    }
-
     private func loadAlbumShortcutsIfNeeded() {
         guard !isAlbumMode else { return }
         dataManager.loadAlbumsIfNeeded()
@@ -1408,10 +1406,17 @@ struct SwipePhotoView: View {
             if refreshSource { refreshSessionForSourceChangeIfNeeded(force: true) }
             restorePhotoPosition(asset, preferredIndex: preferredIndex)
         case let .albumSuccess(title):
-            if showsAlbumFilingSheet {
+            if showsAlbumFilingSheet || isCommittingAlbumFiling {
                 pendingAlbumSuccessToastTitle = title
             } else {
                 showAlbumFilingSuccessToast(albumTitle: title)
+            }
+        case let .albumFilingSelectionChange(albumID, isSelected):
+            guard showsAlbumFilingSheet else { return }
+            if isSelected {
+                albumFilingSheetSelection.insert(albumID)
+            } else {
+                albumFilingSheetSelection.remove(albumID)
             }
         case let .haptic(haptic):
             switch haptic {
@@ -1427,20 +1432,56 @@ struct SwipePhotoView: View {
         guard let asset = currentRealPhoto, !showCompletionMessage else { return }
         albumFilingSheetAsset = asset
         albumFilingSheetSelection.removeAll()
+        isCommittingAlbumFiling = false
+        pendingAlbumSuccessToastTitle = nil
         dataManager.loadAlbumsIfNeeded()
         showsAlbumFilingSheet = true
     }
 
-    private func fileCurrentPhotoFromSheet(_ albumInfo: AlbumInfo) {
-        guard !albumFilingSheetSelection.contains(albumInfo.id),
-              let asset = albumFilingSheetAsset else { return }
-        guard actions.fileToAlbum(asset, albumInfo: albumInfo, dataManager: dataManager, session: session) else { return }
-        albumFilingSheetSelection.insert(albumInfo.id)
+    private func toggleAlbumFilingFromSheet(_ albumInfo: AlbumInfo) {
+        if albumFilingSheetSelection.contains(albumInfo.id) {
+            albumFilingSheetSelection.remove(albumInfo.id)
+        } else {
+            albumFilingSheetSelection.insert(albumInfo.id)
+        }
+        HapticManager.impact(.light)
     }
 
     private func finishAlbumFilingSheet() {
-        let shouldAdvance = !albumFilingSheetSelection.isEmpty &&
-            currentRealPhoto?.localIdentifier == albumFilingSheetAsset?.localIdentifier
+        guard let asset = albumFilingSheetAsset else {
+            showsAlbumFilingSheet = false
+            return
+        }
+
+        let selectedIDs = albumFilingSheetSelection
+        guard !selectedIDs.isEmpty else {
+            showsAlbumFilingSheet = false
+            return
+        }
+
+        let albumsToFile = dataManager.getUserAlbumsSortedByCustomOrder().filter { selectedIDs.contains($0.id) }
+        guard !albumsToFile.isEmpty else {
+            showsAlbumFilingSheet = false
+            return
+        }
+
+        isCommittingAlbumFiling = true
+        pendingAlbumSuccessToastTitle = albumsToFile.last?.title
+
+        var didStartFiling = false
+        for album in albumsToFile {
+            if actions.fileToAlbum(asset, albumInfo: album, dataManager: dataManager, session: session) {
+                didStartFiling = true
+            }
+        }
+
+        if !didStartFiling {
+            pendingAlbumSuccessToastTitle = nil
+            isCommittingAlbumFiling = false
+        }
+
+        let shouldAdvance = didStartFiling &&
+            currentRealPhoto?.localIdentifier == asset.localIdentifier
         showsAlbumFilingSheet = false
         guard shouldAdvance else { return }
         moveToNextPhoto()

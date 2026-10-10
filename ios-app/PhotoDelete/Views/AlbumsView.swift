@@ -46,7 +46,6 @@ struct AlbumsView: View {
 
     // MARK: - 长按拖拽排序
     @State private var reorder = AlbumReorderSession()
-    @GestureState private var reorderGestureIsActive = false
     /// 按下瞬间的槽位（内容坐标系，已排除被拿起的那一格），换位判定以这份快照为准，
     /// 避免让位动画把实时 frame 喂回判定里造成抖动。
     @State private var reorderSlots: [String: CGRect] = [:]
@@ -62,9 +61,17 @@ struct AlbumsView: View {
     @State private var menuSize: CGSize = .zero
     @State private var suppressItemTapUntil = Date.distantPast
     @State private var lastAutoScrollAt = Date.distantPast
+    /// Debug: last scroll offset we printed (avoid PreferenceKey spam).
+    @State private var lastLoggedScrollOffset: CGFloat = .nan
 
     private static let contentSpace = "albums-content"
     private static let viewportSpace = "albums-viewport"
+    /// 长按确认时长；与 UI 测试里的 hold 时长对齐。
+    private static let reorderLongPressDuration: Double = 0.45
+    /// 长按允许的抖动；超过则视为滚动/滑动，整段排序手势失败，把 pan 还给 ScrollView。
+    private static let reorderLongPressSlop: CGFloat = 14
+    /// 超过该位移才从「抬起 + 菜单」进入真正换位。
+    private static let reorderDragThreshold: CGFloat = 6
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -111,13 +118,18 @@ struct AlbumsView: View {
         .onChange(of: albumDisplayStyleValue) { _ in
             endReorderIfNeeded()
         }
-        .onChange(of: reorderGestureIsActive) { isActive in
-            // 被系统取消的手势不会调用 onEnded；GestureState 的自动复位负责兜底清理。
-            if !isActive, reorder.isActive {
-                cancelReorder()
-            }
+        .onChange(of: reorder.isDragging) { isDragging in
+            AlbumScrollDebug.log(
+                "scrollDisabled(isDragging)=\(isDragging) \(reorderDebugSnapshot())"
+            )
+        }
+        .onChange(of: actionMenu?.id) { menuID in
+            AlbumScrollDebug.log(
+                "actionMenu=\(menuID ?? "nil") hitTestWhenIdle=\(menuID != nil) \(reorderDebugSnapshot())"
+            )
         }
         .onDisappear {
+            AlbumScrollDebug.log("onDisappear → cancelReorder")
             cancelReorder()
         }
         .onReceive(dataManager.$userAlbums) { _ in
@@ -280,24 +292,48 @@ struct AlbumsView: View {
                 }
             }
             .coordinateSpace(name: Self.viewportSpace)
-            .scrollDisabled(reorder.isActive)
+            // A long-press menu is not a reorder yet. Keep the scroll view live
+            // until the drag has actually crossed the movement threshold.
+            .scrollDisabled(reorder.isDragging)
             .scrollDismissesKeyboard(.immediately)
             .background(viewportSizeReader)
             .refreshable {
                 dataManager.loadAlbums(showLoading: false)
+            }
+            .onAppear {
+                AlbumScrollDebug.log(
+                    "albumBrowser appear scrollDisabled=\(reorder.isDragging) rows=\(displayedRows.count) \(reorderDebugSnapshot())"
+                )
             }
             .onPreferenceChange(AlbumItemFramesKey.self) { frames in
                 itemFrames = frames
             }
             .onPreferenceChange(AlbumsScrollOffsetKey.self) { contentMinY in
                 // contentMinY 是内容顶部在视口里的位置：向下滚动时为负，取反才是滚动距离。
-                contentScrollOffset = -contentMinY
+                let nextOffset = -contentMinY
+                let previous = contentScrollOffset
+                contentScrollOffset = nextOffset
+                logScrollOffsetIfNeeded(previous: previous, next: nextOffset, contentMinY: contentMinY)
                 // 自动滚动会改变手指下方的内容，落点要跟着重算。
                 if reorder.isDragging, let viewportPoint = lastViewportPoint {
                     updateReorder(viewportPoint: viewportPoint, proxy: proxy)
                 }
             }
         }
+    }
+
+    private func reorderDebugSnapshot() -> String {
+        "phase=\(reorder.phase) item=\(reorder.itemID ?? "nil") menu=\(actionMenu?.id ?? "nil") offset=\(Int(contentScrollOffset)) viewport=\(Int(viewportSize.width))x\(Int(viewportSize.height))"
+    }
+
+    private func logScrollOffsetIfNeeded(previous: CGFloat, next: CGFloat, contentMinY: CGFloat) {
+        let delta = abs(next - (lastLoggedScrollOffset.isNaN ? next : lastLoggedScrollOffset))
+        // PreferenceKey 很吵：位移 < 2pt 或与上次相同则跳过。
+        guard delta >= 2 || lastLoggedScrollOffset.isNaN else { return }
+        lastLoggedScrollOffset = next
+        AlbumScrollDebug.log(
+            "scrollOffset \(Int(previous))→\(Int(next)) (minY=\(Int(contentMinY))) delta=\(Int(next - previous)) \(reorderDebugSnapshot())"
+        )
     }
 
     private var albumColumnCount: Int {
@@ -338,28 +374,73 @@ struct AlbumsView: View {
     private func albumItem(_ row: AlbumListRowModel, index: Int, proxy: ScrollViewProxy) -> some View {
         let isLifted = reorder.itemID == row.id
         let isPlaceholder = isLifted && reorder.isDragging
-        return Button {
-            openAlbum(id: row.id)
-        } label: {
-            albumItemContent(row, isPlaceholder: isPlaceholder)
-                // Hide the armed card without changing its slot geometry.
-                .opacity(isLifted && !isPlaceholder ? 0 : 1)
-                .background(itemFrameReader(row.id))
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier("album-item-\(row.id)")
-        .accessibilityHint(L10n.string("Tap to organize this album"))
-        .accessibilityValue(positionText(for: index))
-        .accessibilityAction(named: Text(L10n.string("Move up"))) {
-            moveAlbum(id: row.id, by: -1)
-        }
-        .accessibilityAction(named: Text(L10n.string("Move down"))) {
-            moveAlbum(id: row.id, by: 1)
-        }
-        // 必须用 simultaneousGesture：`.gesture` 的优先级低于 Button 自带手势，
-        // 挂上去等于被按钮吃掉，长按永远不会触发（点按仍走 suppressItemTapUntil 兜住）。
-        .simultaneousGesture(reorderGesture(row: row, index: index, proxy: proxy))
+        // No `Button`: its gesture wins over `.gesture(UIGestureRecognizerRepresentable)`
+        // and long-press never fires (logs showed itemTap only, never UIKit18 began).
+        return albumItemContent(row, isPlaceholder: isPlaceholder)
+            // Hide the armed card without changing its slot geometry.
+            .opacity(isLifted && !isPlaceholder ? 0 : 1)
+            .background(itemFrameReader(row.id))
+            .contentShape(Rectangle())
+            .onTapGesture {
+                AlbumScrollDebug.log("itemTap id=\(row.id) \(reorderDebugSnapshot())")
+                openAlbum(id: row.id)
+            }
+            .gesture(albumReorderGesture(row: row, index: index, proxy: proxy))
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier("album-item-\(row.id)")
+            .accessibilityLabel("\(row.title), \(L10n.photoCount(row.photosCount))")
+            .accessibilityHint(L10n.string("Tap to organize this album"))
+            .accessibilityValue(positionText(for: index))
+            .accessibilityAction(named: Text(L10n.string("Move up"))) {
+                moveAlbum(id: row.id, by: -1)
+            }
+            .accessibilityAction(named: Text(L10n.string("Move down"))) {
+                moveAlbum(id: row.id, by: 1)
+            }
+    }
+
+    private func albumReorderGesture(
+        row: AlbumListRowModel,
+        index: Int,
+        proxy: ScrollViewProxy
+    ) -> AlbumReorderLongPressGesture {
+        AlbumReorderLongPressGesture(
+            minimumPressDuration: Self.reorderLongPressDuration,
+            allowableMovement: Self.reorderLongPressSlop,
+            isEnabled: searchText.isEmpty,
+            viewportSpaceName: Self.viewportSpace,
+            contentSpaceName: Self.contentSpace,
+            onBegan: { viewport, content in
+                handleItemReorderBegan(
+                    row: row,
+                    index: index,
+                    viewportPoint: viewport,
+                    contentPoint: content,
+                    proxy: proxy
+                )
+            },
+            onChanged: { viewport, content in
+                handleItemReorderChanged(
+                    rowID: row.id,
+                    viewportPoint: viewport,
+                    contentPoint: content,
+                    proxy: proxy
+                )
+            },
+            onEnded: { viewport, content in
+                handleItemReorderEnded(
+                    rowID: row.id,
+                    viewportPoint: viewport,
+                    contentPoint: content,
+                    proxy: proxy
+                )
+            },
+            onCancelled: {
+                AlbumScrollDebug.log("item gesture cancelled row=\(row.id) \(reorderDebugSnapshot())")
+                if reorder.itemID == row.id { cancelReorder() }
+            }
+        )
     }
 
     @ViewBuilder
@@ -500,51 +581,73 @@ struct AlbumsView: View {
     }
 
     // MARK: - 长按拖拽排序
+    //
+    // 手势契约（iOS 18 `UIGestureRecognizerRepresentable`）：
+    // 1. idle 滚动：长按未识别前 ScrollView pan 正常；位移 > slop → 长按失败
+    // 2. 长按成功：`.began` → arm（浮起 + 菜单）
+    // 3. 继续拖动：同一识别器 `.changed` → 超过阈值后 beginDragging
+    // 4. 原地松手：finish 但不提交顺序，菜单保留可点
+    // 5. 系统取消：`.cancelled` / `.failed` → cancelReorder
 
-    /// 内容坐标系里的拖动点：视口坐标 + 当前滚动偏移。
+    /// 内容坐标系里的拖动点：视口坐标 + 当前滚动偏移（自动滚动回调等兜底路径）。
     private func contentPoint(for viewportPoint: CGPoint) -> CGPoint {
         CGPoint(x: viewportPoint.x, y: viewportPoint.y + contentScrollOffset)
     }
 
-    private func reorderGesture(row: AlbumListRowModel, index: Int, proxy: ScrollViewProxy) -> some Gesture {
-        LongPressGesture(minimumDuration: 0.45, maximumDistance: 14)
-            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .named(Self.viewportSpace)))
-            .updating($reorderGestureIsActive) { _, isActive, _ in
-                isActive = true
-            }
-            .onChanged { value in
-                switch value {
-                case .second(true, let drag):
-                    // first 只是开始按压，second 才代表长按成功；不要提前打断点按和滚动。
-                    armReorder(row: row, index: index)
-                    if let drag {
-                        updateReorder(
-                            viewportPoint: drag.location,
-                            startViewportPoint: drag.startLocation,
-                            proxy: proxy
-                        )
-                    }
-                default:
-                    break
-                }
-            }
-            .onEnded { value in
-                guard reorder.itemID == row.id else { return }
-                if case .second(true, let drag) = value, let drag {
-                    updateReorder(
-                        viewportPoint: drag.location,
-                        startViewportPoint: drag.startLocation,
-                        proxy: proxy
-                    )
-                }
-                finishReorder()
-            }
+    private func handleItemReorderBegan(
+        row: AlbumListRowModel,
+        index: Int,
+        viewportPoint: CGPoint,
+        contentPoint: CGPoint,
+        proxy: ScrollViewProxy
+    ) {
+        AlbumScrollDebug.log(
+            "item began row=\(row.id) index=\(index) \(reorderDebugSnapshot())"
+        )
+        armReorder(row: row, index: index)
+        guard reorder.isActive else { return }
+        updateReorder(
+            viewportPoint: viewportPoint,
+            contentPoint: contentPoint,
+            startContentPoint: contentPoint,
+            proxy: proxy
+        )
+    }
+
+    private func handleItemReorderChanged(
+        rowID: String,
+        viewportPoint: CGPoint,
+        contentPoint: CGPoint,
+        proxy: ScrollViewProxy
+    ) {
+        guard reorder.itemID == rowID else { return }
+        updateReorder(
+            viewportPoint: viewportPoint,
+            contentPoint: contentPoint,
+            proxy: proxy
+        )
+    }
+
+    private func handleItemReorderEnded(
+        rowID: String,
+        viewportPoint: CGPoint,
+        contentPoint: CGPoint,
+        proxy: ScrollViewProxy
+    ) {
+        guard reorder.itemID == rowID else { return }
+        updateReorder(
+            viewportPoint: viewportPoint,
+            contentPoint: contentPoint,
+            proxy: proxy
+        )
+        finishReorder()
     }
 
     /// 长按抬起：记下按下瞬间的槽位快照，卡片离手但还没有换位。
     private func armReorder(row: AlbumListRowModel, index: Int) {
         guard !reorder.isActive else { return }
         guard searchText.isEmpty else {
+            AlbumScrollDebug.log("arm blocked: search active row=\(row.id)")
             showAlbumToast(
                 L10n.string("Clear search before reordering"),
                 icon: "magnifyingglass",
@@ -552,7 +655,10 @@ struct AlbumsView: View {
             )
             return
         }
-        guard let frame = itemFrames[row.id] else { return }
+        guard let frame = itemFrames[row.id] else {
+            AlbumScrollDebug.log("arm blocked: missing frame row=\(row.id)")
+            return
+        }
 
         reorderSlots = itemFrames.filter { $0.key != row.id }
         reorderSlotOrder = displayedRows.map(\.id).filter { $0 != row.id }
@@ -564,21 +670,25 @@ struct AlbumsView: View {
         reorder.arm(itemID: row.id, index: index)
         // 长按确认后立即展示操作菜单；继续移动时会在进入拖动状态时收起。
         actionMenu = AlbumActionMenuTarget(id: row.id)
+        AlbumScrollDebug.log(
+            "arm row=\(row.id) index=\(index) frame=\(Int(frame.minX)),\(Int(frame.minY)) \(Int(frame.width))x\(Int(frame.height)) \(reorderDebugSnapshot())"
+        )
         HapticManager.impact(.medium)
     }
 
     private func updateReorder(
         viewportPoint: CGPoint,
-        startViewportPoint: CGPoint? = nil,
+        contentPoint resolvedContentPoint: CGPoint? = nil,
+        startContentPoint: CGPoint? = nil,
         proxy: ScrollViewProxy
     ) {
         guard reorder.isActive else { return }
         lastViewportPoint = viewportPoint
 
         // 抓起的位置：保住抓取偏移，卡片不会在抬起的瞬间跳一下。
-        let point = contentPoint(for: viewportPoint)
+        let point = resolvedContentPoint ?? contentPoint(for: viewportPoint)
         if dragGrabPoint == nil {
-            dragGrabPoint = startViewportPoint.map { contentPoint(for: $0) } ?? point
+            dragGrabPoint = startContentPoint ?? point
         }
         let grabPoint = dragGrabPoint ?? point
         dragTranslation = CGSize(
@@ -587,10 +697,13 @@ struct AlbumsView: View {
         )
 
         if !reorder.isDragging,
-           hypot(dragTranslation.width, dragTranslation.height) > 6 {
+           hypot(dragTranslation.width, dragTranslation.height) > Self.reorderDragThreshold {
             // 菜单只服务于长按停留状态，手指一旦开始移动就让出视觉空间给排序。
             actionMenu = nil
             reorder.beginDragging()
+            AlbumScrollDebug.log(
+                "beginDragging t=(\(Int(dragTranslation.width)),\(Int(dragTranslation.height))) \(reorderDebugSnapshot())"
+            )
         }
         guard reorder.isDragging else { return }
 
@@ -616,6 +729,9 @@ struct AlbumsView: View {
         guard reorder.isActive else { return }
         let wasDragging = reorder.isDragging
         let hasMove = reorder.hasPendingMove
+        AlbumScrollDebug.log(
+            "finish wasDragging=\(wasDragging) hasMove=\(hasMove) \(reorderDebugSnapshot())"
+        )
 
         reorder.reset()
         reorderSlots = [:]
@@ -626,13 +742,17 @@ struct AlbumsView: View {
         suppressItemTapUntil = Date().addingTimeInterval(0.4)
 
         if wasDragging {
-            guard hasMove else { return }
+            guard hasMove else {
+                AlbumScrollDebug.log("finish: drag without move, keep order")
+                return
+            }
             dataManager.saveCustomAlbumOrder(displayedRows.map(\.id))
             HapticManager.impact(.light)
             showAlbumToast(L10n.string("Album order saved"), icon: "checkmark", style: .positive)
         } else {
             // 原地松手保留长按时已展示的菜单，并允许点击菜单操作。
             suppressItemTapUntil = Date().addingTimeInterval(1.2)
+            AlbumScrollDebug.log("finish: keep action menu \(actionMenu?.id ?? "nil")")
         }
     }
 
@@ -644,6 +764,7 @@ struct AlbumsView: View {
     }
 
     private func cancelReorder() {
+        AlbumScrollDebug.log("cancelReorder \(reorderDebugSnapshot())")
         reorder.reset()
         reorderSlots = [:]
         reorderSlotOrder = []
@@ -773,7 +894,10 @@ struct AlbumsView: View {
         return ZStack(alignment: .topLeading) {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture { actionMenu = nil }
+                .onTapGesture {
+                    AlbumScrollDebug.log("menuDismissTap \(reorderDebugSnapshot())")
+                    actionMenu = nil
+                }
 
             AlbumActionMenu(
                 canOrganize: albumPhotosCount(target.id) > 0,

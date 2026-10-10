@@ -109,10 +109,8 @@ struct SettingsView: View {
 
                 ScrollView {
                     VStack(spacing: SettingsChrome.sectionSpacing) {
-                        supporterBanner
-
                         if AppConstants.advancedPaywallEnabled {
-                            supporterSection
+                            supporterBanner
                         }
 
                         // 偏好设置
@@ -159,32 +157,17 @@ struct SettingsView: View {
             #endif
             case .privacy:
                 PrivacyInfoView()
-            case .supporter:
-                PaywallView()
             case .gestureSettings:
                 GestureSettingsView()
             case .languageSettings:
                 LanguageSettingsView()
-            case .stats:
-                NavigationStack {
-                    StatsView()
-                        .environmentObject(dataManager)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button(L10n.string("Done")) {
-                                    activeSheet = nil
-                                }
-                                .foregroundColor(PhotoDeleteStyle.accent)
-                            }
-                        }
-                }
             }
         }
     }
 
     private var supporterBanner: some View {
-        Button {
-            activeSheet = .supporter
+        NavigationLink {
+            PaywallView()
         } label: {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -212,28 +195,6 @@ struct SettingsView: View {
         .buttonStyle(.plain)
         .settingsGroupedCard()
         .accessibilityHint(Text(L10n.string("View purchase info and feature differences")))
-    }
-
-    // MARK: - 支持者版
-    private var supporterSection: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Text(L10n.string("Purchases & Restore"))
-                    .settingsSectionHeading()
-                Spacer()
-            }
-
-            VStack(spacing: 0) {
-                SettingRow(
-                    title: supporterRowTitle,
-                    subtitle: supporterRowSubtitle,
-                    action: {
-                        activeSheet = .supporter
-                    }
-                )
-            }
-            .settingsGroupedCard()
-        }
     }
 
     private var supporterRowTitle: String {
@@ -376,16 +337,6 @@ struct SettingsView: View {
                 } message: {
                     Text(L10n.string("Pending deletes, pending favorites, and local review progress will be cleared. No photos will be deleted."))
                 }
-
-                SettingsHairline()
-
-                SettingRow(
-                    title: L10n.string("Usage stats"),
-                    action: {
-                        activeSheet = .stats
-                    }
-                )
-                .accessibilityIdentifier("settings-stats-entry")
 
                 SettingsHairline()
 
@@ -581,19 +532,15 @@ struct SettingsView: View {
 private enum SettingsSheet: Identifiable {
     case mail
     case privacy
-    case supporter
     case gestureSettings
     case languageSettings
-    case stats
 
     var id: String {
         switch self {
         case .mail: return "mail"
         case .privacy: return "privacy"
-        case .supporter: return "supporter"
         case .gestureSettings: return "gestureSettings"
         case .languageSettings: return "languageSettings"
-        case .stats: return "stats"
         }
     }
 }

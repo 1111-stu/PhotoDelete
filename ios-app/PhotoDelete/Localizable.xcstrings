@@ -18029,6 +18029,47 @@
         }
       }
     },
+    "Enjoying OnePhoto Pro?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "هل أعجبك OnePhoto Pro؟"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gefällt dir OnePhoto Pro?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enjoying OnePhoto Pro?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OnePhoto Pro はお役に立っていますか？"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "喜欢 OnePhoto Pro 吗？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "喜歡 OnePhoto Pro 嗎？"
+          }
+        }
+      }
+    },
     "Enlarged photo" : {
       "localizations" : {
         "ar" : {
@@ -23180,6 +23221,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "學用 AI 寫代碼的方法"
+          }
+        }
+      }
+    },
+    "Leave a review on the App Store" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اكتب تقييمًا على App Store"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewerte uns im App Store"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a review on the App Store"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store でレビューを書く"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去 App Store 给个好评"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去 App Store 給個好評"
           }
         }
       }
@@ -28725,6 +28807,7 @@
       }
     },
     "No shortcut albums yet" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35888,6 +35971,7 @@
       }
     },
     "Purchases & Restore" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -40749,6 +40833,7 @@
       }
     },
     "Shortcuts" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -53753,86 +53838,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "您已經瀏覽完所有照片"
-          }
-        }
-      }
-    },
-    "Enjoying OnePhoto Pro?" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هل أعجبك OnePhoto Pro؟"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gefällt dir OnePhoto Pro?"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enjoying OnePhoto Pro?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OnePhoto Pro はお役に立っていますか？"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "喜欢 OnePhoto Pro 吗？"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "喜歡 OnePhoto Pro 嗎？"
-          }
-        }
-      }
-    },
-    "Leave a review on the App Store" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "اكتب تقييمًا على App Store"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bewerte uns im App Store"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leave a review on the App Store"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App Store でレビューを書く"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "去 App Store 给个好评"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "去 App Store 給個好評"
           }
         }
       }
