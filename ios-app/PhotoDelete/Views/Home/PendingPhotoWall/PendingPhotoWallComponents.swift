@@ -2,7 +2,7 @@
 //  PendingPhotoWallComponents.swift
 //  PhotoDelete
 //
-//  待整理照片墙：顶栏、日历格、相纸板、空状态、年份 sheet。
+//  待整理照片墙：顶栏、日历格、相纸板、空状态、年份液态玻璃菜单。
 //
 
 import Photos
@@ -12,9 +12,11 @@ import SwiftUI
 
 struct PendingPhotoWallChrome: View {
     let yearLabel: String
+    let years: [PendingPhotoWallYearOption]
+    let selectedYear: Int
     let binCount: Int
     let onBack: () -> Void
-    let onSelectYear: () -> Void
+    let onSelectYear: (Int) -> Void
     let onOpenBin: () -> Void
 
     var body: some View {
@@ -30,7 +32,19 @@ struct PendingPhotoWallChrome: View {
 
             Spacer(minLength: 0)
 
-            Button(action: onSelectYear) {
+            Menu {
+                ForEach(years) { option in
+                    Button {
+                        onSelectYear(option.year)
+                    } label: {
+                        if option.year == selectedYear {
+                            Label(yearMenuTitle(for: option), systemImage: "checkmark")
+                        } else {
+                            Text(yearMenuTitle(for: option))
+                        }
+                    }
+                }
+            } label: {
                 HStack(spacing: 8) {
                     Text(yearLabel)
                         .font(.system(size: 16.5, weight: .semibold))
@@ -79,6 +93,17 @@ struct PendingPhotoWallChrome: View {
             .accessibilityValue(L10n.string("\(binCount) to delete"))
         }
         .padding(.horizontal, 12)
+    }
+
+    private func yearMenuTitle(for option: PendingPhotoWallYearOption) -> String {
+        let yearText = AppDateFormatter.string(
+            from: Calendar.current.date(from: DateComponents(year: option.year, month: 1, day: 1)) ?? Date(),
+            template: "y"
+        )
+        if option.remainingCount > 0 {
+            return "\(yearText) · \(PhotoDeleteCountFormat.plain(option.remainingCount))"
+        }
+        return "\(yearText) · \(L10n.string("Cleared"))"
     }
 }
 
@@ -324,54 +349,43 @@ struct PendingPhotoWallPolaroidBoard: View {
     let photoLibraryManager: PhotoLibraryManager
     let onSelectDay: (PendingPhotoWallDayCell) -> Void
 
-    private var items: [PolaroidBoardItem] {
-        PolaroidBoardLayout.layout(
-            year: month.year,
-            month: month.month,
-            days: Array(month.daysWithPhotos.values)
-        )
-    }
+    /// 仅视口内的月才算布局 / 拉缩略图，避免切到相纸墙时整年一起解码。
+    @State private var isActivated = false
+    @State private var items: [PolaroidBoardItem] = []
 
     var body: some View {
         VStack(spacing: 9) {
             GeometryReader { proxy in
                 let scale = proxy.size.width / PolaroidBoardLayout.boardWidth
                 ZStack(alignment: .topLeading) {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color(red: 0.102, green: 0.102, blue: 0.125),
-                                    Color(red: 0.078, green: 0.078, blue: 0.094)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                .stroke(Color.white.opacity(0.07), lineWidth: 1)
-                        }
-                        .shadow(color: Color.black.opacity(0.48), radius: 14, y: 10)
+                    boardBackground
 
-                    ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                        polaroid(item)
-                            .frame(width: item.width * scale, height: item.height * scale)
-                            .rotationEffect(.degrees(Double(item.rotationDegrees)))
-                            .position(
-                                x: (item.x + item.width / 2) * scale,
-                                y: (item.y + item.height / 2) * scale
-                            )
-                            .zIndex(Double(index + 1))
+                    if isActivated {
+                        ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                            polaroid(item, loadsImage: true)
+                                .frame(width: item.width * scale, height: item.height * scale)
+                                .rotationEffect(.degrees(Double(item.rotationDegrees)))
+                                .position(
+                                    x: (item.x + item.width / 2) * scale,
+                                    y: (item.y + item.height / 2) * scale
+                                )
+                                .zIndex(Double(index + 1))
+                        }
                     }
                 }
             }
             .aspectRatio(PolaroidBoardLayout.boardWidth / PolaroidBoardLayout.boardHeight, contentMode: .fit)
+            .onAppear(perform: activateIfNeeded)
+            .onChange(of: month.id) {
+                isActivated = false
+                items = []
+                activateIfNeeded()
+            }
 
             Text(
                 String(
                     format: L10n.string("Showing %lld of %lld photos"),
-                    Int64(items.count),
+                    Int64(isActivated ? items.count : min(month.daysWithPhotos.count, PolaroidBoardLayout.maxPolaroids)),
                     Int64(month.remainingCount)
                 )
             )
@@ -382,7 +396,36 @@ struct PendingPhotoWallPolaroidBoard: View {
         }
     }
 
-    private func polaroid(_ item: PolaroidBoardItem) -> some View {
+    private var boardBackground: some View {
+        RoundedRectangle(cornerRadius: 24, style: .continuous)
+            .fill(
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.102, green: 0.102, blue: 0.125),
+                        Color(red: 0.078, green: 0.078, blue: 0.094)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
+            }
+            .shadow(color: Color.black.opacity(0.48), radius: 14, y: 10)
+    }
+
+    private func activateIfNeeded() {
+        guard !isActivated else { return }
+        items = PolaroidBoardLayout.layout(
+            year: month.year,
+            month: month.month,
+            days: Array(month.daysWithPhotos.values)
+        )
+        isActivated = true
+    }
+
+    private func polaroid(_ item: PolaroidBoardItem, loadsImage: Bool) -> some View {
         let paper = Color(red: 242 / 255, green: 237 / 255, blue: 228 / 255)
         return Button {
             if let cell = month.daysWithPhotos[item.dayOfMonth] {
@@ -391,7 +434,7 @@ struct PendingPhotoWallPolaroidBoard: View {
         } label: {
             VStack(spacing: 0) {
                 PendingPhotoWallThumbnail(
-                    assetID: item.coverAssetID,
+                    assetID: loadsImage ? item.coverAssetID : nil,
                     photoLibraryManager: photoLibraryManager,
                     cornerRadius: 2
                 )
@@ -508,7 +551,7 @@ struct PendingPhotoWallThumbnail: View {
     }
 }
 
-// MARK: - Empty / Year sheet
+// MARK: - Empty
 
 struct PendingPhotoWallEmptyState: View {
     let isWholeLibrary: Bool
@@ -563,80 +606,5 @@ struct PendingPhotoWallEmptyState: View {
         .padding(.horizontal, 24)
         .padding(.top, 100)
         .frame(maxWidth: .infinity)
-    }
-}
-
-struct PendingPhotoWallYearSheet: View {
-    let years: [PendingPhotoWallYearOption]
-    let selectedYear: Int
-    let onSelect: (Int) -> Void
-    let onDone: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVGrid(
-                    columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
-                    spacing: 8
-                ) {
-                    ForEach(years) { option in
-                        Button {
-                            onSelect(option.year)
-                        } label: {
-                            VStack(spacing: 3) {
-                                Text("\(option.year)")
-                                    .font(.system(size: 14.5, weight: .semibold))
-                                    .monospacedDigit()
-                                Text(
-                                    option.remainingCount > 0
-                                        ? PhotoDeleteCountFormat.plain(option.remainingCount)
-                                        : L10n.string("Cleared")
-                                )
-                                .font(.system(size: 11.5, weight: .medium))
-                                .foregroundColor(option.year == selectedYear ? Theme.accent.opacity(0.72) : Theme.secondaryText)
-                                .monospacedDigit()
-                            }
-                            .foregroundColor(option.year == selectedYear ? Theme.accent : Theme.primaryText)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 68)
-                            .background {
-                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .fill(option.year == selectedYear ? Theme.accentSoftFill : Color.clear)
-                                    .overlay {
-                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                            .stroke(
-                                                option.year == selectedYear ? Theme.accent : Theme.hairline,
-                                                lineWidth: Theme.stroke
-                                            )
-                                    }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityAddTraits(option.year == selectedYear ? .isSelected : [])
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 14)
-
-                Text(L10n.string("Year only changes what you browse on the wall. Tapping a day organizes that month."))
-                    .font(.system(size: 12))
-                    .foregroundColor(Theme.secondaryText)
-                    .lineSpacing(3)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 14)
-                    .padding(.bottom, 24)
-            }
-            .background(Theme.elevatedSurface.ignoresSafeArea())
-            .navigationTitle(L10n.string("Year"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.string("Done"), action: onDone)
-                        .foregroundColor(Theme.accent)
-                }
-            }
-        }
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
     }
 }

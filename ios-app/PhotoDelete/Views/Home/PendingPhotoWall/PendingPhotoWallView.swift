@@ -12,9 +12,6 @@ struct PendingPhotoWallView: View {
     @EnvironmentObject private var router: MainTabRouter
     @Environment(\.dismiss) private var dismiss
 
-    @AppStorage(AppConstants.pendingPhotoWallDisplayModeKey)
-    private var displayModeRaw = PendingPhotoWallDisplayMode.calendar.rawValue
-
     @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
     @State private var snapshot = PendingPhotoWallSnapshot(
         years: [],
@@ -22,12 +19,10 @@ struct PendingPhotoWallView: View {
         selectedYear: Calendar.current.component(.year, from: Date()),
         totalPendingInLibrary: 0
     )
-    @State private var showingYearSheet = false
+    /// 按月显示方式：默认日历；只有用户点过的月才会进相纸墙，互不影响。
+    @State private var displayModeByMonthID: [String: PendingPhotoWallDisplayMode] = [:]
     @State private var showingRecentOrganized = false
-
-    private var displayMode: PendingPhotoWallDisplayMode {
-        PendingPhotoWallDisplayMode(rawValue: displayModeRaw) ?? .calendar
-    }
+    @State private var rebuildGeneration = 0
 
     private var yearPillLabel: String {
         AppDateFormatter.string(
@@ -61,40 +56,19 @@ struct PendingPhotoWallView: View {
                         )
                     } else {
                         ForEach(snapshot.months) { month in
+                            let mode = displayMode(for: month)
                             PendingPhotoWallMonthSection(
                                 title: monthTitle(for: month),
                                 remainingCount: month.remainingCount,
-                                displayMode: displayMode,
-                                onSelectMode: { mode in
-                                    displayModeRaw = mode.rawValue
+                                displayMode: mode,
+                                onSelectMode: { next in
+                                    displayModeByMonthID[month.id] = next
                                 },
                                 onOrganizeMonth: {
                                     router.push(SwipeViewDestination.wallMonth(month.monthStart, startFromDay: nil))
                                 }
                             ) {
-                                switch displayMode {
-                                case .calendar:
-                                    PendingPhotoWallCalendarGrid(
-                                        month: month,
-                                        today: Date(),
-                                        photoLibraryManager: dataManager.photoLibraryManager,
-                                        onSelectDay: { cell in
-                                            router.push(
-                                                SwipeViewDestination.wallMonth(cell.date, startFromDay: cell.date)
-                                            )
-                                        }
-                                    )
-                                case .polaroid:
-                                    PendingPhotoWallPolaroidBoard(
-                                        month: month,
-                                        photoLibraryManager: dataManager.photoLibraryManager,
-                                        onSelectDay: { cell in
-                                            router.push(
-                                                SwipeViewDestination.wallMonth(cell.date, startFromDay: cell.date)
-                                            )
-                                        }
-                                    )
-                                }
+                                monthContent(month, mode: mode)
                             }
                         }
                     }
@@ -108,18 +82,6 @@ struct PendingPhotoWallView: View {
         }
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .sheet(isPresented: $showingYearSheet) {
-            PendingPhotoWallYearSheet(
-                years: yearSheetOptions,
-                selectedYear: snapshot.selectedYear,
-                onSelect: { year in
-                    selectedYear = year
-                    showingYearSheet = false
-                    rebuildSnapshot(preferredYear: year)
-                },
-                onDone: { showingYearSheet = false }
-            )
-        }
         .sheet(isPresented: $showingRecentOrganized) {
             RecentOrganizedPhotosView(dataManager: dataManager)
         }
@@ -140,6 +102,36 @@ struct PendingPhotoWallView: View {
         }
     }
 
+    private func displayMode(for month: PendingPhotoWallMonth) -> PendingPhotoWallDisplayMode {
+        displayModeByMonthID[month.id] ?? .calendar
+    }
+
+    @ViewBuilder
+    private func monthContent(
+        _ month: PendingPhotoWallMonth,
+        mode: PendingPhotoWallDisplayMode
+    ) -> some View {
+        switch mode {
+        case .calendar:
+            PendingPhotoWallCalendarGrid(
+                month: month,
+                today: Date(),
+                photoLibraryManager: dataManager.photoLibraryManager,
+                onSelectDay: { cell in
+                    router.push(SwipeViewDestination.wallMonth(cell.date, startFromDay: cell.date))
+                }
+            )
+        case .polaroid:
+            PendingPhotoWallPolaroidBoard(
+                month: month,
+                photoLibraryManager: dataManager.photoLibraryManager,
+                onSelectDay: { cell in
+                    router.push(SwipeViewDestination.wallMonth(cell.date, startFromDay: cell.date))
+                }
+            )
+        }
+    }
+
     private var topChrome: some View {
         VStack(spacing: 0) {
             LinearGradient(
@@ -155,9 +147,14 @@ struct PendingPhotoWallView: View {
             .overlay(alignment: .top) {
                 PendingPhotoWallChrome(
                     yearLabel: yearPillLabel,
+                    years: yearMenuOptions,
+                    selectedYear: snapshot.selectedYear,
                     binCount: dataManager.deleteCandidates.count,
                     onBack: { dismiss() },
-                    onSelectYear: { showingYearSheet = true },
+                    onSelectYear: { year in
+                        selectedYear = year
+                        rebuildSnapshot(preferredYear: year)
+                    },
                     onOpenBin: { router.push(.trashBin) }
                 )
                 .padding(.top, 8)
@@ -173,7 +170,7 @@ struct PendingPhotoWallView: View {
             || (manager.hasPhotoLibraryAccess && !manager.hasLoadedPhotoLibrary)
     }
 
-    private var yearSheetOptions: [PendingPhotoWallYearOption] {
+    private var yearMenuOptions: [PendingPhotoWallYearOption] {
         if snapshot.years.isEmpty {
             return [PendingPhotoWallYearOption(year: selectedYear, remainingCount: 0)]
         }
@@ -184,21 +181,29 @@ struct PendingPhotoWallView: View {
         AppDateFormatter.string(from: month.monthStart, template: "MMM")
     }
 
+    /// 全库扫描放到后台；主线程只接结果，避免切年/回墙时卡顿。
     private func rebuildSnapshot(preferredYear: Int) {
+        rebuildGeneration += 1
+        let generation = rebuildGeneration
         let photos = dataManager.photoLibraryManager.allPhotos
         let reviewed = dataManager.reviewedAssetIDs
         let deleteIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
         let favoriteIDs = Set(dataManager.favoriteCandidates.map(\.localIdentifier))
 
-        let built = PendingPhotoWallBuilder.build(
-            photos: photos,
-            reviewedIDs: reviewed,
-            deleteCandidateIDs: deleteIDs,
-            favoriteCandidateIDs: favoriteIDs,
-            selectedYear: preferredYear
-        )
-        snapshot = built
-        selectedYear = built.selectedYear
+        Task.detached(priority: .userInitiated) {
+            let built = PendingPhotoWallBuilder.build(
+                photos: photos,
+                reviewedIDs: reviewed,
+                deleteCandidateIDs: deleteIDs,
+                favoriteCandidateIDs: favoriteIDs,
+                selectedYear: preferredYear
+            )
+            await MainActor.run {
+                guard generation == rebuildGeneration else { return }
+                snapshot = built
+                selectedYear = built.selectedYear
+            }
+        }
     }
 }
 
