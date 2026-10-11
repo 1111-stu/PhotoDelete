@@ -108,9 +108,8 @@ struct PendingPhotoWallView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.visible, for: .navigationBar)
         .toolbar { wallToolbar }
-        // 与相册详情页一致：内容滚过时由系统导航栏做液态玻璃模糊，不用纯黑垫安全区。
-        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+        // 与相册详情页一致：系统导航栏液态玻璃；强制 dark，避免 ultraThinMaterial 在近黑画布上发灰。
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .sheet(isPresented: $showingRecentOrganized) {
             RecentOrganizedPhotosView(dataManager: dataManager)
         }

@@ -188,77 +188,84 @@ private struct TicketStubCard: View {
     }
 
     private var stubBand: some View {
-        let centerName = !meta.ticketShowsDateColumns
+        // Prototype absolute tops: full stub → kicker 30 / name 64;
+        // no-loc or no-date → hide YEAR/DATE + rule, lift block to 100 / 132
+        // (visually centered in the 275pt stub without fighting the barcode plate).
+        let showsColumns = meta.ticketShowsDateColumns
+        let kickerTop: CGFloat = showsColumns ? 30 : 100
+        let nameTop: CGFloat = showsColumns ? 64 : 132
+        // Barcode plate left edge = ticketW - 63 - 107; keep ~20pt air gap.
+        let textMaxWidth: CGFloat = ticketW - 57 - (63 + 107 + 20)
+
         return ZStack(alignment: .topLeading) {
             palette.stub
 
-            VStack(alignment: .leading, spacing: 0) {
-                Text("NEXT STATION")
-                    .font(.system(size: 21, weight: .medium))
-                    .tracking(1.7)
-                    .foregroundStyle(ticketInk)
-                    .padding(.top, centerName ? 100 : 30)
-                    .padding(.leading, 59)
+            Text("NEXT STATION")
+                .font(.system(size: 21, weight: .medium))
+                .tracking(1.7)
+                .foregroundStyle(ticketInk)
+                .padding(.leading, 59)
+                .padding(.top, kickerTop)
 
-                Text(meta.ticketStationName)
-                    .font(.system(size: 36, weight: .bold))
-                    .foregroundStyle(ticketInk)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.75)
-                    .padding(.top, 10)
-                    .padding(.leading, 57)
-                    .padding(.trailing, 130)
+            Text(meta.ticketStationName)
+                .font(.system(size: 36, weight: .bold))
+                .foregroundStyle(ticketInk)
+                .lineLimit(2)
+                .minimumScaleFactor(0.75)
+                .frame(width: textMaxWidth, alignment: .leading)
+                .padding(.leading, 57)
+                .padding(.top, nameTop)
 
-                if meta.ticketShowsDateColumns {
-                    Path { path in
-                        path.move(to: CGPoint(x: 0, y: 0))
-                        path.addLine(to: CGPoint(x: 400, y: 0))
-                    }
-                    .stroke(
-                        ticketInk.opacity(0.5),
-                        style: StrokeStyle(lineWidth: 2, dash: [2, 4])
-                    )
-                    .frame(width: 400, height: 2)
-                    .padding(.top, 28)
-                    .padding(.leading, 59)
-
-                    HStack(alignment: .top, spacing: 66) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("YEAR")
-                                .font(.system(size: 18, weight: .medium))
-                                .tracking(2.2)
-                                .foregroundStyle(ticketInk)
-                            Text(meta.dateYear)
-                                .font(.system(size: 29, weight: .bold))
-                                .foregroundStyle(ticketInk)
-                        }
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("DATE")
-                                .font(.system(size: 18, weight: .medium))
-                                .tracking(2.2)
-                                .foregroundStyle(ticketInk)
-                            Text(meta.dateMonthDay)
-                                .font(.system(size: 29, weight: .bold))
-                                .foregroundStyle(ticketInk)
-                        }
-                    }
-                    .padding(.top, 18)
-                    .padding(.leading, 59)
+            if showsColumns {
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: 0))
+                    path.addLine(to: CGPoint(x: 400, y: 0))
                 }
+                .stroke(
+                    ticketInk.opacity(0.5),
+                    style: StrokeStyle(lineWidth: 2, dash: [2, 4])
+                )
+                .frame(width: 400, height: 2)
+                .padding(.leading, 59)
+                .padding(.top, 167)
+
+                HStack(alignment: .top, spacing: 66) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("YEAR")
+                            .font(.system(size: 18, weight: .medium))
+                            .tracking(2.2)
+                            .foregroundStyle(ticketInk)
+                        Text(meta.dateYear)
+                            .font(.system(size: 29, weight: .bold))
+                            .foregroundStyle(ticketInk)
+                    }
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("DATE")
+                            .font(.system(size: 18, weight: .medium))
+                            .tracking(2.2)
+                            .foregroundStyle(ticketInk)
+                        Text(meta.dateMonthDay)
+                            .font(.system(size: 29, weight: .bold))
+                            .foregroundStyle(ticketInk)
+                    }
+                }
+                .padding(.leading, 59)
+                .padding(.top, 193)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: centerName ? .center : .topLeading)
         }
     }
 
     private var barcodePlate: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .fill(Color.white)
-            ShareCardBarcodeView(seed: meta.barcodeSeed)
-                .frame(width: 235, height: 107)
-                .rotationEffect(.degrees(90))
-        }
-        .clipped()
+        // Prototype: .bc-rot = 235×107, origin top-left, translateX(107) rotate(90°).
+        Color.white
+            .overlay(alignment: .topLeading) {
+                ShareCardBarcodeView(seed: meta.barcodeSeed)
+                    .frame(width: 235, height: 107, alignment: .topLeading)
+                    .rotationEffect(.degrees(90), anchor: .topLeading)
+                    .offset(x: 107)
+            }
+            .frame(width: 107, height: 235)
+            .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
     }
 }
 
@@ -289,26 +296,36 @@ private struct TicketStubMask: Shape {
 private struct ShareCardBarcodeView: View {
     let seed: String
 
+    /// Horizontal Code128 layout before 90° rotation into the 107×235 plate.
+    /// Matches prototype `.bc-bars` / `.bc-num` absolute insets inside 235×107.
     var body: some View {
-        VStack(spacing: 4) {
-            if let image = Self.makeBarcode(seed: seed) {
-                Image(uiImage: image)
-                    .resizable()
-                    .interpolation(.none)
-                    .scaledToFit()
-                    .frame(height: 62)
-                    .padding(.horizontal, 3)
-            } else {
-                barcodeFallback
+        ZStack(alignment: .topLeading) {
+            Group {
+                if let image = Self.makeBarcode(seed: seed) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .interpolation(.none)
+                        .frame(width: 229, height: 62)
+                } else {
+                    barcodeFallback
+                }
             }
+            .padding(.leading, 3)
+            .padding(.trailing, 3)
+            .padding(.top, 7)
+
             Text(Self.displayDigits(from: seed))
                 .font(.system(size: 15.5, weight: .bold, design: .monospaced))
                 .foregroundStyle(Color(white: 0.07))
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
-                .padding(.horizontal, 8)
+                .frame(width: 219, height: 31, alignment: .center)
+                .padding(.leading, 8)
+                .padding(.trailing, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, 7)
         }
-        .padding(.vertical, 7)
+        .frame(width: 235, height: 107)
     }
 
     private var barcodeFallback: some View {
@@ -320,8 +337,7 @@ private struct ShareCardBarcodeView: View {
                 Spacer(minLength: 1)
             }
         }
-        .padding(.horizontal, 3)
-        .frame(height: 62)
+        .frame(width: 229, height: 62)
     }
 
     private static func makeBarcode(seed: String) -> UIImage? {
