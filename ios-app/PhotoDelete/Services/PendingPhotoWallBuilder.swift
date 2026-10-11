@@ -90,12 +90,18 @@ enum PendingPhotoWallBuilder {
         calendar: Calendar = .current
     ) -> PendingPhotoWallSnapshot {
         var dayBuckets: [Date: DayBucket] = [:]
-        var yearTotals: [Int: Int] = [:]
+        var pendingByYear: [Int: Int] = [:]
+        var yearsWithLibraryPhotos = Set<Int>()
         var libraryPending = 0
 
         // newest-first：先扫到的同日资产作为封面。
+        // 年份列表含「库里有照片的年份」（含已清空），不只剩待整理的年。
         for asset in photos {
             guard let creationDate = asset.creationDate else { continue }
+            let dayStart = calendar.startOfDay(for: creationDate)
+            let year = calendar.component(.year, from: dayStart)
+            yearsWithLibraryPhotos.insert(year)
+
             guard !isOrganized(
                 asset: asset,
                 reviewedIDs: reviewedIDs,
@@ -104,9 +110,7 @@ enum PendingPhotoWallBuilder {
             ) else { continue }
 
             libraryPending += 1
-            let dayStart = calendar.startOfDay(for: creationDate)
-            let year = calendar.component(.year, from: dayStart)
-            yearTotals[year, default: 0] += 1
+            pendingByYear[year, default: 0] += 1
 
             var bucket = dayBuckets[dayStart] ?? DayBucket()
             bucket.remainingCount += 1
@@ -116,13 +120,16 @@ enum PendingPhotoWallBuilder {
             dayBuckets[dayStart] = bucket
         }
 
-        let years = yearTotals.keys.sorted(by: >).map { year in
-            PendingPhotoWallYearOption(year: year, remainingCount: yearTotals[year] ?? 0)
+        let years = yearsWithLibraryPhotos.sorted(by: >).map { year in
+            PendingPhotoWallYearOption(year: year, remainingCount: pendingByYear[year] ?? 0)
         }
 
         let resolvedYear: Int = {
-            if let selectedYear, yearTotals[selectedYear] != nil || years.contains(where: { $0.year == selectedYear }) {
+            if let selectedYear, yearsWithLibraryPhotos.contains(selectedYear) {
                 return selectedYear
+            }
+            if let firstPending = pendingByYear.keys.sorted(by: >).first {
+                return firstPending
             }
             if let first = years.first?.year { return first }
             return calendar.component(.year, from: now)

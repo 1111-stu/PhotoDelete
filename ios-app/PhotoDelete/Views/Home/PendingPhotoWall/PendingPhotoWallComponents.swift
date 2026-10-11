@@ -2,7 +2,7 @@
 //  PendingPhotoWallComponents.swift
 //  PhotoDelete
 //
-//  待整理照片墙：顶栏、日历格、相纸板、空状态、年份液态玻璃菜单。
+//  待整理照片墙：顶栏、日历格、相纸板、空状态、年份液态玻璃下拉。
 //
 
 import Photos
@@ -15,95 +15,169 @@ struct PendingPhotoWallChrome: View {
     let years: [PendingPhotoWallYearOption]
     let selectedYear: Int
     let binCount: Int
+    @Binding var isYearMenuExpanded: Bool
     let onBack: () -> Void
     let onSelectYear: (Int) -> Void
     let onOpenBin: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
-            Button(action: onBack) {
-                Image(systemName: "arrow.left")
-                    .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
-                    .foregroundColor(Theme.primaryText)
-                    .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
-            }
-            .modifier(ReviewGlassCircleChrome())
-            .accessibilityLabel(L10n.string("Back"))
-
-            Spacer(minLength: 0)
-
-            Menu {
-                ForEach(years) { option in
-                    Button {
-                        onSelectYear(option.year)
-                    } label: {
-                        if option.year == selectedYear {
-                            Label(yearMenuTitle(for: option), systemImage: "checkmark")
-                        } else {
-                            Text(yearMenuTitle(for: option))
-                        }
-                    }
-                }
-            } label: {
-                HStack(spacing: 8) {
-                    Text(yearLabel)
-                        .font(.system(size: 16.5, weight: .semibold))
-                        .foregroundColor(Theme.primaryText)
-                        .monospacedDigit()
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(Theme.tertiaryText)
-                }
-                .padding(.leading, 20)
-                .padding(.trailing, 16)
-                .frame(height: Theme.sizeChrome)
-            }
-            .modifier(ReviewGlassCapsuleChrome())
-            .accessibilityLabel(L10n.string("Select year"))
-            .accessibilityValue(yearLabel)
-
-            Spacer(minLength: 0)
-
-            Button(action: onOpenBin) {
-                ZStack(alignment: .topTrailing) {
-                    Image(systemName: "archivebox")
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Button(action: onBack) {
+                    Image(systemName: "arrow.left")
                         .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
                         .foregroundColor(Theme.primaryText)
                         .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
+                }
+                .modifier(ReviewGlassCircleChrome())
+                .accessibilityLabel(L10n.string("Back"))
 
-                    if binCount > 0 {
-                        Text(binCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(binCount))
-                            .font(.system(size: 10.5, weight: .bold))
-                            .foregroundColor(.white)
+                Spacer(minLength: 0)
+
+                Button {
+                    withAnimation(.easeOut(duration: 0.18)) {
+                        isYearMenuExpanded.toggle()
+                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Text(yearLabel)
+                            .font(.system(size: 16.5, weight: .semibold))
+                            .foregroundColor(Theme.primaryText)
                             .monospacedDigit()
-                            .lineLimit(1)
-                            .padding(.horizontal, 5)
-                            .frame(minWidth: 18, minHeight: 18)
-                            .background(Capsule(style: .continuous).fill(Theme.destructive))
-                            .overlay(
-                                Capsule(style: .continuous)
-                                    .stroke(Theme.background, lineWidth: 2.5)
-                            )
-                            .offset(x: 2, y: -2)
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(Theme.tertiaryText)
+                            .rotationEffect(.degrees(isYearMenuExpanded ? 180 : 0))
+                    }
+                    .padding(.leading, 20)
+                    .padding(.trailing, 16)
+                    .frame(height: Theme.sizeChrome)
+                }
+                .modifier(ReviewGlassCapsuleChrome())
+                .accessibilityLabel(L10n.string("Select year"))
+                .accessibilityValue(yearLabel)
+
+                Spacer(minLength: 0)
+
+                Button(action: onOpenBin) {
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "archivebox")
+                            .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
+                            .foregroundColor(Theme.primaryText)
+                            .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
+
+                        if binCount > 0 {
+                            Text(binCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(binCount))
+                                .font(.system(size: 10.5, weight: .bold))
+                                .foregroundColor(.white)
+                                .monospacedDigit()
+                                .lineLimit(1)
+                                .padding(.horizontal, 5)
+                                .frame(minWidth: 18, minHeight: 18)
+                                .background(Capsule(style: .continuous).fill(Theme.destructive))
+                                .overlay(
+                                    Capsule(style: .continuous)
+                                        .stroke(Theme.background, lineWidth: 2.5)
+                                )
+                                .offset(x: 2, y: -2)
+                        }
                     }
                 }
+                .modifier(ReviewGlassCircleChrome())
+                .accessibilityLabel(L10n.string("Collection bin"))
+                .accessibilityValue(L10n.string("\(binCount) to delete"))
             }
-            .modifier(ReviewGlassCircleChrome())
-            .accessibilityLabel(L10n.string("Collection bin"))
-            .accessibilityValue(L10n.string("\(binCount) to delete"))
+            .padding(.horizontal, 12)
+
+            if isYearMenuExpanded {
+                PendingPhotoWallYearMenu(
+                    years: years,
+                    selectedYear: selectedYear,
+                    onSelect: { year in
+                        onSelectYear(year)
+                        withAnimation(.easeOut(duration: 0.16)) {
+                            isYearMenuExpanded = false
+                        }
+                    }
+                )
+                .padding(.horizontal, 72)
+                .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .top)))
+                .zIndex(2)
+            }
         }
-        .padding(.horizontal, 12)
+    }
+}
+
+struct PendingPhotoWallYearMenu: View {
+    let years: [PendingPhotoWallYearOption]
+    let selectedYear: Int
+    let onSelect: (Int) -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(years.enumerated()), id: \.element.id) { index, option in
+                Button {
+                    onSelect(option.year)
+                } label: {
+                    HStack(spacing: 10) {
+                        Text(yearLabel(for: option.year))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(Theme.primaryText)
+                            .monospacedDigit()
+                        Spacer(minLength: 8)
+                        if option.year == selectedYear {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(Color.white)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                if index != years.count - 1 {
+                    Divider()
+                        .background(Color.white.opacity(0.12))
+                        .padding(.leading, 16)
+                }
+            }
+        }
+        .padding(.vertical, 6)
+        .modifier(PendingPhotoWallGlassPanelChrome(cornerRadius: 18))
+        .shadow(color: Color.black.opacity(0.35), radius: 18, y: 10)
+        .accessibilityLabel(L10n.string("Select year"))
     }
 
-    private func yearMenuTitle(for option: PendingPhotoWallYearOption) -> String {
-        let yearText = AppDateFormatter.string(
-            from: Calendar.current.date(from: DateComponents(year: option.year, month: 1, day: 1)) ?? Date(),
+    private func yearLabel(for year: Int) -> String {
+        AppDateFormatter.string(
+            from: Calendar.current.date(from: DateComponents(year: year, month: 1, day: 1)) ?? Date(),
             template: "y"
         )
-        if option.remainingCount > 0 {
-            return "\(yearText) · \(PhotoDeleteCountFormat.plain(option.remainingCount))"
+    }
+}
+
+/// 年份下拉面板：iOS 26+ 液态玻璃，老系统半透明深色面板。
+private struct PendingPhotoWallGlassPanelChrome: ViewModifier {
+    let cornerRadius: CGFloat
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
+        } else {
+            content
+                .background {
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .fill(Theme.elevatedSurface.opacity(0.92))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                                .stroke(Color.white.opacity(0.14), lineWidth: Theme.stroke)
+                        }
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                }
         }
-        return "\(yearText) · \(L10n.string("Cleared"))"
     }
 }
 
@@ -259,7 +333,6 @@ struct PendingPhotoWallCalendarGrid: View {
 
     private var leadingBlankCount: Int {
         let weekday = calendar.component(.weekday, from: month.monthStart)
-        // weekday: 1=Sunday … 7=Saturday → offset 0…6
         return weekday - 1
     }
 
