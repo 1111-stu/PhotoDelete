@@ -2,9 +2,9 @@
 //  PhotoDeleteCircleIconButton.swift
 //  PhotoDelete
 //
-//  标题栏圆形 icon 按钮：可见圆 36 / 图标 15，触控区仍为 44。
+//  标题栏圆形 icon 按钮：可见圆 32 / 图标 14，触控区 44。
 //  iOS 26+ 液态玻璃圆钮，老系统回落 elevatedSurface 实心圆。
-//  尺寸 token：Theme.space9 / textSizeMd / space11。
+//  尺寸 token：Theme.sizeIcon / textSizeSm / sizeTap。
 //
 
 import SwiftUI
@@ -58,7 +58,7 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
 
     @available(iOS 26.0, *)
     private var glassButton: some View {
-        // 原生 .glass：可见圆跟 label（36）；外层 frame + contentShape 扩到 44 触控，不撑大玻璃。
+        // 原生 .glass：可见圆跟 label（sizeIcon）；外层 frame + contentShape 扩到 sizeTap，不撑大玻璃。
         Button(action: action) {
             iconLabel
         }
@@ -66,8 +66,8 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
         .buttonBorderShape(.circle)
         .foregroundStyle(Theme.primaryText)
         .frame(
-            width: Theme.space11,
-            height: Theme.space11
+            width: Theme.sizeTap,
+            height: Theme.sizeTap
         )
         .contentShape(Circle())
     }
@@ -78,8 +78,8 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
                 .foregroundColor(Theme.primaryText)
                 .background(Theme.elevatedSurface, in: Circle())
                 .frame(
-                    width: Theme.space11,
-                    height: Theme.space11
+                    width: Theme.sizeTap,
+                    height: Theme.sizeTap
                 )
                 .contentShape(Circle())
         }
@@ -88,10 +88,10 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
 
     private var iconLabel: some View {
         Image(systemName: systemName)
-            .font(.system(size: Theme.textSizeMd, weight: .semibold))
+            .font(.system(size: Theme.textSizeSm, weight: .semibold))
             .frame(
-                width: Theme.space9,
-                height: Theme.space9
+                width: Theme.sizeIcon,
+                height: Theme.sizeIcon
             )
     }
 }

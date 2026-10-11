@@ -4,11 +4,11 @@
 //
 //  全局设计 token（暗色静态）。规范见仓库根目录 style.md。
 //
-//  命名对齐 Tailwind：分类写在名字前缀里，全部打平在 Theme 上。
-//  - color / surface / text colors（无前缀或语义名）
-//  - space*  — 间距与尺寸（4pt 网格：space5 = 20）
-//  - radius* — 圆角
-//  - text*   — Font 字阶；textSize* — 字号 CGFloat（SF Symbol 等）
+//  命名对齐 Tailwind：前缀表达类别，全部打平。
+//  - space*  — 间距（严格 4pt 网格）
+//  - size*   — 控件边长 / 行高（不是间距）
+//  - radius* — 圆角阶梯 12 / 16 / 24
+//  - text* / textSize* — Font 字阶 / 字号 CGFloat
 //
 
 import SwiftUI
@@ -73,36 +73,36 @@ enum Theme {
     static let dropSlotLineWidth: CGFloat = 2.5
     static let dropSlotDash: [CGFloat] = [11, 9]
 
-    // MARK: - Space（4pt 网格，spaceN ≈ N×4）
+    // MARK: - Space（4pt 网格，spaceN = N×4）
 
     static let space2: CGFloat = 8
-    /// Toast 竖直内边距（略偏离网格，保留原值）。
-    static let space2_75: CGFloat = 11
     static let space3: CGFloat = 12
-    static let space3_5: CGFloat = 14
+    static let space4: CGFloat = 16
     static let space5: CGFloat = 20
     static let space6: CGFloat = 24
     static let space8: CGFloat = 32
-    static let space9: CGFloat = 36
-    static let space11: CGFloat = 44
-    static let space13: CGFloat = 52
-    static let space14_5: CGFloat = 58
+    static let space12: CGFloat = 48
     static let space16: CGFloat = 64
     static let space24: CGFloat = 96
 
-    // MARK: - Radius
+    // MARK: - Size（控件边长 / 行高，勿当间距用）
+
+    static let sizeTap: CGFloat = 44
+    static let sizeIcon: CGFloat = 32
+    static let sizeChrome: CGFloat = 48
+    static let sizeRow: CGFloat = 56
+
+    // MARK: - Radius（12 / 16 / 24）
 
     static let radiusSm: CGFloat = 12
-    static let radiusMd: CGFloat = 14
-    static let radiusLg: CGFloat = 16
-    static let radiusXl: CGFloat = 22
+    static let radiusMd: CGFloat = 16
+    static let radiusLg: CGFloat = 24
     static let stroke: CGFloat = 1
 
-    // MARK: - Text size（CGFloat，给 SF Symbol / 自定义字号）
+    // MARK: - Text size（CGFloat）
 
     static let textSizeSm: CGFloat = 14
-    static let textSizeMd: CGFloat = 15
-    static let textSizeLg: CGFloat = 19
+    static let textSizeLg: CGFloat = 20
 
     // MARK: - Text（Font 字阶）
 

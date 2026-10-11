@@ -512,7 +512,7 @@ struct HomeView: View {
             .foregroundColor(Theme.coralInk)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                     .fill(
                         LinearGradient(
                             colors: [Theme.coralGradientTop, Theme.coralGradientBottom],
@@ -521,7 +521,7 @@ struct HomeView: View {
                         )
                     )
             )
-            .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -544,7 +544,7 @@ struct HomeView: View {
             .foregroundColor(Theme.amberInk)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                     .fill(
                         LinearGradient(
                             colors: [Theme.amberGradientTop, Theme.amberGradientBottom],
@@ -558,7 +558,7 @@ struct HomeView: View {
                     .offset(y: -52)
                     .accessibilityHidden(true)
             }
-            .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -596,7 +596,7 @@ struct HomeView: View {
                     rollDelay: 0.38
                 )
             }
-            .photoDeleteCard(radius: 22)
+            .photoDeleteCard(radius: Theme.radiusLg)
         }
     }
 
@@ -691,7 +691,7 @@ struct HomeView: View {
                     navigationPath.append(SwipeViewDestination.assetBrowser(.screenRecordings))
                 }
             }
-            .photoDeleteCard(radius: 22)
+            .photoDeleteCard(radius: Theme.radiusLg)
         }
     }
 
@@ -768,7 +768,7 @@ struct HomeView: View {
                     navigationPath.append(SwipeViewDestination.cleanup(.videoCompression))
                 }
             }
-            .photoDeleteCard(radius: 22)
+            .photoDeleteCard(radius: Theme.radiusLg)
         }
     }
 

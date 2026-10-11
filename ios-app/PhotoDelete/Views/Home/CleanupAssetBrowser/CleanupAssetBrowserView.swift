@@ -282,8 +282,8 @@ struct CleanupAssetCard: View {
                 .padding(.bottom, 3)
             }
             .padding(6)
-            .photoDeleteCard(radius: Theme.radiusLg)
-            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg))
+            .photoDeleteCard(radius: Theme.radiusMd)
+            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusMd))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(fullDate), \(metadata.size.displayText)\(asset.mediaType == .video ? ", \(durationText)" : "")\(isPendingDeletion ? ", \(L10n.string("Pending deletion"))" : metadata.isReviewed ? ", \(L10n.string("Reviewed"))" : "")")

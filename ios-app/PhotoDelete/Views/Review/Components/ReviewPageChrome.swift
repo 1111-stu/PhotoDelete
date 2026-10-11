@@ -12,9 +12,9 @@ struct ReviewNavigationHeader: View {
             HStack(spacing: 8) {
                 Button(action: onBack) {
                     Image(systemName: "arrow.left")
-                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
                         .foregroundColor(Theme.primaryText)
-                        .frame(width: 52, height: 52)
+                        .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
                 }
                 .modifier(ReviewGlassCircleChrome())
                 .accessibilityLabel(L10n.string("Back"))
@@ -37,9 +37,9 @@ struct ReviewNavigationHeader: View {
             Button(action: onDelete) {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "trash")
-                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
                         .foregroundColor(Theme.primaryText)
-                        .frame(width: 52, height: 52)
+                        .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
 
                     if deleteCount > 0 {
                         // 颜色只承担"数量"语义：图标中性、角标珊瑚红（>99 显示 99+）。
@@ -244,7 +244,7 @@ struct ReviewActionToolbar: View {
     ) -> some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
                 .foregroundColor(Theme.primaryText)
                 .frame(width: 44, height: 44)
                 .contentShape(Circle())
@@ -258,9 +258,9 @@ struct ReviewActionToolbar: View {
         if #available(iOS 26.0, *) {
             Button(action: onFinish) {
                 Image(systemName: "archivebox")
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
                     .foregroundColor(Theme.onAccent)
-                    .frame(width: 52, height: 52)
+                    .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
                     .glassEffect(.regular.tint(Theme.accent), in: .circle)
             }
             .buttonStyle(.plain)
@@ -268,9 +268,9 @@ struct ReviewActionToolbar: View {
         } else {
             Button(action: onFinish) {
                 Image(systemName: "archivebox")
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
                     .foregroundColor(Theme.onAccent)
-                    .frame(width: 52, height: 52)
+                    .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
                     .background(
                         Circle().fill(
                             LinearGradient(

@@ -236,7 +236,7 @@ struct AlbumDisplayStyleSheet: View {
             .frame(minHeight: 84)
             .foregroundStyle(isSelected ? Theme.accent : Theme.primaryText)
             .background(
-            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                     .fill(isSelected ? Theme.accent.opacity(0.16) : Theme.surface)
             )
         }
@@ -281,7 +281,7 @@ struct AlbumListCard: View {
     var body: some View {
         Group {
             if isDropSlot {
-                AlbumDropSlot(cornerRadius: Theme.radiusLg)
+                AlbumDropSlot(cornerRadius: Theme.radiusMd)
                     .frame(maxWidth: .infinity, minHeight: Theme.space16)
             } else {
                 AlbumInfoRow(
@@ -303,10 +303,10 @@ struct AlbumListCard: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                 .fill(isDropSlot ? Color.clear : Theme.surface)
         )
-        .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
     }
 }
 

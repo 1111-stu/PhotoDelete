@@ -216,7 +216,7 @@ struct AlbumsView: View {
         }
         .padding(.horizontal, 14)
         .frame(minHeight: 44)
-        .background(Theme.elevatedSurface, in: RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
+        .background(Theme.elevatedSurface, in: RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
     }
 
     private func createAlbum() {
@@ -1476,10 +1476,10 @@ private struct AlbumNameDialog: View {
         .padding(.top, 18)
         .padding(.bottom, 18)
         .background(
-            RoundedRectangle(cornerRadius: Theme.radiusXl, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                 .fill(Theme.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: Theme.radiusXl, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                         .stroke(Theme.hairline, lineWidth: Theme.stroke)
                 )
                 .shadow(color: Theme.floatingShadow.opacity(0.35), radius: 24, y: 12)

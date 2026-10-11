@@ -121,7 +121,7 @@ private struct StatsScreen: View {
                 .foregroundColor(Theme.secondaryText)
             }
             .padding(18)
-            .photoDeleteCard(radius: 22)
+            .photoDeleteCard(radius: Theme.radiusLg)
         }
     }
 
@@ -160,11 +160,11 @@ private struct StatsScreen: View {
                     .foregroundColor(Theme.secondaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
-                    .photoDeleteCard(radius: 22)
+                    .photoDeleteCard(radius: Theme.radiusLg)
             } else {
                 monthChart(months)
                     .padding(EdgeInsets(top: 16, leading: 14, bottom: 12, trailing: 14))
-                    .photoDeleteCard(radius: 22)
+                    .photoDeleteCard(radius: Theme.radiusLg)
             }
         }
     }
@@ -246,7 +246,7 @@ private struct StatsScreen: View {
                             }
                         }
                     }
-                    .photoDeleteCard(radius: 22)
+                    .photoDeleteCard(radius: Theme.radiusLg)
                     .padding(.horizontal, Theme.space5)
                     .padding(.top, 16)
                 }

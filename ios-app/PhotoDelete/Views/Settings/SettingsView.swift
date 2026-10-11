@@ -23,9 +23,9 @@ enum SettingsChrome {
     static let divider = Theme.hairline
     static let pill = Theme.elevatedSurface
     static let pageInset: CGFloat = Theme.space5
-    static let cardRadius: CGFloat = Theme.radiusXl
+    static let cardRadius: CGFloat = Theme.radiusLg
     static let sectionSpacing: CGFloat = Theme.space6
-    static let rowMinHeight: CGFloat = Theme.space14_5
+    static let rowMinHeight: CGFloat = Theme.sizeRow
 }
 
 private extension Color {
@@ -792,7 +792,7 @@ private struct AppPromotionRow: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
-            .frame(minHeight: Theme.space14_5)
+            .frame(minHeight: Theme.sizeRow)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }

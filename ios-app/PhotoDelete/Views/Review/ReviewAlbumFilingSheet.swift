@@ -174,17 +174,17 @@ private struct FilingAlbumRow: View {
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity, minHeight: Theme.space16, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                     .fill(Theme.surface)
                     .overlay {
-                        RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                        RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                             .strokeBorder(
                                 isSelected ? Theme.accent.opacity(0.42) : Color.clear,
                                 lineWidth: 1
                             )
                     }
             )
-            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
         }
         .buttonStyle(FilingAlbumRowButtonStyle())
         .accessibilityElement(children: .ignore)

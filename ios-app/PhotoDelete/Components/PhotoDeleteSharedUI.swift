@@ -35,7 +35,7 @@ enum PhotoDeleteAdaptiveLayout {
     }
 
     static func homeHorizontalPadding(in size: CGSize, horizontalSizeClass: UserInterfaceSizeClass?) -> CGFloat {
-        prefersExpandedContent(in: size, horizontalSizeClass: horizontalSizeClass) ? 32 : Theme.space5
+        prefersExpandedContent(in: size, horizontalSizeClass: horizontalSizeClass) ? Theme.space8 : Theme.space5
     }
 
     static func homeTopPadding(in size: CGSize, horizontalSizeClass: UserInterfaceSizeClass?) -> CGFloat {
@@ -93,7 +93,7 @@ struct PhotoDeleteScreenBackground: View {
 }
 
 struct PhotoDeleteCardBackground: ViewModifier {
-    var radius: CGFloat = Theme.radiusXl
+    var radius: CGFloat = Theme.radiusLg
 
     func body(content: Content) -> some View {
         content
@@ -112,7 +112,7 @@ struct PhotoDeleteFloatingSurface<Content: View>: View {
     let radius: CGFloat
     let content: Content
 
-    init(radius: CGFloat = Theme.radiusXl, @ViewBuilder content: () -> Content) {
+    init(radius: CGFloat = Theme.radiusLg, @ViewBuilder content: () -> Content) {
         self.radius = radius
         self.content = content()
     }
@@ -151,7 +151,7 @@ struct PhotoDeleteMetricCard: View {
         }
         .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
         .padding(.horizontal, 14)
-        .photoDeleteCard(radius: Theme.radiusLg)
+        .photoDeleteCard(radius: Theme.radiusMd)
     }
 }
 
@@ -200,7 +200,7 @@ enum PhotoDeleteIconTileStyle {
 struct PhotoDeleteIconTile: View {
     let icon: String
     var tint: Color?
-    var size: CGFloat = Theme.space8
+    var size: CGFloat = Theme.sizeIcon
     var cornerRadius: CGFloat = 9
     var style: PhotoDeleteIconTileStyle = .soft
     var filled: Bool? = nil
@@ -208,7 +208,7 @@ struct PhotoDeleteIconTile: View {
     init(
         icon: String,
         tint: Color? = nil,
-        size: CGFloat = Theme.space8,
+        size: CGFloat = Theme.sizeIcon,
         cornerRadius: CGFloat = 9,
         style: PhotoDeleteIconTileStyle = .soft,
         filled: Bool? = nil
@@ -342,10 +342,10 @@ struct PhotoDeleteDestructiveButtonStyle: ButtonStyle {
 }
 
 extension View {
-    func photoDeleteMinimumTapTarget(_ size: CGFloat = Theme.space11) -> some View {
+    func photoDeleteMinimumTapTarget(_ size: CGFloat = Theme.sizeTap) -> some View {
         frame(
-            minWidth: max(size, Theme.space11),
-            minHeight: max(size, Theme.space11)
+            minWidth: max(size, Theme.sizeTap),
+            minHeight: max(size, Theme.sizeTap)
         )
             .contentShape(Rectangle())
     }
@@ -404,7 +404,7 @@ struct PhotoDeleteToastView: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: toast.icon)
-                .font(.system(size: Theme.textSizeMd, weight: .semibold))
+                .font(.system(size: Theme.textSizeSm, weight: .semibold))
                 .foregroundColor(toastColor)
                 .frame(width: 22)
 
@@ -425,8 +425,8 @@ struct PhotoDeleteToastView: View {
                     .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, Theme.space3_5)
-        .padding(.vertical, Theme.space2_75)
+        .padding(.horizontal, Theme.space4)
+        .padding(.vertical, Theme.space3)
         .background(
             Capsule(style: .continuous)
                 .fill(Theme.elevatedSurface.opacity(0.94))
@@ -472,7 +472,7 @@ struct PhotoAuthorizationCard: View {
 }
 
 extension View {
-    func photoDeleteCard(radius: CGFloat = Theme.radiusXl) -> some View {
+    func photoDeleteCard(radius: CGFloat = Theme.radiusLg) -> some View {
         modifier(PhotoDeleteCardBackground(radius: radius))
     }
 

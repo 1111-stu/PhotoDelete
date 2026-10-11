@@ -9481,6 +9481,7 @@
       }
     },
     "By default, swipe left to delete, right to keep, and up to favorite. To change gestures, open settings at the bottom of the review screen." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -35331,6 +35332,7 @@
       }
     },
     "Privacy first: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -36260,6 +36262,7 @@
       }
     },
     "Quick Start" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

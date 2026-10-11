@@ -527,7 +527,7 @@ private struct CleanupAchievementNextRow: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .frame(minHeight: Theme.space14_5)
+        .frame(minHeight: Theme.sizeRow)
         .accessibilityElement(children: .combine)
     }
 }
@@ -556,7 +556,7 @@ private struct CleanupAchievementAllUnlockedRow: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .frame(minHeight: Theme.space14_5)
+        .frame(minHeight: Theme.sizeRow)
         .accessibilityElement(children: .combine)
     }
 }

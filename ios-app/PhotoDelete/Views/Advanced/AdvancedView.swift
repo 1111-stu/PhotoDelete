@@ -1029,10 +1029,10 @@ private struct AdvancedPaywallBar: View {
         .padding(.bottom, 28)
         .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: Theme.radiusXl, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                 .fill(Theme.background.opacity(0.98))
                 .overlay(
-                    RoundedRectangle(cornerRadius: Theme.radiusXl, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                         .stroke(Theme.hairline, lineWidth: 1)
                 )
                 .ignoresSafeArea(edges: .bottom)
@@ -2384,7 +2384,7 @@ private struct AdvancedImageCompressionOptionsSheet: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
-            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                             .fill(Theme.accent)
                     )
                 }
@@ -3005,7 +3005,7 @@ private struct AdvancedImageCompressionActionBar: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                    RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                                 .fill(Theme.destructive.opacity(0.12))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -4820,7 +4820,7 @@ private struct AdvancedVideoCompressionActionBar: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                                 .fill(Theme.destructive.opacity(0.12))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)
