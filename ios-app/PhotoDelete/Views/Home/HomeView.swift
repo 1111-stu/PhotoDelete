@@ -182,66 +182,70 @@ struct HomeView: View {
                     }
                 }
             }
+            .photoDeleteMainTabBarVisible()
             .navigationDestination(for: SwipeViewDestination.self) { destination in
-                switch destination {
-                case .assetBrowser(let category):
-                    CleanupAssetBrowserView(category: category)
+                Group {
+                    switch destination {
+                    case .assetBrowser(let category):
+                        CleanupAssetBrowserView(category: category)
+                            .environmentObject(dataManager)
+                    case .category(let category):
+                        SwipePhotoView(selectedCategory: category, selectedTimeGroup: nil, selectedAlbumInfo: nil)
+                            .environmentObject(dataManager)
+                    case .timeGroup(let timeGroup):
+                        SwipePhotoView(selectedCategory: nil, selectedTimeGroup: timeGroup, selectedAlbumInfo: nil)
+                            .environmentObject(dataManager)
+                    case .album(let albumInfo):
+                        SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: albumInfo)
+                            .environmentObject(dataManager)
+                    case .random(let scope):
+                        SwipePhotoView(
+                            selectedCategory: nil,
+                            selectedTimeGroup: nil,
+                            selectedAlbumInfo: nil,
+                            randomReviewScope: scope
+                        )
                         .environmentObject(dataManager)
-                case .category(let category):
-                    SwipePhotoView(selectedCategory: category, selectedTimeGroup: nil, selectedAlbumInfo: nil)
+                    case .timeBrowser:
+                        TimeOrganizeView()
+                            .environmentObject(dataManager)
+                    case .locationBrowser:
+                        LocationOrganizeView()
+                            .environmentObject(dataManager)
+                    case .historicalToday:
+                        SwipePhotoView(
+                            selectedCategory: nil,
+                            selectedTimeGroup: nil,
+                            selectedAlbumInfo: nil,
+                            selectedHistoricalToday: true
+                        )
                         .environmentObject(dataManager)
-                case .timeGroup(let timeGroup):
-                    SwipePhotoView(selectedCategory: nil, selectedTimeGroup: timeGroup, selectedAlbumInfo: nil)
+                    case .location(let groupID):
+                        SwipePhotoView(
+                            selectedCategory: nil,
+                            selectedTimeGroup: nil,
+                            selectedAlbumInfo: nil,
+                            selectedLocationGroupID: groupID
+                        )
                         .environmentObject(dataManager)
-                case .album(let albumInfo):
-                    SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: albumInfo)
+                    case .period(let scope, let intervalStart):
+                        SwipePhotoView(
+                            selectedCategory: nil,
+                            selectedTimeGroup: nil,
+                            selectedAlbumInfo: nil,
+                            selectedDate: intervalStart,
+                            selectedAdvancedTimeScope: scope
+                        )
                         .environmentObject(dataManager)
-                case .random(let scope):
-                    SwipePhotoView(
-                        selectedCategory: nil,
-                        selectedTimeGroup: nil,
-                        selectedAlbumInfo: nil,
-                        randomReviewScope: scope
-                    )
-                    .environmentObject(dataManager)
-                case .timeBrowser:
-                    TimeOrganizeView()
-                        .environmentObject(dataManager)
-                case .locationBrowser:
-                    LocationOrganizeView()
-                        .environmentObject(dataManager)
-                case .historicalToday:
-                    SwipePhotoView(
-                        selectedCategory: nil,
-                        selectedTimeGroup: nil,
-                        selectedAlbumInfo: nil,
-                        selectedHistoricalToday: true
-                    )
-                    .environmentObject(dataManager)
-                case .location(let groupID):
-                    SwipePhotoView(
-                        selectedCategory: nil,
-                        selectedTimeGroup: nil,
-                        selectedAlbumInfo: nil,
-                        selectedLocationGroupID: groupID
-                    )
-                    .environmentObject(dataManager)
-                case .period(let scope, let intervalStart):
-                    SwipePhotoView(
-                        selectedCategory: nil,
-                        selectedTimeGroup: nil,
-                        selectedAlbumInfo: nil,
-                        selectedDate: intervalStart,
-                        selectedAdvancedTimeScope: scope
-                    )
-                    .environmentObject(dataManager)
-                case .cleanup(let kind):
-                    AdvancedCleanupDestination(kind: kind)
-                        .environmentObject(dataManager)
-                case .trashBin:
-                    TrashBinView()
-                        .environmentObject(dataManager)
+                    case .cleanup(let kind):
+                        AdvancedCleanupDestination(kind: kind)
+                            .environmentObject(dataManager)
+                    case .trashBin:
+                        TrashBinView()
+                            .environmentObject(dataManager)
+                    }
                 }
+                .photoDeleteHidesMainTabBar()
             }
         }
         .onAppear {

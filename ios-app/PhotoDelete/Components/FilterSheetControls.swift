@@ -3,7 +3,8 @@
 //  PhotoDelete
 //
 //  筛选与排序弹窗共用控件：顶栏三 Tab + 轨道滑动玻璃分段 + 紧凑单选格。
-//  选中态用白高光 / 玻璃滑块；琥珀只留给「完成」。
+//  选中态用白高光 / 玻璃滑块；琥珀只留给「完成」文字。
+//  「重置 / 完成」纯文字：ToolbarItem 用 FilterSheetPlainToolbarItem 关掉 iOS 26 系统玻璃底。
 //  轨道与滑块统一用方形圆角（非胶囊），更接近分段控件的原生块面感。
 //
 
@@ -226,7 +227,7 @@ struct FilterSheetSection<Content: View>: View {
 // MARK: - Toolbar (Reset / Done)
 
 enum FilterSheetToolbar {
-    /// 重置：安静次级；禁用时 tertiary。
+    /// 重置：安静次级；禁用时 tertiary。纯文字，不要胶囊底。
     @ViewBuilder
     static func resetButton(isDefault: Bool, action: @escaping () -> Void) -> some View {
         Button(L10n.string("Reset"), action: action)
@@ -234,12 +235,32 @@ enum FilterSheetToolbar {
             .foregroundStyle(isDefault ? Theme.tertiaryText : Theme.secondaryText)
     }
 
-    /// 完成：琥珀主操作（导航 tint 语义）。
+    /// 完成：琥珀字即主操作；纯文字，不要胶囊底。
     @ViewBuilder
     static func doneButton(action: @escaping () -> Void) -> some View {
         Button(L10n.string("Done"), action: action)
             .fontWeight(.semibold)
             .foregroundStyle(Theme.accent)
+    }
+}
+
+/// 筛选 sheet 顶栏：关掉 iOS 26 ToolbarItem 默认玻璃底，只留文字。
+struct FilterSheetPlainToolbarItem<Content: View>: ToolbarContent {
+    let placement: ToolbarItemPlacement
+    private let content: Content
+
+    init(placement: ToolbarItemPlacement, @ViewBuilder content: () -> Content) {
+        self.placement = placement
+        self.content = content()
+    }
+
+    var body: some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            ToolbarItem(placement: placement) { content }
+                .sharedBackgroundVisibility(.hidden)
+        } else {
+            ToolbarItem(placement: placement) { content }
+        }
     }
 }
 

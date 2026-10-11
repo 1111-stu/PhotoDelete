@@ -602,6 +602,7 @@ struct AlbumPhotoBrowserView: View {
                     explicitReviewScope: reviewScope
                 )
                 .environmentObject(dataManager)
+                .photoDeleteHidesMainTabBar()
             }
         }
         .task {
@@ -722,7 +723,7 @@ struct AlbumBrowserFilterSheet: View {
             .navigationTitle(L10n.string("Filter and sort"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                FilterSheetPlainToolbarItem(placement: .topBarLeading) {
                     FilterSheetToolbar.resetButton(isDefault: isDefault) {
                         contentFilter = .all
                         grouping = .day
@@ -730,7 +731,7 @@ struct AlbumBrowserFilterSheet: View {
                         sort = .newest
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                FilterSheetPlainToolbarItem(placement: .topBarTrailing) {
                     FilterSheetToolbar.doneButton {
                         dismiss()
                     }

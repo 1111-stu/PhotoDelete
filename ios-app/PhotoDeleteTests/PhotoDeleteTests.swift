@@ -2793,6 +2793,75 @@ struct PhotoDeleteTests {
         #expect(groups.isEmpty)
     }
 
+    @Test func similarPhotoVisualMatcherSplitsDistantComponents() async throws {
+        let distances: [String: Float] = [
+            "a|b": 0.2,
+            "b|a": 0.2,
+            "a|c": 0.9,
+            "c|a": 0.9,
+            "b|c": 0.85,
+            "c|b": 0.85,
+            "c|d": 0.1,
+            "d|c": 0.1,
+            "a|d": 0.95,
+            "d|a": 0.95,
+            "b|d": 0.9,
+            "d|b": 0.9
+        ]
+        let groups = SimilarPhotoVisualMatcher.confirmedSubgroups(
+            identifiers: ["a", "b", "c", "d"],
+            availableIdentifiers: ["a", "b", "c", "d"],
+            maxDistance: SimilarPhotoVisualMatcher.standardMaxDistance,
+            preserveWhenUnavailable: false,
+            distanceBetween: { lhs, rhs in distances["\(lhs)|\(rhs)"] }
+        )
+
+        #expect(groups == [["a", "b"], ["c", "d"]])
+    }
+
+    @Test func similarPhotoVisualMatcherDropsUnavailableNonBurstMembers() async throws {
+        let groups = SimilarPhotoVisualMatcher.confirmedSubgroups(
+            identifiers: ["a", "b", "c"],
+            availableIdentifiers: ["a", "b"],
+            maxDistance: SimilarPhotoVisualMatcher.standardMaxDistance,
+            preserveWhenUnavailable: false,
+            distanceBetween: { _, _ in 0.1 }
+        )
+
+        #expect(groups == [["a", "b"]])
+    }
+
+    @Test func similarPhotoVisualMatcherPreservesBurstWhenPrintsMissing() async throws {
+        let groups = SimilarPhotoVisualMatcher.confirmedSubgroups(
+            identifiers: ["burst-a", "burst-b", "burst-c"],
+            availableIdentifiers: ["burst-a"],
+            maxDistance: SimilarPhotoVisualMatcher.standardMaxDistance,
+            preserveWhenUnavailable: true,
+            distanceBetween: { _, _ in nil }
+        )
+
+        #expect(groups == [["burst-a", "burst-b", "burst-c"]])
+    }
+
+    @Test func similarPhotoVisualMatcherRejectsAboveThreshold() async throws {
+        let groups = SimilarPhotoVisualMatcher.confirmedSubgroups(
+            identifiers: ["a", "b"],
+            availableIdentifiers: ["a", "b"],
+            maxDistance: SimilarPhotoVisualMatcher.stricterMaxDistance,
+            preserveWhenUnavailable: false,
+            distanceBetween: { _, _ in 0.5 }
+        )
+
+        #expect(groups.isEmpty)
+    }
+
+    @Test func similarPhotoMatchProfileCarriesVisualDistanceThresholds() async throws {
+        #expect(SimilarPhotoMatchProfile.stricter.visualMaxDistance == SimilarPhotoVisualMatcher.stricterMaxDistance)
+        #expect(SimilarPhotoMatchProfile.standard.visualMaxDistance == SimilarPhotoVisualMatcher.standardMaxDistance)
+        #expect(SimilarPhotoMatchProfile.looser.visualMaxDistance == SimilarPhotoVisualMatcher.looserMaxDistance)
+        #expect(SimilarPhotoMatchProfile.looser.temporalMaxGap > SimilarPhotoMatchProfile.standard.temporalMaxGap)
+    }
+
     @Test func recentOrganizedPhotoHistoryKeepsLatestActionPerPhoto() async throws {
         let earlier = Date(timeIntervalSince1970: 1_000)
         let later = Date(timeIntervalSince1970: 2_000)

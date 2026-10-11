@@ -61,40 +61,46 @@ struct SimilarPhotoAssetFingerprint: Equatable {
     }
 }
 
-/// Tunable knobs for similar-photo clustering. Maps UI match tightness to the
-/// existing temporal + dimension engine (no separate ML / hash model).
+/// Tunable knobs for similar-photo clustering.
+/// Match tightness primarily maps to Vision feature-print distance (`visualMaxDistance`);
+/// temporal/dimension fields remain the metadata prefilter before visual confirmation.
 struct SimilarPhotoMatchProfile: Equatable {
     let temporalMaxGap: TimeInterval
     let temporalMaxClusterSpan: TimeInterval
     let aspectTolerance: Double
     let dimensionRelativeTolerance: Double
     let minimumTemporalGroupSize: Int
+    /// Max Vision feature-print distance for a confirmed pair (lower = stricter).
+    let visualMaxDistance: Float
 
-    /// ~更严: tighter time/dimension window (closer to near-identical sequences).
+    /// ~更严: near-identical visuals; tight metadata window.
     static let stricter = SimilarPhotoMatchProfile(
         temporalMaxGap: 2,
         temporalMaxClusterSpan: 6,
         aspectTolerance: 0.004,
         dimensionRelativeTolerance: 0.012,
-        minimumTemporalGroupSize: 2
+        minimumTemporalGroupSize: 2,
+        visualMaxDistance: SimilarPhotoVisualMatcher.stricterMaxDistance
     )
 
-    /// Product default (~当前引擎).
+    /// Product default / Home cleanup queue profile.
     static let standard = SimilarPhotoMatchProfile(
         temporalMaxGap: 5,
         temporalMaxClusterSpan: 14,
         aspectTolerance: 0.008,
         dimensionRelativeTolerance: 0.025,
-        minimumTemporalGroupSize: 2
+        minimumTemporalGroupSize: 2,
+        visualMaxDistance: SimilarPhotoVisualMatcher.standardMaxDistance
     )
 
-    /// ~更松: wider gap/span and looser dimension drift.
+    /// ~更松: wider Vision τ; slightly wider temporal prefilter so recall rises, then Vision precision.
     static let looser = SimilarPhotoMatchProfile(
-        temporalMaxGap: 12,
-        temporalMaxClusterSpan: 40,
+        temporalMaxGap: 18,
+        temporalMaxClusterSpan: 55,
         aspectTolerance: 0.02,
         dimensionRelativeTolerance: 0.06,
-        minimumTemporalGroupSize: 2
+        minimumTemporalGroupSize: 2,
+        visualMaxDistance: SimilarPhotoVisualMatcher.looserMaxDistance
     )
 }
 
@@ -2081,10 +2087,16 @@ class DataManager: ObservableObject {
                 isScreenshot: screenshotIDs.contains(asset.localIdentifier)
             )
         }
-        let groups = similarPhotoIdentifierGroups(
+        let metadataGroups = similarPhotoIdentifierGroups(
             from: fingerprints,
             matchProfile: matchProfile
-        ).compactMap { identifiers -> AdvancedSimilarPhotoGroup? in
+        )
+        let confirmedGroups = SimilarPhotoVisualMatcher.confirmCandidateGroups(
+            metadataGroups,
+            assetsByID: assetsByID,
+            maxDistance: matchProfile.visualMaxDistance
+        )
+        let groups = confirmedGroups.compactMap { identifiers -> AdvancedSimilarPhotoGroup? in
             let assets = identifiers.compactMap { assetsByID[$0] }
             return makeSimilarPhotoGroup(assets: assets)
         }

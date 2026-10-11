@@ -269,7 +269,6 @@ struct SwipePhotoView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showingPhotoDetails) {
             if let asset = currentRealPhoto {
                 PhotoDetailSheet(asset: asset, dataManager: dataManager)

@@ -47,13 +47,13 @@ struct CleanupAssetFilterSheet: View {
             .navigationTitle(L10n.string("Filter and sort"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                FilterSheetPlainToolbarItem(placement: .topBarLeading) {
                     FilterSheetToolbar.resetButton(isDefault: query == defaultQuery) {
                         query = defaultQuery
                     }
                     .accessibilityIdentifier("cleanup-filter-reset")
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                FilterSheetPlainToolbarItem(placement: .topBarTrailing) {
                     FilterSheetToolbar.doneButton {
                         dismiss()
                     }

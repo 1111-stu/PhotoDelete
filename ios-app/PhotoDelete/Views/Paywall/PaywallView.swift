@@ -27,9 +27,8 @@ struct PaywallView: View {
         }
         // 付费页自带配色体系：把 tint 固定成樱粉，否则玻璃关闭按钮会继承全局琥珀 tint
         .tint(PaywallDS.Color.accent)
-        // 作为导航栈里的整页呈现，隐藏系统导航栏与 TabBar，避免叠在自绘关闭按钮上
+        // 作为导航栈里的整页呈现，隐藏系统导航栏；TabBar 由 tab 根导航出口统一隐藏
         .toolbar(.hidden, for: .navigationBar)
-        .toolbar(.hidden, for: .tabBar)
         .navigationBarBackButtonHidden(true)
         .task {
             // 先刷权益再拉商品：避免已订阅用户在 stale nil 权益下短暂闪出试用 CTA

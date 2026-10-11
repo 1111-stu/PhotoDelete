@@ -5,9 +5,8 @@ import Photos
 struct PendingDeletionView: View {
     @EnvironmentObject private var dataManager: DataManager
     @Environment(\.dismiss) private var dismiss
+    /// 队列管理页：默认不选，避免误触「移出」清空整队；确认删除仍走 BatchConfirm 默认全选。
     @State private var selectedIDs: Set<String> = []
-    @State private var hasInitializedSelection = false
-    @State private var previewAsset: CandidatePreviewAsset?
 
     private var assets: [PHAsset] {
         dataManager.deleteCandidates.sorted { $0.creationDate ?? .distantPast > $1.creationDate ?? .distantPast }
@@ -20,7 +19,6 @@ struct PendingDeletionView: View {
             selectedIDs: $selectedIDs,
             emptyTitle: L10n.string("No Photos Pending Deletion"),
             emptyMessage: L10n.string("Swipe up to place photos here for confirmation."),
-            previewAsset: $previewAsset,
             onRemove: { asset in
                 dataManager.removeFromDeleteCandidates(asset)
                 selectedIDs.remove(asset.localIdentifier)
@@ -31,15 +29,8 @@ struct PendingDeletionView: View {
             secondarySystemImage: "arrow.uturn.backward",
             primarySystemImage: "arrow.right",
             primaryRequiresSelection: false,
-            showsModalClose: true,
-            // 整理中打开：出口是「继续整理」，移出降级为中性次操作。
-            usesStackedContinueFooter: true
+            showsModalClose: true
         )
-        .onAppear {
-            guard !hasInitializedSelection else { return }
-            hasInitializedSelection = true
-            selectedIDs = Set(assets.map(\.localIdentifier))
-        }
         .onChange(of: assets.map(\.localIdentifier)) { _ in
             selectedIDs.formIntersection(Set(assets.map(\.localIdentifier)))
         }
@@ -50,9 +41,8 @@ struct PendingDeletionView: View {
 struct TrashBinView: View {
     @EnvironmentObject private var dataManager: DataManager
     @Environment(\.dismiss) private var dismiss
+    /// 与整理中待删除一致：默认不选，先点选 / 全选再移出或删除。
     @State private var selectedIDs: Set<String> = []
-    @State private var hasInitializedSelection = false
-    @State private var previewAsset: CandidatePreviewAsset?
     @State private var showingBatchConfirm = false
 
     private var assets: [PHAsset] {
@@ -66,7 +56,6 @@ struct TrashBinView: View {
             selectedIDs: $selectedIDs,
             emptyTitle: L10n.string("Trash Is Empty"),
             emptyMessage: L10n.string("Photos appear here after you swipe up to add them to the deletion queue."),
-            previewAsset: $previewAsset,
             onRemove: { asset in
                 dataManager.removeFromDeleteCandidates(asset)
                 selectedIDs.remove(asset.localIdentifier)
@@ -79,11 +68,6 @@ struct TrashBinView: View {
             primaryRequiresSelection: true,
             primaryIsDestructive: true
         )
-        .onAppear {
-            guard !hasInitializedSelection else { return }
-            hasInitializedSelection = true
-            selectedIDs = Set(assets.map(\.localIdentifier))
-        }
         .onChange(of: assets.map(\.localIdentifier)) { _ in
             selectedIDs.formIntersection(Set(assets.map(\.localIdentifier)))
         }
@@ -102,7 +86,6 @@ private struct DeletionQueueScreen: View {
     @Binding var selectedIDs: Set<String>
     let emptyTitle: String
     let emptyMessage: String
-    @Binding var previewAsset: CandidatePreviewAsset?
     let onRemove: (PHAsset) -> Void
     let onPrimaryAction: () -> Void
     let secondaryTitle: String
@@ -111,10 +94,8 @@ private struct DeletionQueueScreen: View {
     let primarySystemImage: String
     let primaryRequiresSelection: Bool
     var showsModalClose: Bool = false
-    /// 垃圾桶「删除所选」等确认删除 CTA 用 destructive；「继续整理」等用琥珀 primary。
+    /// 垃圾桶「删除所选」用 destructive；整理中「继续整理」用琥珀 primary。
     var primaryIsDestructive: Bool = false
-    /// 整理中待删除页：满宽主按钮 + 移出降级为中性文字；首页垃圾桶仍用左右双钮。
-    var usesStackedContinueFooter: Bool = false
 
     private let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
 
@@ -155,7 +136,6 @@ private struct DeletionQueueScreen: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             if showsModalClose {
                 if #available(iOS 26.0, *) {
@@ -171,17 +151,9 @@ private struct DeletionQueueScreen: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            Group {
-                if usesStackedContinueFooter {
-                    stackedContinueFooter
-                } else {
-                    dualActionFooter
-                }
-            }
-            .modifier(CleanupReviewFooterStyle())
-        }
-        .sheet(item: $previewAsset) { item in
-            CandidatePhotoPreviewView(asset: item.asset, photoLibraryManager: dataManager.photoLibraryManager)
+            // 整理中 / 首页垃圾桶共用左右双钮：左=移出，右=主操作（继续整理或删除所选）。
+            dualActionFooter
+                .modifier(CleanupReviewFooterStyle())
         }
     }
 
@@ -193,31 +165,6 @@ private struct DeletionQueueScreen: View {
         )
     }
 
-    /// 整理中待删除：唯一主操作是离开；有选中时才露出中性「移出」。
-    private var stackedContinueFooter: some View {
-        VStack(spacing: 10) {
-            if !selectedIDs.isEmpty {
-                Button(action: removeSelected) {
-                    Text("\(secondaryTitle) · \(selectedIDs.count)")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(Theme.secondaryText)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: Theme.sizeTap)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(secondaryTitle), \(selectedIDs.count)")
-            }
-
-            Button(action: onPrimaryAction) {
-                Text(primaryTitle)
-                    .frame(maxWidth: .infinity)
-            }
-            .photoDeletePrimaryButton()
-        }
-    }
-
-    /// 首页垃圾桶：移出 vs 删除所选，双行动并排。
     private var dualActionFooter: some View {
         HStack(spacing: 10) {
             Button(action: removeSelected) {
@@ -274,14 +221,14 @@ private struct DeletionQueueScreen: View {
             asset: asset,
             photoLibraryManager: dataManager.photoLibraryManager,
             isSelected: selectedIDs.contains(asset.localIdentifier),
-            onPreview: { previewAsset = CandidatePreviewAsset(asset: asset) },
             onToggleSelection: {
                 if selectedIDs.contains(asset.localIdentifier) {
                     selectedIDs.remove(asset.localIdentifier)
                 } else {
                     selectedIDs.insert(asset.localIdentifier)
                 }
-            }
+            },
+            selectsOnTap: true
         )
     }
 }
@@ -291,12 +238,14 @@ struct CleanupReviewAssetCell: View {
     let asset: PHAsset
     let photoLibraryManager: PhotoLibraryManager
     let isSelected: Bool
-    let onPreview: () -> Void
+    var onPreview: (() -> Void)? = nil
     let onToggleSelection: () -> Void
+    /// 待删除 / 垃圾桶：点整卡切换选中。批确认页仍点图预览、点角标切换。
+    var selectsOnTap: Bool = false
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            Button(action: onPreview) {
+            Button(action: primaryAction) {
                 AlbumAssetThumbnail(
                     assetID: asset.localIdentifier,
                     photoLibraryManager: photoLibraryManager,
@@ -305,25 +254,60 @@ struct CleanupReviewAssetCell: View {
                 .aspectRatio(1, contentMode: .fit)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("View photo larger"))
-
-            Button(action: onToggleSelection) {
-                Image(systemName: isSelected ? "checkmark" : "circle")
-                    .font(.system(size: isSelected ? 11 : 18, weight: .bold))
-                    .foregroundStyle(isSelected ? Theme.onAccent : .white.opacity(0.9))
-                    .frame(width: 26, height: 26)
-                    .background(Circle().fill(isSelected ? Theme.accent : Color.black.opacity(0.34)))
-                    .overlay(Circle().stroke(Color.white.opacity(isSelected ? 0.88 : 0.72), lineWidth: 1))
-            }
-            .buttonStyle(.plain)
-            .frame(width: 44, height: 44)
-            .accessibilityLabel(
-                isSelected
-                    ? L10n.string("Deselect")
-                    : L10n.string("Select")
-            )
+            .accessibilityLabel(primaryAccessibilityLabel)
             .accessibilityAddTraits(isSelected ? .isSelected : [])
             .accessibilityIdentifier("cleanup-selection-\(asset.localIdentifier)")
+
+            if selectsOnTap {
+                selectionBadge
+                    .padding(8)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            } else {
+                Button(action: onToggleSelection) {
+                    selectionBadge
+                }
+                .buttonStyle(.plain)
+                .frame(width: 44, height: 44)
+                .accessibilityLabel(
+                    isSelected
+                        ? L10n.string("Deselect")
+                        : L10n.string("Select")
+                )
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+            }
+        }
+    }
+
+    private func primaryAction() {
+        if selectsOnTap {
+            onToggleSelection()
+        } else {
+            onPreview?()
+        }
+    }
+
+    private var primaryAccessibilityLabel: String {
+        if selectsOnTap {
+            return isSelected ? L10n.string("Deselect") : L10n.string("Select")
+        }
+        return L10n.string("View photo larger")
+    }
+
+    /// 单层 SF Symbol：未选细圈，已选实心勾——避免圆套圆。
+    @ViewBuilder
+    private var selectionBadge: some View {
+        if isSelected {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 22, weight: .semibold))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(Theme.onAccent, Theme.accent)
+                .shadow(color: .black.opacity(0.45), radius: 2, y: 1)
+        } else {
+            Image(systemName: "circle")
+                .font(.system(size: 22, weight: .medium))
+                .foregroundStyle(Color.white.opacity(0.72))
+                .shadow(color: .black.opacity(0.45), radius: 2, y: 1)
         }
     }
 }

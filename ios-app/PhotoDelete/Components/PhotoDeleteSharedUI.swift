@@ -416,6 +416,16 @@ struct PhotoDeleteDestructiveButtonStyle: ButtonStyle {
 }
 
 extension View {
+    /// Whitelist: only main tab roots (Organize / Albums / Settings) should show the system tab bar.
+    func photoDeleteMainTabBarVisible() -> some View {
+        toolbar(.visible, for: .tabBar)
+    }
+
+    /// Apply at every `navigationDestination` / pushed `NavigationLink` exit from a tab root.
+    func photoDeleteHidesMainTabBar() -> some View {
+        toolbar(.hidden, for: .tabBar)
+    }
+
     func photoDeleteMinimumTapTarget(_ size: CGFloat = Theme.sizeTap) -> some View {
         frame(
             minWidth: max(size, Theme.sizeTap),

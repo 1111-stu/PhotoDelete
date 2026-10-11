@@ -41,17 +41,20 @@ struct AdvancedView: View {
             advancedRootContent
                 .navigationTitle(L10n.string("Advanced"))
                 .navigationBarTitleDisplayMode(.large)
+                .photoDeleteMainTabBarVisible()
                 .navigationDestination(isPresented: isShowingActivePeriodRoute) {
                     if let activePeriodRoute {
                         AdvancedPeriodSwipeDestination(
                             scope: activePeriodRoute.scope,
                             intervalStart: activePeriodRoute.intervalStart
                         )
-                            .environmentObject(dataManager)
+                        .environmentObject(dataManager)
+                        .photoDeleteHidesMainTabBar()
                     }
                 }
                 .navigationDestination(isPresented: $showingPaywall) {
                     PaywallView()
+                        .photoDeleteHidesMainTabBar()
                 }
         }
         .onChange(of: selectedScope) { _ in
@@ -383,6 +386,7 @@ struct AdvancedView: View {
                         } else {
                             NavigationLink {
                                 cleanupDestination(for: queue.kind)
+                                    .photoDeleteHidesMainTabBar()
                             } label: {
                                 AdvancedCleanupEntryRow(queue: queue, isLocked: false)
                             }
@@ -1107,7 +1111,8 @@ private struct AdvancedPeriodListView: View {
                                     scope: summary.scope,
                                     intervalStart: summary.intervalStart
                                 )
-                                    .environmentObject(dataManager)
+                                .environmentObject(dataManager)
+                                .photoDeleteHidesMainTabBar()
                             } label: {
                                 AdvancedPeriodListRow(summary: summary)
                             }
@@ -4991,7 +4996,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
         }
         .fullScreenCover(isPresented: $showBatchConfirm, onDismiss: {
             syncSelectionWithPendingDeleteCandidates()
-            reloadGroups()
+            Task { await reloadGroups() }
         }) {
             BatchConfirmView()
                 .environmentObject(dataManager)
@@ -5004,11 +5009,8 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                 selectedAssetIDs: $selectedAssetIDs
             )
         }
-        .task {
-            reloadGroups()
-        }
-        .onChange(of: filterQuery.match) { _ in
-            reloadGroups()
+        .task(id: filterQuery.match) {
+            await reloadGroups()
         }
         .onChange(of: filterQuery.scope) { _ in
             visibleGroupLimit = groupLimitStep
@@ -5068,8 +5070,17 @@ private struct AdvancedSimilarPhotoGroupsView: View {
         selectedAssetIDs = selectedAssetIDs.filter { pendingDeleteIDs.contains($0) }
     }
 
-    private func reloadGroups() {
-        groups = dataManager.makeSimilarPhotoGroups(matchProfile: filterQuery.match.matchProfile)
+    private func reloadGroups() async {
+        let matchProfile = filterQuery.match.matchProfile
+        let dataManager = self.dataManager
+        let loadedGroups = await withCheckedContinuation { (continuation: CheckedContinuation<[AdvancedSimilarPhotoGroup], Never>) in
+            DispatchQueue.global(qos: .userInitiated).async {
+                continuation.resume(
+                    returning: dataManager.makeSimilarPhotoGroups(matchProfile: matchProfile)
+                )
+            }
+        }
+        groups = loadedGroups
         visibleGroupLimit = groupLimitStep
         pruneSelectionToFilteredGroups()
     }

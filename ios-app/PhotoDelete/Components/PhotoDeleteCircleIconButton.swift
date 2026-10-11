@@ -13,6 +13,8 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
     let systemName: String
     let accessibilityLabel: String
     var accessibilityIdentifier: String? = nil
+    /// 默认白图标；筛选非默认等「有状态」入口可传琥珀。
+    var iconColor: Color = Theme.primaryText
     let action: () -> Void
     @ViewBuilder private var badge: () -> Badge
 
@@ -20,11 +22,13 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
         systemName: String,
         accessibilityLabel: String,
         accessibilityIdentifier: String? = nil,
+        iconColor: Color = Theme.primaryText,
         action: @escaping () -> Void
     ) where Badge == EmptyView {
         self.systemName = systemName
         self.accessibilityLabel = accessibilityLabel
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.iconColor = iconColor
         self.action = action
         self.badge = { EmptyView() }
     }
@@ -33,12 +37,14 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
         systemName: String,
         accessibilityLabel: String,
         accessibilityIdentifier: String? = nil,
+        iconColor: Color = Theme.primaryText,
         action: @escaping () -> Void,
         @ViewBuilder badge: @escaping () -> Badge
     ) {
         self.systemName = systemName
         self.accessibilityLabel = accessibilityLabel
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.iconColor = iconColor
         self.action = action
         self.badge = badge
     }
@@ -64,7 +70,7 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
-        .foregroundStyle(Theme.primaryText)
+        .foregroundStyle(iconColor)
         .frame(
             width: Theme.sizeTap,
             height: Theme.sizeTap
@@ -75,7 +81,7 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
     private var elevatedButton: some View {
         Button(action: action) {
             iconLabel
-                .foregroundColor(Theme.primaryText)
+                .foregroundColor(iconColor)
                 .background(Theme.elevatedSurface, in: Circle())
                 .frame(
                     width: Theme.sizeTap,

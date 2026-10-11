@@ -86,15 +86,19 @@ struct AlbumsView: View {
                         albumToastView(albumToast)
                     }
                 }
+                .photoDeleteMainTabBarVisible()
                 .navigationDestination(for: AlbumNavigationDestination.self) { destination in
-                    switch destination {
-                    case .swipeAlbum(let selectedSwipeAlbum):
-                        SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: selectedSwipeAlbum)
-                            .environmentObject(dataManager)
-                    case .browser(let album):
-                        AlbumPhotoBrowserView(album: album)
-                            .environmentObject(dataManager)
+                    Group {
+                        switch destination {
+                        case .swipeAlbum(let selectedSwipeAlbum):
+                            SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: selectedSwipeAlbum)
+                                .environmentObject(dataManager)
+                        case .browser(let album):
+                            AlbumPhotoBrowserView(album: album)
+                                .environmentObject(dataManager)
+                        }
                     }
+                    .photoDeleteHidesMainTabBar()
                 }
         }
         .sheet(isPresented: $showsDisplayStyle) {

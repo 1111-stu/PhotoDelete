@@ -29,7 +29,6 @@ struct LocationOrganizeView: View {
         }
         .navigationTitle(L10n.string("Place Organizing"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
         .task {
             let shouldForceRefresh = dataManager.locationGroups.isEmpty ||
                 dataManager.unresolvedLocationGroupCount > 0

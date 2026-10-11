@@ -128,6 +128,7 @@ struct SettingsView: View {
             .navigationTitle(L10n.string("Settings"))
             .navigationBarTitleDisplayMode(.large)
             .settingsNavigationChrome()
+            .photoDeleteMainTabBarVisible()
         }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
@@ -152,6 +153,7 @@ struct SettingsView: View {
     private var supporterBanner: some View {
         NavigationLink {
             PaywallView()
+                .photoDeleteHidesMainTabBar()
         } label: {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
