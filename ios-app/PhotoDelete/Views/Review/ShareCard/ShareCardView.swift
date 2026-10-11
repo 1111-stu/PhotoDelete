@@ -435,10 +435,12 @@ struct ShareCardPreviewScaled: View {
         GeometryReader { geo in
             let size = template.designSize
             let scale = min(geo.size.width / size.width, geo.size.height / size.height)
+            // Preview-only radius: clip the scaled frame so ImageRenderer export stays sharp full-bleed.
             ShareCardView(template: template, photo: photo, meta: meta, palette: palette)
                 .frame(width: size.width, height: size.height)
                 .scaleEffect(scale)
                 .frame(width: size.width * scale, height: size.height * scale)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }

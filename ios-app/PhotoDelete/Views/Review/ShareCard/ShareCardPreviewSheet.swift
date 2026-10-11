@@ -333,16 +333,7 @@ private struct ShareCardPaletteSwatch: View {
     let palette: ShareCardTicketPalette
 
     var body: some View {
-        Canvas { context, size in
-            let mid = size.height / 2
-            context.fill(
-                Path(CGRect(x: 0, y: 0, width: size.width, height: mid)),
-                with: .color(palette.mat)
-            )
-            context.fill(
-                Path(CGRect(x: 0, y: mid, width: size.width, height: mid)),
-                with: .color(palette.stub)
-            )
-        }
+        // Full mat fill — rail already clips to Circle; selected ring stays on the parent ZStack.
+        palette.mat
     }
 }
