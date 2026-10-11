@@ -107,11 +107,11 @@ struct CleanupAssetBrowserView: View {
             }
             if dataManager.photoLibraryManager.hasLimitedPhotoLibraryAccess {
                 Button(L10n.string("Manage photo access")) { dataManager.managePhotoLibraryAccessSettings() }
-                    .font(.caption).tint(PhotoDeleteStyle.accent)
+                    .font(.caption).tint(Theme.accent)
             }
             if model.query != defaultQuery {
                 Button(L10n.string("Clear filters")) { model.reset() }
-                    .font(.caption).tint(PhotoDeleteStyle.accent)
+                    .font(.caption).tint(Theme.accent)
             }
             Divider().padding(.top, 10)
         }
@@ -170,7 +170,7 @@ struct CleanupAssetBrowserView: View {
                 .font(.headline)
             if model.query != defaultQuery {
                 Button(L10n.string("Clear filters")) { model.reset() }
-                    .tint(PhotoDeleteStyle.accent)
+                    .tint(Theme.accent)
             }
         }
         .frame(maxWidth: .infinity).padding(.vertical, 64)
@@ -201,7 +201,7 @@ struct CleanupAssetBrowserView: View {
         .disabled(ids.isEmpty || model.isLoading || model.result?.query != model.query || !dataManager.photoLibraryManager.hasPhotoLibraryAccess)
         .accessibilityIdentifier("cleanup-browser-start")
         .padding(.horizontal, 20).padding(.vertical, 12)
-        .background(PhotoDeleteStyle.background)
+        .background(Theme.background)
     }
 }
 
@@ -272,8 +272,8 @@ struct CleanupAssetCard: View {
                 .padding(.bottom, 3)
             }
             .padding(6)
-            .photoDeleteCard(radius: PhotoDeleteStyle.Metrics.compactRadius)
-            .contentShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius))
+            .photoDeleteCard(radius: Theme.Metrics.compactRadius)
+            .contentShape(RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(fullDate), \(metadata.size.displayText)\(asset.mediaType == .video ? ", \(durationText)" : "")\(isPendingDeletion ? ", \(L10n.string("Pending deletion"))" : metadata.isReviewed ? ", \(L10n.string("Reviewed"))" : "")")

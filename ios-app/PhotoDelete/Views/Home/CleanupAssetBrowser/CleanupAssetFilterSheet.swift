@@ -15,15 +15,15 @@ struct CleanupAssetFilterSheet: View {
         NavigationStack {
             VStack(spacing: 18) {
                 FilterSheetPanePicker(selection: $pane)
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.screenHorizontalPadding)
                     .padding(.top, 8)
 
                 if let summary {
                     Text(String(format: L10n.string("%lld items"), Int64(summary.count)))
                         .font(.footnote)
-                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        .foregroundStyle(Theme.secondaryText)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.screenHorizontalPadding)
                         .accessibilityIdentifier("cleanup-filter-result-count")
                 }
 
@@ -38,7 +38,7 @@ struct CleanupAssetFilterSheet: View {
                             displayPane
                         }
                     }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.screenHorizontalPadding)
                     .padding(.bottom, 20)
                     .animation(.easeInOut(duration: 0.18), value: pane)
                 }
@@ -54,8 +54,8 @@ struct CleanupAssetFilterSheet: View {
                     .disabled(query == defaultQuery)
                     .foregroundStyle(
                         query == defaultQuery
-                            ? PhotoDeleteStyle.tertiaryText
-                            : PhotoDeleteStyle.secondaryText
+                            ? Theme.tertiaryText
+                            : Theme.secondaryText
                     )
                     .accessibilityIdentifier("cleanup-filter-reset")
                 }
@@ -64,7 +64,7 @@ struct CleanupAssetFilterSheet: View {
                         dismiss()
                     }
                     .fontWeight(.semibold)
-                    .foregroundStyle(PhotoDeleteStyle.accent)
+                    .foregroundStyle(Theme.accent)
                     .accessibilityIdentifier("cleanup-filter-done")
                 }
             }

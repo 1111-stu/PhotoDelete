@@ -51,7 +51,7 @@ struct MainTabView: View {
     private var tabRoot: some View {
         TabView(selection: $selectedTab) {
             tabContent(for: .organize)
-                .tint(PhotoDeleteStyle.navigationTint)
+                .tint(Theme.accent)
                 .tabItem {
                     Image(systemName: PhotoDeleteMainTab.organize.systemImage)
                     Text(PhotoDeleteMainTab.organize.title)
@@ -60,7 +60,7 @@ struct MainTabView: View {
             
             if AppConstants.showsAlbumsTab {
                 tabContent(for: .albums)
-                    .tint(PhotoDeleteStyle.navigationTint)
+                    .tint(Theme.accent)
                     .tabItem {
                         Image(systemName: PhotoDeleteMainTab.albums.systemImage)
                         Text(PhotoDeleteMainTab.albums.title)
@@ -69,7 +69,7 @@ struct MainTabView: View {
             }
 
             tabContent(for: .settings)
-                .tint(PhotoDeleteStyle.navigationTint)
+                .tint(Theme.accent)
                 .tabItem {
                     Image(systemName: PhotoDeleteMainTab.settings.systemImage)
                     Text(PhotoDeleteMainTab.settings.title)
@@ -137,7 +137,7 @@ struct MainTabView: View {
 }
 
 private enum PhotoDeleteTabBarColors {
-    static let selectedIcon = PhotoDeleteStyle.uiAccent
+    static let selectedIcon = Theme.uiAccent
     static let selectedLabel = UIColor(white: 1, alpha: 0.96)
     static let unselected = UIColor(red: 142.0 / 255.0, green: 144.0 / 255.0, blue: 152.0 / 255.0, alpha: 1)
     static let barBackground = UIColor(red: 23.0 / 255.0, green: 24.0 / 255.0, blue: 31.0 / 255.0, alpha: 1)

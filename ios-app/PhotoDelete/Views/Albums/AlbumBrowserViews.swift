@@ -234,10 +234,10 @@ struct AlbumDisplayStyleSheet: View {
             }
             .frame(maxWidth: .infinity)
             .frame(minHeight: 84)
-            .foregroundStyle(isSelected ? PhotoDeleteStyle.accent : PhotoDeleteStyle.primaryText)
+            .foregroundStyle(isSelected ? Theme.accent : Theme.primaryText)
             .background(
-            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
-                    .fill(isSelected ? PhotoDeleteStyle.accent.opacity(0.16) : PhotoDeleteStyle.surface)
+            RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous)
+                    .fill(isSelected ? Theme.accent.opacity(0.16) : Theme.surface)
             )
         }
         .buttonStyle(.plain)
@@ -252,14 +252,14 @@ struct AlbumDropSlot: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(PhotoDeleteStyle.dropSlotFill)
+            .fill(Theme.dropSlotFill)
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(
-                        PhotoDeleteStyle.dropSlotStroke,
+                        Theme.dropSlotStroke,
                         style: StrokeStyle(
-                            lineWidth: PhotoDeleteStyle.dropSlotLineWidth,
-                            dash: PhotoDeleteStyle.dropSlotDash
+                            lineWidth: Theme.dropSlotLineWidth,
+                            dash: Theme.dropSlotDash
                         )
                     )
             }
@@ -281,8 +281,8 @@ struct AlbumListCard: View {
     var body: some View {
         Group {
             if isDropSlot {
-                AlbumDropSlot(cornerRadius: PhotoDeleteStyle.albumListCardRadius)
-                    .frame(maxWidth: .infinity, minHeight: PhotoDeleteStyle.albumListCardMinHeight)
+                AlbumDropSlot(cornerRadius: Theme.albumListCardRadius)
+                    .frame(maxWidth: .infinity, minHeight: Theme.albumListCardMinHeight)
             } else {
                 AlbumInfoRow(
                     id: id,
@@ -297,16 +297,16 @@ struct AlbumListCard: View {
                 .padding(.horizontal, 14)
                 .frame(
                     maxWidth: .infinity,
-                    minHeight: PhotoDeleteStyle.albumListCardMinHeight,
+                    minHeight: Theme.albumListCardMinHeight,
                     alignment: .leading
                 )
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: PhotoDeleteStyle.albumListCardRadius, style: .continuous)
-                .fill(isDropSlot ? Color.clear : PhotoDeleteStyle.surface)
+            RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous)
+                .fill(isDropSlot ? Color.clear : Theme.surface)
         )
-        .contentShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.albumListCardRadius, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous))
     }
 }
 
@@ -331,13 +331,13 @@ struct AlbumActionMenu: View {
             }
 
             Rectangle()
-                .fill(PhotoDeleteStyle.hairline)
+                .fill(Theme.hairline)
                 .frame(height: 1)
                 .padding(.top, 4)
 
             Text(L10n.string("Hold and drag to reorder"))
                 .font(.system(size: 11.5))
-                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                .foregroundStyle(Theme.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 12)
                 .padding(.top, 9)
@@ -346,7 +346,7 @@ struct AlbumActionMenu: View {
         .padding(6)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
         )
         .shadow(color: .black.opacity(0.45), radius: 22, x: 0, y: 12)
     }
@@ -360,7 +360,7 @@ struct AlbumActionMenu: View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
                 .font(.system(size: 16))
-                .foregroundStyle(isDestructive ? PhotoDeleteStyle.destructive : PhotoDeleteStyle.primaryText)
+                .foregroundStyle(isDestructive ? Theme.destructive : Theme.primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 11)
@@ -406,7 +406,7 @@ struct AlbumCoverTile: View {
 
             Text(title)
                 .font(isCompact ? .caption.weight(.medium) : .subheadline.weight(.medium))
-                .foregroundStyle(PhotoDeleteStyle.primaryText)
+                .foregroundStyle(Theme.primaryText)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
@@ -434,7 +434,7 @@ struct AlbumAssetThumbnail: View {
             .overlay {
                 GeometryReader { proxy in
                     ZStack {
-                        PhotoDeleteStyle.elevatedSurface
+                        Theme.elevatedSurface
 
                         if let image {
                             Image(uiImage: image)
@@ -445,7 +445,7 @@ struct AlbumAssetThumbnail: View {
                         } else {
                             Image(systemName: emptyIcon)
                                 .font(.title2.weight(.medium))
-                                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                                .foregroundStyle(Theme.secondaryText)
                         }
                     }
                     .frame(width: proxy.size.width, height: proxy.size.height)
@@ -524,7 +524,7 @@ struct AlbumPhotoBrowserView: View {
             } else if visibleAssets.isEmpty {
                 Text(L10n.string("This album has no photos yet"))
                     .font(.body)
-                    .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                    .foregroundStyle(Theme.secondaryText)
                     .frame(maxWidth: .infinity)
                     .padding(.top, 80)
             } else {
@@ -535,11 +535,11 @@ struct AlbumPhotoBrowserView: View {
                                 HStack {
                                     Text(section.title)
                                         .font(.headline)
-                                        .foregroundStyle(PhotoDeleteStyle.primaryText)
+                                        .foregroundStyle(Theme.primaryText)
                                     Spacer()
                                     Text(L10n.photoCount(section.assets.count))
                                         .font(.subheadline)
-                                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                                        .foregroundStyle(Theme.secondaryText)
                                 }
                             }
 
@@ -683,7 +683,7 @@ struct AlbumBrowserFilterSheet: View {
                 if isDefault {
                     Text(L10n.string("Showing the default view"))
                         .font(.footnote)
-                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        .foregroundStyle(Theme.secondaryText)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
                 }
@@ -716,14 +716,14 @@ struct AlbumBrowserFilterSheet: View {
                         sort = .newest
                     }
                     .disabled(isDefault)
-                    .foregroundStyle(isDefault ? PhotoDeleteStyle.tertiaryText : PhotoDeleteStyle.secondaryText)
+                    .foregroundStyle(isDefault ? Theme.tertiaryText : Theme.secondaryText)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(L10n.string("Done")) {
                         dismiss()
                     }
                     .fontWeight(.semibold)
-                    .foregroundStyle(PhotoDeleteStyle.accent)
+                    .foregroundStyle(Theme.accent)
                 }
             }
         }

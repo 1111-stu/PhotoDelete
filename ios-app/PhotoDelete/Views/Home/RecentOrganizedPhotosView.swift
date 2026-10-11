@@ -41,7 +41,7 @@ struct RecentOrganizedPhotosView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text(L10n.string("Tap to preview, touch and hold to organize again."))
                                 .font(.system(size: 12, weight: .regular))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .foregroundColor(Theme.secondaryText)
 
                             LazyVGrid(columns: columns, spacing: 10) {
                                 ForEach(items) { item in
@@ -49,7 +49,7 @@ struct RecentOrganizedPhotosView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.screenHorizontalPadding)
                         .padding(.top, 12)
                         .padding(.bottom, 32)
                     }
@@ -73,7 +73,7 @@ struct RecentOrganizedPhotosView: View {
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
                     }
                     .accessibilityLabel(L10n.string("Close"))
                 }
@@ -150,10 +150,10 @@ struct RecentOrganizedPhotosView: View {
 
     private func badgeTint(for action: RecentOrganizedPhotoAction) -> Color {
         switch action {
-        case .kept: return PhotoDeleteStyle.positive
-        case .queuedForDeletion: return PhotoDeleteStyle.destructive
-        case .favorited, .unfavorited: return PhotoDeleteStyle.favorite
-        case .filedToAlbum: return PhotoDeleteStyle.accent
+        case .kept: return Theme.positive
+        case .queuedForDeletion: return Theme.destructive
+        case .favorited, .unfavorited: return Theme.favorite
+        case .filedToAlbum: return Theme.accent
         }
     }
 
@@ -161,11 +161,11 @@ struct RecentOrganizedPhotosView: View {
         VStack(spacing: 10) {
             Image(systemName: "clock.arrow.circlepath")
                 .font(.system(size: 34, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
 
             Text(L10n.string("Recently organized photos appear here so you can revise them."))
                 .font(.system(size: 14, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 32)

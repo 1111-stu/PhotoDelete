@@ -1394,8 +1394,8 @@ struct PhotoDeleteTests {
         #expect(year.end == makeDate(year: 2027, month: 1, day: 1, hour: 0, minute: 0, second: 0, calendar: calendar))
     }
     @Test func photoDeleteStyleExposesCanonicalAccent() async throws {
-        #expect(PhotoDeleteStyle.accent != PhotoDeleteStyle.background)
-        #expect(PhotoDeleteStyle.navigationTint == PhotoDeleteStyle.accent)
+        #expect(Theme.accent != Theme.background)
+        #expect(Theme.onAccent != Theme.accent)
     }
 
     @Test func appLanguageIncludesTraditionalChinese() async throws {

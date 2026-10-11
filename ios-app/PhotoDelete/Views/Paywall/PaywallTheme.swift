@@ -273,7 +273,7 @@ extension View {
 
 // MARK: - 明暗解析
 
-/// 明暗两套值的解析器。应用主 token 在 `PhotoDeleteStyle`；此处
+/// 明暗两套值的解析器。应用主 token 在 `Theme`；此处
 /// 为保持影响面在 paywall 目录内，这里不公开它而是自带一份等价的。
 private func resolve(
     light: (CGFloat, CGFloat, CGFloat),

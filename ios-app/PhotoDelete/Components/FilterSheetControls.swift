@@ -117,13 +117,13 @@ private struct FilterGlassSegmentTrack<Value: Hashable>: View {
                                 .font(.caption2.weight(.medium))
                                 .foregroundStyle(
                                     isSelected
-                                        ? PhotoDeleteStyle.primaryText.opacity(0.72)
-                                        : PhotoDeleteStyle.tertiaryText
+                                        ? Theme.primaryText.opacity(0.72)
+                                        : Theme.tertiaryText
                                 )
                                 .lineLimit(1)
                         }
                     }
-                    .foregroundStyle(isSelected ? PhotoDeleteStyle.primaryText : PhotoDeleteStyle.secondaryText)
+                    .foregroundStyle(isSelected ? Theme.primaryText : Theme.secondaryText)
                     .frame(maxWidth: .infinity)
                     .frame(minHeight: minHeight)
                     .contentShape(thumbShape)
@@ -180,8 +180,8 @@ struct FilterGlassChoiceGrid<Value: Hashable>: View {
                         .minimumScaleFactor(0.78)
                         .foregroundStyle(
                             isSelected
-                                ? PhotoDeleteStyle.primaryText
-                                : PhotoDeleteStyle.secondaryText
+                                ? Theme.primaryText
+                                : Theme.secondaryText
                         )
                         .frame(maxWidth: .infinity)
                         .frame(height: rowHeight)
@@ -215,7 +215,7 @@ struct FilterSheetSection<Content: View>: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                .foregroundStyle(Theme.secondaryText)
             content()
         }
     }

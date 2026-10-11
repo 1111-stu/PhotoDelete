@@ -15,12 +15,12 @@ struct ReviewAlbumFilingSheet: View {
         NavigationStack {
             VStack(spacing: 0) {
                 searchField
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.screenHorizontalPadding)
                     .padding(.top, 6)
                     .padding(.bottom, 12)
 
                 ScrollView {
-                    LazyVStack(spacing: PhotoDeleteStyle.albumListCardSpacing) {
+                    LazyVStack(spacing: Theme.albumListCardSpacing) {
                         if filteredAlbums.isEmpty {
                             emptyState
                                 .padding(.top, 36)
@@ -35,7 +35,7 @@ struct ReviewAlbumFilingSheet: View {
                             }
                         }
                     }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.screenHorizontalPadding)
                     .padding(.bottom, 20)
                 }
                 .scrollDismissesKeyboard(.interactively)
@@ -54,12 +54,12 @@ struct ReviewAlbumFilingSheet: View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(PhotoDeleteStyle.tertiaryText)
+                .foregroundStyle(Theme.tertiaryText)
 
             TextField(L10n.string("Search albums"), text: $searchText)
                 .font(.system(size: 16, weight: .regular))
-                .foregroundStyle(PhotoDeleteStyle.primaryText)
-                .tint(PhotoDeleteStyle.accent)
+                .foregroundStyle(Theme.primaryText)
+                .tint(Theme.accent)
                 .focused($isSearchFocused)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -71,7 +71,7 @@ struct ReviewAlbumFilingSheet: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(PhotoDeleteStyle.tertiaryText)
+                        .foregroundStyle(Theme.tertiaryText)
                         .frame(width: 28, height: 28)
                         .contentShape(Rectangle())
                 }
@@ -83,7 +83,7 @@ struct ReviewAlbumFilingSheet: View {
         .frame(height: 44)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
         )
         .accessibilityElement(children: .contain)
     }
@@ -94,17 +94,17 @@ struct ReviewAlbumFilingSheet: View {
         return Button(action: onContinue) {
             Text(isEnabled ? L10n.string("Done and Continue") : L10n.string("Nothing selected"))
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(isEnabled ? PhotoDeleteStyle.primaryButtonText : PhotoDeleteStyle.primaryText.opacity(0.55))
+                .foregroundStyle(isEnabled ? Theme.onAccent : Theme.primaryText.opacity(0.55))
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 52)
                 .background(
-                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                        .fill(isEnabled ? PhotoDeleteStyle.accent : PhotoDeleteStyle.secondaryText.opacity(0.28))
+                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                        .fill(isEnabled ? Theme.accent : Theme.secondaryText.opacity(0.28))
                 )
         }
         .buttonStyle(FilingContinueButtonStyle())
         .disabled(!isEnabled)
-        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+        .padding(.horizontal, Theme.screenHorizontalPadding)
         .padding(.top, 10)
         .padding(.bottom, 12)
         .background(Color.black)
@@ -115,11 +115,11 @@ struct ReviewAlbumFilingSheet: View {
         VStack(spacing: 10) {
             Image(systemName: searchText.isEmpty ? "rectangle.stack" : "magnifyingglass")
                 .font(.system(size: 28, weight: .medium))
-                .foregroundStyle(PhotoDeleteStyle.tertiaryText)
+                .foregroundStyle(Theme.tertiaryText)
 
             Text(searchText.isEmpty ? L10n.string("No Albums Yet") : L10n.string("No Albums Found"))
                 .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                .foregroundStyle(Theme.secondaryText)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -153,12 +153,12 @@ private struct FilingAlbumRow: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(album.title)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(PhotoDeleteStyle.primaryText)
+                        .foregroundStyle(Theme.primaryText)
                         .lineLimit(1)
 
                     Text(L10n.photoCount(album.photosCount))
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        .foregroundStyle(Theme.secondaryText)
                         .monospacedDigit()
                 }
 
@@ -166,25 +166,25 @@ private struct FilingAlbumRow: View {
 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(isSelected ? PhotoDeleteStyle.accent : PhotoDeleteStyle.tertiaryText)
+                    .foregroundStyle(isSelected ? Theme.accent : Theme.tertiaryText)
                     .frame(width: 28, height: 28)
                     .animation(.easeOut(duration: 0.14), value: isSelected)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, minHeight: PhotoDeleteStyle.albumListCardMinHeight, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: Theme.albumListCardMinHeight, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: PhotoDeleteStyle.albumListCardRadius, style: .continuous)
-                    .fill(PhotoDeleteStyle.surface)
+                RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous)
+                    .fill(Theme.surface)
                     .overlay {
-                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.albumListCardRadius, style: .continuous)
+                        RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous)
                             .strokeBorder(
-                                isSelected ? PhotoDeleteStyle.accent.opacity(0.42) : Color.clear,
+                                isSelected ? Theme.accent.opacity(0.42) : Color.clear,
                                 lineWidth: 1
                             )
                     }
             )
-            .contentShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.albumListCardRadius, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous))
         }
         .buttonStyle(FilingAlbumRowButtonStyle())
         .accessibilityElement(children: .ignore)
@@ -212,7 +212,7 @@ private struct FilingAlbumThumbnail: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
 
             if let image {
                 Image(uiImage: image)
@@ -226,7 +226,7 @@ private struct FilingAlbumThumbnail: View {
             } else {
                 Image(systemName: emptyIcon)
                     .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                    .foregroundStyle(Theme.secondaryText)
             }
         }
         .frame(width: size, height: size)

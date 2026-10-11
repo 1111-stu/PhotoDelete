@@ -51,7 +51,7 @@ struct TimeOrganizeView: View {
 
                                 if index != visibleSummaries.count - 1 {
                                     Divider()
-                                        .background(PhotoDeleteStyle.hairline)
+                                        .background(Theme.hairline)
                                         .padding(.leading, 16)
                                 }
                             }
@@ -62,7 +62,7 @@ struct TimeOrganizeView: View {
                             Button(action: showMorePeriods) {
                                 Text(L10n.string("Show More"))
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(PhotoDeleteStyle.accent)
+                                    .foregroundColor(Theme.accent)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
                             }
@@ -71,9 +71,9 @@ struct TimeOrganizeView: View {
                         }
                     }
                 }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                .padding(.top, PhotoDeleteStyle.rootContentTopSpacing)
-                .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.top, Theme.rootContentTopSpacing)
+                .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
@@ -125,15 +125,15 @@ struct TimeOrganizeView: View {
         VStack(spacing: 14) {
             Image(systemName: "calendar")
                 .font(.system(size: 44, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
 
             Text(L10n.string("No photos to organize by time yet"))
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
 
             Text(L10n.string("No photos with capture dates are available in the current access range."))
                 .font(.system(size: 15, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .multilineTextAlignment(.center)
         }
         .padding(24)
@@ -171,12 +171,12 @@ private struct TimePeriodRow: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(TimeOrganizeFormatter.title(for: summary))
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
 
                 Text(TimeOrganizeFormatter.subtitle(for: summary))
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
             }
@@ -185,12 +185,12 @@ private struct TimePeriodRow: View {
 
             Text(L10n.shortPhotoCount(summary.assetCount))
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .lineLimit(1)
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
@@ -208,23 +208,23 @@ struct OrganizeLoadingCard: View {
         VStack(spacing: 16) {
             if progress > 0.01 {
                 ProgressView(value: min(max(progress, 0), 1))
-                    .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
                     .frame(maxWidth: 230)
                     .clipShape(Capsule(style: .continuous))
             } else {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
                     .scaleEffect(1.05)
             }
 
             VStack(spacing: 7) {
                 Text(title)
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(message)
                     .font(.system(size: 15, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .multilineTextAlignment(.center)
             }
         }

@@ -14,18 +14,18 @@ import MessageUI
 #endif
 
 enum SettingsChrome {
-    static let canvas = PhotoDeleteStyle.background
-    static let surface = PhotoDeleteStyle.surface
-    static let ink = PhotoDeleteStyle.primaryText
-    static let muted = PhotoDeleteStyle.secondaryText
-    static let faint = PhotoDeleteStyle.tertiaryText
-    static let accent = PhotoDeleteStyle.accent
-    static let divider = PhotoDeleteStyle.hairline
-    static let pill = PhotoDeleteStyle.elevatedSurface
-    static let pageInset: CGFloat = PhotoDeleteStyle.screenHorizontalPadding
-    static let cardRadius: CGFloat = PhotoDeleteStyle.cardRadius
-    static let sectionSpacing: CGFloat = PhotoDeleteStyle.sectionSpacing
-    static let rowMinHeight: CGFloat = PhotoDeleteStyle.rowMinHeight
+    static let canvas = Theme.background
+    static let surface = Theme.surface
+    static let ink = Theme.primaryText
+    static let muted = Theme.secondaryText
+    static let faint = Theme.tertiaryText
+    static let accent = Theme.accent
+    static let divider = Theme.hairline
+    static let pill = Theme.elevatedSurface
+    static let pageInset: CGFloat = Theme.screenHorizontalPadding
+    static let cardRadius: CGFloat = Theme.cardRadius
+    static let sectionSpacing: CGFloat = Theme.sectionSpacing
+    static let rowMinHeight: CGFloat = Theme.rowMinHeight
 }
 
 private extension Color {
@@ -132,7 +132,7 @@ struct SettingsView: View {
                             .frame(height: 100)
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
-                    .padding(.top, PhotoDeleteStyle.rootContentTopSpacing)
+                    .padding(.top, Theme.rootContentTopSpacing)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }
@@ -152,7 +152,7 @@ struct SettingsView: View {
                 MailComposeView()
             #else
                 Text(L10n.string("This device cannot send email"))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .padding()
             #endif
             case .privacy:
@@ -381,7 +381,7 @@ struct SettingsView: View {
         VStack {
             Spacer()
             PhotoDeleteToastView(toast: toast)
-                .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
+                .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
@@ -768,10 +768,10 @@ private struct AppPromotionRow: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 38, height: 38)
-                    .clipShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
-                            .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                        RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+                            .stroke(Theme.hairline, lineWidth: Theme.Metrics.cardStrokeWidth)
                     )
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -790,11 +790,11 @@ private struct AppPromotionRow: View {
 
                 Image(systemName: "arrow.up.right")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(PhotoDeleteStyle.tertiaryText)
+                    .foregroundStyle(Theme.tertiaryText)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
-            .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
+            .frame(minHeight: Theme.rowMinHeight)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
@@ -832,7 +832,7 @@ struct GestureSettingsView: View {
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
                     .padding(.top, 16)
-                    .padding(.bottom, PhotoDeleteStyle.Metrics.contentBottomPadding)
+                    .padding(.bottom, Theme.Metrics.contentBottomPadding)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }
@@ -953,7 +953,7 @@ private struct LanguageSettingsView: View {
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
                     .padding(.top, 16)
-                    .padding(.bottom, PhotoDeleteStyle.Metrics.contentBottomPadding)
+                    .padding(.bottom, Theme.Metrics.contentBottomPadding)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }
@@ -1162,7 +1162,7 @@ struct PrivacyInfoView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(L10n.string("Privacy First"))
                                 .font(.title.weight(.semibold))
-                                .foregroundStyle(PhotoDeleteStyle.primaryText)
+                                .foregroundStyle(Theme.primaryText)
 
                             Text(AppConstants.privacyShortText)
                                 .photoDeleteSecondaryLabel(.body)
@@ -1189,7 +1189,7 @@ struct PrivacyInfoView: View {
                             )
                         }
                     }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.screenHorizontalPadding)
                     .padding(.top, 20)
                     .padding(.bottom, 24)
                 }
@@ -1201,7 +1201,7 @@ struct PrivacyInfoView: View {
                     Button(L10n.string("Done")) {
                         dismiss()
                     }
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                 }
             }
         }
@@ -1217,11 +1217,11 @@ struct PrivacyInfoRow: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.accent)
+                .foregroundColor(Theme.accent)
                 .frame(width: 34, height: 34)
                 .background(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(PhotoDeleteStyle.elevatedSurface)
+                        .fill(Theme.elevatedSurface)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
@@ -1254,23 +1254,23 @@ struct AboutView: View {
                         // App图标
                         ZStack {
                             RoundedRectangle(cornerRadius: 24)
-                                .fill(PhotoDeleteStyle.surface)
+                                .fill(Theme.surface)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 24)
-                                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                                        .stroke(Theme.hairline, lineWidth: 1)
                                 )
                                 .frame(width: 120, height: 120)
 
                             Image(systemName: "photo.on.rectangle.angled")
                                 .font(.system(size: 48, weight: .medium))
-                                .foregroundColor(PhotoDeleteStyle.accent)
+                                .foregroundColor(Theme.accent)
                         }
 
                         // App信息
                         VStack(spacing: 16) {
                             Text(AppConstants.appDisplayName)
                                 .font(.largeTitle.weight(.bold))
-                                .foregroundStyle(PhotoDeleteStyle.primaryText)
+                                .foregroundStyle(Theme.primaryText)
 
                             Text(L10n.string("Version \(AppConstants.displayVersion)"))
                                 .photoDeleteSecondaryLabel(.body)
@@ -1281,7 +1281,7 @@ struct AboutView: View {
                                 .lineLimit(nil)
                         }
                     }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.screenHorizontalPadding)
                     .padding(.top, 52)
                     .padding(.bottom, 32)
                 }
@@ -1293,7 +1293,7 @@ struct AboutView: View {
                     Button(L10n.string("Done")) {
                         dismiss()
                     }
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                 }
             }
         }

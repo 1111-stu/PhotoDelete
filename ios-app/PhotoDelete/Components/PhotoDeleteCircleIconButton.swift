@@ -4,7 +4,7 @@
 //
 //  标题栏圆形 icon 按钮：可见圆 36 / 图标 15，触控区仍为 44。
 //  iOS 26+ 液态玻璃圆钮，老系统回落 elevatedSurface 实心圆。
-//  尺寸 token 见 PhotoDeleteStyle.Metrics（titleBarIcon* / minimumTapTarget）。
+//  尺寸 token 见 Theme.Metrics（titleBarIcon* / minimumTapTarget）。
 //
 
 import SwiftUI
@@ -64,10 +64,10 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
-        .foregroundStyle(PhotoDeleteStyle.primaryText)
+        .foregroundStyle(Theme.primaryText)
         .frame(
-            width: PhotoDeleteStyle.Metrics.minimumTapTarget,
-            height: PhotoDeleteStyle.Metrics.minimumTapTarget
+            width: Theme.Metrics.minimumTapTarget,
+            height: Theme.Metrics.minimumTapTarget
         )
         .contentShape(Circle())
     }
@@ -75,11 +75,11 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
     private var elevatedButton: some View {
         Button(action: action) {
             iconLabel
-                .foregroundColor(PhotoDeleteStyle.primaryText)
-                .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
+                .foregroundColor(Theme.primaryText)
+                .background(Theme.elevatedSurface, in: Circle())
                 .frame(
-                    width: PhotoDeleteStyle.Metrics.minimumTapTarget,
-                    height: PhotoDeleteStyle.Metrics.minimumTapTarget
+                    width: Theme.Metrics.minimumTapTarget,
+                    height: Theme.Metrics.minimumTapTarget
                 )
                 .contentShape(Circle())
         }
@@ -88,10 +88,10 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
 
     private var iconLabel: some View {
         Image(systemName: systemName)
-            .font(.system(size: PhotoDeleteStyle.Metrics.titleBarIconPointSize, weight: .semibold))
+            .font(.system(size: Theme.Metrics.titleBarIconPointSize, weight: .semibold))
             .frame(
-                width: PhotoDeleteStyle.Metrics.titleBarIconVisualSize,
-                height: PhotoDeleteStyle.Metrics.titleBarIconVisualSize
+                width: Theme.Metrics.titleBarIconVisualSize,
+                height: Theme.Metrics.titleBarIconVisualSize
             )
     }
 }

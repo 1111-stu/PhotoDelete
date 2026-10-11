@@ -25,7 +25,7 @@ struct PhotoDeleteApp: App {
             ContentView()
                 .environment(\.locale, selectedLanguage.locale)
                 .modifier(AppLayoutDirectionModifier(language: selectedLanguage))
-                .tint(PhotoDeleteStyle.navigationTint)
+                .tint(Theme.accent)
                 .preferredColorScheme(.dark)
                 .statusBarHidden(false)
                 .task {

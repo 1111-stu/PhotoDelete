@@ -30,12 +30,12 @@ struct PeriodPickerSheet: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteStyle.surface.ignoresSafeArea()
+            Theme.surface.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Text(TimePeriodBrowser.pickerTitle(for: scope))
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .padding(.top, 24)
                     .padding(.bottom, 4)
 
@@ -67,10 +67,10 @@ struct PeriodPickerSheet: View {
 
     /// 数字样式：「本期全部」用珊瑚粉渐变高亮（与「待整理」卡同一组色），明细行白字。
     private func numberStyle(isPrimary: Bool) -> AnyShapeStyle {
-        guard isPrimary else { return AnyShapeStyle(PhotoDeleteStyle.primaryText) }
+        guard isPrimary else { return AnyShapeStyle(Theme.primaryText) }
                 return AnyShapeStyle(
             LinearGradient(
-                colors: [PhotoDeleteStyle.coralGradientTop, PhotoDeleteStyle.coralGradientBottom],
+                colors: [Theme.coralGradientTop, Theme.coralGradientBottom],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -91,12 +91,12 @@ struct PeriodPickerSheet: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                         .lineLimit(1)
 
                     Text(TimePeriodBrowser.rowSubtitle(for: summary))
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .lineLimit(1)
                 }
 
@@ -110,12 +110,12 @@ struct PeriodPickerSheet: View {
 
                     Text(L10n.string("To review"))
                         .font(.system(size: 11.5, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                        .foregroundColor(Theme.tertiaryText)
                 }
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                    .foregroundColor(Theme.tertiaryText)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 15)
@@ -127,7 +127,7 @@ struct PeriodPickerSheet: View {
 
     private var rowHairline: some View {
         Rectangle()
-            .fill(PhotoDeleteStyle.hairline)
+            .fill(Theme.hairline)
             .frame(height: 1)
             .padding(.horizontal, 20)
     }

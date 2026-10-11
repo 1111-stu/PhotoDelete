@@ -156,19 +156,19 @@ struct BatchConfirmView: View {
                         } else {
                             Text(L10n.string("No pending operations"))
                                 .font(.body)
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .foregroundColor(Theme.secondaryText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 24)
                         }
                         if let errorMessage {
                             Text(errorMessage)
                                 .font(.subheadline)
-                                .foregroundColor(PhotoDeleteStyle.warning)
+                                .foregroundColor(Theme.warning)
                                 .accessibilityIdentifier("cleanup-error")
                         }
                     }
                     .frame(maxWidth: 620, alignment: .leading)
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.screenHorizontalPadding)
                     .padding(.top, 8)
                     .padding(.bottom, 20)
                     .frame(maxWidth: .infinity)
@@ -196,7 +196,7 @@ struct BatchConfirmView: View {
                             systemImage: "info.circle"
                         )
                         .font(.footnote)
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .accessibilityIdentifier("cleanup-consequence")
                     }
                     if dynamicTypeSize.isAccessibilitySize {
@@ -222,7 +222,7 @@ struct BatchConfirmView: View {
     private var confirmButton: some View {
         Button(action: executeBatchOperations) {
             HStack(spacing: 8) {
-                if isProcessing { ProgressView().tint(PhotoDeleteStyle.primaryButtonText) }
+                if isProcessing { ProgressView().tint(Theme.onAccent) }
                 Text(isProcessing ? L10n.string("Running...") : L10n.string("Confirm Cleanup"))
             }
             .frame(maxWidth: .infinity, minHeight: 22)
@@ -319,19 +319,19 @@ struct BatchConfirmView: View {
                         )
                     )
                     .font(.caption)
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                 } else if summary.unknownAssetCount > 0 {
                     Text(L10n.string("Size unavailable for \(summary.unknownAssetCount) items"))
                         .font(.caption)
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
             }
         } else if isLoadingFileSizes {
             Text(L10n.string("Reading file sizes"))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
         } else {
             Text(L10n.string("File sizes are currently unavailable"))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
         }
     }
 
@@ -462,7 +462,7 @@ private struct BatchCleanupCompletionView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteStyle.background.opacity(0.72)
+            Theme.background.opacity(0.72)
                 .ignoresSafeArea()
 
             VStack {
@@ -484,7 +484,7 @@ private struct BatchCleanupCompletionView: View {
 
                 Spacer(minLength: 24)
             }
-            .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+            .padding(.horizontal, Theme.screenHorizontalPadding)
         }
         .task {
             await startCompletionAnimation()
@@ -520,12 +520,12 @@ private struct BatchCleanupCompletionView: View {
     private var celebrationVisual: some View {
         ZStack {
             Circle()
-                .fill(PhotoDeleteStyle.warning.opacity(0.14))
+                .fill(Theme.warning.opacity(0.14))
                 .frame(width: 84, height: 84)
                 .scaleEffect(animate ? 1 : 0.86)
 
             Circle()
-                .stroke(PhotoDeleteStyle.warning.opacity(0.26), lineWidth: 1)
+                .stroke(Theme.warning.opacity(0.26), lineWidth: 1)
                 .frame(width: 70, height: 70)
                 .scaleEffect(animate ? 1.04 : 0.9)
 
@@ -560,7 +560,7 @@ private struct BatchCleanupCompletionView: View {
     private var completionHeader: some View {
         Text(L10n.string("Cleanup Complete"))
             .font(.system(size: 31, weight: .semibold))
-            .foregroundColor(PhotoDeleteStyle.primaryText)
+            .foregroundColor(Theme.primaryText)
     }
 
     private var cleanupSummarySection: some View {
@@ -570,12 +570,12 @@ private struct BatchCleanupCompletionView: View {
                 title: L10n.string("Deleted This Time"),
                 value: L10n.shortPhotoCount(celebration.deletedPhotos),
                 detail: L10n.string("Deleted content: about \(celebration.formattedSpaceSaved)"),
-                tint: PhotoDeleteStyle.destructive
+                tint: Theme.destructive
             )
 
             Divider()
                 .frame(height: 34)
-                .background(PhotoDeleteStyle.hairline)
+                .background(Theme.hairline)
                 .padding(.horizontal, 10)
 
             summaryItem(
@@ -583,17 +583,17 @@ private struct BatchCleanupCompletionView: View {
                 title: L10n.string("Total Deleted"),
                 value: L10n.shortPhotoCount(celebration.totalDeletedPhotos),
                 detail: L10n.string("Deleted content: about \(celebration.formattedTotalSpaceSaved)"),
-                tint: PhotoDeleteStyle.accent
+                tint: Theme.accent
             )
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 13)
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(PhotoDeleteStyle.surface)
+                .fill(Theme.surface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
+                        .stroke(Theme.cardStroke, lineWidth: 1)
                 )
         )
     }
@@ -609,11 +609,11 @@ private struct BatchCleanupCompletionView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
 
                 Text(value)
                     .font(.system(size: 19, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.74)
 
@@ -638,14 +638,14 @@ private struct BatchCleanupCompletionView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .padding(.vertical, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(PhotoDeleteStyle.surface)
+                        .fill(Theme.surface)
                         .overlay(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
+                                .stroke(Theme.cardStroke, lineWidth: 1)
                         )
                 )
             }
@@ -673,7 +673,7 @@ private struct BatchCleanupCompletionView: View {
 
             compactStatusRow(
                 icon: "flame.fill",
-                tint: PhotoDeleteStyle.warning,
+                tint: Theme.warning,
                 title: L10n.string("\(streakDaysForDisplay)-Day Cleanup Streak"),
                 subtitle: L10n.string("Keep the rhythm. Your library will feel lighter.")
             )
@@ -686,7 +686,7 @@ private struct BatchCleanupCompletionView: View {
             } else {
                 compactStatusRow(
                     icon: "checkmark.seal.fill",
-                    tint: PhotoDeleteStyle.positive,
+                    tint: Theme.positive,
                     title: L10n.string("All Badges Complete"),
                     subtitle: L10n.string("You can review the full record on the achievements page.")
                 )
@@ -694,10 +694,10 @@ private struct BatchCleanupCompletionView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(PhotoDeleteStyle.cardStroke, lineWidth: 1)
+                        .stroke(Theme.cardStroke, lineWidth: 1)
                 )
         )
     }
@@ -714,13 +714,13 @@ private struct BatchCleanupCompletionView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.82)
 
                 Text(subtitle)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.82)
             }
@@ -747,13 +747,13 @@ private struct BatchCleanupCompletionView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.string("Next goal: \(progress.achievement.title)"))
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.82)
 
                     Text(progress.remainingDescription)
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.82)
                 }
@@ -774,7 +774,7 @@ private struct BatchCleanupCompletionView: View {
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
                     Capsule(style: .continuous)
-                        .fill(PhotoDeleteStyle.hairline)
+                        .fill(Theme.hairline)
 
                     Capsule(style: .continuous)
                         .fill(progress.achievement.tint.color)
@@ -817,24 +817,24 @@ private struct CandidatePreviewSection: View {
                 if let title {
                     Text("\(title) · \(PhotoDeleteCountFormat.plain(selectedCount))/\(PhotoDeleteCountFormat.plain(assets.count))")
                         .font(.headline)
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                 } else if let sizeSummary {
                     sizeSummary
                         .font(.subheadline)
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .accessibilityIdentifier("cleanup-size-summary")
                 }
                 Spacer(minLength: 8)
                 Button(selectedCount == assets.count ? L10n.string("Deselect All") : L10n.string("Select All"), action: onToggleAll)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                     .frame(minHeight: 44)
                     .fixedSize()
             }
             if title != nil, let sizeSummary {
                 sizeSummary
                     .font(.subheadline)
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
             LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(visibleAssets, id: \.localIdentifier) { asset in
@@ -851,7 +851,7 @@ private struct CandidatePreviewSection: View {
                 Button(action: showMoreAssets) {
                     Label(L10n.string("Show More"), systemImage: "chevron.down")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(PhotoDeleteStyle.accent)
+                        .foregroundColor(Theme.accent)
                         .frame(maxWidth: .infinity, minHeight: 44)
                 }
                 .buttonStyle(.plain)
@@ -1059,16 +1059,16 @@ struct PhotoAssetVideoPlayerView: View {
                 VStack(spacing: 14) {
                     if isLoading {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                            .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
                     } else {
                         Image(systemName: "play.slash")
                             .font(.system(size: 38, weight: .medium))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
                     }
 
                     Text(isLoading ? L10n.string("Loading video") : L10n.string("This video cannot be played"))
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .multilineTextAlignment(.center)
                 }
                 .padding(24)
@@ -1526,7 +1526,7 @@ private struct VideoPlaybackSlider: UIViewRepresentable {
         slider.minimumValue = 0
         slider.maximumValue = 1
         slider.isContinuous = true
-        slider.minimumTrackTintColor = UIColor(PhotoDeleteStyle.accent)
+        slider.minimumTrackTintColor = UIColor(Theme.accent)
         slider.maximumTrackTintColor = UIColor.white.withAlphaComponent(0.28)
         slider.setThumbImage(Self.thumbImage(diameter: 20), for: .normal)
         slider.setThumbImage(Self.thumbImage(diameter: 24), for: .highlighted)
@@ -1544,7 +1544,7 @@ private struct VideoPlaybackSlider: UIViewRepresentable {
 
     func updateUIView(_ slider: UISlider, context: Context) {
         context.coordinator.parent = self
-        slider.minimumTrackTintColor = UIColor(PhotoDeleteStyle.accent)
+        slider.minimumTrackTintColor = UIColor(Theme.accent)
         slider.maximumTrackTintColor = UIColor.white.withAlphaComponent(0.28)
 
         guard !slider.isTracking else { return }
@@ -1703,14 +1703,14 @@ struct CandidatePhotoPreviewView: View {
                             photoLibraryManager: photoLibraryManager,
                             locationTitle: locationTitle
                         )
-                        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.screenHorizontalPadding)
                         .padding(.top, 18)
                         .padding(.bottom, 32)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(minHeight: geometry.size.height, alignment: .top)
                 }
-                .background(PhotoDeleteStyle.background.ignoresSafeArea())
+                .background(Theme.background.ignoresSafeArea())
                 .onAppear {
                     if isLivePhotoAsset {
                         loadImage(in: geometry.size)
@@ -1763,7 +1763,7 @@ struct CandidatePhotoPreviewView: View {
     @ViewBuilder
     private func previewMedia(in size: CGSize) -> some View {
         ZStack {
-            PhotoDeleteStyle.background
+            Theme.background
 
             if asset.mediaType == .video {
                 PhotoAssetVideoPlayerView(
@@ -1820,16 +1820,16 @@ struct CandidatePhotoPreviewView: View {
         VStack(spacing: 14) {
             if isLoading {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
             } else {
                 Image(systemName: "photo")
                     .font(.system(size: 36, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
 
             Text(isLoading ? L10n.string("Reading Photos") : L10n.string("Unable to load this photo"))
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
         }
     }
 
@@ -1923,11 +1923,11 @@ private struct PhotoAssetDetailsPanel: View {
             HStack(spacing: 8) {
                 Image(systemName: "info.circle")
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
 
                 Text(L10n.string("Photo Info"))
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
             }
 
             VStack(spacing: 0) {
@@ -1948,20 +1948,20 @@ private struct PhotoAssetDetailsPanel: View {
                     detailDivider
                     detailRow(label: L10n.string("Original Filename"), value: originalFilenameText, icon: "doc.text")
                 }
-                Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
+                Divider().background(Theme.hairline).padding(.leading, 44)
                 detailRow(label: L10n.string("Type"), value: mediaTypeText, icon: mediaTypeIcon)
-                Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
+                Divider().background(Theme.hairline).padding(.leading, 44)
                 detailRow(label: L10n.string("Dimensions"), value: pixelSizeText, icon: "aspectratio")
-                Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
+                Divider().background(Theme.hairline).padding(.leading, 44)
                 detailRow(label: L10n.string("Orientation"), value: orientationText, icon: "rectangle")
 
                 if asset.mediaType == .video {
-                    Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
+                    Divider().background(Theme.hairline).padding(.leading, 44)
                     detailRow(label: L10n.string("Duration"), value: durationText, icon: "clock")
                 }
 
                 if asset.isFavorite {
-                    Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
+                    Divider().background(Theme.hairline).padding(.leading, 44)
                     detailRow(label: L10n.string("Status"), value: L10n.string("Already favorite"), icon: "heart.fill")
                 }
             }
@@ -1971,21 +1971,21 @@ private struct PhotoAssetDetailsPanel: View {
     }
 
     private var detailDivider: some View {
-        Divider().background(PhotoDeleteStyle.hairline).padding(.leading, 44)
+        Divider().background(Theme.hairline).padding(.leading, 44)
     }
 
     private func detailRow(label: String, value: String, icon: String) -> some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(icon: icon, tint: PhotoDeleteStyle.accent, size: 32, cornerRadius: 10)
+            PhotoDeleteIconTile(icon: icon, tint: Theme.accent, size: 32, cornerRadius: 10)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(label)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                    .foregroundColor(Theme.tertiaryText)
 
                 Text(value)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .fixedSize(horizontal: false, vertical: true)
             }
 

@@ -122,14 +122,14 @@ private struct DeletionQueueScreen: View {
                         HStack(alignment: .firstTextBaseline) {
                             Text(L10n.string("Selected \(selectedIDs.count) / \(assets.count)"))
                             .font(.title3.weight(.bold))
-                                .foregroundColor(PhotoDeleteStyle.primaryText)
+                                .foregroundColor(Theme.primaryText)
                             Spacer()
                             Button(selectedIDs.count == assets.count ? L10n.string("Deselect All") : L10n.string("Select All")) {
                                 if selectedIDs.count == assets.count { selectedIDs.removeAll() }
                                 else { selectedIDs = Set(assets.map(\.localIdentifier)) }
                             }
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(PhotoDeleteStyle.accent)
+                            .foregroundColor(Theme.accent)
                             .frame(minHeight: 44)
                         }
 
@@ -139,7 +139,7 @@ private struct DeletionQueueScreen: View {
                             }
                         }
                     }
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.screenHorizontalPadding)
                     .padding(.top, 20)
                     .padding(.bottom, 24)
                 }
@@ -185,13 +185,13 @@ private struct DeletionQueueScreen: View {
         VStack(spacing: 12) {
             Image(systemName: "trash.slash")
                 .font(.system(size: 42, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
             Text(emptyTitle)
                 .font(.system(size: 19, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
             Text(emptyMessage)
                 .font(.system(size: 13))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .multilineTextAlignment(.center)
         }
         .padding(32)
@@ -229,7 +229,7 @@ struct CleanupReviewAssetCell: View {
                 AlbumAssetThumbnail(
                     assetID: asset.localIdentifier,
                     photoLibraryManager: photoLibraryManager,
-                    cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius
+                    cornerRadius: Theme.Metrics.thumbnailRadius
                 )
                 .aspectRatio(1, contentMode: .fit)
             }
@@ -239,9 +239,9 @@ struct CleanupReviewAssetCell: View {
             Button(action: onToggleSelection) {
                 Image(systemName: isSelected ? "checkmark" : "circle")
                     .font(.system(size: isSelected ? 11 : 18, weight: .bold))
-                    .foregroundStyle(isSelected ? PhotoDeleteStyle.primaryButtonText : .white.opacity(0.9))
+                    .foregroundStyle(isSelected ? Theme.onAccent : .white.opacity(0.9))
                     .frame(width: 26, height: 26)
-                    .background(Circle().fill(isSelected ? PhotoDeleteStyle.accent : Color.black.opacity(0.34)))
+                    .background(Circle().fill(isSelected ? Theme.accent : Color.black.opacity(0.34)))
                     .overlay(Circle().stroke(Color.white.opacity(isSelected ? 0.88 : 0.72), lineWidth: 1))
             }
             .buttonStyle(.plain)
@@ -263,13 +263,13 @@ struct CleanupReviewSecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.body.weight(.semibold))
-            .foregroundStyle(PhotoDeleteStyle.secondaryText)
+            .foregroundStyle(Theme.secondaryText)
             .frame(minHeight: 52)
-            .background(configuration.isPressed ? PhotoDeleteStyle.surface : PhotoDeleteStyle.elevatedSurface)
-            .clipShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous))
+            .background(configuration.isPressed ? Theme.surface : Theme.elevatedSurface)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                    .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                    .stroke(Theme.hairline, lineWidth: 1)
             }
             .opacity(isEnabled ? 1 : 0.42)
             .animation(.easeOut(duration: 0.16), value: configuration.isPressed)
@@ -280,13 +280,13 @@ struct CleanupReviewFooterStyle: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+            .padding(.horizontal, Theme.screenHorizontalPadding)
             .padding(.top, 12)
             .padding(.bottom, 8)
             .background {
-                PhotoDeleteStyle.background
+                Theme.background
                     .overlay(alignment: .top) {
-                        Rectangle().fill(PhotoDeleteStyle.hairline).frame(height: 1)
+                        Rectangle().fill(Theme.hairline).frame(height: 1)
                     }
                     .ignoresSafeArea(edges: .bottom)
             }

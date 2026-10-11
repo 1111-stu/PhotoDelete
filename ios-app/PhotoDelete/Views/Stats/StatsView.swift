@@ -36,7 +36,7 @@ private struct StatsScreen: View {
             PhotoDeleteScreenBackground()
 
             ScrollView {
-                VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+                VStack(spacing: Theme.sectionSpacing) {
                     progressSection
                     cleanupHistorySection
 
@@ -48,8 +48,8 @@ private struct StatsScreen: View {
                     }
                     .photoDeleteDestructiveButton()
                 }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                .padding(.top, PhotoDeleteStyle.rootContentTopSpacing)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.top, Theme.rootContentTopSpacing)
                 .padding(.bottom, 36)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
@@ -84,12 +84,12 @@ private struct StatsScreen: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(L10n.string("Reviewed"))
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
 
                         Text(PhotoDeleteCountFormat.plain(stats.organizedAssets))
                             .font(.system(size: 42, weight: .bold))
                             .monospacedDigit()
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
                     }
 
                     Spacer(minLength: 12)
@@ -97,18 +97,18 @@ private struct StatsScreen: View {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text(L10n.string("\(stats.totalAssets) photos in total"))
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
 
                         Text(organizedProgressText(for: stats))
                             .font(.system(size: 17, weight: .semibold))
                             .monospacedDigit()
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
                     }
                 }
 
                 // 中性进度条：琥珀不用于「已完成」状态（style.md §2.3）。
                 ProgressView(value: organizedProgress(for: stats))
-                    .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.primaryText.opacity(0.55)))
+                    .progressViewStyle(LinearProgressViewStyle(tint: Theme.primaryText.opacity(0.55)))
                     .frame(height: 6)
                     .clipShape(Capsule(style: .continuous))
 
@@ -118,7 +118,7 @@ private struct StatsScreen: View {
                     Text(L10n.string("Deleted \(stats.deletedAssets) photos"))
                 }
                 .font(.system(size: 12, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
             }
             .padding(18)
             .photoDeleteCard(radius: 22)
@@ -157,7 +157,7 @@ private struct StatsScreen: View {
             if months.isEmpty {
                 Text(L10n.string("Local cleanup records appear after you confirm deletions or favorites."))
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
                     .photoDeleteCard(radius: 22)
@@ -197,14 +197,14 @@ private struct StatsScreen: View {
                 Text(count > 0 ? PhotoDeleteCountFormat.plain(count) : " ")
                     .font(.system(size: 10, weight: .semibold))
                     .monospacedDigit()
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .frame(height: 12)
 
                 // 粉色系柱体：与「待整理」卡同一组珊瑚渐变；当月全饱和，其余降透明度。
                 RoundedRectangle(cornerRadius: 5, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [PhotoDeleteStyle.coralGradientTop, PhotoDeleteStyle.coralGradientBottom],
+                            colors: [Theme.coralGradientTop, Theme.coralGradientBottom],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -215,7 +215,7 @@ private struct StatsScreen: View {
 
                 Text(shortMonthTitle(for: month.monthKey))
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
@@ -247,7 +247,7 @@ private struct StatsScreen: View {
                         }
                     }
                     .photoDeleteCard(radius: 22)
-                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.screenHorizontalPadding)
                     .padding(.top, 16)
                 }
                 .scrollIndicators(.hidden)
@@ -259,7 +259,7 @@ private struct StatsScreen: View {
                     Button(L10n.string("Done")) {
                         selectedMonth = nil
                     }
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                 }
             }
         }
@@ -270,18 +270,18 @@ private struct StatsScreen: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(session.formattedDate)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(L10n.string("Deleted \(session.deletedPhotos) · Favorited \(session.favoritedPhotos)"))
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
 
             Spacer(minLength: 8)
 
             Text(L10n.string("Deleted content: about \(session.formattedSpaceSaved)"))
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .lineLimit(1)
         }
         .padding(.horizontal, 18)
@@ -290,7 +290,7 @@ private struct StatsScreen: View {
 
     private var historySeparator: some View {
         Rectangle()
-            .fill(PhotoDeleteStyle.hairline)
+            .fill(Theme.hairline)
             .frame(height: 1)
             .padding(.horizontal, 18)
     }

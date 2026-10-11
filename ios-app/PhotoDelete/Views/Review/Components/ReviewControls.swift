@@ -19,17 +19,17 @@ struct CompletionStatPill: View {
 
             Text(title)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 9)
         .background(
-            RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                .fill(PhotoDeleteStyle.surface)
+            RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                .fill(Theme.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                        .stroke(Theme.hairline, lineWidth: 1)
                 )
         )
     }
@@ -43,7 +43,7 @@ struct ReviewAlbumDragHint: View {
             HStack(spacing: 6) {
                 Image(systemName: "rectangle.stack.badge.plus")
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
 
                 Text(L10n.string("Swipe down to add"))
                     .font(.system(size: 15, weight: .bold))
@@ -55,10 +55,10 @@ struct ReviewAlbumDragHint: View {
             .padding(.vertical, 10)
             .background(
                 Capsule(style: .continuous)
-                    .fill(PhotoDeleteStyle.surface.opacity(0.96))
+                    .fill(Theme.surface.opacity(0.96))
                     .overlay(
                         Capsule(style: .continuous)
-                            .stroke(PhotoDeleteStyle.accent.opacity(0.82), lineWidth: 1.2)
+                            .stroke(Theme.accent.opacity(0.82), lineWidth: 1.2)
                     )
             )
             .padding(.top, 16)
@@ -80,28 +80,28 @@ struct PhotoSelectionLoadingCard: View {
             if progress > 0.01 {
                 VStack(spacing: 8) {
                     ProgressView(value: progress)
-                        .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                        .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
                         .frame(maxWidth: 230)
                         .clipShape(Capsule(style: .continuous))
 
                     Text(L10n.percent(Int(progress * 100)))
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                        .foregroundColor(Theme.tertiaryText)
                 }
             } else {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
                     .scaleEffect(1.05)
             }
 
             VStack(spacing: 7) {
                 Text(title)
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(message)
                     .font(.system(size: 15, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .multilineTextAlignment(.center)
             }
         }
@@ -153,10 +153,10 @@ struct ActionButton: View {
                                 .minimumScaleFactor(0.7)
                                 .padding(.horizontal, 5)
                                 .frame(minWidth: 18, minHeight: 18)
-                                .background(Capsule(style: .continuous).fill(PhotoDeleteStyle.destructive))
+                                .background(Capsule(style: .continuous).fill(Theme.destructive))
                                 .overlay(
                                     Capsule(style: .continuous)
-                                        .stroke(PhotoDeleteStyle.surface, lineWidth: 2)
+                                        .stroke(Theme.surface, lineWidth: 2)
                                 )
                                 .offset(x: 5, y: -5)
                         }
@@ -182,7 +182,7 @@ struct ActionButton: View {
     }
 
     private var labelColor: Color {
-        style == .solid ? PhotoDeleteStyle.primaryText : PhotoDeleteStyle.secondaryText
+        style == .solid ? Theme.primaryText : Theme.secondaryText
     }
 
     private var buttonBackground: some View {
@@ -197,7 +197,7 @@ struct ActionButton: View {
     private var backgroundFill: Color {
         switch style {
         case .quiet:
-            return PhotoDeleteStyle.elevatedSurface.opacity(0.72)
+            return Theme.elevatedSurface.opacity(0.72)
         case .soft:
             return color.opacity(0.13)
         case .solid:
@@ -208,7 +208,7 @@ struct ActionButton: View {
     private var strokeColor: Color {
         switch style {
         case .quiet:
-            return PhotoDeleteStyle.hairline
+            return Theme.hairline
         case .soft:
             return color.opacity(0.18)
         case .solid:
@@ -230,15 +230,15 @@ struct SessionMuteToggleButton: View {
             .labelStyle(.iconOnly)
             .symbolRenderingMode(.monochrome)
             .font(.system(size: 15, weight: .semibold))
-            .foregroundColor(isMuted ? PhotoDeleteStyle.secondaryText : PhotoDeleteStyle.accent)
+            .foregroundColor(isMuted ? Theme.secondaryText : Theme.accent)
             .frame(width: 38, height: 38)
             .background(
                 Circle()
-                    .fill(PhotoDeleteStyle.surface)
+                    .fill(Theme.surface)
                     .overlay(
                         Circle()
                             .stroke(
-                                isMuted ? PhotoDeleteStyle.cardStroke : PhotoDeleteStyle.accent.opacity(0.28),
+                                isMuted ? Theme.cardStroke : Theme.accent.opacity(0.28),
                                 lineWidth: 1
                             )
                     )
@@ -268,7 +268,7 @@ struct SidebarActionButton: View {
 
                 Text(title)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
 
@@ -281,7 +281,7 @@ struct SidebarActionButton: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(PhotoDeleteStyle.surface)
+                    .fill(Theme.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .stroke(color.opacity(0.32), lineWidth: 1)

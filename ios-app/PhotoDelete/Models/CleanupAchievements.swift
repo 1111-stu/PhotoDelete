@@ -17,15 +17,15 @@ enum CleanupAchievementTint: String, Equatable {
     var color: Color {
         switch self {
         case .accent:
-            return PhotoDeleteStyle.accent
+            return Theme.accent
         case .positive:
-            return PhotoDeleteStyle.positive
+            return Theme.positive
         case .warning:
-            return PhotoDeleteStyle.warning
+            return Theme.warning
         case .destructive:
-            return PhotoDeleteStyle.destructive
+            return Theme.destructive
         case .favorite:
-            return PhotoDeleteStyle.iconTint(for: "favorite")
+            return Theme.iconTint(for: "favorite")
         }
     }
 }

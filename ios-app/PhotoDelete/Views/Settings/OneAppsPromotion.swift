@@ -244,7 +244,7 @@ struct OneAppsCatalogPage: View {
                     studioFooterCard
                         .padding(.top, 8)
                 }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
                 .padding(.top, 16)
                 .padding(.bottom, 28)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
@@ -265,24 +265,24 @@ struct OneAppsCatalogPage: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                            .stroke(Theme.hairline, lineWidth: 1)
                     )
                     .accessibilityHidden(true)
 
                 VStack(spacing: 6) {
                     Text(L10n.string("One Apps Studio"))
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(L10n.string("Independent apps that are focused, simple, and easy to use."))
                         .font(.system(size: 14, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(L10n.string("Each app solves one small pain point, with unlimited core features and no ads."))
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                        .foregroundColor(Theme.tertiaryText)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -293,7 +293,7 @@ struct OneAppsCatalogPage: View {
                         .font(.system(size: 12, weight: .semibold))
                 }
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.accent)
+                .foregroundColor(Theme.accent)
             }
             .padding(.horizontal, 22)
             .padding(.vertical, 22)
@@ -324,18 +324,18 @@ struct OneAppsCatalogDetailPage: View {
                         VStack(alignment: .leading, spacing: 5) {
                             Text(item.name)
                                 .font(.system(size: 22, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.primaryText)
+                                .foregroundColor(Theme.primaryText)
 
                             Text(item.subtitle)
                                 .font(.system(size: 15, weight: .regular))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .foregroundColor(Theme.secondaryText)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
 
                     Text(item.summary)
                         .font(.system(size: 15, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                         .lineSpacing(3)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(16)
@@ -358,7 +358,7 @@ struct OneAppsCatalogDetailPage: View {
                     .photoDeletePrimaryButton()
                     .accessibilityIdentifier("settings-oneapps-\(item.id)-open")
                 }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
                 .padding(.top, 20)
                 .padding(.bottom, 28)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
@@ -382,12 +382,12 @@ private struct OneAppsCatalogAppRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.name)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
 
                 Text(item.subtitle)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -396,7 +396,7 @@ private struct OneAppsCatalogAppRow: View {
 
             Image(systemName: "chevron.right")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(PhotoDeleteStyle.tertiaryText)
+                .foregroundStyle(Theme.tertiaryText)
         }
         .padding(16)
         .frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
@@ -422,16 +422,16 @@ private struct OneAppsCatalogIcon: View {
             } else {
                 Image(systemName: item.systemImage)
                     .font(.system(size: size * 0.38, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(PhotoDeleteStyle.accent.opacity(0.12))
+                    .background(Theme.accent.opacity(0.12))
             }
         }
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: size * 0.225, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: size * 0.225, style: .continuous)
-                .stroke(PhotoDeleteStyle.hairline, lineWidth: 0.5)
+                .stroke(Theme.hairline, lineWidth: 0.5)
         )
         .accessibilityHidden(true)
     }

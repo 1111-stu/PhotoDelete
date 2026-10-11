@@ -22,7 +22,7 @@ struct LocationOrganizeView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     content
                 }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
                 .padding(.top, 12)
                 .padding(.bottom, 28)
             }
@@ -82,7 +82,7 @@ struct LocationOrganizeView: View {
 
                     if index != dataManager.locationGroups.count - 1 {
                         Divider()
-                            .background(PhotoDeleteStyle.hairline)
+                            .background(Theme.hairline)
                             .padding(.leading, 76)
                     }
                 }
@@ -136,18 +136,18 @@ private struct LocationGroupRow: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(group.title)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.84)
 
                 Text(group.subtitle)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.84)
 
                 ProgressView(value: group.progress)
-                    .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
                     .frame(height: 3)
                     .clipShape(Capsule(style: .continuous))
             }
@@ -156,12 +156,12 @@ private struct LocationGroupRow: View {
 
             Text(L10n.shortPhotoCount(group.assetCount))
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .lineLimit(1)
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
@@ -181,8 +181,8 @@ private struct LocationGroupThumbnail: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+            RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+                .fill(Theme.elevatedSurface)
 
             if let image {
                 Image(uiImage: image)
@@ -191,11 +191,11 @@ private struct LocationGroupThumbnail: View {
             } else {
                 Image(systemName: "photo")
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
         }
         .frame(width: 50, height: 50)
-        .clipShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous))
         .onAppear(perform: loadImage)
         .onChange(of: asset?.localIdentifier) { _ in
             loadImage()
@@ -239,37 +239,37 @@ private struct LocationOrganizeStateCard: View {
         VStack(spacing: 14) {
             Image(systemName: icon)
                 .font(.system(size: 38, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
 
             Text(title)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .multilineTextAlignment(.center)
 
             Text(message)
                 .font(.system(size: 15, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
             if showsProgress {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
             }
 
             if let actionTitle, let action {
                 Button(action: action) {
                     Text(actionTitle)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.accent)
+                        .foregroundColor(Theme.accent)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .photoDeleteMinimumTapTarget()
                 }
                 .buttonStyle(.plain)
                 .background(
-                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                        .fill(PhotoDeleteStyle.elevatedSurface)
+                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                        .fill(Theme.elevatedSurface)
                 )
             }
         }

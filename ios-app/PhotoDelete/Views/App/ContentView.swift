@@ -171,15 +171,15 @@ private struct OnboardingHeaderView: View {
                 Image(systemName: "photo.on.rectangle.angled")
                     .font(.callout.weight(.semibold))
             }
-            .foregroundStyle(PhotoDeleteStyle.primaryText)
+            .foregroundStyle(Theme.primaryText)
             .padding(.horizontal, 13)
             .padding(.vertical, 9)
             .background(
                 Capsule(style: .continuous)
-                    .fill(PhotoDeleteStyle.elevatedSurface)
+                    .fill(Theme.elevatedSurface)
                     .overlay(
                         Capsule(style: .continuous)
-                            .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                            .stroke(Theme.hairline, lineWidth: 1)
                     )
             )
 
@@ -188,7 +188,7 @@ private struct OnboardingHeaderView: View {
             Button(action: onSkip) {
                 Text(L10n.string("Skip"))
                     .font(.callout.weight(.medium))
-                    .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                    .foregroundStyle(Theme.secondaryText)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
             }
@@ -209,7 +209,7 @@ private struct OnboardingPageIndicator: View {
         HStack(spacing: 8) {
             ForEach(0..<pageCount, id: \.self) { index in
                 Capsule(style: .continuous)
-                    .fill(index == selectedPage ? PhotoDeleteStyle.accent : PhotoDeleteStyle.hairline)
+                    .fill(index == selectedPage ? Theme.accent : Theme.hairline)
                     .frame(width: index == selectedPage ? 24 : 7, height: 7)
             }
         }
@@ -265,12 +265,12 @@ private struct OnboardingPageView: View {
                     VStack(spacing: 12) {
                         Text(page.title)
                             .font(.title2.weight(.semibold))
-                            .foregroundStyle(PhotoDeleteStyle.primaryText)
+                            .foregroundStyle(Theme.primaryText)
                             .multilineTextAlignment(.center)
 
                         Text(page.message)
                             .font(.body)
-                            .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                            .foregroundStyle(Theme.secondaryText)
                             .multilineTextAlignment(.center)
                             .lineSpacing(4)
                             .fixedSize(horizontal: false, vertical: true)
@@ -279,7 +279,7 @@ private struct OnboardingPageView: View {
                             Link(destination: linkURL) {
                                 Label(linkTitle, systemImage: "arrow.up.right")
                                     .font(.callout.weight(.semibold))
-                                    .foregroundStyle(PhotoDeleteStyle.accent)
+                                    .foregroundStyle(Theme.accent)
                                     .labelStyle(.titleAndIcon)
                             }
                             .padding(.top, 4)
@@ -332,24 +332,24 @@ private struct OrganizeIntroVisual: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 34, style: .continuous)
-                .fill(PhotoDeleteStyle.surface)
+                .fill(Theme.surface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 34, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                        .stroke(Theme.hairline, lineWidth: 1)
                 )
                 .frame(width: 254, height: 238)
 
             VStack(spacing: 18) {
                 ZStack {
-                    MiniPhotoCard(symbol: "photo", tint: PhotoDeleteStyle.secondaryText)
+                    MiniPhotoCard(symbol: "photo", tint: Theme.secondaryText)
                         .rotationEffect(.degrees(animate ? -10 : -4))
                         .offset(x: animate ? -46 : -22, y: animate ? 12 : 2)
 
-                    MiniPhotoCard(symbol: "sparkles", tint: PhotoDeleteStyle.accent)
+                    MiniPhotoCard(symbol: "sparkles", tint: Theme.accent)
                         .rotationEffect(.degrees(animate ? 10 : 3))
                         .offset(x: animate ? 44 : 20, y: animate ? -10 : 0)
 
-                    MiniPhotoCard(symbol: "checkmark.circle", tint: PhotoDeleteStyle.positive)
+                    MiniPhotoCard(symbol: "checkmark.circle", tint: Theme.positive)
                         .scaleEffect(animate ? 0.9 : 1)
                         .offset(y: animate ? 48 : 0)
                 }
@@ -360,21 +360,21 @@ private struct OrganizeIntroVisual: View {
                     Text(L10n.string("Pending review"))
                 }
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText.opacity(0.78))
+                .foregroundColor(Theme.primaryText.opacity(0.78))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(
                     Capsule(style: .continuous)
-                        .fill(PhotoDeleteStyle.elevatedSurface)
+                        .fill(Theme.elevatedSurface)
                         .overlay(
                             Capsule(style: .continuous)
-                                .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                                .stroke(Theme.hairline, lineWidth: 1)
                         )
                 )
             }
 
             Capsule(style: .continuous)
-                .fill(PhotoDeleteStyle.accent)
+                .fill(Theme.accent)
                 .frame(width: animate ? 124 : 34, height: 5)
                 .offset(y: 104)
         }
@@ -388,14 +388,14 @@ private struct SwipeIntroVisual: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(PhotoDeleteStyle.surface.opacity(0.72))
+                .fill(Theme.surface.opacity(0.72))
                 .frame(width: 194, height: 212)
                 .overlay(
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                        .stroke(Theme.hairline, lineWidth: 1)
                 )
 
-            MiniPhotoCard(symbol: "photo", tint: PhotoDeleteStyle.primaryText.opacity(0.72), width: 122, height: 162)
+            MiniPhotoCard(symbol: "photo", tint: Theme.primaryText.opacity(0.72), width: 122, height: 162)
                 .overlay(
                     VStack {
                         Spacer()
@@ -405,7 +405,7 @@ private struct SwipeIntroVisual: View {
                             Image(systemName: "arrow.right")
                         }
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.accent)
+                        .foregroundColor(Theme.accent)
                         .padding(.bottom, 17)
                     }
                 )
@@ -416,7 +416,7 @@ private struct SwipeIntroVisual: View {
                 symbol: "arrow.left",
                 direction: L10n.string("Swipe left"),
                 action: L10n.string("Delete"),
-                color: PhotoDeleteStyle.destructive,
+                color: Theme.destructive,
                 x: -118,
                 y: 12
             )
@@ -424,7 +424,7 @@ private struct SwipeIntroVisual: View {
                 symbol: "arrow.right",
                 direction: L10n.string("Swipe right"),
                 action: L10n.string("Keep"),
-                color: PhotoDeleteStyle.positive,
+                color: Theme.positive,
                 x: 118,
                 y: 12
             )
@@ -432,7 +432,7 @@ private struct SwipeIntroVisual: View {
                 symbol: "arrow.up",
                 direction: L10n.string("Swipe up"),
                 action: L10n.string("Favorite"),
-                color: PhotoDeleteStyle.accent,
+                color: Theme.accent,
                 x: 0,
                 y: -106
             )
@@ -448,7 +448,7 @@ private struct SwipeIntroVisual: View {
             VStack(spacing: 1) {
                 Text(direction)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
 
                 Text(action)
                     .font(.system(size: 13, weight: .semibold))
@@ -480,10 +480,10 @@ private struct AdvancedCleanupIntroVisual: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .fill(PhotoDeleteStyle.surface)
+                .fill(Theme.surface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 30, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                        .stroke(Theme.hairline, lineWidth: 1)
                 )
                 .frame(width: 262, height: 236)
 
@@ -491,28 +491,28 @@ private struct AdvancedCleanupIntroVisual: View {
                 advancedToolRow(
                     icon: "square.stack.3d.down.right",
                     title: L10n.string("Similar Photos"),
-                    tint: PhotoDeleteStyle.accent,
+                    tint: Theme.accent,
                     delayIndex: 0
                 )
 
                 advancedToolRow(
                     icon: "externaldrive",
                     title: L10n.string("Large Files"),
-                    tint: PhotoDeleteStyle.warning,
+                    tint: Theme.warning,
                     delayIndex: 1
                 )
 
                 advancedToolRow(
                     icon: "video.badge.checkmark",
                     title: L10n.string("Video Compression"),
-                    tint: PhotoDeleteStyle.positive,
+                    tint: Theme.positive,
                     delayIndex: 2
                 )
 
                 advancedToolRow(
                     icon: "photo.badge.arrow.down",
                     title: L10n.string("Image Compression"),
-                    tint: PhotoDeleteStyle.accent,
+                    tint: Theme.accent,
                     delayIndex: 3
                 )
             }
@@ -527,7 +527,7 @@ private struct AdvancedCleanupIntroVisual: View {
 
             Text(title)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
 
             Spacer()
 
@@ -539,10 +539,10 @@ private struct AdvancedCleanupIntroVisual: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                        .stroke(Theme.hairline, lineWidth: 1)
                 )
         )
         .offset(y: animate ? 0 : 16)
@@ -559,35 +559,35 @@ private struct PrivacyIntroVisual: View {
         ZStack {
             ForEach(0..<3) { index in
                 Circle()
-                    .stroke(PhotoDeleteStyle.accent.opacity(0.08 + Double(index) * 0.04), lineWidth: 1)
+                    .stroke(Theme.accent.opacity(0.08 + Double(index) * 0.04), lineWidth: 1)
                     .frame(width: CGFloat(160 + index * 48), height: CGFloat(160 + index * 48))
                     .scaleEffect(animate ? 1.03 : 0.94)
                     .opacity(animate ? 1 : 0.5)
             }
 
             RoundedRectangle(cornerRadius: 36, style: .continuous)
-                .fill(PhotoDeleteStyle.surface)
+                .fill(Theme.surface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 36, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                        .stroke(Theme.hairline, lineWidth: 1)
                 )
                 .frame(width: 210, height: 230)
 
             VStack(spacing: 18) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(PhotoDeleteStyle.elevatedSurface)
+                        .fill(Theme.elevatedSurface)
                         .frame(width: 116, height: 94)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                                .stroke(Theme.hairline, lineWidth: 1)
                         )
 
                     Image(systemName: "lock.fill")
                         .font(.system(size: 48, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.accent)
+                        .foregroundColor(Theme.accent)
                         .scaleEffect(animate ? 1 : 0.92)
-                        .shadow(color: PhotoDeleteStyle.accent.opacity(0.22), radius: animate ? 18 : 6, x: 0, y: 0)
+                        .shadow(color: Theme.accent.opacity(0.22), radius: animate ? 18 : 6, x: 0, y: 0)
                 }
 
                 HStack(spacing: 8) {
@@ -595,7 +595,7 @@ private struct PrivacyIntroVisual: View {
                     Text(L10n.string("Done on your phone"))
                 }
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText.opacity(0.76))
+                .foregroundColor(Theme.primaryText.opacity(0.76))
             }
         }
         .animation(reduceMotion ? nil : .spring(response: 0.72, dampingFraction: 0.86), value: animate)
@@ -613,8 +613,8 @@ private struct MiniPhotoCard: View {
             .fill(
                 LinearGradient(
                     colors: [
-                        PhotoDeleteStyle.elevatedSurface,
-                        PhotoDeleteStyle.surface
+                        Theme.elevatedSurface,
+                        Theme.surface
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -627,10 +627,10 @@ private struct MiniPhotoCard: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                    .stroke(Theme.hairline, lineWidth: 1)
             )
             .frame(width: width, height: height)
-            .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 12, x: 0, y: 7)
+            .shadow(color: Theme.floatingShadow, radius: 12, x: 0, y: 7)
     }
 }
 

@@ -4,10 +4,10 @@
 >
 > 三方对应关系（改 UI 前先读本文件）：
 > - 视觉基准（细节以实际渲染为准）：`designs/home-prototype.html`
-> - 代码实现（token 与原语，禁止绕开）：`DesignSystem/PhotoDeleteStyle.swift` / `DesignSystem/DesignSystem.swift` / `Views/Home/HomeView.swift`
+> - 代码实现（禁止绕开）：token=`DesignSystem/Theme.swift`；共用 UI=`Components/`；首页=`Views/Home/HomeView.swift`
 > - 文案：`Localizable.xcstrings`（源语言 zh-Hans，key 即中文原文）
 >
-> 最近更新：2026-10-11（Theme 并入 `PhotoDeleteStyle` 暗色静态 token；目录迁至 `DesignSystem/`）。
+> 最近更新：2026-10-11（Theme 并入 `Theme` 暗色静态 token；目录迁至 `DesignSystem/`）。
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## 2. 色彩
 
-### 2.1 基础 token（`PhotoDeleteStyle`，暗色静态）
+### 2.1 基础 token（`Theme`，暗色静态）
 
 | Token | 值 | Hex | 用途 |
 | --- | --- | --- | --- |
@@ -37,13 +37,13 @@
 | `floatingShadow` | 黑 30% | — | 浮层阴影 |
 | `accent` | 0.953/0.694/0.298 | `#F3B14C` | 琥珀：主操作、选中、导航 tint、合计值 |
 | `accentPressed` | 0.788/0.541/0.196 | `#C98A32` | 琥珀按下态 |
-| `primaryButtonText` | 0.04/0.035/0.03 | — | 琥珀填充上的文字 |
+| `onAccent` | 0.04/0.035/0.03 | — | 琥珀填充上的文字 |
 | `secondaryAccent` | 1.00/0.78/0.48 | `#FFC77A` | 次级暖色 |
-| `positive` / `warning` / `destructive` / `favorite` | — | — | 语义色：完成 / 注意 / 删除 / 收藏，按语义使用不装饰 |
+| `positive` / `warning` / `destructive` / `favorite` | — | — | 状态色：完成 / 注意 / 删除 / 收藏 |
 
 文字色：`primaryText` 白 96%、`secondaryText` 白 62%、`tertiaryText` 白 42%。
 
-### 2.2 渐变入口卡 token（`PhotoDeleteStyle`，绝对色）
+### 2.2 渐变入口卡 token（`Theme`，绝对色）
 
 | Token | 值 | Hex |
 | --- | --- | --- |
@@ -184,7 +184,7 @@
 ### 6.4 相册页（2026-10-09 排序交互重做）
 
 - **三种展示方式**（紧凑 / 封面 / 列表）**共用一套长按拖拽排序**：长按 0.45s 抬起 → 拖动换位 → 松手落位。**不再有编辑模式**：显示方式 sheet 的「调整顺序」按钮、列表拖动把手、页头提示卡（`AlbumSwipeHintRow` + `hasDismissedAlbumSwipeHintKey`）一并下线。
-- **站位（空位）**：被拿起的那一格留在原位变成空槽，与封面同尺寸同圆角。画法为 **2.5pt 虚线、白 34%、虚实间隔 11/9**（`AlbumDropSlot`，token `PhotoDeleteStyle.dropSlot*`）。中性色是有意的——琥珀只留给「会执行的行动」，虚线本身已表达「这里可以插入」，同时与空相册的深色封面区分开（视觉基准 `designs/albums-reorder-prototype.html`）。
+- **站位（空位）**：被拿起的那一格留在原位变成空槽，与封面同尺寸同圆角。画法为 **2.5pt 虚线、白 34%、虚实间隔 11/9**（`AlbumDropSlot`，token `Theme.dropSlot*`）。中性色是有意的——琥珀只留给「会执行的行动」，虚线本身已表达「这里可以插入」，同时与空相册的深色封面区分开（视觉基准 `designs/albums-reorder-prototype.html`）。
 - **让位与落位**：越过其他项中心时其余项 0.22s 平移让位（每次换位一次 light 触觉），松手后写回 `saveCustomAlbumOrder`；拖动期间冻结列表刷新，拖到滚动区上下边缘 70pt 内自动滚动。
 - **列表 = 每个相册一张独立卡片**（surface 底、圆角 16、间距 8、最小高 64）：**这是 §4.1「同一组内容用一个外层卡片」的明确例外**——拖拽要把整张托出、空位要是同样的卡槽，分组卡 + 分隔线做不到这件事。
 - **长按菜单**是自绘浮层（替代系统 contextMenu）：整理 / 编辑 / 删除，最后一行小字「按住拖动即可调整顺序」。系统菜单只放得下可点条目，而这行小字是排序的唯一入口提示，所以必须自绘。
@@ -192,7 +192,7 @@
 
 ## 7. 边界与待办（本轮之外）
 
-- **付费页（`Views/Paywall/`）是本规范的唯一有意例外**：它自带一套冷调画布 token（`Views/Paywall/PaywallTheme.swift`：`#121722` 画布 + 24pt 点阵 + 樱粉 `#F0AAC8` 强调色 + 纯黑卡片 + 反色白 CTA），不复用 `PhotoDeleteStyle` 的暖黑与琥珀。这是刻意的语境切换（产品内 vs 购买决策），**不要按本文件把它「修」回琥珀体系**。其余页面仍严格遵循本规范。
+- **付费页（`Views/Paywall/`）是本规范的唯一有意例外**：它自带一套冷调画布 token（`Views/Paywall/PaywallTheme.swift`：`#121722` 画布 + 24pt 点阵 + 樱粉 `#F0AAC8` 强调色 + 纯黑卡片 + 反色白 CTA），不复用 `Theme` 的暖黑与琥珀。这是刻意的语境切换（产品内 vs 购买决策），**不要按本文件把它「修」回琥珀体系**。其余页面仍严格遵循本规范。
 - 底部为系统 TabView（未做浮动胶囊标签栏）。
 - 回收站 / 最近删除功能未做（顶栏仅占位）。
 - iPad 宽屏下 158 高双卡会被拉宽，如需限制可给 dashboard 列 `frame(maxWidth: 560)`。
@@ -202,9 +202,8 @@
 
 | 内容 | 文件 |
 | --- | --- |
-| 全局 token | `ios-app/PhotoDelete/DesignSystem/PhotoDeleteStyle.swift` |
-| 设计原语 | `ios-app/PhotoDelete/DesignSystem/DesignSystem.swift`（`PhotoDeleteSectionHeader` / `PhotoDeleteCountFormat` 等） |
-| 产品级复用控件 | `ios-app/PhotoDelete/Components/`（如 `PhotoDeleteCircleIconButton`） |
+| 全局 token | `ios-app/PhotoDelete/DesignSystem/Theme.swift`（仅 token） |
+| 共用 UI | `ios-app/PhotoDelete/Components/`（`PhotoDeleteSharedUI` / `PhotoDeleteCircleIconButton` / `FilterSheetControls`） |
 | 首页 | `ios-app/PhotoDelete/Views/Home/HomeView.swift` |
 | 周期选择弹窗 | `ios-app/PhotoDelete/Views/Home/PeriodPickerSheet.swift`（半屏 sheet，行结构对齐原型） |
 | 时间周期纯逻辑 | `ios-app/PhotoDelete/Services/TimePeriodBrowser.swift`（弹窗切片 / 当前周期匹配 / 行格式化，视图无关） |

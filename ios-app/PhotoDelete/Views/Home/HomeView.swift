@@ -177,7 +177,7 @@ struct HomeView: View {
                                     horizontalSizeClass: horizontalSizeClass
                                 )
                             )
-                            .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
+                            .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
                             .frame(
                                 maxWidth: PhotoDeleteAdaptiveLayout.homeContentMaxWidth(
                                     in: geometry.size,
@@ -275,13 +275,13 @@ struct HomeView: View {
     @ViewBuilder
     private func homeContent(isLandscape: Bool) -> some View {
         if libraryContentState != .needsAuthorization {
-            VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+            VStack(spacing: Theme.sectionSpacing) {
                 homeTitleBar
                 introSection(isCompact: isLandscape)
                 libraryDashboard
             }
         } else {
-            VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+            VStack(spacing: Theme.sectionSpacing) {
                 homeTitleBar
                 introSection(isCompact: false)
                 authorizationSection
@@ -294,7 +294,7 @@ struct HomeView: View {
         HStack(alignment: .center, spacing: 12) {
             Text(L10n.string("Organize"))
                 .font(.system(size: 34, weight: .bold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             trashBinEntryButton
@@ -339,11 +339,11 @@ struct HomeView: View {
                 .frame(minWidth: 20, minHeight: 20)
                 .background(
                     Capsule(style: .continuous)
-                        .fill(PhotoDeleteStyle.destructive)
+                        .fill(Theme.destructive)
                 )
                 .overlay(
                     Capsule(style: .continuous)
-                        .stroke(PhotoDeleteStyle.backgroundTop, lineWidth: 2.5)
+                        .stroke(Theme.backgroundTop, lineWidth: 2.5)
                 )
                 .offset(x: 3, y: -3)
                 .accessibilityHidden(true)
@@ -358,17 +358,17 @@ struct HomeView: View {
                     PhotoDeleteIconTile(
                         icon: "hand.draw",
                         size: 28,
-                        cornerRadius: PhotoDeleteStyle.Metrics.compactRadius
+                        cornerRadius: Theme.Metrics.compactRadius
                     )
 
                     VStack(alignment: .leading, spacing: 6) {
                         Text(L10n.string("Quick Start"))
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
 
                         Text(L10n.string("By default, swipe left to delete, right to keep, and up to favorite. To change gestures, open settings at the bottom of the review screen."))
                             .font(.system(size: 14, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -376,14 +376,14 @@ struct HomeView: View {
                 HStack(alignment: .top, spacing: 12) {
                     PhotoDeleteIconTile(
                         icon: "lock.shield",
-                        tint: PhotoDeleteStyle.positive,
+                        tint: Theme.positive,
                         size: 28,
-                        cornerRadius: PhotoDeleteStyle.Metrics.compactRadius
+                        cornerRadius: Theme.Metrics.compactRadius
                     )
 
                     Text(L10n.string("Privacy first: \(AppConstants.privacyShortText)"))
                         .font(.system(size: 14, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -394,15 +394,15 @@ struct HomeView: View {
                 } label: {
                     Text(L10n.string("Got it"))
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.accent)
+                        .foregroundColor(Theme.accent)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .photoDeleteMinimumTapTarget()
                 }
                 .buttonStyle(.plain)
                 .background(
-                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                        .fill(PhotoDeleteStyle.elevatedSurface)
+                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                        .fill(Theme.elevatedSurface)
                 )
             }
             .padding(isCompact ? 16 : 18)
@@ -464,30 +464,30 @@ struct HomeView: View {
             VStack(spacing: 8) {
                 Text(L10n.string("Reading Photos"))
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 if dataManager.photoLibraryManager.loadingProgress > 0.01 {
                     Text(L10n.percent(Int(dataManager.photoLibraryManager.loadingProgress * 100)))
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
 
                 Text(L10n.string("Categories and counts will appear automatically when ready. Everything stays on this device."))
                     .font(.system(size: 15, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .multilineTextAlignment(.center)
             }
 
             if dataManager.photoLibraryManager.loadingProgress > 0.01 {
                 ProgressView(value: dataManager.photoLibraryManager.loadingProgress)
-                    .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
                     .frame(maxWidth: .infinity)
             } else {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
             }
         }
-            .padding(PhotoDeleteStyle.Metrics.contentBottomPadding)
+            .padding(Theme.Metrics.contentBottomPadding)
         .photoDeleteCard()
     }
 
@@ -500,20 +500,20 @@ struct HomeView: View {
                     systemImage: "photo.on.rectangle.angled",
                     description: Text(L10n.string("There are no photos in the current access scope. You can adjust OnePhoto's photo access in System Settings."))
                 )
-                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                .foregroundStyle(Theme.secondaryText)
             } else {
                 VStack(spacing: 16) {
                     Image(systemName: "photo.on.rectangle.angled")
                         .font(.system(size: 52, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
 
                     Text(L10n.string("No Photos to Organize"))
                         .font(.system(size: 22, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(L10n.string("There are no photos in the current access scope. You can adjust OnePhoto's photo access in System Settings."))
                         .font(.system(size: 15, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .multilineTextAlignment(.center)
                 }
             }
@@ -574,17 +574,17 @@ struct HomeView: View {
                         .font(.system(size: 18, weight: .bold))
                 }
 
-                CoralProgressBar(progress: progress, ink: PhotoDeleteStyle.coralInk)
+                CoralProgressBar(progress: progress, ink: Theme.coralInk)
                     .padding(.top, 10)
             }
             .padding(EdgeInsets(top: 14, leading: 16, bottom: 12, trailing: 16))
-            .foregroundColor(PhotoDeleteStyle.coralInk)
+            .foregroundColor(Theme.coralInk)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [PhotoDeleteStyle.coralGradientTop, PhotoDeleteStyle.coralGradientBottom],
+                            colors: [Theme.coralGradientTop, Theme.coralGradientBottom],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -610,13 +610,13 @@ struct HomeView: View {
                 Spacer(minLength: 0)
             }
             .padding(EdgeInsets(top: 15, leading: 15, bottom: 0, trailing: 15))
-            .foregroundColor(PhotoDeleteStyle.amberInk)
+            .foregroundColor(Theme.amberInk)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [PhotoDeleteStyle.amberGradientTop, PhotoDeleteStyle.amberGradientBottom],
+                            colors: [Theme.amberGradientTop, Theme.amberGradientBottom],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -671,7 +671,7 @@ struct HomeView: View {
 
     private var bandDivider: some View {
         Rectangle()
-            .fill(PhotoDeleteStyle.hairline)
+            .fill(Theme.hairline)
             .frame(width: 1)
             .padding(.vertical, 13)
     }
@@ -695,15 +695,15 @@ struct HomeView: View {
                         .font(.system(size: 8, weight: .semibold))
                 }
                 .font(.system(size: 11.5, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
 
                 RollingNumberText(target: summary.remainingCount, delay: rollDelay)
                     .font(.system(size: 23, weight: .bold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(String(format: L10n.string("Reclaimable %@"), summary.formattedEstimatedSize))
                     .font(.system(size: 10.5, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 8)
@@ -766,7 +766,7 @@ struct HomeView: View {
 
     private var insetHairline: some View {
         Rectangle()
-            .fill(PhotoDeleteStyle.hairline)
+            .fill(Theme.hairline)
             .frame(height: 1)
             .padding(.horizontal, 18)
     }
@@ -782,7 +782,7 @@ struct HomeView: View {
             HStack(spacing: 14) {
                 Image(systemName: icon)
                     .font(.system(size: 17, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .frame(width: 32, height: 32)
                     .background(
                         Color.white.opacity(0.07),
@@ -791,19 +791,19 @@ struct HomeView: View {
 
                 Text(title)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Spacer(minLength: 8)
 
                 if let value {
                     Text(value)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                    .foregroundColor(Theme.tertiaryText)
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 13)
@@ -852,21 +852,21 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                     Text(L10n.string("Smaller, not deleted"))
                         .font(.system(size: 11.5, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
 
                 Spacer(minLength: 8)
 
                 Text(countText(count))
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                    .foregroundColor(Theme.tertiaryText)
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 13)
@@ -1108,7 +1108,7 @@ struct ScanningSwipeGlyph: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
                 .frame(width: 132, height: 92)
                 .rotationEffect(.degrees(animate ? 5 : 1))
                 .offset(x: animate ? 20 : 14, y: -3)
@@ -1135,12 +1135,12 @@ struct ScanningSwipeGlyph: View {
 
             Image(systemName: "arrow.left")
                 .font(.system(size: 17, weight: .bold))
-                .foregroundColor(PhotoDeleteStyle.accent)
+                .foregroundColor(Theme.accent)
                 .offset(x: -70, y: 4)
 
             Image(systemName: "trash")
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.destructive)
+                .foregroundColor(Theme.destructive)
                 .offset(x: 76, y: 28)
         }
         .frame(height: 108)

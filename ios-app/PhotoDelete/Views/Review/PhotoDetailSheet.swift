@@ -32,12 +32,12 @@ struct PhotoDetailSheet: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteStyle.surface.ignoresSafeArea()
+            Theme.surface.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Text(L10n.string("Photo Details"))
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .padding(.top, 24)
                     .padding(.bottom, 6)
 
@@ -48,7 +48,7 @@ struct PhotoDetailSheet: View {
                             detailRow(row.label, row.value ?? "")
                             if index != visibleRows.count - 1 {
                                 Rectangle()
-                                    .fill(PhotoDeleteStyle.hairline)
+                                    .fill(Theme.hairline)
                                     .frame(height: 1)
                                     .padding(.horizontal, 20)
                             }
@@ -75,14 +75,14 @@ struct PhotoDetailSheet: View {
         HStack(alignment: .firstTextBaseline, spacing: 14) {
             Text(label)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .flexibleHeaderContent()
 
             Spacer(minLength: 12)
 
             Text(value)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .multilineTextAlignment(.trailing)
         }
         .padding(.horizontal, 20)

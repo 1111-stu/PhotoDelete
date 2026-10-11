@@ -3,7 +3,7 @@
 //  PhotoDelete
 //
 //  清理历史 / 月度统计区块，被成就页（CleanupAchievementsView）使用。
-//  仍走琥珀语境（PhotoDeleteStyle），不要换成付费页的 PaywallDS。
+//  仍走琥珀语境（Theme），不要换成付费页的 PaywallDS。
 //
 
 import SwiftUI
@@ -23,7 +23,7 @@ struct SupporterMetricCard: View {
 
             Text(label)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
@@ -38,7 +38,7 @@ struct SupporterMonthlySection: View {
         VStack(alignment: .leading, spacing: 14) {
             Text(L10n.string("Monthly Stats"))
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
 
             if summaries.isEmpty {
                 SupporterEmptyText(L10n.string("Monthly records appear here after your first cleanup."))
@@ -49,18 +49,18 @@ struct SupporterMonthlySection: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(summary.title)
                                     .font(.system(size: 15, weight: .semibold))
-                                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                                    .foregroundColor(Theme.primaryText)
 
                                 Text(L10n.string("\(summary.sessions) sessions · \(summary.organizedPhotos) reviewed"))
                                     .font(.system(size: 13, weight: .regular))
-                                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                    .foregroundColor(Theme.secondaryText)
                             }
 
                             Spacer()
 
                             Text(L10n.string("Deleted content: about \(summary.formattedSpaceSaved)"))
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.positive)
+                                .foregroundColor(Theme.positive)
                         }
                         .padding(.vertical, 12)
 
@@ -83,7 +83,7 @@ struct SupporterHistorySection: View {
         VStack(alignment: .leading, spacing: 14) {
             Text(L10n.string("Cleanup History"))
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
 
             if sessions.isEmpty {
                 SupporterEmptyText(L10n.string("Local cleanup records appear after you confirm deletions or favorites."))
@@ -93,24 +93,24 @@ struct SupporterHistorySection: View {
                         HStack(spacing: 12) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.positive)
+                                .foregroundColor(Theme.positive)
                                 .frame(width: 24)
 
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(session.formattedDate)
                                     .font(.system(size: 15, weight: .semibold))
-                                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                                    .foregroundColor(Theme.primaryText)
 
                                 Text(L10n.string("Deleted \(session.deletedPhotos) · Favorited \(session.favoritedPhotos)"))
                                     .font(.system(size: 13, weight: .regular))
-                                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                    .foregroundColor(Theme.secondaryText)
                             }
 
                             Spacer()
 
                             Text(L10n.string("Deleted content: about \(session.formattedSpaceSaved)"))
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.positive)
+                                .foregroundColor(Theme.positive)
                         }
                         .padding(.vertical, 12)
 
@@ -129,7 +129,7 @@ struct SupporterHistorySection: View {
 struct SupporterDivider: View {
     var body: some View {
         Divider()
-            .background(PhotoDeleteStyle.hairline)
+            .background(Theme.hairline)
             .padding(.leading, 16)
     }
 }
@@ -144,7 +144,7 @@ private struct SupporterEmptyText: View {
     var body: some View {
         Text(text)
             .font(.system(size: 14, weight: .regular))
-            .foregroundColor(PhotoDeleteStyle.secondaryText)
+            .foregroundColor(Theme.secondaryText)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 8)
     }

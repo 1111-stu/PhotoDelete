@@ -99,10 +99,10 @@ enum SwipeGestureAction: String, CaseIterable, Identifiable {
 
     var tint: Color {
         switch self {
-        case .previous, .next, .close: return PhotoDeleteStyle.accent
-        case .delete: return PhotoDeleteStyle.destructive
-        case .keep: return PhotoDeleteStyle.positive
-        case .favorite: return PhotoDeleteStyle.iconTint(for: "favorite")
+        case .previous, .next, .close: return Theme.accent
+        case .delete: return Theme.destructive
+        case .keep: return Theme.positive
+        case .favorite: return Theme.iconTint(for: "favorite")
         }
     }
 }
@@ -489,12 +489,12 @@ enum AdvancedCleanupKind: String, CaseIterable, Identifiable {
 
     var tint: Color {
         switch self {
-        case .similarPhotos: return PhotoDeleteStyle.secondaryAccent
-        case .largeFiles: return PhotoDeleteStyle.warning
-        case .imageCompression: return PhotoDeleteStyle.accent
-        case .videoCompression: return PhotoDeleteStyle.positive
-        case .videos: return PhotoDeleteStyle.iconTint(for: "video")
-        case .screenRecordings: return PhotoDeleteStyle.iconTint(for: "video")
+        case .similarPhotos: return Theme.secondaryAccent
+        case .largeFiles: return Theme.warning
+        case .imageCompression: return Theme.accent
+        case .videoCompression: return Theme.positive
+        case .videos: return Theme.iconTint(for: "video")
+        case .screenRecordings: return Theme.iconTint(for: "video")
         }
     }
 }

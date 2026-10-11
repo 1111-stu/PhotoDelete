@@ -159,14 +159,14 @@ struct AlbumsView: View {
         HStack(alignment: .center, spacing: 12) {
             Text(L10n.string("Albums"))
                 .font(.system(size: 34, weight: .bold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if dataManager.photoLibraryManager.hasPhotoLibraryAccess {
                 displayStyleEntryButton
             }
         }
-        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+        .padding(.horizontal, Theme.screenHorizontalPadding)
         .padding(.top, 10)
         .padding(.bottom, 6)
     }
@@ -209,14 +209,14 @@ struct AlbumsView: View {
     private var albumSearchField: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                .foregroundStyle(Theme.secondaryText)
             TextField(L10n.string("Search albums"), text: $searchText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
         }
         .padding(.horizontal, 14)
         .frame(minHeight: 44)
-        .background(PhotoDeleteStyle.elevatedSurface, in: RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous))
+        .background(Theme.elevatedSurface, in: RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous))
     }
 
     private func createAlbum() {
@@ -232,7 +232,7 @@ struct AlbumsView: View {
                 subtitle: L10n.string("OnePhoto needs photo library access to manage albums. \(AppConstants.privacyShortText)"),
                 onRequestAccess: { dataManager.requestPhotoLibraryAccess() }
             )
-            .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+            .padding(.horizontal, Theme.screenHorizontalPadding)
             Spacer()
         }
     }
@@ -246,7 +246,7 @@ struct AlbumsView: View {
 
                     Text(albumHeaderSubtitle)
                         .font(.subheadline)
-                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        .foregroundStyle(Theme.secondaryText)
 
                     albumSearchRow
 
@@ -258,9 +258,9 @@ struct AlbumsView: View {
                         albumItems(proxy: proxy)
                     }
                 }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
                 .padding(.top, 4)
-                .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
+                .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
                 .coordinateSpace(name: Self.contentSpace)
                 .overlay(alignment: .topLeading) {
                     reorderOverlays
@@ -326,7 +326,7 @@ struct AlbumsView: View {
     private func albumItems(proxy: ScrollViewProxy) -> some View {
         let rows = Array(displayedRows.enumerated())
         if displayStyle == .list {
-            LazyVStack(spacing: PhotoDeleteStyle.albumListCardSpacing) {
+            LazyVStack(spacing: Theme.albumListCardSpacing) {
                 ForEach(rows, id: \.element.id) { index, row in
                     albumItem(row, index: index, proxy: proxy)
                         .id(row.id)
@@ -453,28 +453,28 @@ struct AlbumsView: View {
         return VStack(spacing: 14) {
             VStack(spacing: 8) {
                 ProgressView(value: max(progress, 0.03))
-                    .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
                     .frame(maxWidth: 220)
                     .clipShape(Capsule(style: .continuous))
 
                 Text(progress > 0.01 ? L10n.percent(Int(progress * 100)) : L10n.string("Preparing"))
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                    .foregroundColor(Theme.tertiaryText)
             }
 
             VStack(spacing: 5) {
                 Text(albumLoadingTitle)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(albumLoadingMessage)
                     .font(.system(size: 14, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .multilineTextAlignment(.center)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, PhotoDeleteStyle.Metrics.contentBottomPadding)
+        .padding(.vertical, Theme.Metrics.contentBottomPadding)
     }
 
     private var emptyRow: some View {
@@ -485,21 +485,21 @@ struct AlbumsView: View {
                     systemImage: searchText.isEmpty ? "photo.stack" : "magnifyingglass",
                     description: Text(emptyMessage)
                 )
-                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                .foregroundStyle(Theme.secondaryText)
             } else {
                 VStack(spacing: 18) {
                     Image(systemName: searchText.isEmpty ? "photo.stack" : "magnifyingglass")
                         .font(.system(size: 44, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
 
                     VStack(spacing: 6) {
                         Text(emptyTitle)
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
 
                         Text(emptyMessage)
                             .font(.system(size: 14, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
                     }
                 }
             }
@@ -1143,12 +1143,12 @@ struct AlbumProgressSnapshot: Equatable {
 
     var tint: Color {
         if progress >= 1 {
-            return PhotoDeleteStyle.positive
+            return Theme.positive
         }
         if progress > 0 {
-            return PhotoDeleteStyle.accent
+            return Theme.accent
         }
-        return PhotoDeleteStyle.tertiaryText
+        return Theme.tertiaryText
     }
 }
 
@@ -1196,12 +1196,12 @@ struct AlbumInfoRow: View, Equatable {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
 
                 Text(L10n.photoCount(photosCount))
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
 
             Spacer(minLength: 8)
@@ -1209,7 +1209,7 @@ struct AlbumInfoRow: View, Equatable {
             if let progressText {
                 Text(progressText)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(progress?.tint ?? PhotoDeleteStyle.tertiaryText)
+                    .foregroundColor(progress?.tint ?? Theme.tertiaryText)
                     .monospacedDigit()
                     .accessibilityLabel(L10n.string("Photo data preparation progress"))
                     .accessibilityValue(progressText)
@@ -1218,7 +1218,7 @@ struct AlbumInfoRow: View, Equatable {
             if showsChevron {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                    .foregroundColor(Theme.tertiaryText)
             }
         }
         .padding(.vertical, 4)
@@ -1229,7 +1229,7 @@ struct AlbumInfoRow: View, Equatable {
     private var albumThumbnail: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
                 .frame(width: Self.thumbnailPointSize, height: Self.thumbnailPointSize)
 
             if let image = thumbnailImage {
@@ -1316,13 +1316,13 @@ struct AlbumInfoRow: View, Equatable {
     private var albumIconTint: Color {
         switch type {
         case .favorites:
-            return PhotoDeleteStyle.iconTint(for: "favorite")
+            return Theme.iconTint(for: "favorite")
         case .videos:
-            return PhotoDeleteStyle.iconTint(for: "video")
+            return Theme.iconTint(for: "video")
         case .livePhotos:
-            return PhotoDeleteStyle.iconTint(for: "livephoto")
+            return Theme.iconTint(for: "livephoto")
         default:
-            return PhotoDeleteStyle.accent
+            return Theme.accent
         }
     }
 
@@ -1390,7 +1390,7 @@ private struct AlbumNameDialog: View {
             ZStack(alignment: .topTrailing) {
                 Text(title)
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(PhotoDeleteStyle.primaryText)
+                    .foregroundStyle(Theme.primaryText)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 36)
@@ -1398,9 +1398,9 @@ private struct AlbumNameDialog: View {
                 Button(action: onCancel) {
                     Image(systemName: "xmark")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                        .foregroundStyle(Theme.secondaryText)
                         .frame(width: 30, height: 30)
-                        .background(Circle().fill(PhotoDeleteStyle.elevatedSurface))
+                        .background(Circle().fill(Theme.elevatedSurface))
                 }
                 .buttonStyle(.plain)
                 .disabled(isBusy)
@@ -1409,17 +1409,17 @@ private struct AlbumNameDialog: View {
 
             Image(systemName: iconSystemName)
                 .font(.system(size: 36, weight: .medium))
-                .foregroundStyle(PhotoDeleteStyle.accent)
+                .foregroundStyle(Theme.accent)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(L10n.string("Album Name"))
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(PhotoDeleteStyle.primaryText)
+                    .foregroundStyle(Theme.primaryText)
 
                 TextField(placeholder, text: $albumName)
                     .font(.body)
-                    .foregroundStyle(PhotoDeleteStyle.primaryText)
+                    .foregroundStyle(Theme.primaryText)
                     .textInputAutocapitalization(.words)
                     .autocorrectionDisabled()
                     .focused($isNameFocused)
@@ -1431,11 +1431,11 @@ private struct AlbumNameDialog: View {
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
                     .background(
-                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                            .fill(PhotoDeleteStyle.elevatedSurface)
+                        RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                            .fill(Theme.elevatedSurface)
                             .overlay(
-                                RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                                    .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                                RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                                    .stroke(Theme.hairline, lineWidth: Theme.Metrics.cardStrokeWidth)
                             )
                     )
                     .disabled(isBusy)
@@ -1444,7 +1444,7 @@ private struct AlbumNameDialog: View {
             if let errorMessage {
                 Text(errorMessage)
                     .font(.footnote.weight(.medium))
-                    .foregroundStyle(PhotoDeleteStyle.warning)
+                    .foregroundStyle(Theme.warning)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
@@ -1460,7 +1460,7 @@ private struct AlbumNameDialog: View {
                     HStack(spacing: 8) {
                         if isBusy {
                             ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.primaryButtonText))
+                                .progressViewStyle(CircularProgressViewStyle(tint: Theme.onAccent))
                                 .scaleEffect(0.85)
                         }
 
@@ -1476,13 +1476,13 @@ private struct AlbumNameDialog: View {
         .padding(.top, 18)
         .padding(.bottom, 18)
         .background(
-            RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
-                .fill(PhotoDeleteStyle.surface)
+            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                .fill(Theme.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                    RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                        .stroke(Theme.hairline, lineWidth: Theme.Metrics.cardStrokeWidth)
                 )
-                .shadow(color: PhotoDeleteStyle.floatingShadow.opacity(0.35), radius: 24, y: 12)
+                .shadow(color: Theme.floatingShadow.opacity(0.35), radius: 24, y: 12)
         )
     }
 }

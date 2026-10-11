@@ -118,8 +118,8 @@ struct AdvancedView: View {
                     Spacer()
                         .frame(height: isLocked ? 24 : 96)
                 }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                .padding(.top, PhotoDeleteStyle.rootContentTopSpacing)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.top, Theme.rootContentTopSpacing)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
@@ -227,11 +227,11 @@ struct AdvancedView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(L10n.string("Organize by Time"))
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(L10n.string("Continue by day, week, month, or year."))
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
 
                 Spacer()
@@ -265,7 +265,7 @@ struct AdvancedView: View {
 
                         if index != displayedAdvancedPeriodSummaries.count - 1 {
                             Divider()
-                                .background(PhotoDeleteStyle.hairline)
+                                .background(Theme.hairline)
                                 .padding(.leading, 62)
                         }
                     }
@@ -276,7 +276,7 @@ struct AdvancedView: View {
                     Button(action: showMoreAdvancedPeriods) {
                         Text(L10n.string("Show More"))
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.accent)
+                            .foregroundColor(Theme.accent)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
                     }
@@ -296,14 +296,14 @@ struct AdvancedView: View {
             HStack {
                 Text(L10n.string("Time Progress"))
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Spacer()
 
                 if isLocked {
                     Text(L10n.string("Demo"))
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                        .foregroundColor(Theme.tertiaryText)
                 }
             }
 
@@ -339,11 +339,11 @@ struct AdvancedView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(L10n.string("Focused Cleanup"))
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(L10n.string("Handle similar photos, large files, image compression, and video compression in one place."))
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
 
             if dataManager.imageCompressionJob.isCompressing {
@@ -391,7 +391,7 @@ struct AdvancedView: View {
 
                         if index != visibleQueues.count - 1 {
                             Divider()
-                                .background(PhotoDeleteStyle.hairline)
+                                .background(Theme.hairline)
                                 .padding(.leading, 62)
                         }
                     }
@@ -677,22 +677,22 @@ private struct AdvancedPeriodNavigator: View {
                     .labelStyle(.iconOnly)
                     .font(.system(size: 15, weight: .bold))
                     .frame(width: 38, height: 38)
-                    .background(Circle().fill(PhotoDeleteStyle.surface))
+                    .background(Circle().fill(Theme.surface))
                     .photoDeleteMinimumTapTarget()
             }
             .buttonStyle(.plain)
-            .foregroundColor(PhotoDeleteStyle.primaryText)
+            .foregroundColor(Theme.primaryText)
 
             VStack(spacing: 3) {
                 Text(AdvancedPeriodFormatter.title(for: summary))
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
 
                 Text(AdvancedPeriodFormatter.subtitle(for: summary))
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }
@@ -703,11 +703,11 @@ private struct AdvancedPeriodNavigator: View {
                     .labelStyle(.iconOnly)
                     .font(.system(size: 15, weight: .bold))
                     .frame(width: 38, height: 38)
-                    .background(Circle().fill(PhotoDeleteStyle.surface))
+                    .background(Circle().fill(Theme.surface))
                     .photoDeleteMinimumTapTarget()
             }
             .buttonStyle(.plain)
-            .foregroundColor(canGoForward ? PhotoDeleteStyle.primaryText : PhotoDeleteStyle.tertiaryText)
+            .foregroundColor(canGoForward ? Theme.primaryText : Theme.tertiaryText)
             .disabled(!canGoForward)
         }
         .padding(12)
@@ -724,7 +724,7 @@ private struct AdvancedPeriodProgressCard: View {
             AdvancedProgressRing(progress: summary.progress, size: 78, lineWidth: 8) {
                 Text("\(Int(summary.progress * 100))%")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
             }
 
             VStack(alignment: .leading, spacing: 10) {
@@ -732,7 +732,7 @@ private struct AdvancedPeriodProgressCard: View {
                     HStack(spacing: 6) {
                         Text(String(format: L10n.string("%@ cleanup progress"), AdvancedPeriodFormatter.compactTitle(for: summary)))
                             .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.72)
 
@@ -747,7 +747,7 @@ private struct AdvancedPeriodProgressCard: View {
                         Int64(summary.assetCount)
                     ))
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .lineLimit(2)
                         .minimumScaleFactor(0.82)
                 }
@@ -772,12 +772,12 @@ private struct AdvancedMiniMetric: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
                 .lineLimit(1)
 
             Text(value)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }
@@ -785,8 +785,8 @@ private struct AdvancedMiniMetric: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
         .background(
-            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+            RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+                .fill(Theme.elevatedSurface)
         )
     }
 }
@@ -805,7 +805,7 @@ private struct AdvancedPeriodChip: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(AdvancedPeriodFormatter.chipTitle(for: summary))
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                         .lineLimit(1)
 
                     Text(String(
@@ -814,7 +814,7 @@ private struct AdvancedPeriodChip: View {
                         Int64(summary.progress * 100)
                     ))
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.68)
                 }
@@ -824,18 +824,18 @@ private struct AdvancedPeriodChip: View {
             if isSelected {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                     .accessibilityHidden(true)
             }
         }
         .frame(width: 94, alignment: .leading)
         .padding(10)
         .background(
-            RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                .fill(isSelected ? PhotoDeleteStyle.accent.opacity(0.16) : PhotoDeleteStyle.surface)
+            RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                .fill(isSelected ? Theme.accent.opacity(0.16) : Theme.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                        .stroke(isSelected ? PhotoDeleteStyle.accent.opacity(0.65) : PhotoDeleteStyle.hairline, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                        .stroke(isSelected ? Theme.accent.opacity(0.65) : Theme.hairline, lineWidth: 1)
                 )
         )
         .accessibilityElement(children: .combine)
@@ -860,11 +860,11 @@ private struct AdvancedCleanupEntryRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(queue.kind.title)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(detailText)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
             }
@@ -873,7 +873,7 @@ private struct AdvancedCleanupEntryRow: View {
 
             Image(systemName: isLocked ? "lock.fill" : "chevron.right")
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
         }
         .padding(14)
         .contentShape(Rectangle())
@@ -895,13 +895,13 @@ private struct AdvancedTimePeriodRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(AdvancedPeriodFormatter.title(for: summary))
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
 
                 Text(detailText)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
             }
@@ -910,7 +910,7 @@ private struct AdvancedTimePeriodRow: View {
 
             Image(systemName: isLocked ? "lock.fill" : "chevron.right")
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
         }
         .padding(14)
         .contentShape(Rectangle())
@@ -933,7 +933,7 @@ private struct AdvancedPeriodProgressBadge: View {
             Text("\(Int(progress * 100))%")
                 .font(.system(size: 11, weight: .semibold))
                 .monospacedDigit()
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }
@@ -954,7 +954,7 @@ private struct AdvancedPaywallBar: View {
     var body: some View {
         VStack(spacing: 12) {
             Capsule(style: .continuous)
-                .fill(PhotoDeleteStyle.hairline)
+                .fill(Theme.hairline)
                 .frame(width: 38, height: 4)
                 .padding(.bottom, 4)
 
@@ -965,11 +965,11 @@ private struct AdvancedPaywallBar: View {
                     Text(L10n.string("Unlock All Advanced Features"))
                         .font(.system(size: 20, weight: .semibold))
                 }
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
 
                 Text(subtitle)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .multilineTextAlignment(.center)
                     .lineSpacing(2)
             }
@@ -984,14 +984,14 @@ private struct AdvancedPaywallBar: View {
             Button(action: onRestore) {
                 Text(L10n.string("Restore Purchase"))
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                     .frame(maxWidth: .infinity, minHeight: 40)
                     .background(
-                        RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
-                            .fill(PhotoDeleteStyle.elevatedSurface)
+                        RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+                            .fill(Theme.elevatedSurface)
                             .overlay(
-                                RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
-                                    .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                                RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+                                    .stroke(Theme.hairline, lineWidth: 1)
                             )
                     )
             }
@@ -1001,7 +1001,7 @@ private struct AdvancedPaywallBar: View {
 
             Text(L10n.string("Subscriptions renew automatically unless canceled in Apple ID settings. Lifetime Pro is a one-time purchase. Basic cleanup remains free."))
                 .font(.system(size: 12, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -1010,7 +1010,7 @@ private struct AdvancedPaywallBar: View {
             Button(action: onShowBenefits) {
                 Text(L10n.string("Feature differences"))
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .underline()
             }
             .buttonStyle(.plain)
@@ -1019,21 +1019,21 @@ private struct AdvancedPaywallBar: View {
             if let errorMessage {
                 Text(errorMessage)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.warning)
+                    .foregroundColor(Theme.warning)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+        .padding(.horizontal, Theme.screenHorizontalPadding)
         .padding(.top, 16)
         .padding(.bottom, 28)
         .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
-                .fill(PhotoDeleteStyle.background.opacity(0.98))
+            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                .fill(Theme.background.opacity(0.98))
                 .overlay(
-                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.cardRadius, style: .continuous)
-                        .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                        .stroke(Theme.hairline, lineWidth: 1)
                 )
                 .ignoresSafeArea(edges: .bottom)
         )
@@ -1059,28 +1059,28 @@ private struct AdvancedLibraryPreparingCard: View {
             HStack(alignment: .center, spacing: 13) {
                 ZStack {
                     Circle()
-                        .fill(PhotoDeleteStyle.accent.opacity(0.14))
+                        .fill(Theme.accent.opacity(0.14))
                         .frame(width: 42, height: 42)
 
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                        .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
                         .scaleEffect(0.82)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.string("Preparing Photo Data"))
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(L10n.string("Reading local photos, screenshots, and videos. Available options will appear when ready."))
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
 
             ProgressView(value: progress)
-                .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
                 .accessibilityLabel(L10n.string("Photo data preparation progress"))
         }
         .padding(16)
@@ -1124,7 +1124,7 @@ private struct AdvancedPeriodListView: View {
 
                             if index != visibleSummaries.count - 1 {
                                 Divider()
-                                    .background(PhotoDeleteStyle.hairline)
+                                    .background(Theme.hairline)
                                     .padding(.leading, 70)
                             }
                         }
@@ -1135,7 +1135,7 @@ private struct AdvancedPeriodListView: View {
                         Button(action: showMore) {
                             Text(L10n.string("Show More"))
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.accent)
+                                .foregroundColor(Theme.accent)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                         }
@@ -1146,7 +1146,7 @@ private struct AdvancedPeriodListView: View {
                     Spacer()
                         .frame(height: 72)
                 }
-                .padding(PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(Theme.screenHorizontalPadding)
             }
         }
         .advancedDetailNavigation(title: L10n.string("Time Progress"))
@@ -1175,7 +1175,7 @@ private struct AdvancedPeriodListRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(AdvancedPeriodFormatter.title(for: summary))
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(String(
                     format: L10n.string("%lld items · %lld%% organized"),
@@ -1183,7 +1183,7 @@ private struct AdvancedPeriodListRow: View {
                     Int64(summary.progress * 100)
                 ))
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.74)
             }
@@ -1192,7 +1192,7 @@ private struct AdvancedPeriodListRow: View {
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
         }
         .padding(14)
         .contentShape(Rectangle())
@@ -1364,7 +1364,7 @@ private struct AdvancedAssetListView: View {
                         if snapshot.hasMoreAssets {
                             Text(L10n.string("Scroll down to load more"))
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .foregroundColor(Theme.secondaryText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                         }
@@ -1373,7 +1373,7 @@ private struct AdvancedAssetListView: View {
                     Spacer()
                         .frame(height: 24)
                 }
-                .padding(PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(Theme.screenHorizontalPadding)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -1602,9 +1602,9 @@ private struct AdvancedAssetListView: View {
 
     private func sizeStatusTint(for asset: PHAsset) -> Color {
         guard fileSizeEstimate(for: asset)?.source == .iCloud else {
-            return PhotoDeleteStyle.positive
+            return Theme.positive
         }
-        return PhotoDeleteStyle.accent
+        return Theme.accent
     }
 
     private func reliableVideoSizeMB(for asset: PHAsset) -> Double? {
@@ -1952,7 +1952,7 @@ private struct AdvancedImageCompressionView: View {
                         AdvancedVideoCompressionMessageCard(
                             icon: "exclamationmark.triangle.fill",
                             message: compressionErrorMessage,
-                            tint: PhotoDeleteStyle.warning
+                            tint: Theme.warning
                         )
                     }
 
@@ -1966,7 +1966,7 @@ private struct AdvancedImageCompressionView: View {
                     Spacer()
                         .frame(height: 24)
                 }
-                .padding(PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(Theme.screenHorizontalPadding)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -2090,7 +2090,7 @@ private struct AdvancedImageCompressionView: View {
                 if hasMoreCompressibleAssets {
                     Text(L10n.string("Scroll down to load more"))
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                 }
@@ -2278,11 +2278,11 @@ private struct AdvancedImageCompressionListHeader: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(L10n.string("Compressible Images"))
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(sizeSummary)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(2)
             }
 
@@ -2350,14 +2350,14 @@ private struct AdvancedImageCompressionOptionsSheet: View {
 
                     Label(L10n.string("Image compression creates new JPEG copies and does not delete originals automatically. Final space savings are shown after completion."), systemImage: "info.circle")
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(Theme.screenHorizontalPadding)
                 .padding(.top, 12)
                 .padding(.bottom, 24)
             }
-            .background(PhotoDeleteStyle.background.ignoresSafeArea())
+            .background(Theme.background.ignoresSafeArea())
             .navigationTitle(L10n.string("Compression plan"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -2380,19 +2380,19 @@ private struct AdvancedImageCompressionOptionsSheet: View {
                         Text(String(format: L10n.string("Estimated after compression %@"), visibleEstimate.formattedCompressedRange))
                             .font(.system(size: 11, weight: .medium))
                     }
-                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+                    .foregroundColor(Theme.onAccent)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
-            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
-                            .fill(PhotoDeleteStyle.accent)
+            RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous)
+                            .fill(Theme.accent)
                     )
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
                 .padding(.bottom, 14)
                 .padding(.top, 8)
-                .background(PhotoDeleteStyle.background.opacity(0.94))
+                .background(Theme.background.opacity(0.94))
             }
         }
     }
@@ -2407,17 +2407,17 @@ private struct AdvancedImageCompressionEstimateCard: View {
             HStack(spacing: 12) {
                 Image(systemName: AdvancedCleanupKind.imageCompression.icon)
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                     .frame(width: 34, height: 34)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(String(format: L10n.string("Preparing to compress %lld images"), Int64(count)))
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(String(format: L10n.string("Original files total about %@"), estimate.formattedOriginalSize))
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
 
                 Spacer()
@@ -2478,16 +2478,16 @@ private struct AdvancedImageCompressionResultCard: View {
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: result.hasMeaningfulSavings ? "checkmark.circle.fill" : "checkmark.circle")
                     .font(.system(size: 30, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.positive)
+                    .foregroundColor(Theme.positive)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(result.completionTitle)
                         .font(.headline)
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(result.completionSubtitle)
                         .font(.subheadline)
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -2496,13 +2496,13 @@ private struct AdvancedImageCompressionResultCard: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(result.formattedSavedSize)
                         .font(.title3.weight(.bold))
-                        .foregroundColor(result.hasMeaningfulSavings ? PhotoDeleteStyle.positive : PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(result.hasMeaningfulSavings ? Theme.positive : Theme.secondaryText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.78)
 
                     Text(L10n.string("Can Save"))
                         .font(.caption)
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
                 .accessibilityElement(children: .combine)
             }
@@ -2519,7 +2519,7 @@ private struct AdvancedImageCompressionResultCard: View {
                     systemImage: "photo",
                     title: L10n.string("Compressed Image"),
                     value: result.createdCopiesText,
-                    tint: PhotoDeleteStyle.positive
+                    tint: Theme.positive
                 )
 
                 Divider()
@@ -2529,19 +2529,19 @@ private struct AdvancedImageCompressionResultCard: View {
                     systemImage: "arrow.down.right.and.arrow.up.left",
                     title: L10n.string("Dimensions"),
                     value: result.sizeSummaryText,
-                    tint: PhotoDeleteStyle.accent
+                    tint: Theme.accent
                 )
             }
 
             Text(result.hasMeaningfulSavings ? L10n.string("Compressed images were created and originals were not deleted. Review the comparison before deleting originals.") : L10n.string("Compressed images were created, but space savings are limited. Keeping originals is recommended."))
                 .font(.footnote)
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
 
             if result.failedCount > 0 {
                 Label(String(format: L10n.string("%lld images were not completed"), Int64(result.failedCount)), systemImage: "exclamationmark.triangle")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.warning)
+                    .foregroundColor(Theme.warning)
             }
 
             VStack(spacing: 10) {
@@ -2556,7 +2556,7 @@ private struct AdvancedImageCompressionResultCard: View {
                     AdvancedVideoCompressionCompactActionButton(
                         title: L10n.string("Delete Originals"),
                         systemImage: "trash",
-                        tint: PhotoDeleteStyle.destructive,
+                        tint: Theme.destructive,
                         isEnabled: result.hasMeaningfulSavings,
                         action: onDeleteOriginals
                     )
@@ -2564,7 +2564,7 @@ private struct AdvancedImageCompressionResultCard: View {
                     AdvancedVideoCompressionCompactActionButton(
                         title: L10n.string("Keep Originals"),
                         systemImage: "checkmark",
-                        tint: PhotoDeleteStyle.accent,
+                        tint: Theme.accent,
                         isEnabled: true,
                         action: onKeepOriginals
                     )
@@ -2601,10 +2601,10 @@ private struct AdvancedImageCompressionComparisonSheet: View {
                         }
                     }
                 }
-                .padding(PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(Theme.screenHorizontalPadding)
                 .padding(.vertical, 16)
             }
-            .background(PhotoDeleteStyle.background.ignoresSafeArea())
+            .background(Theme.background.ignoresSafeArea())
             .navigationTitle(L10n.string("Image Comparison"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -2650,7 +2650,7 @@ private struct AdvancedImageCompressionComparisonRow: View {
 
                 Image(systemName: "arrow.right")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
 
                 comparisonButton(
                     label: L10n.string("After Compression"),
@@ -2662,7 +2662,7 @@ private struct AdvancedImageCompressionComparisonRow: View {
 
             Text(String(format: L10n.string("Reduced %@"), CleanupStatsFormatter.space(item.savedSizeMB)))
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.positive)
+                .foregroundColor(Theme.positive)
         }
         .padding(12)
         .photoDeleteCard()
@@ -2689,29 +2689,29 @@ private struct AdvancedImageCompressionComparisonRow: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 } else {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(PhotoDeleteStyle.elevatedSurface)
+                        .fill(Theme.elevatedSurface)
                         .frame(width: 82, height: 82)
                         .overlay(
                             Image(systemName: fallbackIcon)
                                 .font(.system(size: 24, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .foregroundColor(Theme.secondaryText)
                         )
                 }
 
                 VStack(spacing: 2) {
                     Text(label)
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                     Text(size)
                         .font(.system(size: 11, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(PhotoDeleteStyle.elevatedSurface)
+                    .fill(Theme.elevatedSurface)
             )
         }
         .buttonStyle(.plain)
@@ -2759,17 +2759,17 @@ private struct AdvancedImageCompressionHistoryCard: View {
                 HStack(spacing: 12) {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.accent)
+                        .foregroundColor(Theme.accent)
                         .frame(width: 24)
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(L10n.string("Recent compression history"))
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
 
                         Text(summaryText)
                             .font(.system(size: 12, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
                             .lineLimit(2)
                             .minimumScaleFactor(0.8)
                     }
@@ -2778,7 +2778,7 @@ private struct AdvancedImageCompressionHistoryCard: View {
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
                 .contentShape(Rectangle())
             }
@@ -2789,12 +2789,12 @@ private struct AdvancedImageCompressionHistoryCard: View {
                 Button(action: onDeleteOriginals) {
                     Label(L10n.string("Delete originals to free space"), systemImage: "trash")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.destructive)
+                        .foregroundColor(Theme.destructive)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(PhotoDeleteStyle.destructive.opacity(0.10))
+                                .fill(Theme.destructive.opacity(0.10))
                         )
                 }
                 .buttonStyle(.plain)
@@ -2802,24 +2802,24 @@ private struct AdvancedImageCompressionHistoryCard: View {
 
             if isExpanded {
                 Divider()
-                    .background(PhotoDeleteStyle.hairline)
+                    .background(Theme.hairline)
 
                 VStack(spacing: 0) {
                     ForEach(sessions) { session in
                         HStack(spacing: 12) {
                             Image(systemName: "photo")
                                 .font(.system(size: 17, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.positive)
+                                .foregroundColor(Theme.positive)
                                 .frame(width: 24)
 
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(session.formattedDate)
                                     .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                                    .foregroundColor(Theme.primaryText)
 
                                 Text(String(format: L10n.string("%lld images · %@ → %@"), Int64(session.imageCount), session.formattedOriginalSize, session.formattedCompressedSize))
                                     .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                    .foregroundColor(Theme.secondaryText)
                                     .lineLimit(2)
                                     .minimumScaleFactor(0.8)
                             }
@@ -2828,7 +2828,7 @@ private struct AdvancedImageCompressionHistoryCard: View {
 
                             Text(session.formattedSavedSize)
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(session.savedSizeMB > 0 ? PhotoDeleteStyle.positive : PhotoDeleteStyle.warning)
+                                .foregroundColor(session.savedSizeMB > 0 ? Theme.positive : Theme.warning)
                         }
                         .padding(.vertical, 10)
 
@@ -2845,7 +2845,7 @@ private struct AdvancedImageCompressionHistoryCard: View {
                                 if session.items.count > 3 {
                                     Text(String(format: L10n.string("%lld more compression details"), Int64(session.items.count - 3)))
                                         .font(.system(size: 11, weight: .medium))
-                                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                        .foregroundColor(Theme.secondaryText)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                             }
@@ -2855,7 +2855,7 @@ private struct AdvancedImageCompressionHistoryCard: View {
 
                         if session.id != sessions.last?.id {
                             Divider()
-                                .background(PhotoDeleteStyle.hairline)
+                                .background(Theme.hairline)
                                 .padding(.leading, 36)
                         }
                     }
@@ -2911,17 +2911,17 @@ private struct AdvancedImageCompressionHistoryItemRow: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(title(for: compressedAsset, fallback: L10n.string("Compressed image deleted")))
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
 
                 Text("\(item.formattedOriginalSize) → \(item.formattedCompressedSize)")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
 
                 Label(originalStatusText, systemImage: originalStatusIcon)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(isOriginalDeleted ? PhotoDeleteStyle.positive : PhotoDeleteStyle.warning)
+                    .foregroundColor(isOriginalDeleted ? Theme.positive : Theme.warning)
                     .lineLimit(1)
             }
 
@@ -2929,18 +2929,18 @@ private struct AdvancedImageCompressionHistoryItemRow: View {
 
             Text(item.formattedSavedSize)
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(item.savedSizeMB > 0 ? PhotoDeleteStyle.positive : PhotoDeleteStyle.warning)
+                .foregroundColor(item.savedSizeMB > 0 ? Theme.positive : Theme.warning)
 
             if canPreviewCompressedAsset {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
         }
         .padding(9)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
         )
     }
 
@@ -2955,12 +2955,12 @@ private struct AdvancedImageCompressionHistoryItemRow: View {
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         } else {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
                 .frame(width: 44, height: 44)
                 .overlay(
                     Image(systemName: "questionmark")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 )
         }
     }
@@ -2992,7 +2992,7 @@ private struct AdvancedImageCompressionActionBar: View {
             if !isCompressing {
                 Text(String(format: L10n.string("%lld images selected · %@"), Int64(count), estimateText))
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -3001,15 +3001,15 @@ private struct AdvancedImageCompressionActionBar: View {
                 Button(role: .destructive, action: onDelete) {
                     Label(L10n.string("Delete Selected"), systemImage: "trash")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.destructive)
+                        .foregroundColor(Theme.destructive)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
-                                .fill(PhotoDeleteStyle.destructive.opacity(0.12))
+                    RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous)
+                                .fill(Theme.destructive.opacity(0.12))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .stroke(PhotoDeleteStyle.destructive.opacity(0.24), lineWidth: 1)
+                                        .stroke(Theme.destructive.opacity(0.24), lineWidth: 1)
                                 )
                         )
                 }
@@ -3020,7 +3020,7 @@ private struct AdvancedImageCompressionActionBar: View {
                     HStack(spacing: 8) {
                         if isCompressing {
                             ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.primaryButtonText))
+                                .progressViewStyle(CircularProgressViewStyle(tint: Theme.onAccent))
                                 .scaleEffect(0.78)
                         } else {
                             Image(systemName: "arrow.down.forward.and.arrow.up.backward")
@@ -3029,23 +3029,23 @@ private struct AdvancedImageCompressionActionBar: View {
                         Text(buttonTitle)
                     }
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+                    .foregroundColor(Theme.onAccent)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(PhotoDeleteStyle.accent)
+                            .fill(Theme.accent)
                     )
                 }
                 .buttonStyle(.plain)
                 .disabled(isCompressing)
             }
         }
-        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+        .padding(.horizontal, Theme.screenHorizontalPadding)
         .padding(.bottom, 24)
         .padding(.top, 10)
         .background(
-            PhotoDeleteStyle.background.opacity(0.94)
+            Theme.background.opacity(0.94)
                 .ignoresSafeArea(edges: .bottom)
         )
     }
@@ -3242,7 +3242,7 @@ private struct AdvancedVideoCompressionView: View {
                         AdvancedVideoCompressionMessageCard(
                             icon: "exclamationmark.triangle.fill",
                             message: compressionErrorMessage,
-                            tint: PhotoDeleteStyle.warning
+                            tint: Theme.warning
                         )
                     }
 
@@ -3256,7 +3256,7 @@ private struct AdvancedVideoCompressionView: View {
                     Spacer()
                         .frame(height: 24)
                 }
-                .padding(PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(Theme.screenHorizontalPadding)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -3398,7 +3398,7 @@ private struct AdvancedVideoCompressionView: View {
                 if hasMoreCompressibleAssets {
                     Text(L10n.string("Scroll down to load more"))
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                 }
@@ -3500,9 +3500,9 @@ private struct AdvancedVideoCompressionView: View {
 
     private func sizeStatusTint(for asset: PHAsset) -> Color {
         guard videoSizeEstimatesByAssetID[asset.localIdentifier]?.source == .iCloud else {
-            return PhotoDeleteStyle.positive
+            return Theme.positive
         }
-        return PhotoDeleteStyle.accent
+        return Theme.accent
     }
 
     private func reliableSizeMB(for asset: PHAsset) -> Double? {
@@ -3772,11 +3772,11 @@ private struct AdvancedVideoCompressionListHeader: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(L10n.string("Videos to Compress"))
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(sizeSummary)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(2)
             }
 
@@ -3802,21 +3802,21 @@ private struct AdvancedVideoCompressionICloudInfoCard: View {
             HStack(spacing: 10) {
                 Image(systemName: "icloud.and.arrow.down")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                     .frame(width: 28, height: 28)
                     .background(
                         Circle()
-                            .fill(PhotoDeleteStyle.accent.opacity(0.12))
+                            .fill(Theme.accent.opacity(0.12))
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(String(format: L10n.string("%lld videos in iCloud"), Int64(count)))
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(subtitle)
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .lineLimit(2)
                 }
 
@@ -3824,7 +3824,7 @@ private struct AdvancedVideoCompressionICloudInfoCard: View {
 
                 Image(systemName: "info.circle")
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
             .padding(12)
             .photoDeleteCard()
@@ -3853,7 +3853,7 @@ private struct AdvancedVideoCompressionPlanCard: View {
             HStack {
                 Text(L10n.string("Current compression plan"))
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Spacer()
 
@@ -3862,7 +3862,7 @@ private struct AdvancedVideoCompressionPlanCard: View {
                         .font(.system(size: 12, weight: .semibold))
                 }
                 .buttonStyle(.plain)
-                .foregroundColor(PhotoDeleteStyle.accent)
+                .foregroundColor(Theme.accent)
                 .disabled(isDisabled || selectedCount == 0)
             }
 
@@ -3874,7 +3874,7 @@ private struct AdvancedVideoCompressionPlanCard: View {
 
             Label(L10n.string("Compressed videos are saved to Photos. Originals are not deleted automatically."), systemImage: "info.circle")
                 .font(.system(size: 12, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(14)
@@ -3939,14 +3939,14 @@ private struct AdvancedVideoCompressionOptionsSheet: View {
 
                     Label(L10n.string("Estimated size can vary by original encoding, motion complexity, and HDR status. The final report is the source of truth."), systemImage: "info.circle")
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(Theme.screenHorizontalPadding)
                 .padding(.top, 12)
                 .padding(.bottom, 24)
             }
-            .background(PhotoDeleteStyle.background.ignoresSafeArea())
+            .background(Theme.background.ignoresSafeArea())
             .navigationTitle(L10n.string("Compression plan"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -3969,19 +3969,19 @@ private struct AdvancedVideoCompressionOptionsSheet: View {
                         Text(buttonSubtitle)
                             .font(.system(size: 11, weight: .medium))
                     }
-                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+                    .foregroundColor(Theme.onAccent)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(PhotoDeleteStyle.accent)
+                            .fill(Theme.accent)
                     )
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
                 .padding(.bottom, 14)
                 .padding(.top, 8)
-                .background(PhotoDeleteStyle.background.opacity(0.94))
+                .background(Theme.background.opacity(0.94))
             }
         }
     }
@@ -4003,17 +4003,17 @@ private struct AdvancedVideoCompressionEstimateCard: View {
             HStack(spacing: 12) {
                 Image(systemName: "arrow.down.forward.and.arrow.up.backward")
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.positive)
+                    .foregroundColor(Theme.positive)
                     .frame(width: 34, height: 34)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(String(format: L10n.string("Ready to compress %lld videos"), Int64(count)))
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(originalSizeText)
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
 
                 Spacer()
@@ -4052,7 +4052,7 @@ private struct AdvancedVideoCompressionOptionSection<Content: View>: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
 
             content
         }
@@ -4111,16 +4111,16 @@ private struct AdvancedVideoCompressionSegmentButton: View {
                     .minimumScaleFactor(0.78)
             }
             .font(.system(size: 13, weight: .semibold))
-            .foregroundColor(isSelected ? PhotoDeleteStyle.positive : PhotoDeleteStyle.primaryText)
+            .foregroundColor(isSelected ? Theme.positive : Theme.primaryText)
             .frame(maxWidth: .infinity, minHeight: 44)
             .padding(.horizontal, 6)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(isSelected ? PhotoDeleteStyle.positive.opacity(0.13) : PhotoDeleteStyle.elevatedSurface)
+                    .fill(isSelected ? Theme.positive.opacity(0.13) : Theme.elevatedSurface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(isSelected ? PhotoDeleteStyle.positive.opacity(0.42) : PhotoDeleteStyle.hairline, lineWidth: 1)
+                    .stroke(isSelected ? Theme.positive.opacity(0.42) : Theme.hairline, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -4142,22 +4142,22 @@ private struct AdvancedVideoCompressionProgressCard: View {
     var body: some View {
         HStack(spacing: 12) {
             ProgressView(value: combinedProgress)
-                .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.positive))
+                .progressViewStyle(CircularProgressViewStyle(tint: Theme.positive))
                 .frame(width: 34, height: 34)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(String(format: L10n.string("Compressing %lld/%lld"), Int64(processedCount), Int64(totalCount)))
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(message ?? L10n.string("Compressing video"))
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Label(L10n.string("Keep the app open. Leaving the app may pause compression."), systemImage: "exclamationmark.circle")
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.warning)
+                    .foregroundColor(Theme.warning)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -4179,16 +4179,16 @@ private struct AdvancedVideoCompressionResultCard: View {
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: result.hasMeaningfulSavings ? "checkmark.circle.fill" : "checkmark.circle")
                     .font(.system(size: 30, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.positive)
+                    .foregroundColor(Theme.positive)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(result.completionTitle)
                         .font(.headline)
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(result.completionSubtitle)
                         .font(.subheadline)
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -4197,13 +4197,13 @@ private struct AdvancedVideoCompressionResultCard: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(result.formattedSavedSize)
                         .font(.title3.weight(.bold))
-                        .foregroundColor(result.hasMeaningfulSavings ? PhotoDeleteStyle.positive : PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(result.hasMeaningfulSavings ? Theme.positive : Theme.secondaryText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.78)
 
                     Text(L10n.string("Can Save"))
                         .font(.caption)
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
                 .accessibilityElement(children: .combine)
             }
@@ -4220,7 +4220,7 @@ private struct AdvancedVideoCompressionResultCard: View {
                     systemImage: "video.badge.checkmark",
                     title: L10n.string("Compressed video"),
                     value: result.createdCopiesText,
-                    tint: PhotoDeleteStyle.positive
+                    tint: Theme.positive
                 )
 
                 Divider()
@@ -4230,19 +4230,19 @@ private struct AdvancedVideoCompressionResultCard: View {
                     systemImage: "arrow.down.right.and.arrow.up.left",
                     title: L10n.string("Resolution"),
                     value: result.resolutionSummaryText,
-                    tint: PhotoDeleteStyle.accent
+                    tint: Theme.accent
                 )
             }
 
             Text(result.hasMeaningfulSavings ? L10n.string("A compressed video was created. The original has not been deleted. Compare them first, then decide whether to delete the original.") : L10n.string("A compressed video was created, but space savings are small. Keep the original for now."))
                 .font(.footnote)
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
 
             if result.failedCount > 0 {
                 Label(String(format: L10n.string("%lld videos did not finish"), Int64(result.failedCount)), systemImage: "exclamationmark.triangle")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.warning)
+                    .foregroundColor(Theme.warning)
             }
 
             VStack(spacing: 10) {
@@ -4257,7 +4257,7 @@ private struct AdvancedVideoCompressionResultCard: View {
                     AdvancedVideoCompressionCompactActionButton(
                         title: L10n.string("Delete original"),
                         systemImage: "trash",
-                        tint: PhotoDeleteStyle.destructive,
+                        tint: Theme.destructive,
                         isEnabled: result.hasMeaningfulSavings,
                         action: onDeleteOriginals
                     )
@@ -4265,7 +4265,7 @@ private struct AdvancedVideoCompressionResultCard: View {
                     AdvancedVideoCompressionCompactActionButton(
                         title: L10n.string("Keep original"),
                         systemImage: "checkmark",
-                        tint: PhotoDeleteStyle.accent,
+                        tint: Theme.accent,
                         isEnabled: true,
                         action: onKeepOriginals
                     )
@@ -4297,13 +4297,13 @@ private struct AdvancedVideoCompressionResultInfoRow: View {
 
             Text(title)
                 .font(.subheadline)
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
 
             Spacer(minLength: 8)
 
             Text(value)
                 .font(.subheadline.weight(.semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .multilineTextAlignment(.trailing)
                 .lineLimit(2)
                 .minimumScaleFactor(0.82)
@@ -4324,16 +4324,16 @@ private struct AdvancedVideoCompressionCompactActionButton: View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
                 .font(.subheadline.weight(.semibold))
-                .foregroundColor(isEnabled ? tint : PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(isEnabled ? tint : Theme.tertiaryText)
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 44)
                 .padding(.horizontal, 10)
                 .background(
-                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                        .fill(PhotoDeleteStyle.elevatedSurface)
+                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                        .fill(Theme.elevatedSurface)
                         .overlay(
-                            RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                                .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
+                            RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                                .stroke(Theme.hairline, lineWidth: 1)
                         )
                 )
         }
@@ -4368,10 +4368,10 @@ private struct AdvancedVideoCompressionComparisonSheet: View {
                         }
                     }
                 }
-                .padding(PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(Theme.screenHorizontalPadding)
                 .padding(.vertical, 16)
             }
-            .background(PhotoDeleteStyle.background.ignoresSafeArea())
+            .background(Theme.background.ignoresSafeArea())
             .navigationTitle(L10n.string("Video comparison"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -4417,7 +4417,7 @@ private struct AdvancedVideoCompressionComparisonRow: View {
 
                 Image(systemName: "arrow.right")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
 
                 comparisonButton(
                     label: L10n.string("After Compression"),
@@ -4429,7 +4429,7 @@ private struct AdvancedVideoCompressionComparisonRow: View {
 
             Text(String(format: L10n.string("Reduced %@"), CleanupStatsFormatter.space(item.savedSizeMB)))
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.positive)
+                .foregroundColor(Theme.positive)
         }
         .padding(12)
         .photoDeleteCard()
@@ -4456,29 +4456,29 @@ private struct AdvancedVideoCompressionComparisonRow: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 } else {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(PhotoDeleteStyle.elevatedSurface)
+                        .fill(Theme.elevatedSurface)
                         .frame(width: 82, height: 82)
                         .overlay(
                             Image(systemName: fallbackIcon)
                                 .font(.system(size: 24, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .foregroundColor(Theme.secondaryText)
                         )
                 }
 
                 VStack(spacing: 2) {
                     Text(label)
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                     Text(size)
                         .font(.system(size: 11, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(PhotoDeleteStyle.elevatedSurface)
+                    .fill(Theme.elevatedSurface)
             )
         }
         .buttonStyle(.plain)
@@ -4494,11 +4494,11 @@ private struct AdvancedVideoCompressionMetric: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
 
             Text(value)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .lineLimit(2)
                 .minimumScaleFactor(0.74)
         }
@@ -4506,7 +4506,7 @@ private struct AdvancedVideoCompressionMetric: View {
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
         )
     }
 }
@@ -4551,17 +4551,17 @@ private struct AdvancedVideoCompressionHistoryCard: View {
                 HStack(spacing: 12) {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.accent)
+                        .foregroundColor(Theme.accent)
                         .frame(width: 24)
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(L10n.string("Recent compression history"))
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
 
                         Text(summaryText)
                             .font(.system(size: 12, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
                             .lineLimit(2)
                             .minimumScaleFactor(0.8)
                     }
@@ -4570,7 +4570,7 @@ private struct AdvancedVideoCompressionHistoryCard: View {
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
                 .contentShape(Rectangle())
             }
@@ -4581,12 +4581,12 @@ private struct AdvancedVideoCompressionHistoryCard: View {
                 Button(action: onDeleteOriginals) {
                     Label(L10n.string("Delete originals to free space"), systemImage: "trash")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.destructive)
+                        .foregroundColor(Theme.destructive)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(PhotoDeleteStyle.destructive.opacity(0.10))
+                                .fill(Theme.destructive.opacity(0.10))
                         )
                 }
                 .buttonStyle(.plain)
@@ -4594,24 +4594,24 @@ private struct AdvancedVideoCompressionHistoryCard: View {
 
             if isExpanded {
                 Divider()
-                    .background(PhotoDeleteStyle.hairline)
+                    .background(Theme.hairline)
 
                 VStack(spacing: 0) {
                     ForEach(sessions) { session in
                         HStack(spacing: 12) {
                             Image(systemName: "video.badge.checkmark")
                                 .font(.system(size: 17, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.positive)
+                                .foregroundColor(Theme.positive)
                                 .frame(width: 24)
 
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(session.formattedDate)
                                     .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                                    .foregroundColor(Theme.primaryText)
 
                                 Text(String(format: L10n.string("%lld videos · %@ → %@"), Int64(session.videoCount), session.formattedOriginalSize, session.formattedCompressedSize))
                                     .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                    .foregroundColor(Theme.secondaryText)
                                     .lineLimit(2)
                                     .minimumScaleFactor(0.8)
                             }
@@ -4620,7 +4620,7 @@ private struct AdvancedVideoCompressionHistoryCard: View {
 
                             Text(session.formattedSavedSize)
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(session.savedSizeMB > 0 ? PhotoDeleteStyle.positive : PhotoDeleteStyle.warning)
+                                .foregroundColor(session.savedSizeMB > 0 ? Theme.positive : Theme.warning)
                         }
                         .padding(.vertical, 10)
 
@@ -4637,7 +4637,7 @@ private struct AdvancedVideoCompressionHistoryCard: View {
                                 if session.items.count > 3 {
                                     Text(String(format: L10n.string("%lld more compression details"), Int64(session.items.count - 3)))
                                         .font(.system(size: 11, weight: .medium))
-                                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                        .foregroundColor(Theme.secondaryText)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                             }
@@ -4647,7 +4647,7 @@ private struct AdvancedVideoCompressionHistoryCard: View {
 
                         if session.id != sessions.last?.id {
                             Divider()
-                                .background(PhotoDeleteStyle.hairline)
+                                .background(Theme.hairline)
                                 .padding(.leading, 36)
                         }
                     }
@@ -4703,17 +4703,17 @@ private struct AdvancedVideoCompressionHistoryItemRow: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(title(for: compressedAsset, fallback: L10n.string("Compressed video deleted")))
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
 
                 Text("\(item.formattedOriginalSize) → \(item.formattedCompressedSize)")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
 
                 Label(originalStatusText, systemImage: originalStatusIcon)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(isOriginalDeleted ? PhotoDeleteStyle.positive : PhotoDeleteStyle.warning)
+                    .foregroundColor(isOriginalDeleted ? Theme.positive : Theme.warning)
                     .lineLimit(1)
             }
 
@@ -4721,18 +4721,18 @@ private struct AdvancedVideoCompressionHistoryItemRow: View {
 
             Text(item.formattedSavedSize)
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(item.savedSizeMB > 0 ? PhotoDeleteStyle.positive : PhotoDeleteStyle.warning)
+                .foregroundColor(item.savedSizeMB > 0 ? Theme.positive : Theme.warning)
 
             if canPreviewCompressedAsset {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
         }
         .padding(9)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
         )
     }
 
@@ -4747,12 +4747,12 @@ private struct AdvancedVideoCompressionHistoryItemRow: View {
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         } else {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
                 .frame(width: 44, height: 44)
                 .overlay(
                     Image(systemName: "questionmark")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 )
         }
     }
@@ -4784,7 +4784,7 @@ private struct AdvancedVideoCompressionMessageCard: View {
 
             Text(message)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer()
@@ -4807,7 +4807,7 @@ private struct AdvancedVideoCompressionActionBar: View {
             if !isCompressing {
                 Text(String(format: L10n.string("%lld videos selected · %@"), Int64(count), estimateText))
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -4816,15 +4816,15 @@ private struct AdvancedVideoCompressionActionBar: View {
                 Button(role: .destructive, action: onDelete) {
                     Label(L10n.string("Delete Selected"), systemImage: "trash")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.destructive)
+                        .foregroundColor(Theme.destructive)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                            RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.compactRadius, style: .continuous)
-                                .fill(PhotoDeleteStyle.destructive.opacity(0.12))
+                            RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous)
+                                .fill(Theme.destructive.opacity(0.12))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .stroke(PhotoDeleteStyle.destructive.opacity(0.24), lineWidth: 1)
+                                        .stroke(Theme.destructive.opacity(0.24), lineWidth: 1)
                                 )
                         )
                 }
@@ -4835,7 +4835,7 @@ private struct AdvancedVideoCompressionActionBar: View {
                     HStack(spacing: 8) {
                         if isCompressing {
                             ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.primaryButtonText))
+                                .progressViewStyle(CircularProgressViewStyle(tint: Theme.onAccent))
                                 .scaleEffect(0.78)
                         } else {
                             Image(systemName: "arrow.down.forward.and.arrow.up.backward")
@@ -4844,23 +4844,23 @@ private struct AdvancedVideoCompressionActionBar: View {
                         Text(buttonTitle)
                     }
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+                    .foregroundColor(Theme.onAccent)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(PhotoDeleteStyle.accent)
+                            .fill(Theme.accent)
                     )
                 }
                 .buttonStyle(.plain)
                 .disabled(isCompressing)
             }
         }
-        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+        .padding(.horizontal, Theme.screenHorizontalPadding)
         .padding(.bottom, 24)
         .padding(.top, 10)
         .background(
-            PhotoDeleteStyle.background.opacity(0.94)
+            Theme.background.opacity(0.94)
                 .ignoresSafeArea(edges: .bottom)
         )
     }
@@ -4961,7 +4961,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                         if snapshot.hasMoreGroups {
                             Text(L10n.string("Scroll down to load more"))
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .foregroundColor(Theme.secondaryText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                         }
@@ -5153,11 +5153,11 @@ private struct AdvancedSimilarPhotoGroupCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(group.title)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(String(format: L10n.string("%lld similar candidates"), Int64(group.assets.count)))
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
 
                 Spacer()
@@ -5166,14 +5166,14 @@ private struct AdvancedSimilarPhotoGroupCard: View {
                     AdvancedSimilarPhotoGroupActionButton(
                         title: L10n.string("Preview"),
                         systemImage: "rectangle.stack",
-                        tint: PhotoDeleteStyle.accent,
+                        tint: Theme.accent,
                         action: onPreviewGroup
                     )
 
                     AdvancedSimilarPhotoGroupActionButton(
                         title: L10n.string("Keep First"),
                         systemImage: "checkmark.circle.fill",
-                        tint: PhotoDeleteStyle.positive,
+                        tint: Theme.positive,
                         action: onSelectRecommended
                     )
                     .accessibilityHint(Text(L10n.string("Select similar photos except the first one; tap again to clear the selection.")))
@@ -5197,12 +5197,12 @@ private struct AdvancedSimilarPhotoGroupCard: View {
                         Button(action: showMoreAssets) {
                             Label(L10n.string("Show More"), systemImage: "chevron.right")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(PhotoDeleteStyle.accent)
+                                .foregroundColor(Theme.accent)
                                 .padding(.horizontal, 12)
                                 .frame(height: 66)
                                 .background(
                                     RoundedRectangle(cornerRadius: 13, style: .continuous)
-                                        .fill(PhotoDeleteStyle.accent.opacity(0.12))
+                                        .fill(Theme.accent.opacity(0.12))
                                 )
                         }
                         .buttonStyle(.plain)
@@ -5237,13 +5237,13 @@ private struct AdvancedAssetListSummaryCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
 
                 Text(subtitle)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
             }
@@ -5290,13 +5290,13 @@ private struct AdvancedBulkSelectionButton: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+                .foregroundColor(Theme.onAccent)
                 .lineLimit(1)
                 .padding(.horizontal, 15)
                 .frame(minHeight: 44)
                 .background(
                     RoundedRectangle(cornerRadius: 11, style: .continuous)
-                        .fill(PhotoDeleteStyle.accent)
+                        .fill(Theme.accent)
                 )
                 .opacity(isDisabled ? 0.45 : 1)
         }
@@ -5311,10 +5311,10 @@ private struct AdvancedAssetRow: View {
     let estimatedSizeMB: Double
     var sizeText: String?
     var sizeSystemImage: String? = nil
-    var sizeTint: Color = PhotoDeleteStyle.positive
+    var sizeTint: Color = Theme.positive
     var statusText: String? = nil
     var statusSystemImage: String? = nil
-    var statusTint: Color = PhotoDeleteStyle.secondaryText
+    var statusTint: Color = Theme.secondaryText
     let isSelected: Bool
     let onToggleSelection: () -> Void
     let onPreview: () -> Void
@@ -5344,7 +5344,7 @@ private struct AdvancedAssetRow: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(title)
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
                             .lineLimit(1)
 
                         if let statusText {
@@ -5357,14 +5357,14 @@ private struct AdvancedAssetRow: View {
 
                                 Text(metadata)
                                     .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                    .foregroundColor(Theme.secondaryText)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.78)
                             }
                         } else {
                             Text(metadata)
                                 .font(.system(size: 12, weight: .regular))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .foregroundColor(Theme.secondaryText)
                                 .lineLimit(2)
                                 .minimumScaleFactor(0.78)
                         }
@@ -5381,7 +5381,7 @@ private struct AdvancedAssetRow: View {
 
                         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                             .font(.system(size: 22, weight: .semibold))
-                            .foregroundColor(isSelected ? PhotoDeleteStyle.accent : PhotoDeleteStyle.tertiaryText)
+                            .foregroundColor(isSelected ? Theme.accent : Theme.tertiaryText)
                             .photoDeleteMinimumTapTarget()
                     }
                 }
@@ -5480,10 +5480,10 @@ private struct AdvancedSelectableThumbnail: View {
             if showsRecommendedBadge {
                 Text(L10n.string("Keep"))
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+                    .foregroundColor(Theme.onAccent)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 3)
-                    .background(Capsule(style: .continuous).fill(PhotoDeleteStyle.positive))
+                    .background(Capsule(style: .continuous).fill(Theme.positive))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                     .padding(5)
             }
@@ -5506,7 +5506,7 @@ private struct AdvancedSelectableThumbnailSelectionButton: View {
                     .font(.system(size: AdvancedSelectableThumbnailSelectionButtonStyle.iconSize, weight: .semibold))
                     .foregroundColor(
                         isSelected
-                            ? PhotoDeleteStyle.accent.opacity(AdvancedSelectableThumbnailSelectionButtonStyle.selectedIconOpacity)
+                            ? Theme.accent.opacity(AdvancedSelectableThumbnailSelectionButtonStyle.selectedIconOpacity)
                             : Color.white.opacity(AdvancedSelectableThumbnailSelectionButtonStyle.unselectedIconOpacity)
                     )
                     .frame(
@@ -5515,7 +5515,7 @@ private struct AdvancedSelectableThumbnailSelectionButton: View {
                     )
                     .background(
                         Circle()
-                            .fill(PhotoDeleteStyle.background.opacity(AdvancedSelectableThumbnailSelectionButtonStyle.backgroundOpacity(isSelected: isSelected)))
+                            .fill(Theme.background.opacity(AdvancedSelectableThumbnailSelectionButtonStyle.backgroundOpacity(isSelected: isSelected)))
                     )
                     .overlay(
                         Circle()
@@ -5622,11 +5622,11 @@ private struct AdvancedAssetThumbnail: View {
                         .scaledToFill()
                 } else {
                     Rectangle()
-                        .fill(PhotoDeleteStyle.elevatedSurface)
+                        .fill(Theme.elevatedSurface)
                         .overlay(
                             Image(systemName: "photo")
                                 .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                .foregroundColor(Theme.secondaryText)
                         )
                 }
             }
@@ -5638,7 +5638,7 @@ private struct AdvancedAssetThumbnail: View {
                     .font(.system(size: 8, weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 20, height: 20)
-                    .background(Circle().fill(PhotoDeleteStyle.background.opacity(0.72)))
+                    .background(Circle().fill(Theme.background.opacity(0.72)))
                     .padding(5)
                     .accessibilityLabel(badgeAccessibilityLabel)
             }
@@ -5696,7 +5696,7 @@ private struct AdvancedAssetPreviewView: View {
         NavigationStack {
             GeometryReader { geometry in
                 ZStack {
-                    PhotoDeleteStyle.background.ignoresSafeArea()
+                    Theme.background.ignoresSafeArea()
 
                     if assets.count > 1 {
                         TabView(selection: $selectedAssetID) {
@@ -5736,7 +5736,7 @@ private struct AdvancedAssetPreviewView: View {
                     Button(L10n.string("Close")) {
                         dismiss()
                     }
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                 }
             }
         }
@@ -6018,16 +6018,16 @@ private struct AdvancedAssetPreviewPage: View {
                 VStack(spacing: 12) {
                     if isLoading {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                            .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
                     } else {
                         Image(systemName: "photo")
                             .font(.system(size: 36, weight: .medium))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
                     }
 
                     Text(isLoading ? L10n.string("Reading Photos") : L10n.string("Unable to load this photo"))
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
             }
         }
@@ -6192,19 +6192,19 @@ private struct AdvancedSelectionActionBar: View {
                 Text(String(format: L10n.string("Add %lld items to delete"), Int64(count)))
             }
             .font(.system(size: 15, weight: .semibold))
-            .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+            .foregroundColor(Theme.onAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(PhotoDeleteStyle.accent)
+                    .fill(Theme.accent)
             )
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+        .padding(.horizontal, Theme.screenHorizontalPadding)
         .padding(.bottom, 24)
         .background(
-            PhotoDeleteStyle.background.opacity(0.92)
+            Theme.background.opacity(0.92)
                 .ignoresSafeArea(edges: .bottom)
         )
     }
@@ -6275,15 +6275,15 @@ private struct AdvancedFilterPills: View {
                     } label: {
                         Text(filter.title)
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(selection == filter ? PhotoDeleteStyle.primaryButtonText : PhotoDeleteStyle.secondaryText)
+                            .foregroundStyle(selection == filter ? Theme.onAccent : Theme.secondaryText)
                             .padding(.horizontal, 10)
                             .frame(minHeight: 44)
                             .background(
                                 Capsule(style: .continuous)
-                                    .fill(selection == filter ? PhotoDeleteStyle.accent : PhotoDeleteStyle.surface)
+                                    .fill(selection == filter ? Theme.accent : Theme.surface)
                                     .overlay(
                                         Capsule(style: .continuous)
-                                            .stroke(selection == filter ? PhotoDeleteStyle.accent.opacity(0.65) : PhotoDeleteStyle.hairline, lineWidth: 1)
+                                            .stroke(selection == filter ? Theme.accent.opacity(0.65) : Theme.hairline, lineWidth: 1)
                                     )
                             )
                     }
@@ -6348,14 +6348,14 @@ private struct AdvancedProgressRing<Content: View>: View {
         ZStack {
             Circle()
                 .stroke(
-                    PhotoDeleteStyle.accentSoftStroke.opacity(0.9),
+                    Theme.accentSoftStroke.opacity(0.9),
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
 
             Circle()
                 .trim(from: 0, to: min(max(progress, 0), 1))
                 .stroke(
-                    PhotoDeleteStyle.progressTint,
+                    Theme.accent,
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
@@ -6370,12 +6370,12 @@ private struct AdvancedDemoTag: View {
     var body: some View {
         Text(L10n.string("Demo"))
             .font(.system(size: 10, weight: .bold))
-            .foregroundColor(PhotoDeleteStyle.warning)
+            .foregroundColor(Theme.warning)
             .padding(.horizontal, 5)
             .padding(.vertical, 2)
             .background(
                 Capsule(style: .continuous)
-                    .fill(PhotoDeleteStyle.warning.opacity(0.14))
+                    .fill(Theme.warning.opacity(0.14))
             )
     }
 }
@@ -6393,21 +6393,21 @@ private struct AdvancedEmptyState: View {
                     systemImage: icon,
                     description: Text(subtitle)
                 )
-                .foregroundStyle(PhotoDeleteStyle.secondaryText)
+                .foregroundStyle(Theme.secondaryText)
             } else {
                 VStack(spacing: 12) {
                     Image(systemName: icon)
                         .font(.system(size: 38, weight: .medium))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
 
                     VStack(spacing: 5) {
                         Text(title)
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
 
                         Text(subtitle)
                             .font(.system(size: 13, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
                             .multilineTextAlignment(.center)
                     }
                 }
@@ -6426,16 +6426,16 @@ private struct AdvancedLoadingState: View {
     var body: some View {
         VStack(spacing: 14) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
 
             VStack(spacing: 5) {
                 Text(title)
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(subtitle)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .multilineTextAlignment(.center)
             }
         }

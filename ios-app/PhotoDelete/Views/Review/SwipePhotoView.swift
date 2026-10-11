@@ -206,7 +206,7 @@ struct SwipePhotoView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteStyle.reviewCanvas
+            Theme.reviewCanvas
                 .ignoresSafeArea()
 
             GeometryReader { geometry in
@@ -255,7 +255,7 @@ struct SwipePhotoView: View {
                             handleUndoAction()
 
                         }
-                        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.screenHorizontalPadding)
                         .allowsHitTesting(feedbackToast.showsUndo)
                         .padding(.top, 88)
                         .frame(
@@ -438,7 +438,7 @@ struct SwipePhotoView: View {
                             subtitle: L10n.string("Allow photo library access to start organizing photos"),
                             onRequestAccess: { dataManager.requestPhotoLibraryAccess() }
                         )
-                        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.screenHorizontalPadding)
                     }
                 } else if let realPhoto = currentRealPhoto {
                     ZStack {
@@ -457,7 +457,7 @@ struct SwipePhotoView: View {
                             message: L10n.string("When reading finishes, this cleanup will start automatically."),
                             progress: activeLibraryLoadingProgress
                         )
-                        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.screenHorizontalPadding)
                     }
                 } else if shouldShowBackgroundLoadingState {
                     centeredPhotoAreaPlaceholder(in: geometry, bottomReserve: placeholderBottomReserve) {
@@ -466,7 +466,7 @@ struct SwipePhotoView: View {
                             message: L10n.string("Large libraries can take a few seconds. Cleanup starts automatically when ready."),
                             progress: activeLibraryLoadingProgress
                         )
-                        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.screenHorizontalPadding)
                     }
                 } else {
                     centeredPhotoAreaPlaceholder(in: geometry, bottomReserve: placeholderBottomReserve) {
@@ -476,17 +476,17 @@ struct SwipePhotoView: View {
                                 // 没有照片的情况
                                 Image(systemName: "photo.badge.plus")
                                     .font(.system(size: 60, weight: .medium))
-                                    .foregroundColor(PhotoDeleteStyle.accent)
+                                    .foregroundColor(Theme.accent)
 
                                 Text(emptyPhotoTitle)
                                     .font(.system(size: 24, weight: .semibold))
-                                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                                    .foregroundColor(Theme.primaryText)
 
                                 Text(emptyPhotoMessage)
                                     .font(.system(size: 16, weight: .regular))
-                                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                    .foregroundColor(Theme.secondaryText)
                                     .multilineTextAlignment(.center)
-                                    .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                                    .padding(.horizontal, Theme.screenHorizontalPadding)
 
                                 Button(action: { dismiss() }) {
                                     Text(L10n.string("Back to Home"))
@@ -497,15 +497,15 @@ struct SwipePhotoView: View {
                                 // 整理完成的情况
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.system(size: 60, weight: .medium))
-                                    .foregroundColor(PhotoDeleteStyle.positive)
+                                    .foregroundColor(Theme.positive)
 
                                 Text(L10n.string("Cleanup Complete!"))
                                     .font(.system(size: 24, weight: .semibold))
-                                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                                    .foregroundColor(Theme.primaryText)
 
                                 Text(L10n.string("You have finished all photos"))
                                     .font(.system(size: 16, weight: .regular))
-                                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                    .foregroundColor(Theme.secondaryText)
 
                                 Button(action: { dismiss() }) {
                                     Text(L10n.string("Back to Home"))
@@ -516,7 +516,7 @@ struct SwipePhotoView: View {
                         }
                         .padding(24)
                         .photoDeleteCard()
-                        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.screenHorizontalPadding)
                     }
                 }
             }
@@ -760,7 +760,7 @@ struct SwipePhotoView: View {
                 SidebarActionButton(
                     icon: "arrow.uturn.backward",
                     title: L10n.string("Undo"),
-                    color: PhotoDeleteStyle.secondaryText
+                    color: Theme.secondaryText
                 ) {
                     handleUndoAction()
 
@@ -769,7 +769,7 @@ struct SwipePhotoView: View {
                 SidebarActionButton(
                     icon: isCurrentPhotoFavorited ? "heart.slash" : "heart",
                     title: isCurrentPhotoFavorited ? L10n.string("Unfavorite") : L10n.string("Favorite"),
-                    color: PhotoDeleteStyle.iconTint(for: "favorite")
+                    color: Theme.iconTint(for: "favorite")
                 ) {
                     handleFavoriteAction()
 
@@ -778,7 +778,7 @@ struct SwipePhotoView: View {
                 SidebarActionButton(
                     icon: isPreparingShare ? "hourglass" : "square.and.arrow.up",
                     title: isPreparingShare ? L10n.string("Preparing") : L10n.string("Share"),
-                    color: PhotoDeleteStyle.accent
+                    color: Theme.accent
                 ) {
                     handleShareAction()
 
@@ -787,7 +787,7 @@ struct SwipePhotoView: View {
                 SidebarActionButton(
                     icon: "trash",
                     title: L10n.string("Mark to delete"),
-                    color: PhotoDeleteStyle.destructive
+                    color: Theme.destructive
                 ) {
                     handleDeleteAction()
 
@@ -796,7 +796,7 @@ struct SwipePhotoView: View {
                 SidebarActionButton(
                     icon: "checkmark",
                     title: L10n.string("Finish Organizing"),
-                    color: PhotoDeleteStyle.positive
+                    color: Theme.positive
                 ) {
                     handleFinishAction()
 
@@ -807,7 +807,7 @@ struct SwipePhotoView: View {
         }
         .padding(.horizontal, 22)
         .padding(.vertical, 18)
-        .background(PhotoDeleteStyle.reviewCanvas)
+        .background(Theme.reviewCanvas)
     }
 
     private var sessionSummaryPanel: some View {
@@ -844,13 +844,13 @@ struct SwipePhotoView: View {
                             AlbumAssetThumbnail(
                                 assetID: asset.localIdentifier,
                                 photoLibraryManager: dataManager.photoLibraryManager,
-                                cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius
+                                cornerRadius: Theme.Metrics.thumbnailRadius
                             )
                             .frame(width: 64, height: 64)
                             .overlay {
-                                RoundedRectangle(cornerRadius: PhotoDeleteStyle.Metrics.thumbnailRadius, style: .continuous)
+                                RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
                                     .stroke(
-                                        index == session.currentIndex ? PhotoDeleteStyle.accent : Color.clear,
+                                        index == session.currentIndex ? Theme.accent : Color.clear,
                                         lineWidth: 2
                                     )
                             }
@@ -859,7 +859,7 @@ struct SwipePhotoView: View {
                         .id(asset.localIdentifier)
                     }
                 }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
             }
             .frame(height: 72)
             .onChange(of: session.currentIndex) { index in

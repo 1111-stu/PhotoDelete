@@ -13,7 +13,7 @@ struct ReviewNavigationHeader: View {
                 Button(action: onBack) {
                     Image(systemName: "arrow.left")
                         .font(.system(size: 19, weight: .bold, design: .rounded))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                         .frame(width: 52, height: 52)
                 }
                 .modifier(ReviewGlassCircleChrome())
@@ -25,7 +25,7 @@ struct ReviewNavigationHeader: View {
 
             Text(title)
                 .font(.system(size: 17, weight: .bold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
@@ -38,7 +38,7 @@ struct ReviewNavigationHeader: View {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "trash")
                         .font(.system(size: 19, weight: .bold, design: .rounded))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                         .frame(width: 52, height: 52)
 
                     if deleteCount > 0 {
@@ -50,10 +50,10 @@ struct ReviewNavigationHeader: View {
                             .lineLimit(1)
                             .padding(.horizontal, 5)
                             .frame(minWidth: 18, minHeight: 18)
-                            .background(Capsule(style: .continuous).fill(PhotoDeleteStyle.destructive))
+                            .background(Capsule(style: .continuous).fill(Theme.destructive))
                             .overlay(
                                 Capsule(style: .continuous)
-                                    .stroke(PhotoDeleteStyle.reviewCanvas, lineWidth: 2)
+                                    .stroke(Theme.reviewCanvas, lineWidth: 2)
                             )
                             .offset(x: 2, y: -2)
                     }
@@ -66,10 +66,10 @@ struct ReviewNavigationHeader: View {
             .accessibilityValue(L10n.string("\(deleteCount) to delete"))
             .frame(width: 116, alignment: .trailing)
         }
-        .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+        .padding(.horizontal, Theme.screenHorizontalPadding)
         .padding(.top, 16)
         .padding(.bottom, 12)
-        .background(PhotoDeleteStyle.reviewCanvas)
+        .background(Theme.reviewCanvas)
     }
 }
 
@@ -86,21 +86,21 @@ struct ReviewCompletionOverlay: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteStyle.reviewCanvas.opacity(0.96)
+            Theme.reviewCanvas.opacity(0.96)
                 .ignoresSafeArea()
 
             VStack(spacing: 18) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 54, weight: .medium))
-                    .foregroundColor(PhotoDeleteStyle.positive)
+                    .foregroundColor(Theme.positive)
 
                 Text(title)
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(subtitle)
                     .font(.system(size: 15, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .multilineTextAlignment(.center)
 
                 if showsSessionStats {
@@ -109,13 +109,13 @@ struct ReviewCompletionOverlay: View {
                             icon: "trash",
                             value: deleteCount,
                             title: L10n.string("Delete"),
-                            tint: PhotoDeleteStyle.destructive
+                            tint: Theme.destructive
                         )
                         CompletionStatPill(
                             icon: "heart",
                             value: favoriteCount,
                             title: L10n.string("Favorite"),
-                            tint: PhotoDeleteStyle.iconTint(for: "favorite")
+                            tint: Theme.iconTint(for: "favorite")
                         )
 
                     }
@@ -139,7 +139,7 @@ struct ReviewCompletionOverlay: View {
             }
             .padding(24)
             .photoDeleteCard()
-            .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
+            .padding(.horizontal, Theme.screenHorizontalPadding)
         }
         .transition(.opacity)
     }
@@ -157,26 +157,26 @@ struct ReviewSessionSummaryPanel: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .lineLimit(2)
                 .minimumScaleFactor(0.82)
 
             Text(subtitle)
                 .font(.system(size: 14, weight: .regular))
-                .foregroundColor(PhotoDeleteStyle.secondaryText)
+                .foregroundColor(Theme.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
 
             if showsProgress {
                 ProgressView(value: progress)
-                    .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                    .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
                     .clipShape(Capsule(style: .continuous))
             }
 
             HStack(spacing: 12) {
                 Label("\(deleteCount)", systemImage: "trash")
-                    .foregroundColor(PhotoDeleteStyle.destructive)
+                    .foregroundColor(Theme.destructive)
                 Label("\(favoriteCount)", systemImage: "heart")
-                    .foregroundColor(PhotoDeleteStyle.iconTint(for: "favorite"))
+                    .foregroundColor(Theme.iconTint(for: "favorite"))
             }
             .font(.system(size: 13, weight: .semibold))
         }
@@ -226,7 +226,7 @@ struct ReviewActionToolbar: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .modifier(ReviewGlassCapsuleChrome())
-            .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 12, y: 6)
+            .shadow(color: Theme.floatingShadow, radius: 12, y: 6)
 
             // 终点动作独立成珠：琥珀玻璃「完成整理」（待删数字由头部角标承担）
             finishButton
@@ -245,7 +245,7 @@ struct ReviewActionToolbar: View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: 19, weight: .bold, design: .rounded))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .frame(width: 44, height: 44)
                 .contentShape(Circle())
         }
@@ -259,9 +259,9 @@ struct ReviewActionToolbar: View {
             Button(action: onFinish) {
                 Image(systemName: "archivebox")
                     .font(.system(size: 19, weight: .bold, design: .rounded))
-                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+                    .foregroundColor(Theme.onAccent)
                     .frame(width: 52, height: 52)
-                    .glassEffect(.regular.tint(PhotoDeleteStyle.accent), in: .circle)
+                    .glassEffect(.regular.tint(Theme.accent), in: .circle)
             }
             .buttonStyle(.plain)
             .accessibilityLabel(L10n.string("Finish Organizing"))
@@ -269,14 +269,14 @@ struct ReviewActionToolbar: View {
             Button(action: onFinish) {
                 Image(systemName: "archivebox")
                     .font(.system(size: 19, weight: .bold, design: .rounded))
-                    .foregroundColor(PhotoDeleteStyle.primaryButtonText)
+                    .foregroundColor(Theme.onAccent)
                     .frame(width: 52, height: 52)
                     .background(
                         Circle().fill(
                             LinearGradient(
                                 colors: [
-                                    PhotoDeleteStyle.amberGradientTop,
-                                    PhotoDeleteStyle.amberGradientBottom
+                                    Theme.amberGradientTop,
+                                    Theme.amberGradientBottom
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -284,7 +284,7 @@ struct ReviewActionToolbar: View {
                         )
                     )
                     .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 1))
-                    .shadow(color: PhotoDeleteStyle.accent.opacity(0.3), radius: 12, y: 5)
+                    .shadow(color: Theme.accent.opacity(0.3), radius: 12, y: 5)
             }
             .buttonStyle(.plain)
             .accessibilityLabel(L10n.string("Finish Organizing"))
@@ -302,7 +302,7 @@ struct ReviewGlassCircleChrome: ViewModifier {
         } else {
             content
                 .buttonStyle(.plain)
-                .background(Circle().fill(PhotoDeleteStyle.elevatedSurface))
+                .background(Circle().fill(Theme.elevatedSurface))
         }
     }
 }
@@ -317,10 +317,10 @@ struct ReviewGlassCapsuleChrome: ViewModifier {
             content
                 .background {
                     Capsule(style: .continuous)
-                        .fill(PhotoDeleteStyle.surface.opacity(0.9))
+                        .fill(Theme.surface.opacity(0.9))
                         .overlay {
                             Capsule(style: .continuous)
-                                .stroke(PhotoDeleteStyle.hairline, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                                .stroke(Theme.hairline, lineWidth: Theme.Metrics.cardStrokeWidth)
                         }
                 }
         }

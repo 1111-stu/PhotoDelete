@@ -10,7 +10,7 @@ struct ReviewPhotoDetailLine: View {
         let dateText = PhotoAssetMetadataFormatter.shortCaptureDate(for: asset.creationDate)
         Text(sizeText.map { "\(dateText) · \($0)" } ?? dateText)
             .font(.system(size: 11, weight: .regular))
-            .foregroundColor(PhotoDeleteStyle.tertiaryText)
+            .foregroundColor(Theme.tertiaryText)
             .lineLimit(1)
             .minimumScaleFactor(0.8)
             .frame(maxWidth: .infinity)
@@ -160,8 +160,8 @@ struct RealPhotoCard: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                PhotoDeleteStyle.surface,
-                                PhotoDeleteStyle.elevatedSurface
+                                Theme.surface,
+                                Theme.elevatedSurface
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -173,18 +173,18 @@ struct RealPhotoCard: View {
                         VStack(spacing: 10) {
                             if isLoading || isDownloadingFromCloud {
                                 ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                                    .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
                                     .scaleEffect(1.2)
                             } else {
                                 Image(systemName: "photo")
                                     .font(.system(size: 30, weight: .medium))
-                                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                    .foregroundColor(Theme.secondaryText)
                             }
 
                             if isDownloadingFromCloud {
                                 Text(L10n.string("Downloading photo from iCloud"))
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                                    .foregroundColor(Theme.secondaryText)
                             }
                         }
                     )
@@ -240,7 +240,7 @@ struct RealPhotoCard: View {
             if asset.mediaType == .video {
                 ZStack {
                     Circle()
-                        .fill(PhotoDeleteStyle.background.opacity(0.62))
+                        .fill(Theme.background.opacity(0.62))
                         .frame(width: 30, height: 30)
 
                     Image(systemName: "play.fill")
@@ -259,7 +259,7 @@ struct RealPhotoCard: View {
             if photoLibraryManager.isScreenshot(asset) {
                 ZStack {
                     Circle()
-                        .fill(PhotoDeleteStyle.background.opacity(0.62))
+                        .fill(Theme.background.opacity(0.62))
                         .frame(width: 30, height: 30)
 
                     Image(systemName: "camera.viewfinder")
@@ -276,7 +276,7 @@ struct RealPhotoCard: View {
         if isInDeleteCandidates || isBeingFiledToAlbum || isFiledToAlbum {
             ZStack {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(PhotoDeleteStyle.background.opacity(0.72))
+                    .fill(Theme.background.opacity(0.72))
 
                 VStack(spacing: 12) {
                     Image(systemName: candidateOverlayIcon)
@@ -285,7 +285,7 @@ struct RealPhotoCard: View {
 
                     Text(candidateOverlayTitle)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
                 }
             }
             .frame(width: displaySize.width, height: displaySize.height)
@@ -301,8 +301,8 @@ struct RealPhotoCard: View {
     }
 
     private var candidateOverlayTint: Color {
-        if isInDeleteCandidates { return PhotoDeleteStyle.destructive }
-        return PhotoDeleteStyle.positive
+        if isInDeleteCandidates { return Theme.destructive }
+        return Theme.positive
     }
 
     private var candidateOverlayTitle: String {
@@ -320,22 +320,22 @@ struct RealPhotoCard: View {
             HStack(spacing: 8) {
                 if let cloudDownloadProgress {
                     ProgressView(value: cloudDownloadProgress)
-                        .progressViewStyle(LinearProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                        .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
                         .frame(width: 48)
                 } else {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: PhotoDeleteStyle.accent))
+                        .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
                         .scaleEffect(0.72)
                 }
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(isDownloadingFromCloud ? L10n.string("Downloading photo from iCloud") : L10n.string("Loading full-quality preview"))
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(L10n.string("Preview may look blurry"))
                         .font(.system(size: 11, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                 }
             }
             .padding(.horizontal, 11)
@@ -343,7 +343,7 @@ struct RealPhotoCard: View {
             .background(.regularMaterial, in: Capsule(style: .continuous))
             .overlay(
                 Capsule(style: .continuous)
-                    .stroke(PhotoDeleteStyle.primaryText.opacity(0.08), lineWidth: 1)
+                    .stroke(Theme.primaryText.opacity(0.08), lineWidth: 1)
             )
             .padding(.bottom, 14)
             .accessibilityElement(children: .combine)
@@ -598,7 +598,7 @@ struct LivePhotoMotionControlButton: View {
         Button(action: action) {
             ZStack {
                 Circle()
-                    .fill(PhotoDeleteStyle.background.opacity(isEnabled ? 0.72 : 0.62))
+                    .fill(Theme.background.opacity(isEnabled ? 0.72 : 0.62))
                     .frame(width: 30, height: 30)
 
                 if isLoading {

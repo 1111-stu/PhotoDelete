@@ -27,7 +27,7 @@ struct CleanupAchievementsEntryCard: View {
         HStack(spacing: 12) {
             PhotoDeleteIconTile(
                 icon: "seal.fill",
-                tint: PhotoDeleteStyle.warning,
+                tint: Theme.warning,
                 size: 42,
                 cornerRadius: 12
             )
@@ -36,22 +36,22 @@ struct CleanupAchievementsEntryCard: View {
                 HStack(spacing: 7) {
                     Text(L10n.string("Cleanup Achievements"))
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(L10n.string("\(unlockedCount)/\(totalCount)"))
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(PhotoDeleteStyle.warning)
+                        .foregroundColor(Theme.warning)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
                         .background(
                             Capsule(style: .continuous)
-                                .fill(PhotoDeleteStyle.warning.opacity(0.14))
+                                .fill(Theme.warning.opacity(0.14))
                         )
                 }
 
                 Text(subtitle)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(2)
                     .minimumScaleFactor(0.78)
             }
@@ -60,7 +60,7 @@ struct CleanupAchievementsEntryCard: View {
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
         }
         .padding(15)
         .photoDeleteCard()
@@ -115,7 +115,7 @@ struct CleanupAchievementsView: View {
             PhotoDeleteScreenBackground()
 
             ScrollView {
-                VStack(spacing: PhotoDeleteStyle.sectionSpacing) {
+                VStack(spacing: Theme.sectionSpacing) {
                     if AppConstants.achievementsEnabled {
                         archiveSummarySection
                         nextBadgeSection
@@ -126,9 +126,9 @@ struct CleanupAchievementsView: View {
                         historySection
                     }
                 }
-                .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
-                .padding(.top, PhotoDeleteStyle.rootContentTopSpacing)
-                .padding(.bottom, PhotoDeleteStyle.Metrics.bottomChromeSpacing)
+                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.top, Theme.rootContentTopSpacing)
+                .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
@@ -143,7 +143,7 @@ struct CleanupAchievementsView: View {
                     Button(L10n.string("Done")) {
                         dismiss()
                     }
-                    .foregroundColor(PhotoDeleteStyle.accent)
+                    .foregroundColor(Theme.accent)
                 }
             }
         }
@@ -170,7 +170,7 @@ struct CleanupAchievementsView: View {
                 HStack(spacing: 12) {
                     PhotoDeleteIconTile(
                         icon: "seal.fill",
-                        tint: PhotoDeleteStyle.warning,
+                        tint: Theme.warning,
                         size: 38,
                         cornerRadius: 11
                     )
@@ -178,12 +178,12 @@ struct CleanupAchievementsView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(L10n.string("Badges, cleanup streaks, and deleted content progress"))
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(PhotoDeleteStyle.primaryText)
+                            .foregroundColor(Theme.primaryText)
                             .lineLimit(2)
 
                         Text(L10n.string("All records stay on this device."))
                             .font(.system(size: 12, weight: .regular))
-                            .foregroundColor(PhotoDeleteStyle.secondaryText)
+                            .foregroundColor(Theme.secondaryText)
                             .lineLimit(1)
                     }
 
@@ -192,7 +192,7 @@ struct CleanupAchievementsView: View {
                     Text("\(unlockedProgress.count)/\(allProgress.count)")
                         .font(.system(size: 13, weight: .semibold))
                         .monospacedDigit()
-                        .foregroundColor(PhotoDeleteStyle.warning)
+                        .foregroundColor(Theme.warning)
                         .lineLimit(1)
                         .minimumScaleFactor(0.72)
                 }
@@ -200,29 +200,29 @@ struct CleanupAchievementsView: View {
                 .padding(.vertical, 15)
 
                 Divider()
-                    .background(PhotoDeleteStyle.hairline)
+                    .background(Theme.hairline)
                     .padding(.horizontal, 16)
 
                 HStack(spacing: 8) {
                     StatCard(
                         value: "\(unlockedProgress.count)/\(allProgress.count)",
                         label: L10n.string("Earned"),
-                        color: PhotoDeleteStyle.warning
+                        color: Theme.warning
                     )
                     StatCard(
                         value: "\(summary.sessions)",
                         label: L10n.string("Cleanup Sessions"),
-                        color: PhotoDeleteStyle.accent
+                        color: Theme.accent
                     )
                     StatCard(
                         value: "\(summary.deletedPhotos)",
                         label: L10n.string("Total Deleted"),
-                        color: PhotoDeleteStyle.destructive
+                        color: Theme.destructive
                     )
                     StatCard(
                         value: summary.formattedSpaceSaved,
                         label: L10n.string("Total Deleted Content"),
-                        color: PhotoDeleteStyle.positive
+                        color: Theme.positive
                     )
                 }
                 .padding(.horizontal, 16)
@@ -261,7 +261,7 @@ struct CleanupAchievementsView: View {
 
                 Text(L10n.string("Light up each cleanup badge by category"))
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
 
             if groupedAllProgress.isEmpty {
@@ -317,11 +317,11 @@ struct RecentOrganizedPhotosSection: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(L10n.string("Recently Organized"))
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(PhotoDeleteStyle.primaryText)
+                        .foregroundColor(Theme.primaryText)
 
                     Text(L10n.string("Tap Organize Again to remove it from pending deletion and return it to review."))
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(PhotoDeleteStyle.secondaryText)
+                        .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -338,7 +338,7 @@ struct RecentOrganizedPhotosSection: View {
             if items.isEmpty {
                 Text(L10n.string("Recently organized photos appear here so you can revise them."))
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 8)
             } else {
@@ -409,12 +409,12 @@ private struct RecentOrganizedPhotoCard: View {
 
             Button(L10n.string("Organize Again"), action: onReopen)
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.accent)
+                .foregroundColor(Theme.accent)
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 32)
                 .background(
                     RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .fill(PhotoDeleteStyle.accent.opacity(0.12))
+                        .fill(Theme.accent.opacity(0.12))
                 )
         }
         .frame(width: 116)
@@ -438,13 +438,13 @@ private struct RecentOrganizedPhotoCard: View {
     private var actionTint: Color {
         switch item.record.action {
         case .queuedForDeletion:
-            return PhotoDeleteStyle.destructive
+            return Theme.destructive
         case .favorited, .unfavorited:
-            return PhotoDeleteStyle.iconTint(for: "favorite")
+            return Theme.iconTint(for: "favorite")
         case .filedToAlbum:
-            return PhotoDeleteStyle.accent
+            return Theme.accent
         case .kept:
-            return PhotoDeleteStyle.positive
+            return Theme.positive
         }
     }
 }
@@ -459,7 +459,7 @@ private struct RecentOrganizedPhotoThumbnail: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(PhotoDeleteStyle.elevatedSurface)
+                .fill(Theme.elevatedSurface)
 
             if let image {
                 Image(uiImage: image)
@@ -467,7 +467,7 @@ private struct RecentOrganizedPhotoThumbnail: View {
                     .scaledToFill()
             } else {
                 ProgressView()
-                    .tint(PhotoDeleteStyle.accent)
+                    .tint(Theme.accent)
             }
         }
         .frame(width: 116, height: 92)
@@ -506,13 +506,13 @@ private struct CleanupAchievementNextRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(progress.achievement.title)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
 
                 Text(progress.remainingDescription)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(2)
                     .minimumScaleFactor(0.78)
             }
@@ -527,7 +527,7 @@ private struct CleanupAchievementNextRow: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
+        .frame(minHeight: Theme.rowMinHeight)
         .accessibilityElement(children: .combine)
     }
 }
@@ -537,7 +537,7 @@ private struct CleanupAchievementAllUnlockedRow: View {
         HStack(spacing: 12) {
             PhotoDeleteIconTile(
                 icon: "checkmark.seal.fill",
-                tint: PhotoDeleteStyle.positive,
+                tint: Theme.positive,
                 size: 38,
                 cornerRadius: 11
             )
@@ -545,18 +545,18 @@ private struct CleanupAchievementAllUnlockedRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(L10n.string("All Badges Unlocked"))
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(L10n.string("Every cleanup milestone is complete."))
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
 
             Spacer()
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .frame(minHeight: PhotoDeleteStyle.rowMinHeight)
+        .frame(minHeight: Theme.rowMinHeight)
         .accessibilityElement(children: .combine)
     }
 }
@@ -585,7 +585,7 @@ private struct CleanupAchievementCategoryGroup: View {
             HStack(spacing: 8) {
                 Text(title)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
                     .lineLimit(1)
 
                 Spacer()
@@ -593,7 +593,7 @@ private struct CleanupAchievementCategoryGroup: View {
                 Text("\(unlockedCount)/\(progressItems.count)")
                     .font(.system(size: 12, weight: .semibold))
                     .monospacedDigit()
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
             }
 
@@ -623,7 +623,7 @@ private struct CleanupAchievementBadgeTile: View {
 
             Text(progress.achievement.title)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(PhotoDeleteStyle.primaryText)
+                .foregroundColor(Theme.primaryText)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .minimumScaleFactor(0.72)
@@ -631,7 +631,7 @@ private struct CleanupAchievementBadgeTile: View {
 
             Text(progress.isUnlocked ? L10n.string("Unlocked") : progress.valueDescription)
                 .font(.system(size: 9, weight: .semibold))
-                .foregroundColor(progress.isUnlocked ? progress.achievement.tint.color : PhotoDeleteStyle.secondaryText)
+                .foregroundColor(progress.isUnlocked ? progress.achievement.tint.color : Theme.secondaryText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.62)
         }
@@ -662,12 +662,12 @@ private struct CleanupAchievementMedal: View {
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ))
-                    : AnyShapeStyle(PhotoDeleteStyle.surface)
+                    : AnyShapeStyle(Theme.surface)
                 )
                 .overlay(
                     Circle()
                         .stroke(
-                            progress.isUnlocked ? tint.opacity(0.36) : PhotoDeleteStyle.cardStroke,
+                            progress.isUnlocked ? tint.opacity(0.36) : Theme.cardStroke,
                             lineWidth: progress.isUnlocked ? 1.5 : 1
                         )
                 )
@@ -697,15 +697,15 @@ private struct CleanupAchievementMedal: View {
                 .font(.system(size: markerSize * 0.54, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: markerSize, height: markerSize)
-                .background(Circle().fill(PhotoDeleteStyle.positive))
-                .overlay(Circle().stroke(PhotoDeleteStyle.surface, lineWidth: 2))
+                .background(Circle().fill(Theme.positive))
+                .overlay(Circle().stroke(Theme.surface, lineWidth: 2))
         } else {
             Image(systemName: "lock.fill")
                 .font(.system(size: markerSize * 0.48, weight: .bold))
-                .foregroundColor(PhotoDeleteStyle.tertiaryText)
+                .foregroundColor(Theme.tertiaryText)
                 .frame(width: markerSize, height: markerSize)
-                .background(Circle().fill(PhotoDeleteStyle.elevatedSurface))
-                .overlay(Circle().stroke(PhotoDeleteStyle.surface, lineWidth: 1.5))
+                .background(Circle().fill(Theme.elevatedSurface))
+                .overlay(Circle().stroke(Theme.surface, lineWidth: 1.5))
         }
     }
 }
@@ -718,7 +718,7 @@ private struct CleanupAchievementEmptyCard: View {
         HStack(spacing: 12) {
             PhotoDeleteIconTile(
                 icon: "seal",
-                tint: PhotoDeleteStyle.tertiaryText,
+                tint: Theme.tertiaryText,
                 size: 38,
                 cornerRadius: 11
             )
@@ -726,11 +726,11 @@ private struct CleanupAchievementEmptyCard: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
+                    .foregroundColor(Theme.primaryText)
 
                 Text(subtitle)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(PhotoDeleteStyle.secondaryText)
+                    .foregroundColor(Theme.secondaryText)
             }
 
             Spacer()

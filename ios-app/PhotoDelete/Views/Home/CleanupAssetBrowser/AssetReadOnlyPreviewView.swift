@@ -26,7 +26,7 @@ struct AssetReadOnlyPreviewView: View {
                         ProgressView().tint(.white)
                     } else {
                         Button(L10n.string("Retry")) { loadImage(in: geometry.size) }
-                            .tint(PhotoDeleteStyle.accent)
+                            .tint(Theme.accent)
                     }
                 }
                 .task { if asset.mediaType != .video { loadImage(in: geometry.size) } }
