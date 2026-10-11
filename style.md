@@ -89,7 +89,7 @@
 ### 4.2 渐变入口双卡（首页）
 
 - 一行两张，**等高 158**、间距 12、圆角 **24**（`Theme.radiusLg`）。
-- **珊瑚卡（待整理）**：标题 → 大数字「N 张」 → Spacer → 「预计可释放」+ 值 → **7pt 进度条沉底**（ink 实心填充 + ink 18% 轨道）。整卡 ink 色文字。点击 → 本年周期整理。
+- **珊瑚卡（待整理）**：标题 → 大数字「N 张」 → Spacer → 「预计可释放」+ 值 → **7pt 进度条沉底**（ink 实心填充 + ink 18% 轨道）。整卡 ink 色文字。点击 → **待整理照片墙**（`SwipeViewDestination.pendingPhotoWall`）。
 - **琥珀卡（随机整理）**：标题 + 「最多 N 项」 + 底部居中**扇形牌轮**装饰（3 张 46×62、白描边 2、±24°、弧半径 104、静息摊开）。点击 → 随机整理。
 - 实现：`HomeView.duoRow / pendingReviewCard / randomReviewFanCard / CoralProgressBar / RandomFanDecoration / HomeFanArt`。
 
@@ -130,7 +130,18 @@
 
 ### 4.6 待整理卡入口语义（硬约束）
 
-- 卡片大数字 = **全库待整理**（total − reviewed），入口必须是**全部照片**通道（`SwipeViewDestination.category(.all)`）——卡片说的范围与进入后的范围严格一致；不要接单一周期（如"本年"），否则往年未整理的照片会被计数却无法触达。
+- 卡片大数字 = **全库待整理**（total − reviewed）。
+- 点击先进 **待整理照片墙**（`PendingPhotoWallView`），墙上按年浏览未整理日封面；点某天封面 / 月份 CTA → **当月**滑动整理（`wallMonth`，点天可带 `startFromDay`）。
+- 年份胶囊只改墙的浏览范围，不单独开「整年整理」会话。
+- 首页「按时间段」band 仍直进周期整理，与照片墙并存。
+- 原型：`designs/photo-wall-prototype.html`；实现：`Views/Home/PendingPhotoWall/` + `PendingPhotoWallBuilder` / `PolaroidBoardLayout`。
+
+### 4.6.1 待整理照片墙（视觉）
+
+- 顶栏：48pt 玻璃圆钮（返回 / 收集箱）+ 年份胶囊，规格对齐整理页 `ReviewGlassCircleChrome` / `ReviewGlassCapsuleChrome`。
+- **日历模式（默认可爱）**：周日首列 7 格；有待整理的日子 = 相纸白边（`#F2EDE4`）+ 圆角 12/8 + 确定性微倾斜 `(day%5-2)*0.6°`；空日 = 安静空卡；今天白环。
+- **相纸墙模式**：月份抬头可切；托盘 + 确定性撒布（种子=`yyyy-MM`，上限 15）；偏好记在 `AppConstants.pendingPhotoWallDisplayModeKey`。
+- 不做素/可爱双风格开关（首版只可爱日历 + 相纸墙）。
 
 ## 5. 动效（均尊重「减弱动态效果」）
 
@@ -146,7 +157,7 @@
 
 ```
 大标题「整理」+ 右上待删除入口（`archivebox`）
-渐变双卡：待整理（珊瑚） | 随机整理（琥珀）
+渐变双卡：待整理（珊瑚）→ 照片墙 | 随机整理（琥珀）
 按时间段开始：本周 / 本月 / 本年（点任一段 → 周期选择弹窗：标题「按周/按月/按年整理」，首行「本期全部」，下面列更细周期——本周→每天 / 本月→其他月份 / 本年→其他年份；选行进入对应整理。**每张弹窗的「本期全部」行数字为琥珀**——三档一致；明细行数字白字）
 专项清理：相似与重复 / 视频 / 截图 / 录屏（头部合计 = 各项之和）
 工具：图片压缩 / 视频压缩（**首页暂隐藏**；`HomeView.toolSection` 保留，代码入口未删）

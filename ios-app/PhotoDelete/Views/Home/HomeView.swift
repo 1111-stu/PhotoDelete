@@ -18,6 +18,9 @@ enum SwipeViewDestination: Hashable {
     case historicalToday
     case location(String)
     case period(AdvancedTimeScope, Date)
+    /// 照片墙进月整理：`monthDate` 定月份，`startFromDay` 非空时从该日起滑。
+    case wallMonth(Date, startFromDay: Date?)
+    case pendingPhotoWall
     case cleanup(AdvancedCleanupKind)
     case trashBin
 
@@ -43,6 +46,10 @@ enum SwipeViewDestination: Hashable {
             return lhsGroupID == rhsGroupID
         case (.period(let lhsScope, let lhsDate), .period(let rhsScope, let rhsDate)):
             return lhsScope == rhsScope && lhsDate == rhsDate
+        case (.wallMonth(let lhsMonth, let lhsStart), .wallMonth(let rhsMonth, let rhsStart)):
+            return lhsMonth == rhsMonth && lhsStart == rhsStart
+        case (.pendingPhotoWall, .pendingPhotoWall):
+            return true
         case (.cleanup(let lhsKind), .cleanup(let rhsKind)):
             return lhsKind == rhsKind
         case (.trashBin, .trashBin):
@@ -82,6 +89,12 @@ enum SwipeViewDestination: Hashable {
             hasher.combine("period")
             hasher.combine(scope)
             hasher.combine(date)
+        case .wallMonth(let monthDate, let startFromDay):
+            hasher.combine("wallMonth")
+            hasher.combine(monthDate)
+            hasher.combine(startFromDay)
+        case .pendingPhotoWall:
+            hasher.combine("pendingPhotoWall")
         case .cleanup(let kind):
             hasher.combine("cleanup")
             hasher.combine(kind)
@@ -416,8 +429,8 @@ struct HomeView: View {
         let progress = total > 0 ? Double(reviewed) / Double(total) : 0
         
         return Button {
-            // 卡片数字是"全库待整理"，入口也用全库（.all）——两者范围严格对齐。
-            router.push(SwipeViewDestination.category(.all))
+            // 先进待整理照片墙；卡上数字仍是全库待整理，墙上再选月/日起滑。
+            router.push(SwipeViewDestination.pendingPhotoWall)
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 Text(L10n.string("To review"))

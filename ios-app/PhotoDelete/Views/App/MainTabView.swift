@@ -185,6 +185,19 @@ struct MainTabView: View {
                 selectedAdvancedTimeScope: scope
             )
             .environmentObject(dataManager)
+        case .wallMonth(let monthDate, let startFromDay):
+            SwipePhotoView(
+                selectedCategory: nil,
+                selectedTimeGroup: nil,
+                selectedAlbumInfo: nil,
+                selectedDate: monthDate,
+                selectedAdvancedTimeScope: .month,
+                reviewStartFromDay: startFromDay
+            )
+            .environmentObject(dataManager)
+        case .pendingPhotoWall:
+            PendingPhotoWallView()
+                .environmentObject(dataManager)
         case .cleanup(let kind):
             AdvancedCleanupDestination(kind: kind)
                 .environmentObject(dataManager)

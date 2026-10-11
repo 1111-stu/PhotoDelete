@@ -62,6 +62,7 @@ enum AppConstants {
     static let randomReviewBatchSizeKey = "photoDeleteRandomReviewBatchSize"
     static let reviewVideoMutedKey = "photoDeleteReviewVideoMuted"
     static let reviewSortOrderKey = "photoDeleteReviewSortOrder"
+    static let pendingPhotoWallDisplayModeKey = "photoDeletePendingPhotoWallDisplayMode"
     static let reviewAlbumShortcutsExpandedKey = "photoDeleteReviewAlbumShortcutsExpanded"
     static let hasSeenAlbumShortcutHintKey = "photoDeleteHasSeenAlbumShortcutHintV2"
     static let hasSeenAlbumDownSwipeHintKey = "photoDeleteHasSeenAlbumDownSwipeHint"

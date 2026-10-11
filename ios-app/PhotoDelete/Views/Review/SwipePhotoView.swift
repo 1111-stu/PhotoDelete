@@ -31,6 +31,8 @@ struct SwipePhotoView: View {
     let randomReviewScope: PhotoRandomReviewScope?
     let selectedHistoricalToday: Bool
     let explicitReviewScope: ExplicitAssetReviewScope?
+    /// 照片墙点天进月：首帧定位到该日未整理照片（忽略本源进度恢复）。
+    let reviewStartFromDay: Date?
 
     @StateObject private var session = PhotoReviewSession()
     @State private var showingPendingDeletion = false
@@ -75,7 +77,8 @@ struct SwipePhotoView: View {
         selectedLocationGroupID: String? = nil,
         randomReviewScope: PhotoRandomReviewScope? = nil,
         selectedHistoricalToday: Bool = false,
-        explicitReviewScope: ExplicitAssetReviewScope? = nil
+        explicitReviewScope: ExplicitAssetReviewScope? = nil,
+        reviewStartFromDay: Date? = nil
     ) {
         self.selectedCategory = selectedCategory
         self.selectedTimeGroup = selectedTimeGroup
@@ -87,6 +90,7 @@ struct SwipePhotoView: View {
         self.randomReviewScope = randomReviewScope
         self.selectedHistoricalToday = selectedHistoricalToday
         self.explicitReviewScope = explicitReviewScope
+        self.reviewStartFromDay = reviewStartFromDay
     }
 
     private var currentRealPhoto: PHAsset? {
@@ -1025,8 +1029,9 @@ struct SwipePhotoView: View {
             usesPersistedReviewedState: explicitReviewScope?.usesPersistedReviewedState(hasAlbumContext: isAlbumMode)
                 ?? (!isAlbumMode && !isRandomMemoriesMode),
             preservesSessionReviewedState: didInitializeSession,
-            savedAssetIdentifier: restoredSessionProgressAssetID,
+            savedAssetIdentifier: reviewStartFromDay == nil ? restoredSessionProgressAssetID : nil,
             prefersFirstUnreviewedBeforeSavedProgress: shouldPrioritizeNewPhotosBeforeSavedProgress,
+            startFromDay: didInitializeSession ? nil : reviewStartFromDay,
             paginates: shouldPageSessionPhotos
         )
         preloadUpcomingImages(from: session.currentIndex)

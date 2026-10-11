@@ -6599,6 +6599,46 @@
         }
       }
     },
+"All caught up" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "اكتمل الكل"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Alles erledigt"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "All caught up"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "すべて整理済み"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "全部整理完了"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "全部整理完了"
+        }
+      }
+    }
+  },
     "All items are selected by default. Deselected items will be skipped." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9850,6 +9890,46 @@
         }
       }
     },
+"Calendar" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "التقويم"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Kalender"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Calendar"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "カレンダー"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "日历"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "日曆"
+        }
+      }
+    }
+  },
     "Can Save" : {
       "localizations" : {
         "ar" : {
@@ -11977,6 +12057,46 @@
         }
       }
     },
+"Cleared" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "تم المسح"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Erledigt"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Cleared"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "クリア済み"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "已清空"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "已清空"
+        }
+      }
+    }
+  },
     "Close" : {
       "localizations" : {
         "ar" : {
@@ -17743,6 +17863,46 @@
         }
       }
     },
+"Display mode" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "وضع العرض"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Anzeigemodus"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Display mode"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "表示方式"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "显示方式"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "顯示方式"
+        }
+      }
+    }
+  },
     "Done" : {
       "localizations" : {
         "ar" : {
@@ -18920,6 +19080,46 @@
         }
       }
     },
+"Every photo has been reviewed." : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "تمت مراجعة كل الصور."
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Jedes Foto wurde geprüft."
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Every photo has been reviewed."
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "すべての写真を確認しました。"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "每张照片都看过了。"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "每張照片都看過了。"
+        }
+      }
+    }
+  },
     "Expanded" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -31447,6 +31647,46 @@
         }
       }
     },
+"Organize %@ · %@ photos" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "تنظيم %@ · %@ صورة"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "%@ organisieren · %@ Fotos"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Organize %@ · %@ photos"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "%@ を整理 · %@ 枚"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "整理%@ · %@ 张"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "整理%@ · %@ 張"
+        }
+      }
+    }
+  },
     "Organize Again" : {
       "localizations" : {
         "en" : {
@@ -31698,6 +31938,86 @@
         }
       }
     },
+"Organize from %@ · %@ photos" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "تنظيم من %@ · %@ صورة"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Ab %@ organisieren · %@ Fotos"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Organize from %@ · %@ photos"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "%@ から整理 · %@ 枚"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "从%@开始整理 · %@ 张"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "從%@開始整理 · %@ 張"
+        }
+      }
+    }
+  },
+"Organize from day %lld · %@ photos" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "تنظيم من يوم %lld · %@ صورة"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Ab Tag %lld organisieren · %@ Fotos"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Organize from day %lld · %@ photos"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "%lld 日から整理 · %@ 枚"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "从 %lld 日开始整理 · %@ 张"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "從 %lld 日開始整理 · %@ 張"
+        }
+      }
+    }
+  },
     "Organize on this device" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -33656,6 +33976,46 @@
         }
       }
     },
+"Photo board" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "لوحة الصور"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Fotowand"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Photo board"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "フォトボード"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "相纸墙"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "相紙牆"
+        }
+      }
+    }
+  },
     "Photo Cleanup" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -34492,6 +34852,46 @@
         }
       }
     },
+"Pick another year, or keep going elsewhere." : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "اختر سنة أخرى أو تابع من مكان آخر."
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Wähle ein anderes Jahr oder mach woanders weiter."
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Pick another year, or keep going elsewhere."
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "別の年を選ぶか、別の場所から続けましょう。"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "换一年看看，或者继续往下整理。"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "換一年看看，或者繼續往下整理。"
+        }
+      }
+    }
+  },
     "Place Filter" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -41254,6 +41654,46 @@
         }
       }
     },
+"Select year" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "اختر السنة"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Jahr wählen"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Select year"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "年を選択"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "选择年份"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "選擇年份"
+        }
+      }
+    }
+  },
     "Selected" : {
       "localizations" : {
         "ar" : {
@@ -41727,6 +42167,46 @@
         }
       }
     },
+"Showing %lld of %lld photos" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "عرض %lld من %lld صورة"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "%lld von %lld Fotos"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Showing %lld of %lld photos"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "%lld / %lld 枚を表示"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "挂了 %lld 张 · 共 %lld 张"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "掛了 %lld 張 · 共 %lld 張"
+        }
+      }
+    }
+  },
     "Showing the default view" : {
       "localizations" : {
         "en" : {
@@ -48691,6 +49171,46 @@
         }
       }
     },
+"This year is done" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "انتهت هذه السنة"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Dieses Jahr ist fertig"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "This year is done"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "この年は完了"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "这一年整理完了"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "這一年整理完了"
+        }
+      }
+    }
+  },
     "Time" : {
       "localizations" : {
         "ar" : {
@@ -53316,6 +53836,46 @@
         }
       }
     },
+"View review history" : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "عرض سجل المراجعة"
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Verlauf ansehen"
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "View review history"
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "整理履歴を見る"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "查看整理记录"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "查看整理記錄"
+        }
+      }
+    }
+  },
     "View shooting locations on the map, then choose a place to continue." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -54171,6 +54731,46 @@
         }
       }
     },
+"Year only changes what you browse on the wall. Tapping a day organizes that month." : {
+    "localizations" : {
+      "ar" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "السنة تغيّر نطاق التصفح فقط. النقر على يوم ينظّم ذلك الشهر."
+        }
+      },
+      "de" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Das Jahr ändert nur den Ausschnitt der Wand. Tippen auf einen Tag organisiert diesen Monat."
+        }
+      },
+      "en" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "Year only changes what you browse on the wall. Tapping a day organizes that month."
+        }
+      },
+      "ja" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "年は壁の表示範囲だけを変えます。日をタップするとその月を整理します。"
+        }
+      },
+      "zh-Hans" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "年份只改变墙的浏览范围；点某一天会整理那一个月。"
+        }
+      },
+      "zh-Hant" : {
+        "stringUnit" : {
+          "state" : "translated",
+          "value" : "年份只改變牆的瀏覽範圍；點某一天會整理那一個月。"
+        }
+      }
+    }
+  },
     "Yearly" : {
       "localizations" : {
         "ar" : {

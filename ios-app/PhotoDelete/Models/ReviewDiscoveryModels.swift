@@ -553,6 +553,52 @@ enum PhotoReviewSessionPaginator {
         return trailingUnreviewedIndex ?? firstUnreviewedIndex ?? restoredIndex
     }
 
+    /// 照片墙「从某天起」：在 newest-first 队列里定位该日首张未整理；没有则落回该日之前（更旧）的首张未整理。
+    static func initialTargetIndex(
+        assets: [PHAsset],
+        reviewedAssetIdentifiers: Set<String>,
+        savedAssetIdentifier: String?,
+        prefersFirstUnreviewedBeforeSavedProgress: Bool = false,
+        startFromDay: Date?,
+        calendar: Calendar = .current
+    ) -> Int {
+        let identifiers = assets.map(\.localIdentifier)
+        guard let startFromDay else {
+            return initialTargetIndex(
+                assetIdentifiers: identifiers,
+                reviewedAssetIdentifiers: reviewedAssetIdentifiers,
+                savedAssetIdentifier: savedAssetIdentifier,
+                prefersFirstUnreviewedBeforeSavedProgress: prefersFirstUnreviewedBeforeSavedProgress
+            )
+        }
+        guard !assets.isEmpty else { return 0 }
+
+        let dayStart = calendar.startOfDay(for: startFromDay)
+        if let sameDayIndex = assets.firstIndex(where: { asset in
+            guard let creationDate = asset.creationDate else { return false }
+            return calendar.isDate(creationDate, inSameDayAs: dayStart)
+                && !reviewedAssetIdentifiers.contains(asset.localIdentifier)
+        }) {
+            return sameDayIndex
+        }
+
+        if let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart),
+           let onOrBeforeIndex = assets.firstIndex(where: { asset in
+               guard let creationDate = asset.creationDate else { return false }
+               return creationDate < dayEnd
+                   && !reviewedAssetIdentifiers.contains(asset.localIdentifier)
+           }) {
+            return onOrBeforeIndex
+        }
+
+        return initialTargetIndex(
+            assetIdentifiers: identifiers,
+            reviewedAssetIdentifiers: reviewedAssetIdentifiers,
+            savedAssetIdentifier: nil,
+            prefersFirstUnreviewedBeforeSavedProgress: false
+        )
+    }
+
     static func initialLoadedCount(totalCount: Int, initialPageSize: Int = defaultInitialPageSize) -> Int {
         min(max(totalCount, 0), max(initialPageSize, 0))
     }

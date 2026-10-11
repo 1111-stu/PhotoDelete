@@ -3474,4 +3474,46 @@ struct PhotoDeleteTests {
             .appendingPathComponent("photodelete-tests-\(UUID().uuidString)", isDirectory: true)
     }
 
+    // MARK: - Pending photo wall
+
+    @Test func polaroidBoardLayoutIsDeterministicForSameMonthSeed() async throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let days: [PendingPhotoWallDayCell] = (1...10).compactMap { day in
+            guard let date = calendar.date(from: DateComponents(year: 2026, month: 10, day: day)) else {
+                return nil
+            }
+            return PendingPhotoWallDayCell(
+                date: date,
+                remainingCount: day == 1 ? 40 : 8,
+                coverAssetID: "cover-\(day)"
+            )
+        }
+
+        let first = PolaroidBoardLayout.layout(year: 2026, month: 10, days: days)
+        let second = PolaroidBoardLayout.layout(year: 2026, month: 10, days: days)
+
+        #expect(first.count == second.count)
+        #expect(first.count <= PolaroidBoardLayout.maxPolaroids)
+        #expect(first.map(\.id) == second.map(\.id))
+        #expect(first.map(\.x) == second.map(\.x))
+        #expect(first.map(\.rotationDegrees) == second.map(\.rotationDegrees))
+        // remainingCount >= 20 的天会多挂一张 variant
+        #expect(first.contains { $0.dayOfMonth == 1 && $0.variant == 1 })
+    }
+
+    @Test func pendingPhotoWallBuilderGroupsDaysBySelectedYear() async throws {
+        // 无 PHAsset 时 builder 仍应返回空月与当前年选项结构。
+        let snapshot = PendingPhotoWallBuilder.build(
+            photos: [],
+            reviewedIDs: [],
+            deleteCandidateIDs: [],
+            favoriteCandidateIDs: [],
+            selectedYear: 2024,
+            now: Date(timeIntervalSince1970: 1_764_000_000) // ~2025-11
+        )
+        #expect(snapshot.months.isEmpty)
+        #expect(snapshot.totalPendingInLibrary == 0)
+        #expect(snapshot.selectedYear == 2024 || snapshot.years.isEmpty)
+    }
+
 }
