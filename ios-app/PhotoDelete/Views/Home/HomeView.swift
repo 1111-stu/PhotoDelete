@@ -289,7 +289,7 @@ struct HomeView: View {
         }
     }
 
-    /// 首页大标题（对齐原型：34/700）+ 右上角垃圾桶入口。
+    /// 首页大标题（对齐原型：34/700）+ 右上角待删除入口。
     private var homeTitleBar: some View {
         HStack(alignment: .center, spacing: 12) {
             Text(L10n.string("Organize"))
@@ -302,38 +302,17 @@ struct HomeView: View {
         .padding(.top, 10)
     }
 
-    /// 右上角垃圾桶入口：进入「垃圾桶」（TrashBinView）。
-    /// iOS 26+ 用液态玻璃，老系统回落实心圆钮；待删除数量挂在按钮角标上（最多 99+）。
-    @ViewBuilder
+    /// 右上角待删除入口：进入「垃圾桶」（TrashBinView）。
+    /// 用归档图标表达「暂存待确认」；数量角标挂在按钮上（最多 99+）。
     private var trashBinEntryButton: some View {
-        if #available(iOS 26.0, *) {
-            Button {
-                navigationPath.append(SwipeViewDestination.trashBin)
-            } label: {
-                Image(systemName: "trash")
-                    .font(.system(size: 17, weight: .semibold))
-                    .frame(width: 44, height: 44)
-            }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.circle)
-            .foregroundStyle(PhotoDeleteStyle.primaryText)
-            .overlay(alignment: .topTrailing) { pendingDeleteBadge }
-            .accessibilityLabel(trashBinAccessibilityLabel)
-            .accessibilityIdentifier("home-trash-bin")
-        } else {
-            Button {
-                navigationPath.append(SwipeViewDestination.trashBin)
-            } label: {
-                Image(systemName: "trash")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-                    .frame(width: 44, height: 44)
-                    .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
-            }
-            .buttonStyle(.plain)
-            .overlay(alignment: .topTrailing) { pendingDeleteBadge }
-            .accessibilityLabel(trashBinAccessibilityLabel)
-            .accessibilityIdentifier("home-trash-bin")
+        PhotoDeleteCircleIconButton(
+            systemName: "archivebox",
+            accessibilityLabel: trashBinAccessibilityLabel,
+            accessibilityIdentifier: "home-trash-bin"
+        ) {
+            navigationPath.append(SwipeViewDestination.trashBin)
+        } badge: {
+            pendingDeleteBadge
         }
     }
 

@@ -19,6 +19,12 @@ enum PhotoDeleteStyle {
     // Shared geometry follows the Moonly-inspired style guide.
     enum Metrics {
         static let minimumTapTarget: CGFloat = 44
+        /// 标题栏圆形 icon 按钮的可见圆直径（触控仍用 `minimumTapTarget`）。
+        static let titleBarIconVisualSize: CGFloat = 36
+        static let titleBarIconPointSize: CGFloat = 15
+        /// 整理页顶/底栏圆形 chrome（有意更大一档，勿与标题栏混用）。
+        static let reviewChromeTarget: CGFloat = 52
+        static let reviewChromeIconPointSize: CGFloat = 19
         static let screenHorizontalPadding: CGFloat = 20
         static let cardRadius: CGFloat = 22
         static let controlRadius: CGFloat = 14

@@ -171,35 +171,14 @@ struct AlbumsView: View {
         .padding(.bottom, 6)
     }
 
-    /// 右上角显示方式入口：iOS 26+ 用液态玻璃，老系统回落实心圆钮。
-    @ViewBuilder
+    /// 右上角显示方式入口（统一标题栏圆钮规格）。
     private var displayStyleEntryButton: some View {
-        if #available(iOS 26.0, *) {
-            Button {
-                showsDisplayStyle = true
-            } label: {
-                Image(systemName: "square.grid.2x2")
-                    .font(.system(size: 17, weight: .semibold))
-                    .frame(width: 44, height: 44)
-            }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.circle)
-            .foregroundStyle(PhotoDeleteStyle.primaryText)
-            .accessibilityLabel(L10n.string("Display"))
-            .accessibilityIdentifier("album-display-style")
-        } else {
-            Button {
-                showsDisplayStyle = true
-            } label: {
-                Image(systemName: "square.grid.2x2")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(PhotoDeleteStyle.primaryText)
-                    .frame(width: 44, height: 44)
-                    .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("Display"))
-            .accessibilityIdentifier("album-display-style")
+        PhotoDeleteCircleIconButton(
+            systemName: "square.grid.2x2",
+            accessibilityLabel: L10n.string("Display"),
+            accessibilityIdentifier: "album-display-style"
+        ) {
+            showsDisplayStyle = true
         }
     }
 
@@ -214,20 +193,16 @@ struct AlbumsView: View {
         )
     }
 
-    /// 搜索框 + 新建相册：新建入口贴着搜索栏右侧，同高 44。
+    /// 搜索框 + 新建相册：新建入口贴着搜索栏右侧，同高触控区 44。
     private var albumSearchRow: some View {
         HStack(spacing: 10) {
             albumSearchField
 
-            Button(action: createAlbum) {
-                Image(systemName: "plus")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(PhotoDeleteStyle.primaryText)
-                    .frame(width: 44, height: 44)
-                    .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("Create Album"))
+            PhotoDeleteCircleIconButton(
+                systemName: "plus",
+                accessibilityLabel: L10n.string("Create Album"),
+                action: createAlbum
+            )
         }
     }
 

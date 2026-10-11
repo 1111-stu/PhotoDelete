@@ -106,12 +106,14 @@
 - 内边距 13/18；行间 `insetHairline`；行为 `Button(.plain)`。
 - 实现：`cleanupRow` / `toolRow`。
 
-### 4.5 顶栏
+### 4.5 顶栏圆形 icon 按钮
 
-- 左侧大标题 34/700；右上操作区两枚圆钮（间距 10）：
-  - **删除入口（占位）**：trash 图标，点击暂无行为（回收站 / 最近删除功能待定）；
-  - **统计入口**：`chart.bar.xaxis` 图标，进入「使用统计」（StatsView）。
-- 样式：iOS 26+ 用液态玻璃（`.buttonStyle(.glass)` + `.buttonBorderShape(.circle)`）；老系统回落 `elevatedSurface` 实心圆钮。
+- 组件：`PhotoDeleteCircleIconButton`（`Views/Components/PhotoDeleteCircleIconButton.swift`）。
+- 规格：**可见圆 36** / 图标 **15** semibold / 触控区 **44**（`Metrics.titleBarIconVisualSize` / `titleBarIconPointSize` / `minimumTapTarget`）。
+- 样式：iOS 26+ 液态玻璃（`.buttonStyle(.glass)` + `.buttonBorderShape(.circle)`）；老系统回落 `elevatedSurface` 实心圆钮。
+- 首页右上：`archivebox` → 待删除暂存（`TrashBinView`），可挂数量角标。
+- 相册页右上：`square.grid.2x2` → 显示方式；搜索行右侧 `plus` → 新建相册（同一组件）。
+- **勿与整理页 chrome 混用**：整理页顶/底栏圆钮为 **52 / 19**（`Metrics.reviewChromeTarget` / `reviewChromeIconPointSize`）。
 
 ### 4.6 待整理卡入口语义（硬约束）
 
@@ -130,7 +132,7 @@
 ## 6. 首页结构（唯一顺序）
 
 ```
-大标题「整理」+ 右上删除占位
+大标题「整理」+ 右上待删除入口（`archivebox`）
 渐变双卡：待整理（珊瑚） | 随机整理（琥珀）
 按时间段开始：本周 / 本月 / 本年（点任一段 → 周期选择弹窗：标题「按周/按月/按年整理」，首行「本期全部」，下面列更细周期——本周→每天 / 本月→其他月份 / 本年→其他年份；选行进入对应整理。**每张弹窗的「本期全部」行数字为琥珀**——三档一致；明细行数字白字）
 专项清理：相似与重复 / 视频 / 截图 / 录屏（头部合计 = 各项之和）
