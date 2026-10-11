@@ -87,6 +87,16 @@
         }
       }
     },
+    "%@  →  %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@  →  %2$@"
+          }
+        }
+      }
+    },
     "%@ · %@/%@" : {
       "localizations" : {
         "en" : {
@@ -313,6 +323,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ → %@"
+          }
+        }
+      }
+    },
+    "%@ → %@ · %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ → %2$@ · %3$@ %4$@"
           }
         }
       }
@@ -1507,6 +1527,7 @@
       }
     },
     "%lld images selected · %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2060,6 +2081,7 @@
       }
     },
     "%lld more compression details" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2629,6 +2651,22 @@
         }
       }
     },
+    "%lld sessions · saved %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld sessions · saved %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 次 · 已省 %@"
+          }
+        }
+      }
+    },
     "%lld sessions remaining" : {
       "localizations" : {
         "ar" : {
@@ -3176,6 +3214,7 @@
       }
     },
     "%lld videos selected · %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3580,6 +3619,7 @@
       }
     },
     "%lld/%lld images shown · shown items about %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3947,6 +3987,7 @@
       }
     },
     "%lld/%lld videos shown · about %@ total" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3987,6 +4028,7 @@
       }
     },
     "%lld/%lld videos shown · calculating size" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4027,6 +4069,7 @@
       }
     },
     "%lld/%lld videos shown · known about %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4067,6 +4110,7 @@
       }
     },
     "%lld/%lld videos shown · size checked when compressing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4800,6 +4844,7 @@
       }
     },
     "A compressed video was created. The original has not been deleted. Compare them first, then decide whether to delete the original." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4960,6 +5005,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "關於"
+          }
+        }
+      }
+    },
+    "About %@ → %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About %@ → %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "约 %@ → %@"
           }
         }
       }
@@ -5690,6 +5751,7 @@
       }
     },
     "Adjust" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -6848,6 +6910,22 @@
         }
       }
     },
+    "All shown items are already compressed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These items are already in compression history."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这些内容已在压缩记录中"
+          }
+        }
+      }
+    },
     "All similar groups" : {
       "localizations" : {
         "en" : {
@@ -7243,7 +7321,6 @@
       }
     },
     "Analyzing similar images" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9691,6 +9768,7 @@
       }
     },
     "Calculating estimated size" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -11980,6 +12058,7 @@
       }
     },
     "Collapsed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12245,7 +12324,42 @@
         }
       }
     },
+    "Compress · %lld images" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compress · %lld images"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "压缩 · %lld 张"
+          }
+        }
+      }
+    },
+    "Compress · %lld videos" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compress · %lld videos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "压缩 · %lld 个"
+          }
+        }
+      }
+    },
     "Compress %lld videos" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12286,6 +12400,7 @@
       }
     },
     "Compress Selected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12367,6 +12482,7 @@
       }
     },
     "Compressed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12611,6 +12727,7 @@
       }
     },
     "Compressed Image" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12732,6 +12849,7 @@
       }
     },
     "Compressed images were created and originals were not deleted. Review the comparison before deleting originals." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12852,6 +12970,7 @@
       }
     },
     "Compressed video" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12973,6 +13092,7 @@
       }
     },
     "Compressed videos are saved to Photos. Originals are not deleted automatically." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -13094,6 +13214,7 @@
       }
     },
     "Compressible Images" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -15264,6 +15385,7 @@
       }
     },
     "Current compression plan" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -16572,6 +16694,7 @@
       }
     },
     "Delete original" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -16652,6 +16775,7 @@
       }
     },
     "Delete originals to free space" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -16728,6 +16852,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪"
+          }
+        }
+      }
+    },
+    "Delete remaining originals · %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete remaining originals · %lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除未处理原件 · %lld"
           }
         }
       }
@@ -18286,6 +18426,7 @@
       }
     },
     "Estimated after" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -18326,6 +18467,7 @@
       }
     },
     "Estimated after compression %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -18529,6 +18671,7 @@
       }
     },
     "Estimated size can vary by original encoding, motion complexity, and HDR status. The final report is the source of truth." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -18564,6 +18707,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "預估大小會因原影片編碼、動態複雜度和 HDR 狀態產生偏差，最終以壓縮完成報告為準。"
+          }
+        }
+      }
+    },
+    "Estimated sizes · confirmed after compression" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimated sizes · confirmed after compression"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大小为估算，压缩后复核"
           }
         }
       }
@@ -18691,6 +18850,7 @@
       }
     },
     "Expanded" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -21265,6 +21425,7 @@
       }
     },
     "Image compression creates new JPEG copies and does not delete originals automatically. Final space savings are shown after completion." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -22303,6 +22464,7 @@
       }
     },
     "Keep original" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -24193,6 +24355,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "實況照片暫不參與圖片壓縮"
+          }
+        }
+      }
+    },
+    "Load more" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load more"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加载更多"
           }
         }
       }
@@ -28010,6 +28188,7 @@
       }
     },
     "No images need compression" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -28148,6 +28327,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "暫無待整理內容"
+          }
+        }
+      }
+    },
+    "No live photos" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No live photos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无实况照片"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暫無實況照片"
           }
         }
       }
@@ -31679,6 +31880,22 @@
         }
       }
     },
+    "Original" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原始"
+          }
+        }
+      }
+    },
     "Original %@, compressed %@, reduced about %@. The original has not been deleted." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -31843,6 +32060,7 @@
       }
     },
     "Original files total about %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -32165,6 +32383,7 @@
       }
     },
     "Original size checked when compressing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -32245,6 +32464,7 @@
       }
     },
     "Original total %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -32400,6 +32620,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "原影片仍保留"
+          }
+        }
+      }
+    },
+    "Originals are not deleted automatically." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Originals are not deleted automatically."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不会自动删除原件。"
           }
         }
       }
@@ -34280,6 +34516,7 @@
       }
     },
     "Plan" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -34962,6 +35199,7 @@
       }
     },
     "Preparing to compress %lld images" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -34997,6 +35235,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "準備壓縮 %lld 張圖片"
+          }
+        }
+      }
+    },
+    "Preparing to compress %lld videos" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing to compress %lld videos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "准备压缩 %lld 个视频"
           }
         }
       }
@@ -35124,6 +35379,7 @@
       }
     },
     "Preview" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -37430,6 +37686,7 @@
       }
     },
     "Ready to compress %lld videos" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -37633,6 +37890,7 @@
       }
     },
     "Recent compressions · %lld sessions · can save %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -39937,6 +40195,7 @@
       }
     },
     "Savings" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -40446,6 +40705,7 @@
       }
     },
     "Select Everything" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -40486,6 +40746,7 @@
       }
     },
     "Select images first" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -40709,6 +40970,7 @@
       }
     },
     "Select videos first" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -42577,7 +42839,24 @@
         }
       }
     },
+    "Start compressing · %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start compressing · %lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始压缩 · %lld"
+          }
+        }
+      }
+    },
     "Start compressing %lld images" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -46797,6 +47076,7 @@
       }
     },
     "The original will download and the size will be checked when compressing." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -50325,6 +50605,7 @@
       }
     },
     "Uncompressed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -51716,6 +51997,7 @@
       }
     },
     "Video comparison" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -51997,6 +52279,7 @@
       }
     },
     "Videos to Compress" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -52037,6 +52320,7 @@
       }
     },
     "Videos with a cloud icon are currently stored in iCloud. The list will not automatically download large videos. Compression downloads the original and checks the actual size." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -52237,6 +52521,23 @@
         }
       }
     },
+    "View all · %lld" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View all · %lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看全部 · %lld"
+          }
+        }
+      }
+    },
     "View Annual and Lifetime Pro plans" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -52402,6 +52703,7 @@
       }
     },
     "View iCloud video explanation" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

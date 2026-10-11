@@ -136,7 +136,7 @@ private struct DeletionQueueScreen: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
+        .photoDeletePushedToolbar {
             if showsModalClose {
                 if #available(iOS 26.0, *) {
                     ToolbarItem(placement: .topBarLeading) {

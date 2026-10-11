@@ -105,6 +105,15 @@
 - 内边距 13/18；行间 `insetHairline`；行为 `Button(.plain)`。
 - 实现：`PhotoDeleteListRow`（首页 `specialCleanupSection` / `toolSection`）。
 
+### 4.4.1 主 Tab 底栏（硬约束 · 方案 C）
+
+- 结构：`MainTabView` 里 **根 `NavigationStack` 包住 `TabView`**（`MainTabRouter.path`）。只有三个 Tab 根页（整理 / 相册 / 设置）看得到底栏；任意 `path.append` 后整页盖住 `TabView`，子页 `.toolbar` 无法再把底栏翻出来。
+- Tab 根页是 **内容-only**：不再各自套 `NavigationStack`；push 一律走 `@EnvironmentObject MainTabRouter`（`push(_:)` / `pushPaywall()` / `pushExplicitReview(...)`）。
+- 二次 push（清理浏览器 / 相册浏览器 → 整理）用 `MainTabSystemDestination.explicitReview` + router 侧 payload，勿再嵌套 `navigationDestination(isPresented:)`。
+- 切 Tab 时 `popToRoot()`，避免跨 Tab 残留目的地。
+- 有顶栏按钮的 push 页仍用 `photoDeletePushedToolbar { … }`（只负责导航栏 + toolbar 内容；**不再**依赖 per-page hide Tab）。
+- `photoDeleteMainTabBarVisible` / `photoDeleteHidesMainTabBar` 已退役（no-op），勿再新增调用。
+
 ### 4.5 顶栏圆形 icon 按钮
 
 - 组件：`PhotoDeleteCircleIconButton`（`ios-app/PhotoDelete/Components/PhotoDeleteCircleIconButton.swift`）。
@@ -140,7 +149,7 @@
 渐变双卡：待整理（珊瑚） | 随机整理（琥珀）
 按时间段开始：本周 / 本月 / 本年（点任一段 → 周期选择弹窗：标题「按周/按月/按年整理」，首行「本期全部」，下面列更细周期——本周→每天 / 本月→其他月份 / 本年→其他年份；选行进入对应整理。**每张弹窗的「本期全部」行数字为琥珀**——三档一致；明细行数字白字）
 专项清理：相似与重复 / 视频 / 截图 / 录屏（头部合计 = 各项之和）
-工具：图片压缩 / 视频压缩
+工具：图片压缩 / 视频压缩（**首页暂隐藏**；`HomeView.toolSection` 保留，代码入口未删）
 ```
 
 数据全部来自现有计算（`DataManager`），不得在页面造指标：

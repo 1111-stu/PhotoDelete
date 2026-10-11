@@ -54,8 +54,8 @@
 
 **方案**：抽出单个纯函数（建议 `PhotoLibraryManager` 内，形如 `livePhotoFileSizeEstimate(for:)`），对 `PHAssetResource.assetResources(for:)` 中 `.photo`（或 `.fullSizePhoto`）与 `.pairedVideo` 的容量求和，三条路径统一调用，消除三份实现。求和实现二选一：
 
-- **方案 A（推荐作为主路径）**：复用 `PhotoLibraryManager.swift:2349-2389` 已有的 `PHAssetResourceManager.requestData` 流式字节计数，对两个资源各读一遍求和。正确、无私有 API 风险，符合 `AssetSizeLoader` 顶部注释「不并行保留多份完整 Data」的约束。代价是实况库较大时首次进入需全量读一遍本地数据。
-- **方案 B**：KVC `fileSize` 求和，瞬时无 IO。项目已在两处使用，但属于私有 API，有审核风险，建议不作为容量主路径。
+- **方案 A（已采纳）**：复用 `PHAssetResourceManager.requestData` 流式字节计数，对两个资源各读一遍求和。正确、无私有 API 风险，符合 `AssetSizeLoader` 顶部注释「不并行保留多份完整 Data」的约束。代价是实况库较大时首次进入需全量读一遍本地数据。
+- **方案 B（已否决）**：KVC `fileSize` 求和。属于私有 API，审核拒审风险过高，项目内相关调用已移除，不得再引入。
 
 缓存键 `AssetSizeLoader.swift:10-14` 为 `(managerID, assetID, modificationDate)`，求和结果可直接沿用，无需改动缓存结构。`AssetQuerySizeState` 的 `.knownMB` / `.iCloud` / `.unavailable` 语义不变。
 

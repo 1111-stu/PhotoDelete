@@ -4,6 +4,9 @@
 //
 //  Created by PhotoDelete Team on 11/7/25.
 //
+//  方案 C：NavigationStack 包住 TabView。只有三个 Tab 根页看得到底栏；
+//  任意 push 后整页盖住 TabView，子页 .toolbar 无法再把底栏翻出来。
+//
 
 import SwiftUI
 #if canImport(UIKit)
@@ -14,10 +17,30 @@ struct MainTabView: View {
     @EnvironmentObject var dataManager: DataManager
     @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var router = MainTabRouter()
     @State private var selectedTab: PhotoDeleteMainTab = .organize
-    
+
+    /// 根页：整理/相册用自绘顶栏，隐藏系统导航栏；设置用 large title。
+    /// push 后一律显示系统导航栏（返回）。
+    private var showsSystemNavigationBar: Bool {
+        !router.path.isEmpty || selectedTab == .settings
+    }
+
     var body: some View {
-        tabRoot
+        NavigationStack(path: $router.path) {
+            tabRoot
+                .toolbar(showsSystemNavigationBar ? .automatic : .hidden, for: .navigationBar)
+                .navigationDestination(for: SwipeViewDestination.self) { destination in
+                    homeDestination(destination)
+                }
+                .navigationDestination(for: AlbumNavigationDestination.self) { destination in
+                    albumDestination(destination)
+                }
+                .navigationDestination(for: MainTabSystemDestination.self) { destination in
+                    systemDestination(destination)
+                }
+        }
+        .environmentObject(router)
         .onAppear {
             configureTabBarAppearance()
             DispatchQueue.main.async {
@@ -44,7 +67,14 @@ struct MainTabView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: AppConstants.openAlbumsTabNotificationName)) { _ in
             guard AppConstants.showsAlbumsTab else { return }
+            router.popToRoot()
             selectedTab = .albums
+        }
+        .onChange(of: selectedTab) { _ in
+            // 切 Tab 时清空 push 栈，避免跨 Tab 残留目的地。
+            if !router.path.isEmpty {
+                router.popToRoot()
+            }
         }
     }
 
@@ -57,7 +87,7 @@ struct MainTabView: View {
                     Text(PhotoDeleteMainTab.organize.title)
                 }
                 .tag(PhotoDeleteMainTab.organize)
-            
+
             if AppConstants.showsAlbumsTab {
                 tabContent(for: .albums)
                     .tint(Theme.accent)
@@ -98,6 +128,102 @@ struct MainTabView: View {
         case .settings:
             SettingsView()
                 .environmentObject(dataManager)
+        }
+    }
+
+    @ViewBuilder
+    private func homeDestination(_ destination: SwipeViewDestination) -> some View {
+        switch destination {
+        case .assetBrowser(let category):
+            CleanupAssetBrowserView(category: category)
+                .environmentObject(dataManager)
+        case .category(let category):
+            SwipePhotoView(selectedCategory: category, selectedTimeGroup: nil, selectedAlbumInfo: nil)
+                .environmentObject(dataManager)
+        case .timeGroup(let timeGroup):
+            SwipePhotoView(selectedCategory: nil, selectedTimeGroup: timeGroup, selectedAlbumInfo: nil)
+                .environmentObject(dataManager)
+        case .album(let albumInfo):
+            SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: albumInfo)
+                .environmentObject(dataManager)
+        case .random(let scope):
+            SwipePhotoView(
+                selectedCategory: nil,
+                selectedTimeGroup: nil,
+                selectedAlbumInfo: nil,
+                randomReviewScope: scope
+            )
+            .environmentObject(dataManager)
+        case .timeBrowser:
+            TimeOrganizeView()
+                .environmentObject(dataManager)
+        case .locationBrowser:
+            LocationOrganizeView()
+                .environmentObject(dataManager)
+        case .historicalToday:
+            SwipePhotoView(
+                selectedCategory: nil,
+                selectedTimeGroup: nil,
+                selectedAlbumInfo: nil,
+                selectedHistoricalToday: true
+            )
+            .environmentObject(dataManager)
+        case .location(let groupID):
+            SwipePhotoView(
+                selectedCategory: nil,
+                selectedTimeGroup: nil,
+                selectedAlbumInfo: nil,
+                selectedLocationGroupID: groupID
+            )
+            .environmentObject(dataManager)
+        case .period(let scope, let intervalStart):
+            SwipePhotoView(
+                selectedCategory: nil,
+                selectedTimeGroup: nil,
+                selectedAlbumInfo: nil,
+                selectedDate: intervalStart,
+                selectedAdvancedTimeScope: scope
+            )
+            .environmentObject(dataManager)
+        case .cleanup(let kind):
+            AdvancedCleanupDestination(kind: kind)
+                .environmentObject(dataManager)
+        case .trashBin:
+            TrashBinView()
+                .environmentObject(dataManager)
+        }
+    }
+
+    @ViewBuilder
+    private func albumDestination(_ destination: AlbumNavigationDestination) -> some View {
+        switch destination {
+        case .swipeAlbum(let selectedSwipeAlbum):
+            SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: selectedSwipeAlbum)
+                .environmentObject(dataManager)
+        case .browser(let album):
+            AlbumPhotoBrowserView(album: album)
+                .environmentObject(dataManager)
+        }
+    }
+
+    @ViewBuilder
+    private func systemDestination(_ destination: MainTabSystemDestination) -> some View {
+        switch destination {
+        case .paywall:
+            PaywallView()
+        case .explicitReview(let scopeID):
+            if let payload = router.explicitReviewPayload, payload.scope.id == scopeID {
+                SwipePhotoView(
+                    selectedCategory: payload.category,
+                    selectedTimeGroup: nil,
+                    selectedAlbumInfo: payload.album,
+                    explicitReviewScope: payload.scope
+                )
+                .environmentObject(dataManager)
+            } else {
+                EmptyView()
+                    .onAppear { router.popToRoot() }
+            }
         }
     }
 

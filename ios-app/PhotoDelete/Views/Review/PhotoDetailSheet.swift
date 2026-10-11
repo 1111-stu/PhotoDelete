@@ -62,11 +62,25 @@ struct PhotoDetailSheet: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
         .task(id: asset.localIdentifier) {
-            let bytes = PHAssetResource.assetResources(for: asset).compactMap { resource in
-                (resource.value(forKey: "fileSize") as? NSNumber)?.int64Value
-            }.max()
-            sizeText = bytes.flatMap {
-                $0 > 0 ? ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) : nil
+            sizeText = nil
+            if let cached = dataManager.cachedAssetFileSizeEstimate(for: asset), cached.isReliable {
+                sizeText = CleanupStatsFormatter.fileSize(cached.sizeMB)
+                return
+            }
+            do {
+                let state = try await AssetSizeLoader.shared.estimate(for: asset, dataManager: dataManager)
+                switch state {
+                case .knownMB(let value):
+                    sizeText = CleanupStatsFormatter.fileSize(value)
+                case .iCloud:
+                    sizeText = "iCloud"
+                case .pending, .loading, .unavailable:
+                    sizeText = nil
+                }
+            } catch is CancellationError {
+                return
+            } catch {
+                sizeText = nil
             }
         }
     }

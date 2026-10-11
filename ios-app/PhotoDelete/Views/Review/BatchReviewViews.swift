@@ -361,10 +361,14 @@ struct BatchConfirmView: View {
 
             let estimate: AssetFileSizeEstimate
             do {
-                if asset.mediaType == .video {
-                    estimate = try await dataManager.photoLibraryManager.videoFileSizeEstimate(for: asset)
-                } else {
-                    estimate = try await dataManager.photoLibraryManager.photoFileSizeEstimate(for: asset)
+                let state = try await AssetSizeLoader.shared.estimate(for: asset, dataManager: dataManager)
+                switch state {
+                case .knownMB(let value):
+                    estimate = AssetFileSizeEstimate(sizeMB: value, source: .assetResource)
+                case .iCloud:
+                    estimate = AssetFileSizeEstimate(sizeMB: 0, source: .iCloud)
+                case .pending, .loading, .unavailable:
+                    estimate = AssetFileSizeEstimate(sizeMB: 0, source: .unavailable)
                 }
             } catch is CancellationError {
                 return
@@ -372,7 +376,7 @@ struct BatchConfirmView: View {
                 estimate = AssetFileSizeEstimate(sizeMB: 0, source: .unavailable)
             }
 
-            dataManager.cacheAssetFileSizeEstimate(estimate, for: asset)
+            // AssetSizeLoader already writes the shared cache on success.
             pendingEstimates[asset.localIdentifier] = estimate
 
             if pendingEstimates.count >= 12 {

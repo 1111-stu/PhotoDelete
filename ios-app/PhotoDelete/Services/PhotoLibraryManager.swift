@@ -2001,6 +2001,10 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             throw ImageCompressionError.notImage
         }
 
+        if isLivePhoto(asset) {
+            return try await livePhotoFileSizeEstimate(for: asset)
+        }
+
         let cancellation = PhotoLibraryImageRequestCancellation(manager: imageManager)
         let result: (data: Data?, isInCloud: Bool) = try await withTaskCancellationHandler {
             try Task.checkCancellation()
@@ -2034,6 +2038,60 @@ class PhotoLibraryManager: NSObject, ObservableObject {
         return AssetFileSizeEstimate(
             sizeMB: 0,
             source: result.isInCloud ? .iCloud : .unavailable
+        )
+    }
+
+    /// Still + paired-video sizes via public `PHAssetResourceManager` streaming (no private KVC).
+    func livePhotoFileSizeEstimate(for asset: PHAsset) async throws -> AssetFileSizeEstimate {
+        guard isLivePhoto(asset) else {
+            throw ImageCompressionError.notImage
+        }
+
+        let resources = PHAssetResource.assetResources(for: asset)
+        let selected = LivePhotoSizeResourceSelection.select(from: resources)
+        var photoSizeMB: Double?
+        var videoSizeMB: Double?
+
+        if let photoResource = selected.photo {
+            do {
+                photoSizeMB = try await streamedResourceSizeMB(
+                    for: photoResource,
+                    networkAccessAllowed: false
+                )
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                photoSizeMB = nil
+            }
+        }
+
+        if let videoResource = selected.video {
+            do {
+                videoSizeMB = try await streamedResourceSizeMB(
+                    for: videoResource,
+                    networkAccessAllowed: false
+                )
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                videoSizeMB = nil
+            }
+        }
+
+        let combined = LivePhotoFileSizeAggregation.combine(
+            photoSizeMB: photoSizeMB,
+            videoSizeMB: videoSizeMB,
+            anyComponentInCloud: false
+        )
+        if combined.isReliable {
+            return combined
+        }
+
+        let inCloud = try await isImageAssetInCloud(asset)
+        return LivePhotoFileSizeAggregation.combine(
+            photoSizeMB: photoSizeMB,
+            videoSizeMB: videoSizeMB,
+            anyComponentInCloud: inCloud
         )
     }
 
@@ -2352,6 +2410,16 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             throw VideoCompressionError.videoUnavailable
         }
 
+        return try await streamedResourceSizeMB(
+            for: resource,
+            networkAccessAllowed: networkAccessAllowed
+        )
+    }
+
+    private func streamedResourceSizeMB(
+        for resource: PHAssetResource,
+        networkAccessAllowed: Bool
+    ) async throws -> Double {
         let options = PHAssetResourceRequestOptions()
         options.isNetworkAccessAllowed = networkAccessAllowed
 
@@ -2388,6 +2456,31 @@ class PhotoLibraryManager: NSObject, ObservableObject {
                         continuation.resume(returning: max(Double(totalBytes) / 1_048_576, 0))
                     }
                 )
+                cancellation.setRequestID(requestID)
+            }
+        } onCancel: {
+            cancellation.cancel()
+        }
+    }
+
+    private func isImageAssetInCloud(_ asset: PHAsset) async throws -> Bool {
+        let cancellation = PhotoLibraryImageRequestCancellation(manager: imageManager)
+        return try await withTaskCancellationHandler {
+            try Task.checkCancellation()
+            return try await withCheckedThrowingContinuation { continuation in
+                let options = PHImageRequestOptions()
+                options.deliveryMode = .fastFormat
+                options.version = .current
+                options.isNetworkAccessAllowed = false
+                options.isSynchronous = false
+                let requestID = imageManager.requestImageDataAndOrientation(for: asset, options: options) { _, _, _, info in
+                    guard (info?[PHImageCancelledKey] as? Bool) != true, !cancellation.wasCancelled else {
+                        continuation.resume(throwing: CancellationError())
+                        return
+                    }
+                    let isInCloud = (info?[PHImageResultIsInCloudKey] as? Bool) == true
+                    continuation.resume(returning: isInCloud)
+                }
                 cancellation.setRequestID(requestID)
             }
         } onCancel: {

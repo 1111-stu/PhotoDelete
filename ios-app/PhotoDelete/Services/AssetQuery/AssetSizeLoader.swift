@@ -81,6 +81,8 @@ final class AssetSizeLoader {
                     let estimate: AssetFileSizeEstimate
                     if request.asset.mediaType == .video {
                         estimate = try await request.dataManager.photoLibraryManager.videoFileSizeEstimate(for: request.asset)
+                    } else if request.dataManager.photoLibraryManager.isLivePhoto(request.asset) {
+                        estimate = try await request.dataManager.photoLibraryManager.livePhotoFileSizeEstimate(for: request.asset)
                     } else if request.asset.mediaType == .image {
                         estimate = try await request.dataManager.photoLibraryManager.photoFileSizeEstimate(for: request.asset)
                     } else {

@@ -143,109 +143,42 @@ enum HomeCategoryCountDetailResolver {
 
 struct HomeView: View {
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject private var router: MainTabRouter
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
-    @State private var navigationPath = NavigationPath()
     @State private var showingRecentOrganized = false
     @State private var periodPickerScope: AdvancedTimeScope?
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            GeometryReader { geometry in
-                ZStack {
-                    PhotoDeleteScreenBackground()
+        GeometryReader { geometry in
+            ZStack {
+                PhotoDeleteScreenBackground()
 
-                    ScrollView {
-                        homeContent()
-                            .padding(
-                                .horizontal,
-                                PhotoDeleteAdaptiveLayout.homeHorizontalPadding(
-                                    in: geometry.size,
-                                    horizontalSizeClass: horizontalSizeClass
-                                )
+                ScrollView {
+                    homeContent()
+                        .padding(
+                            .horizontal,
+                            PhotoDeleteAdaptiveLayout.homeHorizontalPadding(
+                                in: geometry.size,
+                                horizontalSizeClass: horizontalSizeClass
                             )
-                            .padding(
-                                .top,
-                                PhotoDeleteAdaptiveLayout.homeTopPadding(
-                                    in: geometry.size,
-                                    horizontalSizeClass: horizontalSizeClass
-                                )
+                        )
+                        .padding(
+                            .top,
+                            PhotoDeleteAdaptiveLayout.homeTopPadding(
+                                in: geometry.size,
+                                horizontalSizeClass: horizontalSizeClass
                             )
-                            .padding(.bottom, Theme.space24)
-                            .frame(
-                                maxWidth: PhotoDeleteAdaptiveLayout.homeContentMaxWidth(
-                                    in: geometry.size,
-                                    horizontalSizeClass: horizontalSizeClass
-                                )
+                        )
+                        .padding(.bottom, Theme.space24)
+                        .frame(
+                            maxWidth: PhotoDeleteAdaptiveLayout.homeContentMaxWidth(
+                                in: geometry.size,
+                                horizontalSizeClass: horizontalSizeClass
                             )
-                            .frame(maxWidth: .infinity)
-                    }
+                        )
+                        .frame(maxWidth: .infinity)
                 }
-            }
-            .photoDeleteMainTabBarVisible()
-            .navigationDestination(for: SwipeViewDestination.self) { destination in
-                Group {
-                    switch destination {
-                    case .assetBrowser(let category):
-                        CleanupAssetBrowserView(category: category)
-                            .environmentObject(dataManager)
-                    case .category(let category):
-                        SwipePhotoView(selectedCategory: category, selectedTimeGroup: nil, selectedAlbumInfo: nil)
-                            .environmentObject(dataManager)
-                    case .timeGroup(let timeGroup):
-                        SwipePhotoView(selectedCategory: nil, selectedTimeGroup: timeGroup, selectedAlbumInfo: nil)
-                            .environmentObject(dataManager)
-                    case .album(let albumInfo):
-                        SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: albumInfo)
-                            .environmentObject(dataManager)
-                    case .random(let scope):
-                        SwipePhotoView(
-                            selectedCategory: nil,
-                            selectedTimeGroup: nil,
-                            selectedAlbumInfo: nil,
-                            randomReviewScope: scope
-                        )
-                        .environmentObject(dataManager)
-                    case .timeBrowser:
-                        TimeOrganizeView()
-                            .environmentObject(dataManager)
-                    case .locationBrowser:
-                        LocationOrganizeView()
-                            .environmentObject(dataManager)
-                    case .historicalToday:
-                        SwipePhotoView(
-                            selectedCategory: nil,
-                            selectedTimeGroup: nil,
-                            selectedAlbumInfo: nil,
-                            selectedHistoricalToday: true
-                        )
-                        .environmentObject(dataManager)
-                    case .location(let groupID):
-                        SwipePhotoView(
-                            selectedCategory: nil,
-                            selectedTimeGroup: nil,
-                            selectedAlbumInfo: nil,
-                            selectedLocationGroupID: groupID
-                        )
-                        .environmentObject(dataManager)
-                    case .period(let scope, let intervalStart):
-                        SwipePhotoView(
-                            selectedCategory: nil,
-                            selectedTimeGroup: nil,
-                            selectedAlbumInfo: nil,
-                            selectedDate: intervalStart,
-                            selectedAdvancedTimeScope: scope
-                        )
-                        .environmentObject(dataManager)
-                    case .cleanup(let kind):
-                        AdvancedCleanupDestination(kind: kind)
-                            .environmentObject(dataManager)
-                    case .trashBin:
-                        TrashBinView()
-                            .environmentObject(dataManager)
-                    }
-                }
-                .photoDeleteHidesMainTabBar()
             }
         }
         .onAppear {
@@ -265,7 +198,7 @@ struct HomeView: View {
         .sheet(item: $periodPickerScope) { scope in
             PeriodPickerSheet(dataManager: dataManager, scope: scope) { selectedScope, intervalStart in
                 periodPickerScope = nil
-                navigationPath.append(SwipeViewDestination.period(selectedScope, intervalStart))
+                router.push(SwipeViewDestination.period(selectedScope, intervalStart))
             }
         }
     }
@@ -306,7 +239,7 @@ struct HomeView: View {
             accessibilityLabel: trashBinAccessibilityLabel,
             accessibilityIdentifier: "home-trash-bin"
         ) {
-            navigationPath.append(SwipeViewDestination.trashBin)
+            router.push(SwipeViewDestination.trashBin)
         } badge: {
             pendingDeleteBadge
         }
@@ -379,7 +312,7 @@ struct HomeView: View {
             duoRow
             periodBandSection
             specialCleanupSection
-            toolSection
+            // 工具（图片/视频压缩）暂不展示；`toolSection` 保留便于恢复。
         }
     }
 
@@ -484,7 +417,7 @@ struct HomeView: View {
         
         return Button {
             // 卡片数字是"全库待整理"，入口也用全库（.all）——两者范围严格对齐。
-            navigationPath.append(SwipeViewDestination.category(.all))
+            router.push(SwipeViewDestination.category(.all))
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 Text(L10n.string("To review"))
@@ -534,7 +467,7 @@ struct HomeView: View {
 
     private var randomReviewFanCard: some View {
         Button {
-            navigationPath.append(SwipeViewDestination.random(.memories))
+            router.push(SwipeViewDestination.random(.memories))
         } label: {
             VStack(alignment: .leading, spacing: 3) {
                 Text(L10n.string("Random Review"))
@@ -665,7 +598,7 @@ struct HomeView: View {
                     value: cleanupQueue(for: .similarPhotos)?.formattedSpace,
                     accessibilityIdentifier: "home-cleanup-similar"
                 ) {
-                    navigationPath.append(SwipeViewDestination.cleanup(.similarPhotos))
+                    router.push(SwipeViewDestination.cleanup(.similarPhotos))
                 }
                 insetHairline
                 PhotoDeleteListRow(
@@ -674,7 +607,7 @@ struct HomeView: View {
                     value: cleanupQueue(for: .videos)?.formattedSpace,
                     accessibilityIdentifier: "home-cleanup-videos"
                 ) {
-                    navigationPath.append(SwipeViewDestination.assetBrowser(.videos))
+                    router.push(SwipeViewDestination.assetBrowser(.videos))
                 }
                 insetHairline
                 PhotoDeleteListRow(
@@ -682,7 +615,15 @@ struct HomeView: View {
                     title: L10n.string("Screenshots"),
                     accessibilityIdentifier: "home-cleanup-screenshots"
                 ) {
-                    navigationPath.append(SwipeViewDestination.assetBrowser(.screenshots))
+                    router.push(SwipeViewDestination.assetBrowser(.screenshots))
+                }
+                insetHairline
+                PhotoDeleteListRow(
+                    icon: "livephoto",
+                    title: L10n.string("Live Photos"),
+                    accessibilityIdentifier: "home-cleanup-live-photos"
+                ) {
+                    router.push(SwipeViewDestination.assetBrowser(.livePhotos))
                 }
                 insetHairline
                 PhotoDeleteListRow(
@@ -691,7 +632,7 @@ struct HomeView: View {
                     value: screenRecordingsQueueValue,
                     accessibilityIdentifier: "home-cleanup-screen-recordings"
                 ) {
-                    navigationPath.append(SwipeViewDestination.assetBrowser(.screenRecordings))
+                    router.push(SwipeViewDestination.assetBrowser(.screenRecordings))
                 }
             }
             .photoDeleteCard(radius: Theme.radiusLg)
@@ -717,7 +658,7 @@ struct HomeView: View {
                         value: countText(cleanupQueue(for: .imageCompression)?.assetCount),
                         accessibilityIdentifier: "home-tool-image-compression"
                     ) {
-                        navigationPath.append(SwipeViewDestination.cleanup(.imageCompression))
+                        router.push(SwipeViewDestination.cleanup(.imageCompression))
                     }
                     insetHairline
                 }
@@ -728,7 +669,7 @@ struct HomeView: View {
                     value: countText(cleanupQueue(for: .videoCompression)?.assetCount),
                     accessibilityIdentifier: "home-tool-video-compression"
                 ) {
-                    navigationPath.append(SwipeViewDestination.cleanup(.videoCompression))
+                    router.push(SwipeViewDestination.cleanup(.videoCompression))
                 }
             }
             .photoDeleteCard(radius: Theme.radiusLg)
@@ -1020,4 +961,5 @@ struct ScanningSwipeGlyph: View {
 #Preview {
     HomeView()
         .environmentObject(DataManager())
+        .environmentObject(MainTabRouter())
 }

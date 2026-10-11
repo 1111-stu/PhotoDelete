@@ -503,6 +503,7 @@ struct AlbumAssetThumbnail: View {
 
 struct AlbumPhotoBrowserView: View {
     @EnvironmentObject private var dataManager: DataManager
+    @EnvironmentObject private var router: MainTabRouter
     let album: AlbumInfo
 
     @State private var assets: [PHAsset] = []
@@ -512,9 +513,6 @@ struct AlbumPhotoBrowserView: View {
     @State private var grouping: AlbumBrowserGrouping = .day
     @State private var density: AlbumBrowserDensity = .standard
     @State private var sort: AlbumBrowserSort = .newest
-    /// 点缩略图：按当前筛选/排序，从该图起进入临时整理队列。
-    @State private var reviewScope: ExplicitAssetReviewScope?
-    @State private var showsReview = false
 
     var body: some View {
         ScrollView {
@@ -572,7 +570,7 @@ struct AlbumPhotoBrowserView: View {
         .background(PhotoDeleteScreenBackground())
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
+        .photoDeletePushedToolbar {
             if #available(iOS 26.0, *) {
                 ToolbarItem(placement: .topBarTrailing) {
                     albumFilterButton
@@ -592,18 +590,6 @@ struct AlbumPhotoBrowserView: View {
                 density: $density,
                 sort: $sort
             )
-        }
-        .navigationDestination(isPresented: $showsReview) {
-            if let reviewScope {
-                SwipePhotoView(
-                    selectedCategory: nil,
-                    selectedTimeGroup: nil,
-                    selectedAlbumInfo: album,
-                    explicitReviewScope: reviewScope
-                )
-                .environmentObject(dataManager)
-                .photoDeleteHidesMainTabBar()
-            }
         }
         .task {
             await loadAssets()
@@ -632,8 +618,10 @@ struct AlbumPhotoBrowserView: View {
         guard !ids.isEmpty else { return }
 
         HapticManager.impact(.light)
-        reviewScope = ExplicitAssetReviewScope(orderedAssetIDs: ids, albumInfo: album)
-        showsReview = true
+        router.pushExplicitReview(
+            scope: ExplicitAssetReviewScope(orderedAssetIDs: ids, albumInfo: album),
+            album: album
+        )
     }
 
     private var gridColumns: [GridItem] {

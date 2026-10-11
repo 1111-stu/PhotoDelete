@@ -4,6 +4,7 @@ import UIKit
 
 struct ReviewPhotoDetailLine: View {
     let asset: PHAsset
+    @EnvironmentObject private var dataManager: DataManager
     @State private var sizeText: String?
 
     var body: some View {
@@ -15,11 +16,31 @@ struct ReviewPhotoDetailLine: View {
             .minimumScaleFactor(0.8)
             .frame(maxWidth: .infinity)
             .task(id: asset.localIdentifier) {
-                let bytes = PHAssetResource.assetResources(for: asset).compactMap { resource in
-                    (resource.value(forKey: "fileSize") as? NSNumber)?.int64Value
-                }.max()
-                sizeText = bytes.flatMap { $0 > 0 ? ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) : nil }
+                sizeText = nil
+                if let cached = dataManager.cachedAssetFileSizeEstimate(for: asset), cached.isReliable {
+                    sizeText = CleanupStatsFormatter.fileSize(cached.sizeMB)
+                    return
+                }
+                do {
+                    let state = try await AssetSizeLoader.shared.estimate(for: asset, dataManager: dataManager)
+                    sizeText = Self.displayText(for: state)
+                } catch is CancellationError {
+                    return
+                } catch {
+                    sizeText = nil
+                }
             }
+    }
+
+    private static func displayText(for state: AssetQuerySizeState) -> String? {
+        switch state {
+        case .knownMB(let value):
+            return CleanupStatsFormatter.fileSize(value)
+        case .iCloud:
+            return "iCloud"
+        case .pending, .loading, .unavailable:
+            return nil
+        }
     }
 }
 

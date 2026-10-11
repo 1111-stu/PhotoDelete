@@ -33,8 +33,8 @@ private struct AlbumListRowModel: Identifiable, Equatable {
 
 struct AlbumsView: View {
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject private var router: MainTabRouter
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var navigationPath = NavigationPath()
     @State private var searchText = ""
     @State private var activeSheet: AlbumSheet?
     @AppStorage(AppConstants.albumDisplayStyleKey) private var albumDisplayStyleValue = AlbumDisplayStyle.cover.rawValue
@@ -74,75 +74,59 @@ struct AlbumsView: View {
     private static let reorderDragThreshold: CGFloat = 6
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            rootContent
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.listContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
-                .frame(maxWidth: .infinity)
-                .background {
-                    PhotoDeleteScreenBackground()
-                }
-                .overlay {
-                    if let albumToast {
-                        albumToastView(albumToast)
-                    }
-                }
-                .photoDeleteMainTabBarVisible()
-                .navigationDestination(for: AlbumNavigationDestination.self) { destination in
-                    Group {
-                        switch destination {
-                        case .swipeAlbum(let selectedSwipeAlbum):
-                            SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: selectedSwipeAlbum)
-                                .environmentObject(dataManager)
-                        case .browser(let album):
-                            AlbumPhotoBrowserView(album: album)
-                                .environmentObject(dataManager)
-                        }
-                    }
-                    .photoDeleteHidesMainTabBar()
-                }
-        }
-        .sheet(isPresented: $showsDisplayStyle) {
-            AlbumDisplayStyleSheet(style: displayStyleBinding)
-        }
-        .fullScreenCover(item: $activeSheet) { sheet in
-            Group {
-                switch sheet {
-                case .create:
-                    CreateAlbumView()
-                case .edit(let album):
-                    EditAlbumView(album: album)
+        rootContent
+            .frame(maxWidth: PhotoDeleteAdaptiveLayout.listContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+            .frame(maxWidth: .infinity)
+            .background {
+                PhotoDeleteScreenBackground()
+            }
+            .overlay {
+                if let albumToast {
+                    albumToastView(albumToast)
                 }
             }
-            .environmentObject(dataManager)
-            .presentationBackground(.clear)
-        }
-        .onChange(of: searchText) { _ in
-            rebuildDisplayedRows()
-        }
-        .onChange(of: albumDisplayStyleValue) { _ in
-            endReorderIfNeeded()
-        }
-        .onChange(of: reorder.isDragging) { isDragging in
-            AlbumScrollDebug.log(
-                "scrollDisabled(isDragging)=\(isDragging) \(reorderDebugSnapshot())"
-            )
-        }
-        .onChange(of: actionMenu?.id) { menuID in
-            AlbumScrollDebug.log(
-                "actionMenu=\(menuID ?? "nil") hitTestWhenIdle=\(menuID != nil) \(reorderDebugSnapshot())"
-            )
-        }
-        .onDisappear {
-            AlbumScrollDebug.log("onDisappear → cancelReorder")
-            cancelReorder()
-        }
-        .onReceive(dataManager.$userAlbums) { _ in
-            rebuildDisplayedRows()
-        }
-        .onAppear {
-            dataManager.loadAlbumsIfNeeded()
-            rebuildDisplayedRows()
-        }
+            .sheet(isPresented: $showsDisplayStyle) {
+                AlbumDisplayStyleSheet(style: displayStyleBinding)
+            }
+            .fullScreenCover(item: $activeSheet) { sheet in
+                Group {
+                    switch sheet {
+                    case .create:
+                        CreateAlbumView()
+                    case .edit(let album):
+                        EditAlbumView(album: album)
+                    }
+                }
+                .environmentObject(dataManager)
+                .presentationBackground(.clear)
+            }
+            .onChange(of: searchText) { _ in
+                rebuildDisplayedRows()
+            }
+            .onChange(of: albumDisplayStyleValue) { _ in
+                endReorderIfNeeded()
+            }
+            .onChange(of: reorder.isDragging) { isDragging in
+                AlbumScrollDebug.log(
+                    "scrollDisabled(isDragging)=\(isDragging) \(reorderDebugSnapshot())"
+                )
+            }
+            .onChange(of: actionMenu?.id) { menuID in
+                AlbumScrollDebug.log(
+                    "actionMenu=\(menuID ?? "nil") hitTestWhenIdle=\(menuID != nil) \(reorderDebugSnapshot())"
+                )
+            }
+            .onDisappear {
+                AlbumScrollDebug.log("onDisappear → cancelReorder")
+                cancelReorder()
+            }
+            .onReceive(dataManager.$userAlbums) { _ in
+                rebuildDisplayedRows()
+            }
+            .onAppear {
+                dataManager.loadAlbumsIfNeeded()
+                rebuildDisplayedRows()
+            }
     }
 
     private var rootContent: some View {
@@ -988,7 +972,7 @@ struct AlbumsView: View {
         }
 
         HapticManager.impact(.light)
-        navigationPath.append(AlbumNavigationDestination.browser(currentAlbumInfo))
+        router.push(AlbumNavigationDestination.browser(currentAlbumInfo))
     }
 
     private func openAlbumSwipe(id: String) {
@@ -1001,7 +985,7 @@ struct AlbumsView: View {
         }
 
         HapticManager.impact(.light)
-        navigationPath.append(AlbumNavigationDestination.swipeAlbum(currentAlbumInfo))
+        router.push(AlbumNavigationDestination.swipeAlbum(currentAlbumInfo))
     }
 
     private func editAlbum(id: String) {
@@ -1590,4 +1574,5 @@ struct EditAlbumView: View {
 #Preview {
     AlbumsView()
         .environmentObject(DataManager())
+        .environmentObject(MainTabRouter())
 }

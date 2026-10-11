@@ -3,14 +3,13 @@ import Photos
 
 struct CleanupAssetBrowserView: View {
     @EnvironmentObject private var dataManager: DataManager
+    @EnvironmentObject private var router: MainTabRouter
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
     @ScaledMetric(relativeTo: .caption2) private var metadataSize = 11
     @StateObject private var model: AssetBrowserModel
     @State private var showsFilters = false
     @State private var preview: CleanupPreviewItem?
-    @State private var reviewScope: ExplicitAssetReviewScope?
-    @State private var showsReview = false
     let category: AssetCategoryID
     private let defaultQuery: AssetQuery
 
@@ -49,8 +48,7 @@ struct CleanupAssetBrowserView: View {
         .background(PhotoDeleteScreenBackground())
         .navigationTitle(category.browserTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.visible, for: .navigationBar)
-        .toolbar {
+        .photoDeletePushedToolbar {
             if #available(iOS 26.0, *) {
                 ToolbarItem(placement: .topBarTrailing) {
                     cleanupFilterButton
@@ -68,13 +66,6 @@ struct CleanupAssetBrowserView: View {
         }
         .fullScreenCover(item: $preview, onDismiss: { model.refresh() }) { item in
             AssetReadOnlyPreviewView(asset: item.asset, photoLibraryManager: dataManager.photoLibraryManager)
-        }
-        .navigationDestination(isPresented: $showsReview) {
-            if let reviewScope {
-                SwipePhotoView(selectedCategory: category.photoCategory, selectedTimeGroup: nil,
-                               selectedAlbumInfo: nil, explicitReviewScope: reviewScope)
-                    .environmentObject(dataManager)
-            }
         }
         .onAppear { model.start(dataManager: dataManager) }
         .onDisappear { model.stop() }
@@ -182,7 +173,7 @@ struct CleanupAssetBrowserView: View {
 
     private var emptyState: some View {
         VStack(spacing: Theme.space4) {
-            Image(systemName: category == .screenshots ? "photo" : "video")
+            Image(systemName: category.emptyIcon)
                 .font(.system(size: 44, weight: .medium))
                 .foregroundStyle(Theme.secondaryText)
             Text(model.query == defaultQuery ? category.emptyTitle : L10n.string("No matching items"))
@@ -221,8 +212,10 @@ struct CleanupAssetBrowserView: View {
         let ids = model.result?.pendingIDs ?? []
         return Button {
             guard !ids.isEmpty else { return }
-            reviewScope = ExplicitAssetReviewScope(orderedAssetIDs: ids)
-            showsReview = true
+            router.pushExplicitReview(
+                scope: ExplicitAssetReviewScope(orderedAssetIDs: ids),
+                category: category.photoCategory
+            )
         } label: {
             Text(ids.isEmpty ? L10n.string("No items to organize") :
                  String(format: L10n.string("Start organizing · %lld items"), Int64(ids.count)))
@@ -249,10 +242,19 @@ private extension AssetCategoryID {
         }
     }
     var browserTitle: String { photoCategory.title }
+    var emptyIcon: String {
+        switch self {
+        case .screenshots: return "photo"
+        case .livePhotos: return "livephoto"
+        case .videos, .screenRecordings: return "video"
+        default: return "photo"
+        }
+    }
     var emptyTitle: String {
         switch self {
         case .screenRecordings: return L10n.string("No screen recordings")
         case .screenshots: return L10n.string("No screenshots")
+        case .livePhotos: return L10n.string("No live photos")
         default: return L10n.string("No videos")
         }
     }
@@ -284,6 +286,14 @@ struct CleanupAssetCard: View {
                                 .foregroundStyle(.white).padding(.horizontal, 5).padding(.vertical, 3)
                                 .background(.black.opacity(0.65), in: RoundedRectangle(cornerRadius: 5))
                                 .padding(5)
+                        } else if asset.mediaSubtypes.contains(.photoLive) {
+                            Image(systemName: "livephoto")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 5).padding(.vertical, 3)
+                                .background(.black.opacity(0.65), in: RoundedRectangle(cornerRadius: 5))
+                                .padding(5)
+                                .accessibilityLabel(L10n.string("Live Photos"))
                         }
                     }
                     .overlay(alignment: .topLeading) {

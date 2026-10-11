@@ -73,6 +73,7 @@ extension View {
 
 struct SettingsView: View {
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject private var router: MainTabRouter
     @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(AppConstants.hasCompletedOnboardingKey) private var hasCompletedOnboarding = false
@@ -86,50 +87,47 @@ struct SettingsView: View {
     @State private var settingsToast: PhotoDeleteToast?
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                SettingsChrome.canvas
-                    .ignoresSafeArea()
+        ZStack {
+            SettingsChrome.canvas
+                .ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: SettingsChrome.sectionSpacing) {
-                        if AppConstants.advancedPaywallEnabled {
-                            supporterBanner
-                        }
-
-                        // 偏好设置
-                        preferencesSection
-
-                        // 数据与权限
-                        dataPermissionsSection
-
-                        // 关于与支持
-                        aboutSection
-
-                        moreAppsSection
-
-                        // 版本信息
-                        versionInfo
-
-                        // 底部安全区域
-                        Spacer()
-                            .frame(height: 100)
+            ScrollView {
+                VStack(spacing: SettingsChrome.sectionSpacing) {
+                    if AppConstants.advancedPaywallEnabled {
+                        supporterBanner
                     }
-                    .padding(.horizontal, SettingsChrome.pageInset)
-                    .padding(.top, Theme.space2)
-                    .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
-                    .frame(maxWidth: .infinity)
-                }
 
-                if let settingsToast {
-                    settingsToastView(settingsToast)
+                    // 偏好设置
+                    preferencesSection
+
+                    // 数据与权限
+                    dataPermissionsSection
+
+                    // 关于与支持
+                    aboutSection
+
+                    moreAppsSection
+
+                    // 版本信息
+                    versionInfo
+
+                    // 底部安全区域
+                    Spacer()
+                        .frame(height: 100)
                 }
+                .padding(.horizontal, SettingsChrome.pageInset)
+                .padding(.top, Theme.space2)
+                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+                .frame(maxWidth: .infinity)
             }
-            .navigationTitle(L10n.string("Settings"))
-            .navigationBarTitleDisplayMode(.large)
-            .settingsNavigationChrome()
-            .photoDeleteMainTabBarVisible()
+
+            if let settingsToast {
+                settingsToastView(settingsToast)
+            }
         }
+        .navigationTitle(L10n.string("Settings"))
+        .navigationBarTitleDisplayMode(.large)
+        .settingsNavigationChrome()
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
             case .mail:
@@ -151,9 +149,8 @@ struct SettingsView: View {
     }
 
     private var supporterBanner: some View {
-        NavigationLink {
-            PaywallView()
-                .photoDeleteHidesMainTabBar()
+        Button {
+            router.pushPaywall()
         } label: {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -1272,4 +1269,5 @@ struct AboutView: View {
 #Preview {
     SettingsView()
         .environmentObject(DataManager())
+        .environmentObject(MainTabRouter())
 }
