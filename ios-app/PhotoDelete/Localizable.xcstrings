@@ -4840,6 +4840,7 @@
       }
     },
     "A dark photo canvas with amber action feedback." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7174,6 +7175,7 @@
       }
     },
     "Amber Night" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8026,6 +8028,7 @@
       }
     },
     "Automatically follows iPhone appearance" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -8636,6 +8639,7 @@
       }
     },
     "Bright background for daytime organizing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -15499,6 +15503,7 @@
       }
     },
     "Dark background for night organizing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -15539,6 +15544,7 @@
       }
     },
     "Dark Mode" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -23736,6 +23742,7 @@
       }
     },
     "Light Mode" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

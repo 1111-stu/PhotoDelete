@@ -87,11 +87,6 @@ private enum PhotoDeleteUITestDefaults {
             forKey: AppConstants.hasCompletedOnboardingKey,
             defaults: defaults
         )
-        setBool(
-            environment["PHOTO_DELETE_UI_TEST_HAS_SEEN_INTRO"],
-            forKey: AppConstants.hasSeenIntroKey,
-            defaults: defaults
-        )
 
         // 已解锁态：写入缓存权益，由 SubscriptionManager 的 DEBUG 钩子在
         // StoreKit 返回空交易时合成快照（见 SubscriptionManager.debugUITestEntitlementOverride）。
@@ -107,7 +102,6 @@ private enum PhotoDeleteUITestDefaults {
         [
             AppConstants.appLanguageKey,
             AppConstants.hasCompletedOnboardingKey,
-            AppConstants.hasSeenIntroKey,
             AppConstants.recentOrganizedPhotosKey,
             AppConstants.reviewedAssetIDsKey,
             AppConstants.pendingDeleteCandidateIDsKey,

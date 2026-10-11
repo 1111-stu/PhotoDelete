@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage(AppConstants.hasCompletedOnboardingKey) private var hasCompletedOnboarding = false
-    @AppStorage(AppConstants.hasSeenIntroKey) private var hasSeenHomeIntro = false
     @StateObject private var dataManager = DataManager()
 
     var body: some View {
@@ -19,7 +18,6 @@ struct ContentView: View {
         } else {
             OnboardingFlowView(
                 onSkip: {
-                    hasSeenHomeIntro = false
                     hasCompletedOnboarding = true
                 },
                 onRequestPhotoAccess: { completion in
@@ -30,7 +28,6 @@ struct ContentView: View {
                     }
                 },
                 onComplete: {
-                    hasSeenHomeIntro = true
                     hasCompletedOnboarding = true
                 }
             )

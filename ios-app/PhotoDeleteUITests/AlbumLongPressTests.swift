@@ -23,8 +23,7 @@ final class AlbumLongPressTests: XCTestCase {
             "PHOTO_DELETE_UI_TEST": "1",
             "PHOTO_DELETE_UI_TEST_SEED_LIBRARY": "1",
             "PHOTO_DELETE_UI_TEST_APP_LANGUAGE": "en",
-            "PHOTO_DELETE_UI_TEST_HAS_COMPLETED_ONBOARDING": "1",
-            "PHOTO_DELETE_UI_TEST_HAS_SEEN_INTRO": "1"
+            "PHOTO_DELETE_UI_TEST_HAS_COMPLETED_ONBOARDING": "1"
         ]
         app.launch()
         app.tabBars.buttons["Albums"].tap()

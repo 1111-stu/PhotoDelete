@@ -90,7 +90,6 @@ struct SettingsView: View {
     @EnvironmentObject var dataManager: DataManager
     @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @AppStorage(AppConstants.hasSeenIntroKey) private var hasSeenPhotoDeleteIntro = false
     @AppStorage(AppConstants.hasCompletedOnboardingKey) private var hasCompletedOnboarding = false
     @AppStorage(AppConstants.hapticsEnabledKey) private var hapticsEnabled = true
     @AppStorage(AppConstants.appLanguageKey) private var appLanguageValue = AppLanguage.system.rawValue
@@ -494,7 +493,6 @@ struct SettingsView: View {
     }
 
     private func resetIntro() {
-        hasSeenPhotoDeleteIntro = false
         hasCompletedOnboarding = false
         showSettingsToast(L10n.string("Intro will be shown again"), icon: "sparkles", style: .positive)
     }

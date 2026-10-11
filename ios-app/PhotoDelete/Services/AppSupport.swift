@@ -44,7 +44,6 @@ enum AppConstants {
     }
     static let landscapeBreakpoint: CGFloat = 700
     static let hapticsEnabledKey = "photoDeleteHapticsEnabled"
-    static let hasSeenIntroKey = "hasSeenPhotoDeleteIntro"
     static let hasCompletedOnboardingKey = "hasCompletedPhotoDeleteOnboarding"
     static let reviewedAssetIDsKey = "photoDeleteReviewedAssetIDs"
     static let recentOrganizedPhotosKey = "photoDeleteRecentOrganizedPhotosV1"

@@ -144,7 +144,6 @@ enum HomeCategoryCountDetailResolver {
 struct HomeView: View {
     @EnvironmentObject var dataManager: DataManager
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @AppStorage(AppConstants.hasSeenIntroKey) private var hasSeenPhotoDeleteIntro = false
     @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
     @State private var navigationPath = NavigationPath()
     @State private var showingRecentOrganized = false
@@ -153,16 +152,11 @@ struct HomeView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             GeometryReader { geometry in
-                let usesExpandedLayout = PhotoDeleteAdaptiveLayout.prefersExpandedContent(
-                    in: geometry.size,
-                    horizontalSizeClass: horizontalSizeClass
-                )
-
                 ZStack {
                     PhotoDeleteScreenBackground()
 
                     ScrollView {
-                        homeContent(isLandscape: usesExpandedLayout)
+                        homeContent()
                             .padding(
                                 .horizontal,
                                 PhotoDeleteAdaptiveLayout.homeHorizontalPadding(
@@ -273,17 +267,15 @@ struct HomeView: View {
     }
 
     @ViewBuilder
-    private func homeContent(isLandscape: Bool) -> some View {
+    private func homeContent() -> some View {
         if libraryContentState != .needsAuthorization {
             VStack(spacing: Theme.sectionSpacing) {
                 homeTitleBar
-                introSection(isCompact: isLandscape)
                 libraryDashboard
             }
         } else {
             VStack(spacing: Theme.sectionSpacing) {
                 homeTitleBar
-                introSection(isCompact: false)
                 authorizationSection
             }
         }
@@ -347,67 +339,6 @@ struct HomeView: View {
                 )
                 .offset(x: 3, y: -3)
                 .accessibilityHidden(true)
-        }
-    }
-
-    @ViewBuilder
-    private func introSection(isCompact: Bool) -> some View {
-        if !hasSeenPhotoDeleteIntro {
-            VStack(alignment: .leading, spacing: isCompact ? 12 : 14) {
-                HStack(alignment: .top, spacing: 12) {
-                    PhotoDeleteIconTile(
-                        icon: "hand.draw",
-                        size: 28,
-                        cornerRadius: Theme.Metrics.compactRadius
-                    )
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(L10n.string("Quick Start"))
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(Theme.primaryText)
-
-                        Text(L10n.string("By default, swipe left to delete, right to keep, and up to favorite. To change gestures, open settings at the bottom of the review screen."))
-                            .font(.system(size: 14, weight: .regular))
-                            .foregroundColor(Theme.secondaryText)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-
-                HStack(alignment: .top, spacing: 12) {
-                    PhotoDeleteIconTile(
-                        icon: "lock.shield",
-                        tint: Theme.positive,
-                        size: 28,
-                        cornerRadius: Theme.Metrics.compactRadius
-                    )
-
-                    Text(L10n.string("Privacy first: \(AppConstants.privacyShortText)"))
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundColor(Theme.secondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        hasSeenPhotoDeleteIntro = true
-                    }
-                } label: {
-                    Text(L10n.string("Got it"))
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.accent)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .photoDeleteMinimumTapTarget()
-                }
-                .buttonStyle(.plain)
-                .background(
-                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
-                        .fill(Theme.elevatedSurface)
-                )
-            }
-            .padding(isCompact ? 16 : 18)
-            .photoDeleteCard()
-            .transition(.opacity.combined(with: .move(edge: .top)))
         }
     }
 
