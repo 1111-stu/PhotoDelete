@@ -10251,6 +10251,22 @@
         }
       }
     },
+    "Card Preview" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Card Preview"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "卡片预览"
+          }
+        }
+      }
+    },
     "Categories and counts will appear automatically when ready. Everything stays on this device." : {
       "localizations" : {
         "ar" : {
@@ -10920,6 +10936,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "選擇方案"
+          }
+        }
+      }
+    },
+    "Clay" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clay"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "陶土"
           }
         }
       }
@@ -12284,6 +12317,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "收集箱共計"
+          }
+        }
+      }
+    },
+    "Colorwork" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colorwork"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colorwork"
           }
         }
       }
@@ -15983,6 +16032,9 @@
         }
       }
     },
+    "DATE" : {
+
+    },
     "Date Cleanup" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -18209,6 +18261,23 @@
         }
       }
     },
+    "Dust Rose" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dust Rose"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暮粉"
+          }
+        }
+      }
+    },
     "Each app solves one small pain point, with unlimited core features and no ads." : {
       "localizations" : {
         "en" : {
@@ -20053,6 +20122,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "適合想做自己小產品，但不知道如何定範圍、用 AI 寫代碼、處理上線細節的人。"
+          }
+        }
+      }
+    },
+    "Forest" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forest"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "墨绿"
           }
         }
       }
@@ -22116,6 +22202,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在初始化照片庫"
+          }
+        }
+      }
+    },
+    "Ink Blue" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ink Blue"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "墨蓝"
           }
         }
       }
@@ -26354,6 +26457,22 @@
         }
       }
     },
+    "Minimal Frame" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimal Frame"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "极简相框"
+          }
+        }
+      }
+    },
     "MJ" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -27951,6 +28070,9 @@
           }
         }
       }
+    },
+    "NEXT STATION" : {
+
     },
     "No Access" : {
       "localizations" : {
@@ -29981,6 +30103,23 @@
         }
       }
     },
+    "Ochre" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ochre"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "赭石"
+          }
+        }
+      }
+    },
     "Older" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -30208,6 +30347,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "最早照片優先"
+          }
+        }
+      }
+    },
+    "Olive" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olive"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "橄榄"
           }
         }
       }
@@ -32718,6 +32874,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "原影片可能已刪除"
+          }
+        }
+      }
+    },
+    "Original Photo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原图"
           }
         }
       }
@@ -41165,6 +41337,22 @@
         }
       }
     },
+    "See You Again" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See You Again"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回见"
+          }
+        }
+      }
+    },
     "Select" : {
       "localizations" : {
         "ar" : {
@@ -41965,6 +42153,22 @@
         }
       }
     },
+    "Show Date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Date"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示日期"
+          }
+        }
+      }
+    },
     "Show Intro Again" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -42042,6 +42246,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "收合"
+          }
+        }
+      }
+    },
+    "Show Location" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Location"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示地点"
           }
         }
       }
@@ -42617,6 +42837,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已跳過"
+          }
+        }
+      }
+    },
+    "Slate" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slate"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "石板"
           }
         }
       }
@@ -49212,6 +49449,22 @@
         }
       }
     },
+    "Ticket Stub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ticket Stub"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邮票票根"
+          }
+        }
+      }
+    },
     "Time" : {
       "localizations" : {
         "ar" : {
@@ -54652,6 +54905,23 @@
         }
       }
     },
+    "Wine" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wine"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "酒红"
+          }
+        }
+      }
+    },
     "Write your feedback or suggestion here:" : {
       "localizations" : {
         "ar" : {
@@ -54731,6 +55001,9 @@
           }
         }
       }
+    },
+    "YEAR" : {
+
     },
     "Year only changes what you browse on the wall. Tapping a day organizes that month." : {
       "extractionState" : "stale",

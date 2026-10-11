@@ -33,91 +33,84 @@ struct PendingPhotoWallView: View {
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            let topInset = geometry.safeAreaInsets.top
-            // 顶栏控件行高 + 少量间距；不再用高大渐变挡首月。
-            let chromeContentTop = topInset + 8
-            let listTopPadding = chromeContentTop + Theme.sizeChrome + 16
-
-            ZStack(alignment: .top) {
-                Theme.background.ignoresSafeArea()
-
-                // Dynamic Island / 状态栏：纯黑垫底，避免漏光。
-                Color.black
-                    .frame(height: topInset)
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    .ignoresSafeArea(edges: .top)
-                    .allowsHitTesting(false)
-
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 12) {
-                        if shouldShowPreparing {
-                            OrganizeLoadingCard(
-                                title: L10n.string("Organizing timeline"),
-                                message: L10n.string("Dates, months, and years appear after loading."),
-                                progress: dataManager.photoLibraryManager.loadingProgress
-                            )
-                            .padding(.top, 8)
-                        } else if snapshot.isLibraryEmpty {
-                            PendingPhotoWallEmptyState(
-                                isWholeLibrary: true,
-                                onViewHistory: { showingRecentOrganized = true }
-                            )
-                        } else if snapshot.isSelectedYearEmpty {
-                            PendingPhotoWallEmptyState(
-                                isWholeLibrary: false,
-                                onViewHistory: { showingRecentOrganized = true }
-                            )
-                        } else {
-                            ForEach(snapshot.months) { month in
-                                let mode = displayMode(for: month)
-                                PendingPhotoWallMonthSection(
-                                    title: monthTitle(for: month),
-                                    remainingCount: month.remainingCount,
-                                    displayMode: mode,
-                                    onSelectMode: { next in
-                                        displayModeByMonthID[month.id] = next
-                                    },
-                                    onOrganizeMonth: {
-                                        router.push(SwipeViewDestination.wallMonth(month.monthStart, startFromDay: nil))
-                                    }
-                                ) {
-                                    monthContent(month, mode: mode)
+        ZStack(alignment: .top) {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 12) {
+                    if shouldShowPreparing {
+                        OrganizeLoadingCard(
+                            title: L10n.string("Organizing timeline"),
+                            message: L10n.string("Dates, months, and years appear after loading."),
+                            progress: dataManager.photoLibraryManager.loadingProgress
+                        )
+                        .padding(.top, 8)
+                    } else if snapshot.isLibraryEmpty {
+                        PendingPhotoWallEmptyState(
+                            isWholeLibrary: true,
+                            onViewHistory: { showingRecentOrganized = true }
+                        )
+                    } else if snapshot.isSelectedYearEmpty {
+                        PendingPhotoWallEmptyState(
+                            isWholeLibrary: false,
+                            onViewHistory: { showingRecentOrganized = true }
+                        )
+                    } else {
+                        ForEach(snapshot.months) { month in
+                            let mode = displayMode(for: month)
+                            PendingPhotoWallMonthSection(
+                                title: monthTitle(for: month),
+                                remainingCount: month.remainingCount,
+                                displayMode: mode,
+                                onSelectMode: { next in
+                                    displayModeByMonthID[month.id] = next
+                                },
+                                onOrganizeMonth: {
+                                    router.push(SwipeViewDestination.wallMonth(month.monthStart, startFromDay: nil))
                                 }
+                            ) {
+                                monthContent(month, mode: mode)
                             }
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, listTopPadding)
-                    .padding(.bottom, 96)
                 }
-                .simultaneousGesture(
-                    TapGesture().onEnded {
-                        guard isYearMenuExpanded else { return }
-                        withAnimation(.easeOut(duration: 0.16)) {
-                            isYearMenuExpanded = false
-                        }
-                    }
-                )
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 96)
+            }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 8).onChanged { _ in
+                    dismissYearMenuIfNeeded()
+                }
+            )
 
-                PendingPhotoWallChrome(
-                    yearLabel: yearPillLabel,
+            if isYearMenuExpanded {
+                // 点空白收起年份菜单（不挡顶栏工具条）。
+                Color.clear
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea()
+                    .onTapGesture(perform: dismissYearMenuIfNeeded)
+
+                PendingPhotoWallYearMenu(
                     years: yearMenuOptions,
                     selectedYear: snapshot.selectedYear,
-                    binCount: dataManager.deleteCandidates.count,
-                    isYearMenuExpanded: $isYearMenuExpanded,
-                    onBack: { dismiss() },
-                    onSelectYear: { year in
+                    onSelect: { year in
                         selectedYear = year
                         rebuildSnapshot(preferredYear: year)
-                    },
-                    onOpenBin: { router.push(.trashBin) }
+                        dismissYearMenuIfNeeded()
+                    }
                 )
-                .padding(.top, chromeContentTop)
+                .padding(.horizontal, 72)
+                .padding(.top, 4)
+                .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .top)))
             }
         }
-        .navigationBarHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
+        .background(Theme.background.ignoresSafeArea())
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.visible, for: .navigationBar)
+        .toolbar { wallToolbar }
+        // 与相册详情页一致：内容滚过时由系统导航栏做液态玻璃模糊，不用纯黑垫安全区。
+        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .sheet(isPresented: $showingRecentOrganized) {
             RecentOrganizedPhotosView(dataManager: dataManager)
         }
@@ -135,6 +128,116 @@ struct PendingPhotoWallView: View {
         }
         .onReceive(dataManager.$reviewedAssetIDs) { _ in
             rebuildSnapshot(preferredYear: selectedYear)
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var wallToolbar: some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            ToolbarItem(placement: .topBarLeading) {
+                wallBackButton
+            }
+            .sharedBackgroundVisibility(.hidden)
+
+            ToolbarItem(placement: .principal) {
+                yearPillButton
+            }
+            .sharedBackgroundVisibility(.hidden)
+
+            ToolbarItem(placement: .topBarTrailing) {
+                wallBinButton
+            }
+            .sharedBackgroundVisibility(.hidden)
+        } else {
+            ToolbarItem(placement: .navigationBarLeading) {
+                wallBackButton
+            }
+            ToolbarItem(placement: .principal) {
+                yearPillButton
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                wallBinButton
+            }
+        }
+    }
+
+    private var wallBackButton: some View {
+        Button {
+            dismissYearMenuIfNeeded()
+            dismiss()
+        } label: {
+            Image(systemName: "arrow.left")
+                .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
+                .foregroundColor(Theme.primaryText)
+                .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
+        }
+        .modifier(ReviewGlassCircleChrome())
+        .accessibilityLabel(L10n.string("Back"))
+    }
+
+    private var yearPillButton: some View {
+        Button {
+            withAnimation(.easeOut(duration: 0.18)) {
+                isYearMenuExpanded.toggle()
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Text(yearPillLabel)
+                    .font(.system(size: 16.5, weight: .semibold))
+                    .foregroundColor(Theme.primaryText)
+                    .monospacedDigit()
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(Theme.tertiaryText)
+                    .rotationEffect(.degrees(isYearMenuExpanded ? 180 : 0))
+            }
+            .padding(.leading, 20)
+            .padding(.trailing, 16)
+            .frame(height: Theme.sizeChrome)
+        }
+        .modifier(ReviewGlassCapsuleChrome())
+        .accessibilityLabel(L10n.string("Select year"))
+        .accessibilityValue(yearPillLabel)
+    }
+
+    private var wallBinButton: some View {
+        Button {
+            dismissYearMenuIfNeeded()
+            router.push(.trashBin)
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "archivebox")
+                    .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
+                    .foregroundColor(Theme.primaryText)
+                    .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
+
+                let binCount = dataManager.deleteCandidates.count
+                if binCount > 0 {
+                    Text(binCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(binCount))
+                        .font(.system(size: 10.5, weight: .bold))
+                        .foregroundColor(.white)
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .padding(.horizontal, 5)
+                        .frame(minWidth: 18, minHeight: 18)
+                        .background(Capsule(style: .continuous).fill(Theme.destructive))
+                        .overlay(
+                            Capsule(style: .continuous)
+                                .stroke(Theme.background, lineWidth: 2.5)
+                        )
+                        .offset(x: 2, y: -2)
+                }
+            }
+        }
+        .modifier(ReviewGlassCircleChrome())
+        .accessibilityLabel(L10n.string("Collection bin"))
+        .accessibilityValue(L10n.string("\(dataManager.deleteCandidates.count) to delete"))
+    }
+
+    private func dismissYearMenuIfNeeded() {
+        guard isYearMenuExpanded else { return }
+        withAnimation(.easeOut(duration: 0.16)) {
+            isYearMenuExpanded = false
         }
     }
 

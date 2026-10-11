@@ -237,6 +237,41 @@ struct PhotoDeleteTests {
         #expect(nextPhotoPlayback)
     }
 
+    @Test func shareCardMetaFallsBackStationNameAndHidesDateColumns() {
+        let both = ShareCardMeta.make(
+            creationDate: Date(timeIntervalSince1970: 1_760_000_000),
+            locationTitle: "深圳·宝安",
+            barcodeSeed: "seed",
+            showDate: true,
+            showLocation: true
+        )
+        #expect(both.ticketStationName == "深圳·宝安")
+        #expect(both.ticketShowsDateColumns)
+
+        let noLoc = ShareCardMeta.make(
+            creationDate: Date(timeIntervalSince1970: 1_760_000_000),
+            locationTitle: nil,
+            barcodeSeed: "seed",
+            showDate: true,
+            showLocation: true
+        )
+        #expect(!noLoc.ticketShowsDateColumns)
+        #expect(noLoc.ticketStationName.contains("."))
+
+        let neither = ShareCardMeta.make(
+            creationDate: nil,
+            locationTitle: nil,
+            barcodeSeed: "seed",
+            showDate: true,
+            showLocation: true
+        )
+        #expect(!neither.hasDate)
+        #expect(!neither.hasLocation)
+        #expect(neither.ticketStationName == L10n.string("See You Again"))
+        #expect(ShareCardTicketPalette.normalized("missing").id == "clay")
+        #expect(ShareCardTemplate.normalized(nil) == .minimalFrame)
+    }
+
     @Test func photoAssetMetadataFormatterUsesReadableFallbacks() async throws {
         #expect(PhotoAssetMetadataFormatter.shortCaptureDate(for: nil) == L10n.string("Capture time unknown"))
         #expect(PhotoAssetMetadataFormatter.detailCaptureDate(for: nil) == L10n.string("No capture time saved"))

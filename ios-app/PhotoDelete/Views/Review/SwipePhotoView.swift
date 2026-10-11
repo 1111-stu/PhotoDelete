@@ -54,6 +54,8 @@ struct SwipePhotoView: View {
     @State private var sharePayload: PhotoSharePayload?
     @State private var sharePreparationTask: Task<Void, Never>?
     @State private var isPreparingShare = false
+    @State private var showingShareCardSheet = false
+    @State private var pendingSharePayload: PhotoSharePayload?
     @State private var showsAlbumFilingSheet = false
     @State private var albumFilingSheetSelection: Set<String> = []
     @State private var albumFilingSheetAsset: PHAsset?
@@ -287,6 +289,17 @@ struct SwipePhotoView: View {
                 onContinue: finishAlbumFilingSheet
             )
             .environmentObject(dataManager)
+        }
+        .sheet(isPresented: $showingShareCardSheet, onDismiss: presentPendingSharePayloadIfNeeded) {
+            if let asset = currentRealPhoto {
+                ShareCardPreviewSheet(
+                    asset: asset,
+                    dataManager: dataManager,
+                    onSharePayload: { payload in
+                        pendingSharePayload = payload
+                    }
+                )
+            }
         }
         .sheet(item: $sharePayload, onDismiss: cleanupSharePayload) { payload in
             SystemShareSheet(activityItems: [payload.fileURL])
@@ -1089,6 +1102,14 @@ struct SwipePhotoView: View {
         guard !isPreparingShare, let asset = currentRealPhoto else { return }
 
         HapticManager.impact(.light)
+        if asset.mediaType == .video {
+            prepareOriginalShare(for: asset)
+        } else {
+            showingShareCardSheet = true
+        }
+    }
+
+    private func prepareOriginalShare(for asset: PHAsset) {
         isPreparingShare = true
         sharePreparationTask?.cancel()
         sharePreparationTask = Task {
@@ -1120,6 +1141,12 @@ struct SwipePhotoView: View {
                 }
             }
         }
+    }
+
+    private func presentPendingSharePayloadIfNeeded() {
+        guard let pendingSharePayload else { return }
+        sharePayload = pendingSharePayload
+        self.pendingSharePayload = nil
     }
 
     private func cleanupSharePayload() {

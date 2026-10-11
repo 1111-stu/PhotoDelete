@@ -10,104 +10,6 @@ import SwiftUI
 
 // MARK: - Chrome
 
-struct PendingPhotoWallChrome: View {
-    let yearLabel: String
-    let years: [PendingPhotoWallYearOption]
-    let selectedYear: Int
-    let binCount: Int
-    @Binding var isYearMenuExpanded: Bool
-    let onBack: () -> Void
-    let onSelectYear: (Int) -> Void
-    let onOpenBin: () -> Void
-
-    var body: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 8) {
-                Button(action: onBack) {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
-                        .foregroundColor(Theme.primaryText)
-                        .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
-                }
-                .modifier(ReviewGlassCircleChrome())
-                .accessibilityLabel(L10n.string("Back"))
-
-                Spacer(minLength: 0)
-
-                Button {
-                    withAnimation(.easeOut(duration: 0.18)) {
-                        isYearMenuExpanded.toggle()
-                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Text(yearLabel)
-                            .font(.system(size: 16.5, weight: .semibold))
-                            .foregroundColor(Theme.primaryText)
-                            .monospacedDigit()
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(Theme.tertiaryText)
-                            .rotationEffect(.degrees(isYearMenuExpanded ? 180 : 0))
-                    }
-                    .padding(.leading, 20)
-                    .padding(.trailing, 16)
-                    .frame(height: Theme.sizeChrome)
-                }
-                .modifier(ReviewGlassCapsuleChrome())
-                .accessibilityLabel(L10n.string("Select year"))
-                .accessibilityValue(yearLabel)
-
-                Spacer(minLength: 0)
-
-                Button(action: onOpenBin) {
-                    ZStack(alignment: .topTrailing) {
-                        Image(systemName: "archivebox")
-                            .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
-                            .foregroundColor(Theme.primaryText)
-                            .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
-
-                        if binCount > 0 {
-                            Text(binCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(binCount))
-                                .font(.system(size: 10.5, weight: .bold))
-                                .foregroundColor(.white)
-                                .monospacedDigit()
-                                .lineLimit(1)
-                                .padding(.horizontal, 5)
-                                .frame(minWidth: 18, minHeight: 18)
-                                .background(Capsule(style: .continuous).fill(Theme.destructive))
-                                .overlay(
-                                    Capsule(style: .continuous)
-                                        .stroke(Theme.background, lineWidth: 2.5)
-                                )
-                                .offset(x: 2, y: -2)
-                        }
-                    }
-                }
-                .modifier(ReviewGlassCircleChrome())
-                .accessibilityLabel(L10n.string("Collection bin"))
-                .accessibilityValue(L10n.string("\(binCount) to delete"))
-            }
-            .padding(.horizontal, 12)
-
-            if isYearMenuExpanded {
-                PendingPhotoWallYearMenu(
-                    years: years,
-                    selectedYear: selectedYear,
-                    onSelect: { year in
-                        onSelectYear(year)
-                        withAnimation(.easeOut(duration: 0.16)) {
-                            isYearMenuExpanded = false
-                        }
-                    }
-                )
-                .padding(.horizontal, 72)
-                .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .top)))
-                .zIndex(2)
-            }
-        }
-    }
-}
-
 struct PendingPhotoWallYearMenu: View {
     let years: [PendingPhotoWallYearOption]
     let selectedYear: Int
@@ -115,7 +17,7 @@ struct PendingPhotoWallYearMenu: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ForEach(Array(years.enumerated()), id: \.element.id) { index, option in
+            ForEach(years) { option in
                 Button {
                     onSelect(option.year)
                 } label: {
@@ -136,12 +38,6 @@ struct PendingPhotoWallYearMenu: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-
-                if index != years.count - 1 {
-                    Divider()
-                        .background(Color.white.opacity(0.12))
-                        .padding(.leading, 16)
-                }
             }
         }
         .padding(.vertical, 6)

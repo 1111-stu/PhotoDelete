@@ -67,6 +67,10 @@ enum AppConstants {
     static let hasSeenAlbumDownSwipeHintKey = "photoDeleteHasSeenAlbumDownSwipeHint"
     static let hasSeenDeleteButtonTipKey = "photoDeleteHasSeenDeleteButtonTip"
     static let reviewProgressByScopeKey = "photoDeleteReviewProgressByScope"
+    static let shareCardTemplateKey = "photoDeleteShareCardTemplate"
+    static let shareCardTicketPaletteKey = "photoDeleteShareCardTicketPalette"
+    static let shareCardShowDateKey = "photoDeleteShareCardShowDate"
+    static let shareCardShowLocationKey = "photoDeleteShareCardShowLocation"
     static let openAlbumsTabNotificationName = Notification.Name("photoDeleteOpenAlbumsTab")
     static let showsAlbumsTab = true
     /// 「上线开关」：为 false 时进阶页不进入锁定态，付费页只在设置页横幅可达。
