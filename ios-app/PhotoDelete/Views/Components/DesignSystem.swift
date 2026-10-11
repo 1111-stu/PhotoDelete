@@ -532,8 +532,6 @@ enum AppConstants {
     static let recentOrganizedPhotosKey = "photoDeleteRecentOrganizedPhotosV1"
     static let pendingDeleteCandidateIDsKey = "photoDeletePendingDeleteCandidateIDs"
     static let pendingFavoriteCandidateIDsKey = "photoDeletePendingFavoriteCandidateIDs"
-    /// Local ledger for space still sitting in system Recently Deleted after confirmed deletes.
-    static let pendingReclaimStateKey = "photoDeletePendingReclaimStateV1"
     static let customAlbumOrderKey = "photoDeleteCustomAlbumOrder"
     static let hasSeenAlbumSwipeHintKey = "photoDeleteHasSeenAlbumSwipeHint"
     static let hasDismissedAlbumSwipeHintKey = "photoDeleteHasDismissedAlbumSwipeHintV3"

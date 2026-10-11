@@ -900,48 +900,6 @@ struct PhotoDeleteTests {
         #expect(store.sessions.isEmpty)
     }
 
-    // MARK: - PendingReclaimStore tests
-
-    @Test func pendingReclaimStoreAccumulatesPersistsAndClears() async throws {
-        let suiteName = "PendingReclaimStore.tests.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suiteName)!
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-
-        let key = "testPendingReclaim"
-        let store = PendingReclaimStore(userDefaults: defaults, storageKey: key)
-        store.recordDeletion(itemCount: 3, estimatedSpaceMB: 12.5)
-        store.recordDeletion(itemCount: 2, estimatedSpaceMB: 4)
-        #expect(store.state.itemCount == 5)
-        #expect(abs(store.state.estimatedSpaceMB - 16.5) < 0.001)
-        #expect(store.state.hasPendingItems)
-
-        let reloaded = PendingReclaimStore(userDefaults: defaults, storageKey: key)
-        #expect(reloaded.state.itemCount == 5)
-
-        reloaded.clear()
-        #expect(!reloaded.state.hasPendingItems)
-        #expect(reloaded.state.itemCount == 0)
-
-        let afterClear = PendingReclaimStore(userDefaults: defaults, storageKey: key)
-        #expect(!afterClear.state.hasPendingItems)
-    }
-
-    @Test func pendingReclaimStoreExpiresAfterRetentionWindow() async throws {
-        let suiteName = "PendingReclaimStore.expiry.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suiteName)!
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-
-        let key = "testPendingReclaimExpiry"
-        let store = PendingReclaimStore(userDefaults: defaults, storageKey: key)
-        let oldDate = Calendar.current.date(byAdding: .day, value: -31, to: Date())!
-        store.recordDeletion(itemCount: 4, estimatedSpaceMB: 8, at: oldDate)
-        #expect(store.state.itemCount == 4)
-
-        let current = store.currentState()
-        #expect(!current.hasPendingItems)
-        #expect(store.state.itemCount == 0)
-    }
-
     @Test func cleanupStatsStoreReturnsNewAchievementsForReachedMilestones() async throws {
         let fileURL = temporaryStatsURL()
         defer { try? FileManager.default.removeItem(at: fileURL) }

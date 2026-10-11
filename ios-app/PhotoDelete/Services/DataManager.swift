@@ -255,8 +255,6 @@ class DataManager: ObservableObject {
     /// Cached so Home does not re-filter the full library on every body refresh.
     @Published private(set) var unclassifiedPhotosCount = 0
     @Published private(set) var cleanupStatsRevision = UUID()
-    /// Items confirmed deleted in OnePhoto that may still occupy system Recently Deleted.
-    @Published private(set) var pendingReclaim = PendingReclaimState.empty
     @Published private(set) var assetLibraryRevision = UUID()
     @Published private(set) var videoCompressionHistoryRevision = UUID()
     @Published private(set) var imageCompressionHistoryRevision = UUID()
@@ -277,7 +275,6 @@ class DataManager: ObservableObject {
     @Published private(set) var isLoadingAdvancedCleanupQueues = false
     @Published private(set) var isRestoringLibrarySnapshot = false
     let cleanupStatsStore: CleanupStatsStore
-    let pendingReclaimStore: PendingReclaimStore
     let videoCompressionHistoryStore: VideoCompressionHistoryStore
     let imageCompressionHistoryStore: ImageCompressionHistoryStore
     private let locationTitleCacheStore: PhotoLocationTitleCacheStore
@@ -405,15 +402,12 @@ class DataManager: ObservableObject {
 
     init(
         cleanupStatsStore: CleanupStatsStore = CleanupStatsStore(),
-        pendingReclaimStore: PendingReclaimStore? = nil,
         videoCompressionHistoryStore: VideoCompressionHistoryStore = VideoCompressionHistoryStore(),
         imageCompressionHistoryStore: ImageCompressionHistoryStore = ImageCompressionHistoryStore(),
         locationTitleCacheStore: PhotoLocationTitleCacheStore = PhotoLocationTitleCacheStore(),
         userDefaults: UserDefaults = .standard
     ) {
         self.cleanupStatsStore = cleanupStatsStore
-        self.pendingReclaimStore = pendingReclaimStore
-            ?? PendingReclaimStore(userDefaults: userDefaults)
         self.videoCompressionHistoryStore = videoCompressionHistoryStore
         self.imageCompressionHistoryStore = imageCompressionHistoryStore
         self.locationTitleCacheStore = locationTitleCacheStore
@@ -421,28 +415,10 @@ class DataManager: ObservableObject {
         self.cachedCustomAlbumOrder = Self.decodeCustomAlbumOrder(
             userDefaults.string(forKey: AppConstants.customAlbumOrderKey)
         )
-        self.pendingReclaim = self.pendingReclaimStore.currentState()
         loadReviewedAssetIDs()
         loadRecentOrganizedPhotoRecords()
         loadPendingCandidateIDs()
         setupPhotoLibraryManager()
-    }
-
-    func refreshPendingReclaimIfNeeded() {
-        pendingReclaim = pendingReclaimStore.currentState()
-    }
-
-    func clearPendingReclaim() {
-        pendingReclaim = pendingReclaimStore.clear()
-    }
-
-    private func recordPendingReclaim(itemCount: Int, estimatedSpaceMB: Double, at date: Date = Date()) {
-        guard itemCount > 0 else { return }
-        pendingReclaim = pendingReclaimStore.recordDeletion(
-            itemCount: itemCount,
-            estimatedSpaceMB: estimatedSpaceMB,
-            at: date
-        )
     }
 
     private func setupPhotoLibraryManager() {
@@ -889,13 +865,6 @@ class DataManager: ObservableObject {
                 self.saveReviewedAssetIDsNow()
             }
             let completedAt = Date()
-            if !committedDeleteCandidates.isEmpty {
-                self.recordPendingReclaim(
-                    itemCount: committedDeleteCandidates.count,
-                    estimatedSpaceMB: estimatedSpaceSaved,
-                    at: completedAt
-                )
-            }
             let newAchievements = self.cleanupStatsStore.recordSession(
                 deletedPhotos: committedDeleteCandidates.count,
                 favoritedPhotos: committedFavoriteCandidates.count,

@@ -245,14 +245,13 @@ struct HomeView: View {
                     AdvancedCleanupDestination(kind: kind)
                         .environmentObject(dataManager)
                 case .trashBin:
-                    EmptyRecentlyDeletedGuideView()
+                    TrashBinView()
                         .environmentObject(dataManager)
                 }
             }
         }
         .onAppear {
             dataManager.loadAlbumsIfNeeded()
-            dataManager.refreshPendingReclaimIfNeeded()
             refreshHomeLibrarySummaries()
         }
         .onChange(of: dataManager.photoLibraryManager.hasLoadedPhotoLibrary) { loaded in
@@ -303,8 +302,8 @@ struct HomeView: View {
         .padding(.top, 10)
     }
 
-    /// 右上角垃圾桶入口：引导清空系统「最近删除」。
-    /// iOS 26+ 用液态玻璃，老系统回落实心圆钮；角标为自有 pendingReclaim 账本数量（最多 99+）。
+    /// 右上角垃圾桶入口：进入「垃圾桶」（TrashBinView）。
+    /// iOS 26+ 用液态玻璃，老系统回落实心圆钮；待删除数量挂在按钮角标上（最多 99+）。
     @ViewBuilder
     private var trashBinEntryButton: some View {
         if #available(iOS 26.0, *) {
@@ -318,7 +317,7 @@ struct HomeView: View {
             .buttonStyle(.glass)
             .buttonBorderShape(.circle)
             .foregroundStyle(PhotoDeleteStyle.primaryText)
-            .overlay(alignment: .topTrailing) { pendingReclaimBadge }
+            .overlay(alignment: .topTrailing) { pendingDeleteBadge }
             .accessibilityLabel(trashBinAccessibilityLabel)
             .accessibilityIdentifier("home-trash-bin")
         } else {
@@ -332,26 +331,26 @@ struct HomeView: View {
                     .background(PhotoDeleteStyle.elevatedSurface, in: Circle())
             }
             .buttonStyle(.plain)
-            .overlay(alignment: .topTrailing) { pendingReclaimBadge }
+            .overlay(alignment: .topTrailing) { pendingDeleteBadge }
             .accessibilityLabel(trashBinAccessibilityLabel)
             .accessibilityIdentifier("home-trash-bin")
         }
     }
 
-    private var pendingReclaimCount: Int {
-        dataManager.pendingReclaim.itemCount
+    private var pendingDeleteCount: Int {
+        dataManager.deleteCandidates.count
     }
 
     private var trashBinAccessibilityLabel: String {
-        pendingReclaimCount > 0
-            ? L10n.string("Trash, \(pendingReclaimCount) items in Recently Deleted")
-            : L10n.string("Empty Recently Deleted")
+        pendingDeleteCount > 0
+            ? L10n.string("Trash, \(pendingDeleteCount) photos pending deletion")
+            : L10n.string("Trash")
     }
 
-    /// 待腾空间角标：pendingReclaim > 0 时显示，最多 99+。
+    /// 待删除角标：数量 > 0 时显示，最多 99+（对齐原型 tbadge：红底白字 + 背景色描边环）。
     @ViewBuilder
-    private var pendingReclaimBadge: some View {
-        let count = pendingReclaimCount
+    private var pendingDeleteBadge: some View {
+        let count = pendingDeleteCount
         if count > 0 {
             Text(count > 99 ? "99+" : PhotoDeleteCountFormat.plain(count))
                 .font(.system(size: 11, weight: .bold))

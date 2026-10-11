@@ -154,10 +154,4 @@
 
 ### 落地状态（2026-10-11）
 
-| 项 | 位置 |
-| --- | --- |
-| 账本 | `Services/PendingReclaimStore.swift` + `DataManager.pendingReclaim` |
-| 写入 | `executeBatchOperations` 删除成功路径 |
-| 引导页 | `Views/EmptyRecentlyDeletedGuideView.swift` |
-| 首页入口 | `HomeView` `trashBin` → 引导页；角标绑 `pendingReclaim.itemCount` |
-| 完成页 | 未改 |
+实现过一版首页引导 + `pendingReclaim` 账本，后因无法在 App 内真正清空「最近删除」、且完成页也不接此职责，**已回退代码**。首页垃圾桶恢复为待删除候选队列（`TrashBinView`）。本文仅保留调研结论，供后续再议。
