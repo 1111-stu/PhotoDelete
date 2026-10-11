@@ -92,10 +92,8 @@ struct AlbumsView: View {
                         SwipePhotoView(selectedCategory: nil, selectedTimeGroup: nil, selectedAlbumInfo: selectedSwipeAlbum)
                             .environmentObject(dataManager)
                     case .browser(let album):
-                        AlbumPhotoBrowserView(album: album) {
-                            navigationPath.append(AlbumNavigationDestination.swipeAlbum(album))
-                        }
-                        .environmentObject(dataManager)
+                        AlbumPhotoBrowserView(album: album)
+                            .environmentObject(dataManager)
                     }
                 }
         }

@@ -32,10 +32,10 @@ struct CleanupAssetFilterSheet: View {
                         switch pane {
                         case .filter:
                             filterPane
-                        case .display:
-                            displayPane
                         case .sort:
                             sortPane
+                        case .display:
+                            displayPane
                         }
                     }
                     .padding(.horizontal, PhotoDeleteStyle.screenHorizontalPadding)
@@ -96,6 +96,15 @@ struct CleanupAssetFilterSheet: View {
                 }
             }
 
+            FilterSheetSection(title: L10n.string("Review status")) {
+                FilterGlassSegmentedControl(
+                    options: AssetReviewFilter.allCases.map {
+                        FilterSegmentOption(value: $0, title: reviewTitle($0))
+                    },
+                    selection: $query.reviewStatus
+                )
+            }
+
             FilterSheetSection(title: L10n.string("Taken before")) {
                 FilterGlassChoiceGrid(
                     options: AssetAgeFilter.allCases.map {
@@ -103,15 +112,6 @@ struct CleanupAssetFilterSheet: View {
                     },
                     selection: $query.age,
                     columns: dynamicTypeSize.isAccessibilitySize ? 1 : 2
-                )
-            }
-
-            FilterSheetSection(title: L10n.string("Review status")) {
-                FilterGlassSegmentedControl(
-                    options: AssetReviewFilter.allCases.map {
-                        FilterSegmentOption(value: $0, title: reviewTitle($0))
-                    },
-                    selection: $query.reviewStatus
                 )
             }
         }

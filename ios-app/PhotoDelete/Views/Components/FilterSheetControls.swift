@@ -20,16 +20,16 @@ private enum FilterSheetChrome {
 
 enum FilterSheetPane: String, CaseIterable, Identifiable {
     case filter
-    case display
     case sort
+    case display
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .filter: return L10n.string("Filter")
-        case .display: return L10n.string("Display")
         case .sort: return L10n.string("Sort")
+        case .display: return L10n.string("Display")
         }
     }
 }
@@ -156,6 +156,8 @@ struct FilterGlassChoiceGrid<Value: Hashable>: View {
     let options: [FilterSegmentOption<Value>]
     @Binding var selection: Value
     var columns = 2
+    /// 与顶栏 Tab / 整理状态分段同高，避免选项格过高打破平衡。
+    var rowHeight: CGFloat = 40
 
     var body: some View {
         LazyVGrid(
@@ -174,19 +176,21 @@ struct FilterGlassChoiceGrid<Value: Hashable>: View {
                     Text(option.title)
                         .font(.subheadline.weight(.semibold))
                         .multilineTextAlignment(.center)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.78)
                         .foregroundStyle(
                             isSelected
                                 ? PhotoDeleteStyle.primaryText
                                 : PhotoDeleteStyle.secondaryText
                         )
-                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: rowHeight)
                         .padding(.horizontal, 10)
-                        .padding(.vertical, 10)
                         .background {
-                            RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
+                            RoundedRectangle(cornerRadius: FilterSheetChrome.thumbRadius, style: .continuous)
                                 .fill(Color.white.opacity(isSelected ? 0.10 : 0.045))
                                 .overlay {
-                                    RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
+                                    RoundedRectangle(cornerRadius: FilterSheetChrome.thumbRadius, style: .continuous)
                                         .stroke(
                                             Color.white.opacity(isSelected ? 0.34 : 0.08),
                                             lineWidth: isSelected ? 1 : 0.5

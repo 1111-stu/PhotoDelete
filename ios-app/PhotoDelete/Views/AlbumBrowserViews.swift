@@ -503,8 +503,6 @@ struct AlbumAssetThumbnail: View {
 struct AlbumPhotoBrowserView: View {
     @EnvironmentObject private var dataManager: DataManager
     let album: AlbumInfo
-    /// 右上角「整理」：从相册整本开始（保留相册进度语义）。
-    let onOrganize: () -> Void
 
     @State private var assets: [PHAsset] = []
     @State private var isLoading = true
@@ -575,20 +573,12 @@ struct AlbumPhotoBrowserView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 16) {
-                    Button(action: onOrganize) {
-                        Text(L10n.string("Organize"))
-                    }
-                    .disabled(album.photosCount == 0)
-                    .accessibilityIdentifier("album-start-review")
-
-                    Button {
-                        showsFilters = true
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
-                    }
-                    .accessibilityLabel(L10n.string("Filter and sort"))
+                Button {
+                    showsFilters = true
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease")
                 }
+                .accessibilityLabel(L10n.string("Filter and sort"))
             }
         }
         .sheet(isPresented: $showsFilters) {
@@ -703,10 +693,10 @@ struct AlbumBrowserFilterSheet: View {
                         switch pane {
                         case .filter:
                             filterPane
-                        case .display:
-                            displayPane
                         case .sort:
                             sortPane
+                        case .display:
+                            displayPane
                         }
                     }
                     .padding(.horizontal, 20)
