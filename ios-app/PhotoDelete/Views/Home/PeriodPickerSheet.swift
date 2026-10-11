@@ -68,10 +68,9 @@ struct PeriodPickerSheet: View {
     /// 数字样式：「本期全部」用珊瑚粉渐变高亮（与「待整理」卡同一组色），明细行白字。
     private func numberStyle(isPrimary: Bool) -> AnyShapeStyle {
         guard isPrimary else { return AnyShapeStyle(PhotoDeleteStyle.primaryText) }
-        let theme = PhotoDeleteTheme.current
-        return AnyShapeStyle(
+                return AnyShapeStyle(
             LinearGradient(
-                colors: [theme.coralGradientTop, theme.coralGradientBottom],
+                colors: [PhotoDeleteStyle.coralGradientTop, PhotoDeleteStyle.coralGradientBottom],
                 startPoint: .top,
                 endPoint: .bottom
             )

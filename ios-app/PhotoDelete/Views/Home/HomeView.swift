@@ -546,8 +546,7 @@ struct HomeView: View {
         let reviewed = min(stats.reviewedAssets, total)
         let pending = max(total - reviewed, 0)
         let progress = total > 0 ? Double(reviewed) / Double(total) : 0
-        let theme = PhotoDeleteTheme.current
-
+        
         return Button {
             // 卡片数字是"全库待整理"，入口也用全库（.all）——两者范围严格对齐。
             navigationPath.append(SwipeViewDestination.category(.all))
@@ -575,17 +574,17 @@ struct HomeView: View {
                         .font(.system(size: 18, weight: .bold))
                 }
 
-                CoralProgressBar(progress: progress, ink: theme.coralInk)
+                CoralProgressBar(progress: progress, ink: PhotoDeleteStyle.coralInk)
                     .padding(.top, 10)
             }
             .padding(EdgeInsets(top: 14, leading: 16, bottom: 12, trailing: 16))
-            .foregroundColor(theme.coralInk)
+            .foregroundColor(PhotoDeleteStyle.coralInk)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [theme.coralGradientTop, theme.coralGradientBottom],
+                            colors: [PhotoDeleteStyle.coralGradientTop, PhotoDeleteStyle.coralGradientBottom],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -599,9 +598,7 @@ struct HomeView: View {
     }
 
     private var randomReviewFanCard: some View {
-        let theme = PhotoDeleteTheme.current
-
-        return Button {
+        Button {
             navigationPath.append(SwipeViewDestination.random(.memories))
         } label: {
             VStack(alignment: .leading, spacing: 3) {
@@ -613,13 +610,13 @@ struct HomeView: View {
                 Spacer(minLength: 0)
             }
             .padding(EdgeInsets(top: 15, leading: 15, bottom: 0, trailing: 15))
-            .foregroundColor(theme.amberInk)
+            .foregroundColor(PhotoDeleteStyle.amberInk)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [theme.amberGradientTop, theme.amberGradientBottom],
+                            colors: [PhotoDeleteStyle.amberGradientTop, PhotoDeleteStyle.amberGradientBottom],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )

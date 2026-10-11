@@ -388,46 +388,6 @@ struct OrganizeStats {
     }
 }
 
-// MARK: - App Appearance
-enum AppAppearance: String, CaseIterable, Identifiable {
-    case system
-    case light
-    case dark
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .system: return L10n.string("Follow System")
-        case .light: return L10n.string("Light Mode")
-        case .dark: return L10n.string("Dark Mode")
-        }
-    }
-
-    var detail: String {
-        switch self {
-        case .system: return L10n.string("Automatically follows iPhone appearance")
-        case .light: return L10n.string("Bright background for daytime organizing")
-        case .dark: return L10n.string("Dark background for night organizing")
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .system: return "circle.lefthalf.filled"
-        case .light: return "sun.max.fill"
-        case .dark: return "moon.fill"
-        }
-    }
-
-    var colorScheme: ColorScheme? {
-        switch self {
-        case .system: return nil
-        case .light: return .light
-        case .dark: return .dark
-        }
-    }
-}
 
 // MARK: - 进阶功能
 enum AdvancedTimeScope: String, CaseIterable, Identifiable {
@@ -529,7 +489,7 @@ enum AdvancedCleanupKind: String, CaseIterable, Identifiable {
 
     var tint: Color {
         switch self {
-        case .similarPhotos: return PhotoDeleteTheme.current.secondaryAccent
+        case .similarPhotos: return PhotoDeleteStyle.secondaryAccent
         case .largeFiles: return PhotoDeleteStyle.warning
         case .imageCompression: return PhotoDeleteStyle.accent
         case .videoCompression: return PhotoDeleteStyle.positive

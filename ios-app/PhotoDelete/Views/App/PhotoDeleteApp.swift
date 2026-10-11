@@ -25,8 +25,7 @@ struct PhotoDeleteApp: App {
             ContentView()
                 .environment(\.locale, selectedLanguage.locale)
                 .modifier(AppLayoutDirectionModifier(language: selectedLanguage))
-                .environment(\.photoDeleteTheme, PhotoDeleteTheme.defaultTheme)
-                .tint(PhotoDeleteTheme.defaultTheme.navigationTint)
+                .tint(PhotoDeleteStyle.navigationTint)
                 .preferredColorScheme(.dark)
                 .statusBarHidden(false)
                 .task {
@@ -83,10 +82,6 @@ private enum PhotoDeleteUITestDefaults {
             defaults.set(appLanguage, forKey: AppConstants.appLanguageKey)
         }
 
-        if let appAppearance = environment["PHOTO_DELETE_UI_TEST_APP_APPEARANCE"] {
-            defaults.set(appAppearance, forKey: AppConstants.appAppearanceKey)
-        }
-
         setBool(
             environment["PHOTO_DELETE_UI_TEST_HAS_COMPLETED_ONBOARDING"],
             forKey: AppConstants.hasCompletedOnboardingKey,
@@ -127,8 +122,6 @@ private enum PhotoDeleteUITestDefaults {
             AppConstants.hasDismissedAlbumSwipeHintKey,
             AppConstants.reviewProgressByScopeKey,
             AppConstants.customAlbumOrderKey,
-            AppConstants.appAppearanceKey,
-            AppConstants.appThemeKey,
             AppConstants.supporterEntitlementKey,
             AppConstants.supporterPurchaseDateKey,
             AppConstants.supporterProductIDKey,

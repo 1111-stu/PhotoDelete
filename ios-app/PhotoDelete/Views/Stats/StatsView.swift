@@ -188,8 +188,7 @@ private struct StatsScreen: View {
     }
 
     private func monthBar(month: HistoryMonth, count: Int, maxCount: Int, isLatest: Bool) -> some View {
-        let theme = PhotoDeleteTheme.current
-        let barHeight: CGFloat = count > 0 ? max(6, 96 * CGFloat(count) / CGFloat(maxCount)) : 4
+                let barHeight: CGFloat = count > 0 ? max(6, 96 * CGFloat(count) / CGFloat(maxCount)) : 4
 
         return Button {
             selectedMonth = month
@@ -205,7 +204,7 @@ private struct StatsScreen: View {
                 RoundedRectangle(cornerRadius: 5, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [theme.coralGradientTop, theme.coralGradientBottom],
+                            colors: [PhotoDeleteStyle.coralGradientTop, PhotoDeleteStyle.coralGradientBottom],
                             startPoint: .top,
                             endPoint: .bottom
                         )

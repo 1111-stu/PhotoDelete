@@ -14,137 +14,7 @@ struct SystemShareSheet: UIViewControllerRepresentable {
 }
 #endif
 
-// 设计规范（色彩 / 组件 / 数字格式的唯一基准）见仓库根目录 style.md。
-enum PhotoDeleteStyle {
-    // Shared geometry follows the Moonly-inspired style guide.
-    enum Metrics {
-        static let minimumTapTarget: CGFloat = 44
-        /// 标题栏圆形 icon 按钮的可见圆直径（触控仍用 `minimumTapTarget`）。
-        static let titleBarIconVisualSize: CGFloat = 36
-        static let titleBarIconPointSize: CGFloat = 15
-        /// 整理页顶/底栏圆形 chrome（有意更大一档，勿与标题栏混用）。
-        static let reviewChromeTarget: CGFloat = 52
-        static let reviewChromeIconPointSize: CGFloat = 19
-        static let screenHorizontalPadding: CGFloat = 20
-        static let cardRadius: CGFloat = 22
-        static let controlRadius: CGFloat = 14
-        static let sectionSpacing: CGFloat = 24
-        static let rootContentTopSpacing: CGFloat = 8
-        static let rowIconSize: CGFloat = 32
-        static let rowMinHeight: CGFloat = 58
-        static let cardStrokeWidth: CGFloat = 1
-        static let toastHorizontalPadding: CGFloat = 14
-        static let toastVerticalPadding: CGFloat = 11
-        static let toastIconSize: CGFloat = 15
-        static let toastTextSize: CGFloat = 14
-        static let thumbnailRadius: CGFloat = 12
-        static let compactRadius: CGFloat = 16
-        static let capsuleHorizontalPadding: CGFloat = 14
-        static let bottomChromeSpacing: CGFloat = 96
-        static let contentBottomPadding: CGFloat = 24
-    }
-
-    enum Typography {
-        static let pageTitle: Font = .title2.weight(.semibold)
-        static let cardTitle: Font = .headline
-        static let body: Font = .body
-        static let secondary: Font = .subheadline
-        static let label: Font = .caption
-        static let metric: Font = .title.weight(.semibold)
-    }
-
-    #if canImport(UIKit)
-    static var background: Color { PhotoDeleteTheme.current.backgroundBottom }
-    static let reviewCanvas = Color(red: 23.0 / 255.0, green: 24.0 / 255.0, blue: 31.0 / 255.0)
-    static var backgroundTop: Color { PhotoDeleteTheme.current.backgroundTop }
-    static var surface: Color { PhotoDeleteTheme.current.surface }
-    static var elevatedSurface: Color { PhotoDeleteTheme.current.elevatedSurface }
-    static var hairline: Color { PhotoDeleteTheme.current.hairline }
-    static var cardStroke: Color { PhotoDeleteTheme.current.cardStroke }
-    static let primaryText = Color.white.opacity(0.96)
-    static let secondaryText = Color.white.opacity(0.62)
-    static let tertiaryText = Color.white.opacity(0.42)
-    static var accent: Color { PhotoDeleteTheme.current.primaryAccent }
-    static var destructive: Color { PhotoDeleteTheme.current.danger }
-    static var positive: Color { PhotoDeleteTheme.current.success }
-    static var warning: Color { PhotoDeleteTheme.current.warning }
-    static var favorite: Color { PhotoDeleteTheme.current.favorite }
-    static var primaryButtonText: Color { PhotoDeleteTheme.current.primaryAccentOnFill }
-
-    static var uiBackground: UIColor { PhotoDeleteTheme.current.uiBackground }
-    static var uiAccent: UIColor { PhotoDeleteTheme.current.uiAccent }
-    static let uiSecondaryText = UIColor(white: 1.0, alpha: 0.58)
-    static var floatingShadow: Color { PhotoDeleteTheme.current.floatingShadow }
-    #else
-    static var background: Color { PhotoDeleteTheme.current.backgroundBottom }
-    static var backgroundTop: Color { PhotoDeleteTheme.current.backgroundTop }
-    static var surface: Color { PhotoDeleteTheme.current.surface }
-    static var elevatedSurface: Color { PhotoDeleteTheme.current.elevatedSurface }
-    static var hairline: Color { PhotoDeleteTheme.current.hairline }
-    static var cardStroke: Color { PhotoDeleteTheme.current.cardStroke }
-    static let primaryText = Color.white.opacity(0.96)
-    static let secondaryText = Color.white.opacity(0.62)
-    static let tertiaryText = Color.white.opacity(0.42)
-    static var accent: Color { PhotoDeleteTheme.current.primaryAccent }
-    static var destructive: Color { PhotoDeleteTheme.current.danger }
-    static var positive: Color { PhotoDeleteTheme.current.success }
-    static var warning: Color { PhotoDeleteTheme.current.warning }
-    static var favorite: Color { PhotoDeleteTheme.current.favorite }
-    static var primaryButtonText: Color { PhotoDeleteTheme.current.primaryAccentOnFill }
-    static var floatingShadow: Color { PhotoDeleteTheme.current.floatingShadow }
-    #endif
-
-    static let screenHorizontalPadding = Metrics.screenHorizontalPadding
-    static let cardRadius = Metrics.cardRadius
-    static let controlRadius = Metrics.controlRadius
-    static let sectionSpacing = Metrics.sectionSpacing
-    static let rootContentTopSpacing = Metrics.rootContentTopSpacing
-    static let rowIconSize = Metrics.rowIconSize
-    static let rowMinHeight = Metrics.rowMinHeight
-
-    // MARK: 相册拖拽排序
-    // 站位（被拿起的那一格留下的空位）用中性虚线段：虚线本身已经说明「这里可以插入」，
-    // 不再占用琥珀的行动色语义（视觉基准 designs/albums-reorder-prototype.html）。
-    static let dropSlotStroke = Color.white.opacity(0.34)
-    static let dropSlotFill = Color.white.opacity(0.05)
-    static let dropSlotLineWidth: CGFloat = 2.5
-    static let dropSlotDash: [CGFloat] = [11, 9]
-    /// 相册页列表改为每个相册一张独立卡片。
-    static let albumListCardRadius: CGFloat = 16
-    static let albumListCardSpacing: CGFloat = 8
-    static let albumListCardMinHeight: CGFloat = 64
-
-    static var contentBottomPadding: CGFloat { Metrics.contentBottomPadding }
-
-    static func iconTint(for key: String) -> Color {
-        let theme = PhotoDeleteTheme.current
-        switch key {
-        case "delete", "trash":
-            return theme.danger
-        case "favorite", "heart":
-            return theme.favorite
-        case "video", "livephoto":
-            return theme.secondaryAccent
-        case "screenshot", "iphone", "photo", "album":
-            return theme.primaryAccent
-        default:
-            return theme.primaryAccent
-        }
-    }
-
-    static func surfaceFill(for theme: PhotoDeleteTheme, elevated: Bool = false) -> Color {
-        elevated ? theme.elevatedSurface : theme.surface
-    }
-
-    static func strokeFill(for theme: PhotoDeleteTheme) -> Color {
-        theme.cardStroke
-    }
-
-    static func hairlineFill(for theme: PhotoDeleteTheme) -> Color {
-        theme.hairline
-    }
-
-}
+// 设计原语与共享控件；token 见 DesignSystem/PhotoDeleteStyle.swift / 仓库根目录 style.md。
 
 enum PhotoDeleteAdaptiveLayout {
     static func isRegularPad(horizontalSizeClass: UserInterfaceSizeClass?) -> Bool {
@@ -203,13 +73,12 @@ enum PhotoDeleteAdaptiveLayout {
 }
 
 struct PhotoDeleteScreenBackground: View {
-    @Environment(\.photoDeleteTheme) private var theme
 
     var body: some View {
         LinearGradient(
             colors: [
-                theme.backgroundTop,
-                theme.backgroundBottom
+                PhotoDeleteStyle.backgroundTop,
+                PhotoDeleteStyle.background
             ],
             startPoint: .top,
             endPoint: .bottom
@@ -220,16 +89,15 @@ struct PhotoDeleteScreenBackground: View {
 
 struct PhotoDeleteCardBackground: ViewModifier {
     var radius: CGFloat = PhotoDeleteStyle.cardRadius
-    @Environment(\.photoDeleteTheme) private var theme
 
     func body(content: Content) -> some View {
         content
             .background(
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .fill(PhotoDeleteStyle.surfaceFill(for: theme))
+                    .fill(PhotoDeleteStyle.surfaceFill())
                     .overlay(
                         RoundedRectangle(cornerRadius: radius, style: .continuous)
-                            .stroke(PhotoDeleteStyle.strokeFill(for: theme), lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                            .stroke(PhotoDeleteStyle.cardStroke, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                     )
             )
     }
@@ -332,8 +200,6 @@ struct PhotoDeleteIconTile: View {
     var style: PhotoDeleteIconTileStyle = .soft
     var filled: Bool? = nil
 
-    @Environment(\.photoDeleteTheme) private var theme
-
     init(
         icon: String,
         tint: Color? = nil,
@@ -363,19 +229,19 @@ struct PhotoDeleteIconTile: View {
     }
 
     private var resolvedTint: Color {
-        tint ?? theme.primaryAccent
+        tint ?? PhotoDeleteStyle.accent
     }
 
     private var softFill: Color {
-        tint == nil ? theme.iconTileFill : resolvedTint.opacity(0.14)
+        tint == nil ? PhotoDeleteStyle.iconTileFill : resolvedTint.opacity(0.14)
     }
 
     private var softStroke: Color {
-        tint == nil ? theme.iconTileStroke : resolvedTint.opacity(0.14)
+        tint == nil ? PhotoDeleteStyle.iconTileStroke : resolvedTint.opacity(0.14)
     }
 
     private var solidSymbolColor: Color {
-        tint == nil ? theme.primaryAccentOnFill : .white
+        tint == nil ? PhotoDeleteStyle.primaryButtonText : .white
     }
 
     @ViewBuilder
@@ -407,17 +273,16 @@ struct PhotoDeleteIconTile: View {
 
 struct PhotoDeletePrimaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.photoDeleteTheme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.body.weight(.semibold))
-            .foregroundColor(theme.buttonPrimaryText)
+            .foregroundColor(PhotoDeleteStyle.buttonPrimaryText)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
             .background(
                 RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                    .fill(configuration.isPressed ? theme.primaryAccentPressed : theme.buttonPrimaryFill)
+                    .fill(configuration.isPressed ? PhotoDeleteStyle.accentPressed : PhotoDeleteStyle.buttonPrimaryFill)
             )
             .opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.42)
             .scaleEffect(configuration.isPressed ? 0.985 : 1)
@@ -427,20 +292,19 @@ struct PhotoDeletePrimaryButtonStyle: ButtonStyle {
 
 struct PhotoDeleteSecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.photoDeleteTheme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.body.weight(.semibold))
-            .foregroundColor(theme.buttonSecondaryText)
+            .foregroundColor(PhotoDeleteStyle.buttonSecondaryText)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
             .background(
                 RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                    .fill(theme.buttonSecondaryFill)
+                    .fill(PhotoDeleteStyle.buttonSecondaryFill)
                     .overlay(
                         RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                            .stroke(theme.buttonSecondaryStroke, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
+                            .stroke(PhotoDeleteStyle.buttonSecondaryStroke, lineWidth: PhotoDeleteStyle.Metrics.cardStrokeWidth)
                     )
             )
             .opacity(isEnabled ? (configuration.isPressed ? 0.74 : 1) : 0.42)
@@ -556,8 +420,6 @@ enum AppConstants {
     static let hasSeenAlbumDownSwipeHintKey = "photoDeleteHasSeenAlbumDownSwipeHint"
     static let hasSeenDeleteButtonTipKey = "photoDeleteHasSeenDeleteButtonTip"
     static let reviewProgressByScopeKey = "photoDeleteReviewProgressByScope"
-    static let appAppearanceKey = "photoDeleteAppAppearance"
-    static let appThemeKey = "photoDeleteAppTheme"
     static let openAlbumsTabNotificationName = Notification.Name("photoDeleteOpenAlbumsTab")
     static let showsAlbumsTab = true
     /// 「上线开关」：为 false 时进阶页不进入锁定态，付费页只在设置页横幅可达。
@@ -631,18 +493,14 @@ enum PhotoDeleteToastStyle {
     case favorite
     case warning
 
-    func color(for theme: PhotoDeleteTheme) -> Color {
-        switch self {
-        case .neutral: return theme.primaryAccent
-        case .positive: return theme.success
-        case .destructive: return theme.danger
-        case .favorite: return theme.favorite
-        case .warning: return theme.warning
-        }
-    }
-
     var color: Color {
-        color(for: .current)
+        switch self {
+        case .neutral: return PhotoDeleteStyle.accent
+        case .positive: return PhotoDeleteStyle.positive
+        case .destructive: return PhotoDeleteStyle.destructive
+        case .favorite: return PhotoDeleteStyle.favorite
+        case .warning: return PhotoDeleteStyle.warning
+        }
     }
 }
 
@@ -650,10 +508,8 @@ struct PhotoDeleteToastView: View {
     let toast: PhotoDeleteToast
     var onUndo: (() -> Void)?
 
-    @Environment(\.photoDeleteTheme) private var theme
-
     private var toastColor: Color {
-        toast.style.color(for: theme)
+        toast.style.color
     }
 
     var body: some View {
@@ -676,7 +532,7 @@ struct PhotoDeleteToastView: View {
 
                 Button(L10n.string("Undo"), action: onUndo)
                     .font(.system(size: PhotoDeleteStyle.Metrics.toastTextSize, weight: .semibold))
-                    .foregroundColor(theme.toolbarAction)
+                    .foregroundColor(PhotoDeleteStyle.toolbarAction)
                     .buttonStyle(.plain)
             }
         }
@@ -684,13 +540,13 @@ struct PhotoDeleteToastView: View {
         .padding(.vertical, PhotoDeleteStyle.Metrics.toastVerticalPadding)
         .background(
             Capsule(style: .continuous)
-                .fill(theme.elevatedSurface.opacity(0.94))
+                .fill(PhotoDeleteStyle.elevatedSurface.opacity(0.94))
                 .overlay(
                     Capsule(style: .continuous)
                         .stroke(toastColor.opacity(0.34), lineWidth: 1)
                 )
         )
-        .shadow(color: theme.floatingShadow, radius: 10, x: 0, y: 5)
+        .shadow(color: PhotoDeleteStyle.floatingShadow, radius: 10, x: 0, y: 5)
     }
 }
 
@@ -699,13 +555,11 @@ struct PhotoAuthorizationCard: View {
     let subtitle: String
     let onRequestAccess: () -> Void
 
-    @Environment(\.photoDeleteTheme) private var theme
-
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "photo.on.rectangle.angled")
                 .font(.largeTitle.weight(.medium))
-                .foregroundStyle(theme.primaryAccent)
+                .foregroundStyle(PhotoDeleteStyle.accent)
                 .accessibilityHidden(true)
 
             Text(L10n.string("Photo Library Access Needed"))

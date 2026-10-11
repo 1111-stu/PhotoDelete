@@ -275,8 +275,8 @@ struct ReviewActionToolbar: View {
                         Circle().fill(
                             LinearGradient(
                                 colors: [
-                                    PhotoDeleteTheme.current.amberGradientTop,
-                                    PhotoDeleteTheme.current.amberGradientBottom
+                                    PhotoDeleteStyle.amberGradientTop,
+                                    PhotoDeleteStyle.amberGradientBottom
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing

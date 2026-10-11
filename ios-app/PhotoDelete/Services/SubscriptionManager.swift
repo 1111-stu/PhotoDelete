@@ -4,7 +4,7 @@
 //
 //  订阅权益的唯一真相来源：季度 / 年度 / 永久买断三档。
 //  权益解析结果会写回 AppConstants 的 supporter UserDefaults 键，
-//  离线解锁与主题门禁（PhotoDeleteTheme.hasStoredThemeAccess）据此工作。
+//  离线解锁据此工作。
 //
 
 import Foundation
@@ -554,8 +554,8 @@ final class SubscriptionManager: ObservableObject {
     }
 
     /// 把权益写回既有的 supporter UserDefaults 键。
-    /// `PhotoDeleteTheme.hasStoredThemeAccess` 与 `SupporterCachedEntitlementPolicy`
-    /// 直接读这些键，因此离线主题门禁与离线解锁都依赖这里。
+    /// `SupporterCachedEntitlementPolicy`
+    /// 直接读这些键，因此离线解锁依赖这里。
     private func persistSupporterCache(_ snapshot: EntitlementSnapshot) {
         let defaults = UserDefaults.standard
 

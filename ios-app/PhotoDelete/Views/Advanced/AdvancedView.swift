@@ -6338,7 +6338,6 @@ private extension View {
 }
 
 private struct AdvancedProgressRing<Content: View>: View {
-    @Environment(\.photoDeleteTheme) private var theme
 
     let progress: Double
     let size: CGFloat
@@ -6349,14 +6348,14 @@ private struct AdvancedProgressRing<Content: View>: View {
         ZStack {
             Circle()
                 .stroke(
-                    theme.primaryAccentSoftStroke.opacity(0.9),
+                    PhotoDeleteStyle.accentSoftStroke.opacity(0.9),
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
 
             Circle()
                 .trim(from: 0, to: min(max(progress, 0), 1))
                 .stroke(
-                    theme.progressTint,
+                    PhotoDeleteStyle.progressTint,
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))

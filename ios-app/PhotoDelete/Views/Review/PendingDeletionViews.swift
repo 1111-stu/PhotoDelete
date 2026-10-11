@@ -93,7 +93,6 @@ struct TrashBinView: View {
 
 private struct DeletionQueueScreen: View {
     @EnvironmentObject private var dataManager: DataManager
-    @Environment(\.photoDeleteTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     let title: String
     let assets: [PHAsset]
@@ -218,7 +217,6 @@ private struct DeletionQueueScreen: View {
 
 /// Shared photo selection affordance for the queue and final review.
 struct CleanupReviewAssetCell: View {
-    @Environment(\.photoDeleteTheme) private var theme
     let asset: PHAsset
     let photoLibraryManager: PhotoLibraryManager
     let isSelected: Bool
@@ -241,9 +239,9 @@ struct CleanupReviewAssetCell: View {
             Button(action: onToggleSelection) {
                 Image(systemName: isSelected ? "checkmark" : "circle")
                     .font(.system(size: isSelected ? 11 : 18, weight: .bold))
-                    .foregroundStyle(isSelected ? theme.primaryAccentOnFill : .white.opacity(0.9))
+                    .foregroundStyle(isSelected ? PhotoDeleteStyle.primaryButtonText : .white.opacity(0.9))
                     .frame(width: 26, height: 26)
-                    .background(Circle().fill(isSelected ? theme.primaryAccent : Color.black.opacity(0.34)))
+                    .background(Circle().fill(isSelected ? PhotoDeleteStyle.accent : Color.black.opacity(0.34)))
                     .overlay(Circle().stroke(Color.white.opacity(isSelected ? 0.88 : 0.72), lineWidth: 1))
             }
             .buttonStyle(.plain)
@@ -261,18 +259,17 @@ struct CleanupReviewAssetCell: View {
 
 struct CleanupReviewSecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.photoDeleteTheme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.body.weight(.semibold))
             .foregroundStyle(PhotoDeleteStyle.secondaryText)
             .frame(minHeight: 52)
-            .background(configuration.isPressed ? theme.surface : theme.elevatedSurface)
+            .background(configuration.isPressed ? PhotoDeleteStyle.surface : PhotoDeleteStyle.elevatedSurface)
             .clipShape(RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: PhotoDeleteStyle.controlRadius, style: .continuous)
-                    .stroke(theme.hairline, lineWidth: 1)
+                    .stroke(PhotoDeleteStyle.hairline, lineWidth: 1)
             }
             .opacity(isEnabled ? 1 : 0.42)
             .animation(.easeOut(duration: 0.16), value: configuration.isPressed)
@@ -280,7 +277,6 @@ struct CleanupReviewSecondaryButtonStyle: ButtonStyle {
 }
 
 struct CleanupReviewFooterStyle: ViewModifier {
-    @Environment(\.photoDeleteTheme) private var theme
 
     func body(content: Content) -> some View {
         content
@@ -288,9 +284,9 @@ struct CleanupReviewFooterStyle: ViewModifier {
             .padding(.top, 12)
             .padding(.bottom, 8)
             .background {
-                theme.backgroundBottom
+                PhotoDeleteStyle.background
                     .overlay(alignment: .top) {
-                        Rectangle().fill(theme.hairline).frame(height: 1)
+                        Rectangle().fill(PhotoDeleteStyle.hairline).frame(height: 1)
                     }
                     .ignoresSafeArea(edges: .bottom)
             }

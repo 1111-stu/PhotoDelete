@@ -14,8 +14,6 @@ struct MainTabView: View {
     @EnvironmentObject var dataManager: DataManager
     @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.photoDeleteTheme) private var theme
-    @AppStorage(AppConstants.appAppearanceKey) private var appAppearanceValue = AppAppearance.system.rawValue
     @State private var selectedTab: PhotoDeleteMainTab = .organize
     
     var body: some View {
@@ -32,12 +30,6 @@ struct MainTabView: View {
                 dataManager.refreshAlbumsFromLibrary(showLoading: false)
             }
             #endif
-        }
-        .onChange(of: appAppearanceValue) { _ in
-            configureTabBarAppearance()
-        }
-        .onChange(of: theme) { _ in
-            configureTabBarAppearance()
         }
         .onChange(of: scenePhase) { phase in
             guard phase == .active else {
@@ -59,7 +51,7 @@ struct MainTabView: View {
     private var tabRoot: some View {
         TabView(selection: $selectedTab) {
             tabContent(for: .organize)
-                .tint(theme.navigationTint)
+                .tint(PhotoDeleteStyle.navigationTint)
                 .tabItem {
                     Image(systemName: PhotoDeleteMainTab.organize.systemImage)
                     Text(PhotoDeleteMainTab.organize.title)
@@ -68,7 +60,7 @@ struct MainTabView: View {
             
             if AppConstants.showsAlbumsTab {
                 tabContent(for: .albums)
-                    .tint(theme.navigationTint)
+                    .tint(PhotoDeleteStyle.navigationTint)
                     .tabItem {
                         Image(systemName: PhotoDeleteMainTab.albums.systemImage)
                         Text(PhotoDeleteMainTab.albums.title)
@@ -77,7 +69,7 @@ struct MainTabView: View {
             }
 
             tabContent(for: .settings)
-                .tint(theme.navigationTint)
+                .tint(PhotoDeleteStyle.navigationTint)
                 .tabItem {
                     Image(systemName: PhotoDeleteMainTab.settings.systemImage)
                     Text(PhotoDeleteMainTab.settings.title)
@@ -145,7 +137,7 @@ struct MainTabView: View {
 }
 
 private enum PhotoDeleteTabBarColors {
-    static let selectedIcon = UIColor(red: 243.0 / 255.0, green: 177.0 / 255.0, blue: 76.0 / 255.0, alpha: 1)
+    static let selectedIcon = PhotoDeleteStyle.uiAccent
     static let selectedLabel = UIColor(white: 1, alpha: 0.96)
     static let unselected = UIColor(red: 142.0 / 255.0, green: 144.0 / 255.0, blue: 152.0 / 255.0, alpha: 1)
     static let barBackground = UIColor(red: 23.0 / 255.0, green: 24.0 / 255.0, blue: 31.0 / 255.0, alpha: 1)

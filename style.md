@@ -4,10 +4,10 @@
 >
 > 三方对应关系（改 UI 前先读本文件）：
 > - 视觉基准（细节以实际渲染为准）：`designs/home-prototype.html`
-> - 代码实现（token 与组件，禁止绕开）：`PhotoDeleteTheme.swift` / `DesignSystem.swift` / `HomeView.swift`
+> - 代码实现（token 与原语，禁止绕开）：`DesignSystem/PhotoDeleteStyle.swift` / `DesignSystem/DesignSystem.swift` / `Views/Home/HomeView.swift`
 > - 文案：`Localizable.xcstrings`（源语言 zh-Hans，key 即中文原文）
 >
-> 最近更新：2026-10-05（首页改造落 SwiftUI 后同步）。旧版 style.md 的基础 token 表已按实际代码重写。
+> 最近更新：2026-10-11（Theme 并入 `PhotoDeleteStyle` 暗色静态 token；目录迁至 `DesignSystem/`）。
 
 ---
 
@@ -24,27 +24,26 @@
 
 ## 2. 色彩
 
-### 2.1 基础 token（`PhotoDeleteTheme.moonly`，dark 值）
+### 2.1 基础 token（`PhotoDeleteStyle`，暗色静态）
 
 | Token | 值 | Hex | 用途 |
 | --- | --- | --- | --- |
 | `backgroundTop` | 0.039/0.039/0.051 | `#0A0A0D` | 页面背景上端 |
-| `backgroundBottom` | 0.031/0.031/0.039 | `#08080A` | 页面背景下端、UIKit 背景 |
+| `background` | 0.031/0.031/0.039 | `#08080A` | 页面主背景、UIKit 背景（原 `backgroundBottom`） |
 | `surface` | 0.086/0.086/0.102 | `#16161A` | 普通卡片、分组列表（`.photoDeleteCard`） |
 | `elevatedSurface` | 0.118/0.118/0.141 | `#1E1E24` | 浮层、输入框、次级按钮、Toast |
 | `cardStroke` | 白 9% | — | 卡片描边（`.photoDeleteCard` 自带，克制使用） |
 | `hairline` | 白 7.5% | — | 分割线 |
 | `floatingShadow` | 黑 30% | — | 浮层阴影 |
-| `primaryAccent` | 0.953/0.694/0.298 | `#F3B14C` | 琥珀：主操作、选中、导航 tint、合计值 |
-| `primaryAccentPressed` | 0.788/0.541/0.196 | `#C98A32` | 琥珀按下态 |
-| `primaryAccentOnFill` | 0.04/0.035/0.03 | — | 琥珀填充上的文字 |
+| `accent` | 0.953/0.694/0.298 | `#F3B14C` | 琥珀：主操作、选中、导航 tint、合计值 |
+| `accentPressed` | 0.788/0.541/0.196 | `#C98A32` | 琥珀按下态 |
+| `primaryButtonText` | 0.04/0.035/0.03 | — | 琥珀填充上的文字 |
 | `secondaryAccent` | 1.00/0.78/0.48 | `#FFC77A` | 次级暖色 |
-| `success` / `warning` / `danger` / `favorite` | — | — | 语义色：完成 / 注意 / 删除 / 收藏，按语义使用不装饰 |
+| `positive` / `warning` / `destructive` / `favorite` | — | — | 语义色：完成 / 注意 / 删除 / 收藏，按语义使用不装饰 |
 
-文字色（`PhotoDeleteStyle`，不随主题变）：
-`primaryText` 白 96%、`secondaryText` 白 62%、`tertiaryText` 白 42%。
+文字色：`primaryText` 白 96%、`secondaryText` 白 62%、`tertiaryText` 白 42%。
 
-### 2.2 渐变入口卡 token（`PhotoDeleteTheme`，明暗一致）
+### 2.2 渐变入口卡 token（`PhotoDeleteStyle`，绝对色）
 
 | Token | 值 | Hex |
 | --- | --- | --- |
@@ -108,7 +107,7 @@
 
 ### 4.5 顶栏圆形 icon 按钮
 
-- 组件：`PhotoDeleteCircleIconButton`（`Views/Components/PhotoDeleteCircleIconButton.swift`）。
+- 组件：`PhotoDeleteCircleIconButton`（`ios-app/PhotoDelete/Components/PhotoDeleteCircleIconButton.swift`）。
 - 规格：**可见圆 36** / 图标 **15** semibold / 触控区 **44**（`Metrics.titleBarIconVisualSize` / `titleBarIconPointSize` / `minimumTapTarget`）。
 - 样式：iOS 26+ 液态玻璃（`.buttonStyle(.glass)` + `.buttonBorderShape(.circle)`）；老系统回落 `elevatedSurface` 实心圆钮。
 - 首页右上：`archivebox` → 待删除暂存（`TrashBinView`），可挂数量角标。
@@ -193,7 +192,7 @@
 
 ## 7. 边界与待办（本轮之外）
 
-- **付费页（`Views/Paywall/`）是本规范的唯一有意例外**：它自带一套冷调画布 token（`Views/Paywall/PaywallTheme.swift`：`#121722` 画布 + 24pt 点阵 + 樱粉 `#F0AAC8` 强调色 + 纯黑卡片 + 反色白 CTA），不复用 `PhotoDeleteStyle` / `PhotoDeleteTheme` 的暖黑与琥珀。这是刻意的语境切换（产品内 vs 购买决策），**不要按本文件把它「修」回琥珀体系**。其余页面仍严格遵循本规范。
+- **付费页（`Views/Paywall/`）是本规范的唯一有意例外**：它自带一套冷调画布 token（`Views/Paywall/PaywallTheme.swift`：`#121722` 画布 + 24pt 点阵 + 樱粉 `#F0AAC8` 强调色 + 纯黑卡片 + 反色白 CTA），不复用 `PhotoDeleteStyle` 的暖黑与琥珀。这是刻意的语境切换（产品内 vs 购买决策），**不要按本文件把它「修」回琥珀体系**。其余页面仍严格遵循本规范。
 - 底部为系统 TabView（未做浮动胶囊标签栏）。
 - 回收站 / 最近删除功能未做（顶栏仅占位）。
 - iPad 宽屏下 158 高双卡会被拉宽，如需限制可给 dashboard 列 `frame(maxWidth: 560)`。
@@ -203,13 +202,14 @@
 
 | 内容 | 文件 |
 | --- | --- |
-| 主题 token | `ios-app/PhotoDelete/Views/Components/PhotoDeleteTheme.swift` |
-| 组件与静态色 | `ios-app/PhotoDelete/Views/Components/DesignSystem.swift`（`PhotoDeleteSectionHeader` / `PhotoDeleteCountFormat`） |
-| 首页 | `ios-app/PhotoDelete/Views/HomeView.swift` |
-| 周期选择弹窗 | `ios-app/PhotoDelete/Views/PeriodPickerSheet.swift`（半屏 sheet，行结构对齐原型） |
+| 全局 token | `ios-app/PhotoDelete/DesignSystem/PhotoDeleteStyle.swift` |
+| 设计原语 | `ios-app/PhotoDelete/DesignSystem/DesignSystem.swift`（`PhotoDeleteSectionHeader` / `PhotoDeleteCountFormat` 等） |
+| 产品级复用控件 | `ios-app/PhotoDelete/Components/`（如 `PhotoDeleteCircleIconButton`） |
+| 首页 | `ios-app/PhotoDelete/Views/Home/HomeView.swift` |
+| 周期选择弹窗 | `ios-app/PhotoDelete/Views/Home/PeriodPickerSheet.swift`（半屏 sheet，行结构对齐原型） |
 | 时间周期纯逻辑 | `ios-app/PhotoDelete/Services/TimePeriodBrowser.swift`（弹窗切片 / 当前周期匹配 / 行格式化，视图无关） |
-| 最近整理 | `ios-app/PhotoDelete/Views/RecentOrganizedPhotosView.swift` |
-| 滑动整理页 chrome | `ios-app/PhotoDelete/Views/Components/ReviewPageChrome.swift`（顶栏 + 双珠底栏 + 玻璃 chrome modifiers） |
+| 最近整理 | `ios-app/PhotoDelete/Views/Home/RecentOrganizedPhotosView.swift` |
+| 滑动整理页 chrome | `ios-app/PhotoDelete/Views/Review/Components/ReviewPageChrome.swift`（顶栏 + 双珠底栏 + 玻璃 chrome modifiers） |
 | 文案 | `ios-app/PhotoDelete/Localizable.xcstrings` |
 | 视觉原型 | `designs/home-prototype.html` |
 
