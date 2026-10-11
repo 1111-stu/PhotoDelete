@@ -88,7 +88,9 @@ enum Theme {
     // MARK: - Size（控件边长 / 行高，勿当间距用）
 
     static let sizeTap: CGFloat = 44
+    /// 列表行左侧 icon tile 边长（不是头部圆钮）。
     static let sizeIcon: CGFloat = 32
+    /// 头部圆形 icon 按钮可见直径（首页 / 照片墙 / 整理顶栏统一）。
     static let sizeChrome: CGFloat = 48
     static let sizeRow: CGFloat = 56
 
@@ -102,6 +104,8 @@ enum Theme {
     // MARK: - Text size（CGFloat）
 
     static let textSizeSm: CGFloat = 14
+    /// 头部圆钮内 SF Symbol 字号（圆 48 时比 20 略收，比旧首页 14 更大）。
+    static let textSizeChromeIcon: CGFloat = 17
     static let textSizeLg: CGFloat = 20
 
     // MARK: - Text（Font 字阶）

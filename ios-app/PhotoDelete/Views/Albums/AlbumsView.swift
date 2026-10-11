@@ -41,6 +41,8 @@ struct AlbumsView: View {
     @State private var showsDisplayStyle = false
     @State private var albumToast: PhotoDeleteToast?
     @State private var displayedRows: [AlbumListRowModel] = []
+    /// 系统区置顶的个人收藏；不进入 `displayedRows` / 排序。
+    @State private var favoritesRow: AlbumListRowModel?
     @State private var albumsByID: [String: AlbumInfo] = [:]
     @State private var displayedAlbumCount = 0
 
@@ -121,6 +123,9 @@ struct AlbumsView: View {
                 cancelReorder()
             }
             .onReceive(dataManager.$userAlbums) { _ in
+                rebuildDisplayedRows()
+            }
+            .onReceive(dataManager.$systemAlbums) { _ in
                 rebuildDisplayedRows()
             }
             .onAppear {
@@ -240,10 +245,10 @@ struct AlbumsView: View {
 
                     if isLoadingAlbums {
                         loadingRow
-                    } else if displayedRows.isEmpty {
+                    } else if isAlbumsListEmpty {
                         emptyRow
                     } else {
-                        albumItems(proxy: proxy)
+                        albumSections(proxy: proxy)
                     }
                 }
                 .padding(.horizontal, Theme.space5)
@@ -308,6 +313,69 @@ struct AlbumsView: View {
         case .list:
             return 1
         }
+    }
+
+    @ViewBuilder
+    private func albumSections(proxy: ScrollViewProxy) -> some View {
+        if let favoritesRow {
+            VStack(alignment: .leading, spacing: 10) {
+                PhotoDeleteSectionHeader(title: L10n.string("System"))
+                pinnedFavoritesItem(favoritesRow)
+            }
+        }
+
+        if showsMyAlbumsSection {
+            VStack(alignment: .leading, spacing: 10) {
+                PhotoDeleteSectionHeader(title: L10n.string("My Albums"))
+                if displayedRows.isEmpty {
+                    myAlbumsEmptyRow
+                } else {
+                    albumItems(proxy: proxy)
+                }
+            }
+        }
+    }
+
+    /// 系统区个人收藏：可点进浏览器，不参与长按菜单 / 拖拽排序。
+    @ViewBuilder
+    private func pinnedFavoritesItem(_ row: AlbumListRowModel) -> some View {
+        if displayStyle == .list {
+            pinnedFavoritesCard(row)
+        } else {
+            // 与用户区同列网格，只占第一格，避免单卡拉满整行。
+            LazyVGrid(columns: gridColumns, spacing: 18) {
+                pinnedFavoritesCard(row)
+            }
+        }
+    }
+
+    private func pinnedFavoritesCard(_ row: AlbumListRowModel) -> some View {
+        albumItemContent(row, isPlaceholder: false)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                AlbumScrollDebug.log("favoritesTap id=\(row.id) \(reorderDebugSnapshot())")
+                openAlbum(id: row.id)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier("album-item-favorites")
+            .accessibilityLabel("\(row.title), \(L10n.photoCount(row.photosCount))")
+            .accessibilityHint(L10n.string("Tap to organize this album"))
+    }
+
+    private var myAlbumsEmptyRow: some View {
+        Text(emptyMessage)
+            .font(.system(size: 14, weight: .regular))
+            .foregroundStyle(Theme.secondaryText)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 6)
+    }
+
+    private var showsMyAlbumsSection: Bool {
+        if !displayedRows.isEmpty { return true }
+        // 无搜索且仅有系统收藏时，仍展示「我的相册」空态；搜索只命中收藏则不露空用户区。
+        return searchText.isEmpty
     }
 
     @ViewBuilder
@@ -515,8 +583,12 @@ struct AlbumsView: View {
     }
 
     // MARK: - 计算属性
+    private var isAlbumsListEmpty: Bool {
+        favoritesRow == nil && displayedRows.isEmpty
+    }
+
     private var isLoadingAlbums: Bool {
-        displayedRows.isEmpty &&
+        isAlbumsListEmpty &&
             (dataManager.isLoadingAlbums || isLoadingPhotoLibraryForAlbums) &&
             searchText.isEmpty
     }
@@ -923,7 +995,23 @@ struct AlbumsView: View {
         }
 
         var nextAlbumsByID: [String: AlbumInfo] = [:]
-        nextAlbumsByID.reserveCapacity(filtered.count)
+        nextAlbumsByID.reserveCapacity(filtered.count + 1)
+
+        let nextFavoritesRow: AlbumListRowModel? = {
+            guard let album = dataManager.favoritesAlbumForDisplay() else { return nil }
+            if !searchText.isEmpty, !album.title.localizedStandardContains(searchText) {
+                return nil
+            }
+            nextAlbumsByID[album.id] = album
+            return AlbumListRowModel(
+                id: album.id,
+                title: album.title,
+                photosCount: album.photosCount,
+                type: album.type,
+                thumbnailAssetID: album.thumbnailAsset?.localIdentifier,
+                canEdit: false
+            )
+        }()
 
         let rows: [AlbumListRowModel] = filtered.map { album in
             nextAlbumsByID[album.id] = album
@@ -950,6 +1038,9 @@ struct AlbumsView: View {
         // Avoid redundant state writes that force List to re-diff every unrelated DataManager publish.
         if rows != displayedRows {
             displayedRows = rows
+        }
+        if nextFavoritesRow != favoritesRow {
+            favoritesRow = nextFavoritesRow
         }
         albumsByID = nextAlbumsByID
     }

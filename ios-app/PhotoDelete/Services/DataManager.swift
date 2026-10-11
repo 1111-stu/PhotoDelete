@@ -3725,6 +3725,12 @@ class DataManager: ObservableObject {
     }
 
     // MARK: - 相册操作
+
+    /// 相册页系统区置顶用：有张数的个人收藏智能相册；count == 0 时返回 nil。
+    func favoritesAlbumForDisplay() -> AlbumInfo? {
+        systemAlbums.first { $0.type == .favorites && $0.photosCount > 0 }
+    }
+
     func getUserAlbums() -> [AlbumInfo] {
         return userAlbums
     }

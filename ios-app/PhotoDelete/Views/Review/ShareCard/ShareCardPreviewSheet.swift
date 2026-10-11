@@ -55,7 +55,7 @@ struct ShareCardPreviewSheet: View {
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
 
-            if selectedTemplate.showsCardChrome {
+            if selectedTemplate.showsCardChrome, showsMetaToggles {
                 toggleRows
                     .padding(.horizontal, Theme.space5)
             }
@@ -140,7 +140,7 @@ struct ShareCardPreviewSheet: View {
                     .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous))
             } else {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
+                    .progressViewStyle(CircularProgressViewStyle(tint: Theme.secondaryText))
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
@@ -194,37 +194,40 @@ struct ShareCardPreviewSheet: View {
         }
     }
 
+    /// 有数据才露开关；双缺则整段（含分隔线）不出现——对齐 PhotoDetailSheet 空行隐藏。
+    private var showsMetaToggles: Bool {
+        meta.hasDate || meta.hasLocation
+    }
+
+    @ViewBuilder
     private var toggleRows: some View {
         VStack(spacing: 0) {
-            shareToggleRow(
-                title: L10n.string("Show Date"),
-                isOn: $showDate,
-                enabled: meta.hasDate
-            )
-            Rectangle()
-                .fill(Theme.hairline)
-                .frame(height: 1)
-            shareToggleRow(
-                title: L10n.string("Show Location"),
-                isOn: $showLocation,
-                enabled: meta.hasLocation
-            )
+            if meta.hasDate {
+                shareToggleRow(title: L10n.string("Show Date"), isOn: $showDate)
+            }
+            if meta.hasDate, meta.hasLocation {
+                Rectangle()
+                    .fill(Theme.hairline)
+                    .frame(height: 1)
+            }
+            if meta.hasLocation {
+                shareToggleRow(title: L10n.string("Show Location"), isOn: $showLocation)
+            }
         }
     }
 
-    private func shareToggleRow(title: String, isOn: Binding<Bool>, enabled: Bool) -> some View {
+    private func shareToggleRow(title: String, isOn: Binding<Bool>) -> some View {
         HStack {
             Text(title)
                 .font(.system(size: 15, weight: .regular))
-                .foregroundStyle(enabled ? Theme.primaryText : Theme.tertiaryText)
+                .foregroundStyle(Theme.primaryText)
             Spacer()
+            // 中性白轨：琥珀只留给底部「分享」主 CTA（style.md §2.3 / §6.3）。
             Toggle("", isOn: isOn)
                 .labelsHidden()
-                .tint(Theme.accent)
-                .disabled(!enabled)
+                .tint(Theme.primaryText)
         }
         .frame(height: 50)
-        .opacity(enabled ? 1 : 0.55)
     }
 
     private var shareButton: some View {

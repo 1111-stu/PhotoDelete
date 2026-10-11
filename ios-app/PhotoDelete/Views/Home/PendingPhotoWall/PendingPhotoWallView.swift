@@ -161,17 +161,13 @@ struct PendingPhotoWallView: View {
     }
 
     private var wallBackButton: some View {
-        Button {
+        PhotoDeleteCircleIconButton(
+            systemName: "arrow.left",
+            accessibilityLabel: L10n.string("Back")
+        ) {
             dismissYearMenuIfNeeded()
             dismiss()
-        } label: {
-            Image(systemName: "arrow.left")
-                .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
-                .foregroundColor(Theme.primaryText)
-                .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
         }
-        .modifier(ReviewGlassCircleChrome())
-        .accessibilityLabel(L10n.string("Back"))
     }
 
     private var yearPillButton: some View {
@@ -194,43 +190,38 @@ struct PendingPhotoWallView: View {
             .padding(.trailing, 16)
             .frame(height: Theme.sizeChrome)
         }
-        .modifier(ReviewGlassCapsuleChrome())
+        .modifier(PhotoDeleteGlassCapsuleChrome())
         .accessibilityLabel(L10n.string("Select year"))
         .accessibilityValue(yearPillLabel)
     }
 
     private var wallBinButton: some View {
-        Button {
+        let binCount = dataManager.deleteCandidates.count
+        return PhotoDeleteCircleIconButton(
+            systemName: "archivebox",
+            accessibilityLabel: L10n.string("Collection bin")
+        ) {
             dismissYearMenuIfNeeded()
             router.push(.trashBin)
-        } label: {
-            ZStack(alignment: .topTrailing) {
-                Image(systemName: "archivebox")
-                    .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
-                    .foregroundColor(Theme.primaryText)
-                    .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
-
-                let binCount = dataManager.deleteCandidates.count
-                if binCount > 0 {
-                    Text(binCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(binCount))
-                        .font(.system(size: 10.5, weight: .bold))
-                        .foregroundColor(.white)
-                        .monospacedDigit()
-                        .lineLimit(1)
-                        .padding(.horizontal, 5)
-                        .frame(minWidth: 18, minHeight: 18)
-                        .background(Capsule(style: .continuous).fill(Theme.destructive))
-                        .overlay(
-                            Capsule(style: .continuous)
-                                .stroke(Theme.background, lineWidth: 2.5)
-                        )
-                        .offset(x: 2, y: -2)
-                }
+        } badge: {
+            if binCount > 0 {
+                Text(binCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(binCount))
+                    .font(.system(size: 10.5, weight: .bold))
+                    .foregroundColor(.white)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .padding(.horizontal, 5)
+                    .frame(minWidth: 18, minHeight: 18)
+                    .background(Capsule(style: .continuous).fill(Theme.destructive))
+                    .overlay(
+                        Capsule(style: .continuous)
+                            .stroke(Theme.background, lineWidth: 2.5)
+                    )
+                    .offset(x: 2, y: -2)
+                    .accessibilityHidden(true)
             }
         }
-        .modifier(ReviewGlassCircleChrome())
-        .accessibilityLabel(L10n.string("Collection bin"))
-        .accessibilityValue(L10n.string("\(dataManager.deleteCandidates.count) to delete"))
+        .accessibilityValue(L10n.string("\(binCount) to delete"))
     }
 
     private func dismissYearMenuIfNeeded() {

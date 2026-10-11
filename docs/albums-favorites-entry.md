@@ -1,7 +1,7 @@
 # 相册页「个人收藏」入口：交互决策与 ASCII 原型
 
 决策日期：2026-10-11。  
-状态：**产品定稿，待落地。**  
+状态：**产品定稿，已落地代码（2026-10-11）；待真机回归。**  
 范围：相册 Tab 置顶展示系统「个人收藏」、进入现有浏览器/整理的闭环；不含首页专项清理改版、不含 App 内第二套收藏暂存区。
 
 相关背景：
@@ -165,7 +165,7 @@
 
 | UI | Source of truth | 注意 |
 | --- | --- | --- |
-| 是否显示个人收藏卡 | `systemAlbums` 中 `type == .favorites` 且 `photosCount > 0`（或等价：`photoLibraryManager.favorites` 非空） | 勿只靠 UserDefaults |
+| 是否显示个人收藏卡 | `DataManager.favoritesAlbumForDisplay()`（`systemAlbums` 中 `type == .favorites` 且 `photosCount > 0`） | 勿只靠 UserDefaults |
 | 封面 | 现有 `AlbumInfo.thumbnailAsset` / 智能相册首张 | 与用户相册同一套缩略图加载 |
 | 点进 | `AlbumNavigationDestination.browser(favoritesAlbumInfo)` | 与用户相册同 destination |
 | 整理队列 | 相册成员或 `photoLibraryManager.favorites` | 取消收藏后会话刷新（现有 `onChange(favorites.count)` 已有） |
@@ -196,12 +196,12 @@
 
 ## 9. 实现检查清单（落地用）
 
-- [ ] 相册页「系统」区 + 个人收藏卡（封面 / 紧凑 / 列表三种显示方式均可见）  
-- [ ] count == 0 隐藏；从图库取消收藏后列表刷新  
-- [ ] 个人收藏不进长按菜单、不进 reorder 槽位 / `saveCustomAlbumOrder`  
-- [ ] 点进 → 现有 browser → 可整理；整理内取消收藏会离开当前队列（现有逻辑）  
-- [ ] 搜索：可命中「个人收藏」标题；搜索激活时用户区仍禁用排序  
-- [ ] `style.md` §6.4 同步系统区叙述  
+- [x] 相册页「系统」区 + 个人收藏卡（封面 / 紧凑 / 列表三种显示方式均可见）  
+- [x] count == 0 隐藏；从图库取消收藏后列表刷新（订阅 `$systemAlbums`）  
+- [x] 个人收藏不进长按菜单、不进 reorder 槽位 / `saveCustomAlbumOrder`  
+- [x] 点进 → 现有 browser → 可整理；整理内取消收藏会离开当前队列（现有逻辑）  
+- [x] 搜索：可命中「个人收藏」标题；搜索激活时用户区仍禁用排序  
+- [x] `style.md` §6.4 同步系统区叙述  
 - [ ] 回归：已收藏进收集箱后系统收藏仍在；真删后收藏集数量下降  
 
 ---

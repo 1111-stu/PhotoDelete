@@ -10,14 +10,11 @@ struct ReviewNavigationHeader: View {
     var body: some View {
         HStack {
             HStack(spacing: 8) {
-                Button(action: onBack) {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
-                        .foregroundColor(Theme.primaryText)
-                        .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
-                }
-                .modifier(ReviewGlassCircleChrome())
-                .accessibilityLabel(L10n.string("Back"))
+                PhotoDeleteCircleIconButton(
+                    systemName: "arrow.left",
+                    accessibilityLabel: L10n.string("Back"),
+                    action: onBack
+                )
             }
             .frame(width: 116, alignment: .leading)
 
@@ -34,35 +31,31 @@ struct ReviewNavigationHeader: View {
 
             Spacer()
 
-            Button(action: onDelete) {
-                ZStack(alignment: .topTrailing) {
-                    Image(systemName: "archivebox")
-                        .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
-                        .foregroundColor(Theme.primaryText)
-                        .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
-
-                    if deleteCount > 0 {
-                        // 颜色只承担"数量"语义：图标中性、角标珊瑚红（>99 显示 99+）。
-                        Text(deleteCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(deleteCount))
-                            .font(.system(size: 10.5, weight: .bold))
-                            .foregroundColor(.white)
-                            .monospacedDigit()
-                            .lineLimit(1)
-                            .padding(.horizontal, 5)
-                            .frame(minWidth: 18, minHeight: 18)
-                            .background(Capsule(style: .continuous).fill(Theme.destructive))
-                            .overlay(
-                                Capsule(style: .continuous)
-                                    .stroke(Theme.reviewCanvas, lineWidth: 2)
-                            )
-                            .offset(x: 2, y: -2)
-                    }
+            PhotoDeleteCircleIconButton(
+                systemName: "archivebox",
+                accessibilityLabel: L10n.string("Collection bin"),
+                accessibilityIdentifier: "review-trash-button",
+                isEnabled: canDelete,
+                action: onDelete
+            ) {
+                if deleteCount > 0 {
+                    // 颜色只承担"数量"语义：图标中性、角标珊瑚红（>99 显示 99+）。
+                    Text(deleteCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(deleteCount))
+                        .font(.system(size: 10.5, weight: .bold))
+                        .foregroundColor(.white)
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .padding(.horizontal, 5)
+                        .frame(minWidth: 18, minHeight: 18)
+                        .background(Capsule(style: .continuous).fill(Theme.destructive))
+                        .overlay(
+                            Capsule(style: .continuous)
+                                .stroke(Theme.reviewCanvas, lineWidth: 2)
+                        )
+                        .offset(x: 2, y: -2)
+                        .accessibilityHidden(true)
                 }
             }
-            .modifier(ReviewGlassCircleChrome())
-            .disabled(!canDelete)
-            .accessibilityIdentifier("review-trash-button")
-            .accessibilityLabel(L10n.string("Collection bin"))
             .accessibilityValue(L10n.string("\(deleteCount) to delete"))
             .frame(width: 116, alignment: .trailing)
         }
@@ -321,37 +314,4 @@ struct ReviewActionToolbar: View {
     }
 }
 
-/// 评审页圆形按钮的液态玻璃 chrome：iOS 26+ 用玻璃圆钮，老系统回落实心圆。
-struct ReviewGlassCircleChrome: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content
-                .buttonStyle(.plain)
-                .glassEffect(.regular, in: .circle)
-        } else {
-            content
-                .buttonStyle(.plain)
-                .background(Circle().fill(Theme.elevatedSurface))
-        }
-    }
-}
-
-/// 评审页底栏的液态玻璃胶囊 chrome：iOS 26+ 用玻璃，老系统回落 surface 实心胶囊。
-struct ReviewGlassCapsuleChrome: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content
-                .glassEffect(.regular, in: .capsule)
-        } else {
-            content
-                .background {
-                    Capsule(style: .continuous)
-                        .fill(Theme.surface.opacity(0.9))
-                        .overlay {
-                            Capsule(style: .continuous)
-                                .stroke(Theme.hairline, lineWidth: Theme.stroke)
-                        }
-                }
-        }
-    }
-}
+// ReviewGlassCircleChrome / ReviewGlassCapsuleChrome → Components/PhotoDeleteGlassChrome.swift
