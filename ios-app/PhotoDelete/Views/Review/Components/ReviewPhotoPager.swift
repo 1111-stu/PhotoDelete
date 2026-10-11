@@ -16,6 +16,8 @@ struct ReviewPhotoPager<Content: View>: View {
     let canDelete: Bool
     let isVideoPlaying: Bool
     let onBrowse: (Int) -> Void
+    /// 已在本轮最后一张仍向「下一张」滑时回调（触发本轮结算）。
+    let onBrowsePastEnd: () -> Void
     let onDelete: () -> Void
     let onFile: () -> Void
     @ViewBuilder let content: (PHAsset, Bool) -> Content
@@ -157,6 +159,9 @@ struct ReviewPhotoPager<Content: View>: View {
 
     private func settlePage(step: Int) {
         guard pages.contains(where: { $0.offset == step }) else {
+            if step > 0 {
+                onBrowsePastEnd()
+            }
             settleHome()
             return
         }

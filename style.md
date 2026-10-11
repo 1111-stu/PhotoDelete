@@ -181,16 +181,17 @@
 - 交互：点按 = 大图预览（`CandidatePhotoPreviewView`）；长按 = contextMenu「再次整理」；清空 = 破坏性确认后仅清本机记录。
 - 实现：`RecentOrganizedPhotosView.swift`（统计页不再包含此模块；成就页的旧横向条待其改版时统一下线）。
 
-### 6.3 滑动整理页（Swipe，2026-10-06 定型并落地顶栏/底栏）
+### 6.3 滑动整理页（Swipe；收集箱与本轮结算见 `docs/organize-collection-bin-flow.md`）
 
 - **幕布**：`reviewCanvas #17181F`（平铺）——有意比首页画布（#0A0A0D）亮一档，让照片卡边界更隐；"是否统一画布"仍为待定项。
-- **顶栏**：居中 `1 / 19`（17/700、monospaced、**无千分位**）；两侧 **48pt**（`Theme.sizeChrome`）圆形按钮 = 液态玻璃（iOS 26 `.glassEffect(.regular, in: .circle)`，老系统回落 `elevatedSurface` 实心圆）：左=返回（白箭头）、右=垃圾桶（**白图标** + 珊瑚红数量角标；>99 显示 99+；角标描边用幕布色）。颜色只承担"数量"语义。
-- **底栏（双珠形态）**：左 = 液态玻璃胶囊（iOS 26 `.glassEffect(.regular, in: .capsule)`；老系统回落 surface 实心胶囊），内四枚**纯图标**工具（`sizeTap` 触区、`textSizeLg` **白色加粗 rounded**）：**详情（info.circle → 半屏「照片详情」）** / 撤销 / 收藏（状态只用形状：`heart` ⇄ `heart.fill`，不用颜色）/ 分享；右 = 独立 **48pt** 琥珀玻璃圆钮（`sizeChrome`；iOS 26 `.glassEffect(.regular.tint(accent))`；老系统琥珀渐变圆）= 完成整理，图标用 **`archivebox`**，高度与玻璃条、顶栏圆钮一致。文字标签不进底栏，语义靠 VoiceOver 标签；**颜色完全退出底栏**（唯一有色的是琥珀终点按钮）。底栏安全区用幕布色自上而下渐显，避免硬切照片卡。
+- **顶栏**：居中 `1 / 19`（17/700、monospaced、**无千分位**）；两侧 **48pt**（`Theme.sizeChrome`）圆形按钮 = 液态玻璃（iOS 26 `.glassEffect(.regular, in: .circle)`，老系统回落 `elevatedSurface` 实心圆）：左=返回（白箭头，**直接离开、不拦截**）、右=**`archivebox` 收集箱**（与首页同语义；**白图标** + 珊瑚红**全局**数量角标；>99 显示 99+；角标描边用幕布色）。颜色只承担"数量"语义。
+- **底栏（双珠形态）**：左 = 液态玻璃胶囊（iOS 26 `.glassEffect(.regular, in: .capsule)`；老系统回落 surface 实心胶囊），内四枚**纯图标**工具（`sizeTap` 触区、`textSizeLg` **白色加粗 rounded**）：**详情（info.circle → 半屏「照片详情」）** / 撤销 / 收藏（状态只用形状：`heart` ⇄ `heart.fill`，不用颜色）/ 分享；右 = 独立 **48pt** 琥珀玻璃圆钮（`sizeChrome`；iOS 26 `.glassEffect(.regular.tint(accent))`；老系统琥珀渐变圆）= 完成整理，图标用 **`checkmark`**（不再用 `archivebox`），高度与玻璃条、顶栏圆钮一致。点完成 → **本轮结算弹窗**（非确认删除）。文字标签不进底栏，语义靠 VoiceOver 标签；**颜色完全退出底栏**（唯一有色的是琥珀终点按钮）。底栏安全区用幕布色自上而下渐显，避免硬切照片卡。
+- **本轮结算弹窗**：通道名 + `N 项`；三行固定——本次待删除 / 本次收藏 / 收集箱共计；单按钮「完成」离开。触发：右下完成、末张再往下一张滑、队列到头。真删仍只在收集箱。
 - **照片详情弹窗**：medium 固定档、surface 底、行=左灰标签+右白数值+hairline；内容：拍摄时间 / 位置 / 文件大小 / 分辨率（无千分位）/ 所属相册——**空数据的行自动隐藏**。
-- **待删除队列页**（整理中 `PendingDeletionView` / 首页 `TrashBinView`）：共用左右双钮底栏——左「移出待删除」，右为主操作（整理中=琥珀「继续整理」，首页=destructive「删除所选」）。**默认不选中**（先点选 / 全选再动手；避免误触移出清空整队）。确认清理页（`BatchConfirm`）仍默认全选。左上白圆 X（整理中打开时）；点缩略图 = 切换勾选（不进详情）；角标为单层 SF Symbol（未选细圈 / 已选 `checkmark.circle.fill`）。
-- **手势（保持现状，文案改真）**：左滑=下一张、右滑=上一张、上滑=加入待删除、下滑=加入相册；不做"左滑删除"。**待办**：引导页 / 首页 intro / 手势设置页的旧文案（"左滑删除、右滑保留"）需改成真实手势——注意 UI 测试断言了引导页那句；并为"上滑=删除"补首见 hint pill。
+- **待删除队列页**（整理中 `PendingDeletionView` / 首页 `TrashBinView`）：同一全局收集箱；共用左右双钮底栏——左「移出待删除」，右为主操作（整理中=琥珀「继续整理」，首页=destructive「删除所选」）。**默认不选中**（先点选 / 全选再动手；避免误触移出清空整队）。确认清理页（`BatchConfirm`）仍默认全选，且**仅从收集箱进入**。左上白圆 X（整理中打开时）；点缩略图 = 切换勾选（不进详情）；角标为单层 SF Symbol（未选细圈 / 已选 `checkmark.circle.fill`）。
+- **手势（保持现状，文案改真）**：左滑=下一张、右滑=上一张、上滑=加入待删除、下滑=加入相册；不做"左滑删除"；**末张再左滑 → 本轮结算**。**待办**：引导页 / 首页 intro / 手势设置页的旧文案（"左滑删除、右滑保留"）需改成真实手势——注意 UI 测试断言了引导页那句；并为"上滑=删除"补首见 hint pill。
 - **照片卡**：卡随照片高（收敛上下 letterbox）——原型已做，**SwiftUI 待落地**。
-- 底栏不显示待删数字：唯一真相 = 顶栏垃圾桶角标。
+- 底栏不显示待删数字：唯一真相 = 顶栏收集箱角标（全局）。
 - 横屏/iPad 侧栏（`ReviewSessionSummaryPanel` + `SidebarActionButton`）本轮未动，待其后单独迭代。
 - 已移除（勿回退）：2×2 四色指标宫格（与进度卡重复）、手机存储卡（与「预计可释放」重复且偏题）、独立「月度统计」段（并入按月分组的清理历史）。
 - 数据：`makeSettingsStatsSummary` / `CleanupStatsStore.sessions`（按 `monthKey` 分组，`CleanupStatsFormatter.month` 出标题）。

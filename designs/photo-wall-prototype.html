@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>删图 · 待整理日历墙原型</title>
+<style>
+*{box-sizing:border-box}
+*{letter-spacing:0!important}
+body{margin:0;background:#08080a;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
+[hidden]{display:none!important}
+:root{
+  --canvas:#0a0a0d;--surface:#16161a;--elevated:#1e1e24;--blank:#121216;
+  --ink:#f5f5f7;--muted:#a2a2aa;--hairline:#ffffff12;
+  --amber:#f3b14c;--amber-lt:#ffc85e;--amber-dk:#f09a22;--on-amber:#19140c;
+  --danger:#ff6b5a;--positive:#7bc98a;
+  --glass:#ffffff14;--glass-line:#ffffff1f;
+}
+.num{font-variant-numeric:tabular-nums}
+
+.stage{max-width:1080px;margin:auto;padding:48px 28px 64px;display:grid;grid-template-columns:390px minmax(0,1fr);gap:72px;align-items:start}
+
+/* ============ 手机 ============ */
+.phone{position:relative;width:390px;height:844px;border-radius:46px;overflow:hidden;background:var(--canvas);outline:1px solid #ffffff18;box-shadow:0 24px 72px #0005;user-select:none;-webkit-user-select:none}
+.status{position:absolute;z-index:40;inset:0 0 auto;height:54px;padding:20px 30px 0;display:flex;align-items:flex-start;justify-content:space-between;font-size:15px;font-weight:600;pointer-events:none}
+.island{position:absolute;top:12px;left:calc(50% - 56px);width:112px;height:30px;border-radius:30px;background:#000}
+.status-right{font-size:12px;padding-top:2px}
+.home-line{position:absolute;z-index:45;bottom:9px;left:calc(50% - 64px);width:128px;height:5px;border-radius:4px;background:#ffffffb8;pointer-events:none}
+
+/* 顶栏：液态玻璃圆钮 + 年份胶囊，内容从下面滚过 */
+.top-scrim{position:absolute;z-index:20;inset:0 0 auto;height:158px;pointer-events:none;background:linear-gradient(180deg,var(--canvas) 46%,#0a0a0dea 66%,transparent)}
+.chrome{position:absolute;z-index:30;inset:54px 0 auto;padding:2px 12px 0}
+.chrome-row{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px}
+.circle{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;color:#fff;background:var(--glass);border:1px solid var(--glass-line);-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);box-shadow:0 10px 30px #0006;position:relative}
+.circle svg{width:20px;height:20px}
+.circle:active{background:#ffffff24}
+.badge{position:absolute;top:-3px;right:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;font-variant-numeric:tabular-nums;box-shadow:0 0 0 2.5px #0a0a0dcc}
+.scope-pill{justify-self:center;height:48px;padding:0 16px 0 20px;border-radius:999px;display:flex;align-items:center;gap:8px;font-size:16.5px;font-weight:600;color:#fff;background:var(--glass);border:1px solid var(--glass-line);-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);box-shadow:0 10px 30px #0006;font-variant-numeric:tabular-nums}
+.scope-pill svg{width:13px;height:13px;color:#ffffff8c}
+.scope-pill:active{background:#ffffff24}
+
+/* ============ 日历墙 ============ */
+.wall{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:126px 16px 96px;scrollbar-width:none}
+.wall::-webkit-scrollbar{display:none}
+.wall:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
+
+.month{margin-bottom:30px}
+.month-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px 12px}
+.month-head h2{margin:0;font-size:26px;font-weight:700;color:var(--ink)}
+/* 月份入口：相片图标 + 张数 + 箭头，无底色 */
+.month-cta{display:flex;align-items:center;gap:6px;min-height:40px;padding:0 2px;background:none;color:#d6d6dc;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.month-cta .ph-ico{width:16px;height:16px;color:#ffffff5c}
+.month-cta .chev{width:11px;height:11px;color:#ffffff47}
+.month-cta:active{opacity:.6}
+
+/* 日历网格：周日起 7 列，每格一天 */
+.cal-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px;padding:0 0 8px}
+.cal-week span{font-size:10px;font-weight:500;color:#ffffff4d;text-align:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px 9px}
+.cell{position:relative;display:block;padding:0;aspect-ratio:100/118;border-radius:10px;overflow:hidden;background:var(--surface);box-shadow:inset 0 0 0 1px #ffffff0f}
+.cell svg,.cell img{display:block;width:100%;height:100%}
+.cell img{object-fit:cover;opacity:0;transition:opacity .3s ease}
+.cell img.loaded{opacity:1}
+.cell:active{opacity:.82}
+/* 这天没有待整理的照片：安静的空卡 */
+.cell.blank{background:var(--blank);box-shadow:inset 0 0 0 1px #ffffff08;pointer-events:none}
+/* 今天：一圈白环（中性色，不用琥珀） */
+.cell.today{box-shadow:inset 0 0 0 1.5px #ffffff5c}
+/* 缩略图未就绪：同尺寸占位卡，缓慢扫光（参考图里那一排白块） */
+.cell.ph{box-shadow:inset 0 0 0 1px #ffffff0a}
+.cell.ph:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 24%,#ffffff0d 42%,#ffffff17 50%,#ffffff0d 58%,transparent 76%);background-size:220% 100%;animation:shimmer 1.7s linear infinite}
+@keyframes shimmer{from{background-position:130% 0}to{background-position:-90% 0}}
+/* 进场：一次性的落位动画（不是滚动渐入） */
+.wall[data-anim="1"] .cell{animation:tileIn .5s cubic-bezier(.22,.61,.36,1) backwards;animation-delay:calc(var(--i,0)*9ms)}
+@keyframes tileIn{from{opacity:0;transform:scale(.9)}}
+
+/* ============ 卡片风格「可爱」：相纸白边 + 圆角 12 + 微倾斜 ============ */
+.wall[data-style="cute"] .cell{border-radius:12px}
+.wall[data-style="cute"] .cell:not(.blank){background:#f2ede4;padding:2px;box-shadow:0 1px 3px #00000059;transform:rotate(var(--tilt,0deg))}
+.wall[data-style="cute"] .cell:not(.blank) img,
+.wall[data-style="cute"] .cell:not(.blank) svg{border-radius:8px}
+.wall[data-style="cute"] .cell.ph:after{inset:2px;border-radius:8px;background:linear-gradient(100deg,transparent 24%,#00000009 42%,#00000013 50%,#00000009 58%,transparent 76%);background-size:220% 100%}
+.wall[data-style="cute"] .cell.today{box-shadow:0 0 0 1.5px #ffffff5c,0 1px 3px #00000059}
+.wall[data-anim="1"][data-style="cute"] .cell{animation-name:settleIn;animation-duration:.58s}
+@keyframes settleIn{
+  from{opacity:0;transform:rotate(calc(var(--tilt,0deg) + 3.2deg)) scale(.86)}
+  to{opacity:1;transform:rotate(var(--tilt,0deg)) scale(1)}
+}
+
+/* ============ 显示方式：日历 / 相纸墙 ============ */
+.mode-seg{display:flex;gap:2px;padding:2px;border-radius:999px;background:var(--elevated);margin-right:2px}
+.mode-seg button{width:30px;height:24px;border-radius:999px;display:grid;place-items:center;color:#ffffff5c}
+.mode-seg button svg{width:13px;height:13px}
+.mode-seg button[aria-pressed="true"]{background:#ffffff1f;color:#f5f5f7}
+.mode-seg button:active{color:#f5f5f7}
+.month-head .right{display:flex;align-items:center;gap:6px}
+
+/* 相纸板：一块托盘 —— 表面 4% 纵向渐变 + 上缘受光 + 底内阴影 + 外投影，边缘才立得住 */
+.board{
+  position:relative;width:100%;aspect-ratio:358/310;border-radius:24px;overflow:hidden;
+  background:linear-gradient(180deg,#1a1a20,#141418);
+  box-shadow:
+    inset 0 1px 0 #ffffff21,               /* 上缘受光：光照来自上方 */
+    inset 0 0 0 1px #ffffff12,             /* 描边 */
+    inset 0 -18px 26px -20px #000000c4,    /* 底部内阴影：托盘 */
+    0 12px 28px #0000007a,                 /* 外投影：从画布上浮起来 */
+    0 1px 2px #00000059;
+}
+.pol{position:absolute;padding:4px 4px 13px;border-radius:3.5px;background:#f2ede4;box-shadow:0 1px 2px #00000073,0 6px 14px #00000085,0 0 0 1px #00000014;transform:rotate(var(--rot,0deg))}
+.pol-photo{position:relative;display:block;width:100%;overflow:hidden;border-radius:2px;background:#d9d2c6}
+.pol-photo img,.pol-photo svg{display:block;width:100%;height:100%;object-fit:cover}
+.pol img{opacity:0;transition:opacity .3s ease}
+.pol img.loaded{opacity:1}
+.pol:active{opacity:.85}
+.wall[data-anim="1"] .pol{animation:polIn .52s cubic-bezier(.22,.61,.36,1) backwards;animation-delay:calc(var(--i,0)*16ms)}
+@keyframes polIn{
+  from{opacity:0;transform:rotate(calc(var(--rot,0deg) - 9deg)) scale(.86)}
+  to{opacity:1;transform:rotate(var(--rot,0deg)) scale(1)}
+}
+/* 未加载：一张空白相纸 */
+.pol.ph .pol-photo{background:#e2dbcf}
+.pol.ph .pol-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 24%,#00000009 42%,#00000013 50%,#00000009 58%,transparent 76%);background-size:220% 100%;animation:shimmer 1.7s linear infinite}
+.board-hint{margin:9px 2px 0;font-size:11.5px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+
+/* ============ 空状态 ============ */
+.empty{padding:132px 24px 40px;text-align:center}
+.em-icon{width:84px;height:84px;border-radius:50%;margin:0 auto 22px;display:grid;place-items:center;background:#ffffff0f;border:1px solid #ffffff14;color:var(--positive)}
+.em-icon svg{width:34px;height:34px}
+.empty h2{margin:0 0 10px;font-size:21px;font-weight:700}
+.empty p{margin:0;font-size:13px;line-height:1.75;color:var(--muted)}
+.empty-pill{margin:24px auto 0;height:44px;padding:0 20px;border-radius:999px;background:var(--elevated);color:var(--ink);font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+.empty-pill svg{width:12px;height:12px;color:#ffffff59}
+.load-note{padding:0 2px 14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.load-note i{width:7px;height:7px;border-radius:50%;background:var(--amber);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* ============ 半屏 sheet（年份） ============ */
+.sheet-scrim{position:absolute;z-index:44;inset:0;background:#00000073;border:0;width:100%}
+.sheet{position:absolute;z-index:46;inset:auto 0 0;background:var(--elevated);border-radius:28px 28px 0 0;box-shadow:0 -10px 48px #0006;padding:0 0 34px;animation:rise .26s cubic-bezier(.22,.61,.36,1)}
+.handle{width:36px;height:5px;border-radius:3px;background:#ffffff3d;margin:10px auto 2px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 2px}
+.sheet-head h2{margin:0;font-size:19px;font-weight:700}
+.sheet-head button{color:var(--amber);font-size:14px;font-weight:600;padding:10px 4px;min-height:44px}
+.year-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:14px 20px 6px}
+.year-opt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:68px;border-radius:16px;border:1px solid var(--hairline);color:var(--ink);font-size:14.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.year-opt span{font-size:11.5px;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.year-opt:active{background:#ffffff0a}
+.year-opt[aria-checked="true"]{background:#f3b14c14;border-color:var(--amber);color:var(--amber)}
+.year-opt[aria-checked="true"] span{color:#f3b14cb8}
+.sheet-note{margin:14px 20px 0;font-size:12px;line-height:1.65;color:var(--muted)}
+
+@keyframes rise{from{transform:translateY(26px);opacity:0}to{transform:none;opacity:1}}
+
+/* ============ Toast ============ */
+.toast{position:absolute;z-index:70;left:24px;right:24px;bottom:104px;padding:14px 16px;border:1px solid var(--hairline);border-radius:14px;background:var(--elevated);text-align:center;font-size:13px;line-height:1.5;box-shadow:0 6px 24px #0006}
+
+/* ============ 说明面板 ============ */
+.panel{padding-top:14px}
+.eyebrow{font-size:11px;color:var(--amber);margin:0 0 20px;font-weight:500}
+.panel h2{font-size:32px;line-height:1.3;margin:0 0 16px}
+.lede{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 28px}
+.lede b{color:var(--ink);font-weight:600}
+.notes{border-top:1px solid var(--hairline);padding-top:22px}
+.note{margin-bottom:22px}
+.note b{font-size:14px;font-weight:600}
+.note p{font-size:13px;line-height:1.8;color:var(--muted);margin:7px 0 0}
+.note code{font-family:"SF Mono",Menlo,monospace;font-size:12px;color:var(--ink);background:#ffffff0f;border-radius:5px;padding:1px 6px}
+.test-label{font-size:11px;color:var(--muted);margin:30px 0 12px}
+.scenarios{display:flex;flex-wrap:wrap;gap:8px}
+.scenario,.style-opt{padding:10px 13px;min-height:40px;color:var(--muted);border:1px solid var(--hairline);border-radius:10px;font-size:12px}
+.scenario[aria-pressed="true"],.style-opt[aria-pressed="true"]{color:var(--amber);border-color:#f3b14c66}
+.demo-peel{margin-top:14px;min-height:44px;padding:10px 16px;border-radius:12px;border:1px solid #f3b14c44;color:var(--amber);background:#f3b14c0a;font-size:13px}
+.demo-peel:active{background:#f3b14c1a}
+.fine{font-size:12px;line-height:1.8;color:#85858f;margin-top:22px}
+.fine code{font-family:"SF Mono",Menlo,monospace;font-size:11.5px;color:var(--ink);background:#ffffff0f;border-radius:5px;padding:1px 6px}
+.panel-link{display:inline-block;color:var(--amber);font-size:13px;text-decoration:none;padding:14px 0;margin-top:6px}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:880px){
+  .stage{display:flex;flex-direction:column;align-items:center;padding:24px 12px 44px;gap:36px}
+  .phone{width:min(390px,calc(100vw - 24px))}
+  .panel{max-width:390px;width:100%;padding:0 8px}
+}
+</style>
+</head>
+<body>
+<main class="stage">
+  <section class="phone" aria-label="待整理日历墙交互原型">
+    <div class="status" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="status-right">▮▮▮ ▰</span></div>
+
+    <!-- 顶栏：返回 / 年份 / 收集箱（48pt 玻璃圆钮，与滑动整理页同规格） -->
+    <div class="top-scrim" aria-hidden="true"></div>
+    <nav class="chrome" aria-label="页面导航">
+      <div class="chrome-row">
+        <button class="circle" id="back" aria-label="返回首页"><svg><use href="#i-back"/></svg></button>
+        <button class="scope-pill" id="scope-pill" aria-haspopup="dialog" aria-label="选择年份">
+          <span id="scope-label">2026年</span><svg><use href="#i-chevd"/></svg>
+        </button>
+        <button class="circle" id="bin" aria-label="待删除收集箱">
+          <svg><use href="#i-archive"/></svg><span class="badge num" id="bin-badge">9</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- 日历墙：按年 → 月 → 7 列日历，每格一天（点缩略图 = 开始整理） -->
+    <div class="wall" id="wall" tabindex="0" aria-label="待整理日历墙" data-anim="1"></div>
+
+    <div class="home-line" aria-hidden="true"></div>
+
+    <!-- 年份 sheet -->
+    <button class="sheet-scrim" id="sheet-scrim" aria-label="关闭年份选择" hidden></button>
+    <section class="sheet" id="scope-sheet" role="dialog" aria-modal="true" aria-labelledby="scope-title" hidden>
+      <div class="handle" aria-hidden="true"></div>
+      <header class="sheet-head"><h2 id="scope-title">年份</h2><button id="scope-done">完成</button></header>
+      <div class="year-grid" role="radiogroup" aria-label="选择年份" id="year-grid"></div>
+      <p class="sheet-note">年份只改变墙的浏览范围；底部「开始整理」始终是全部待整理，与首页卡片一致。</p>
+    </section>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+  </section>
+
+  <aside class="panel">
+    <p class="eyebrow">PHOTO DELETE · 待整理日历墙</p>
+    <h2>没整理的，摊成一本日历。</h2>
+    <p class="lede">从首页左侧「待整理」卡进入。墙上只铺<b>还没整理的照片</b>：一张日历网格，<b>七个格子一星期</b>，每格一天——有没整理的照片就显示<b>那天的封面</b>，没有就留一张空卡。<b>点任意一张缩略图，就从这张开始整理这一年。</b></p>
+    <div class="notes">
+      <div class="note"><b>01 / 日历网格是真的日历</b><p>周日起 7 列（换算自参考图：卡 100、列缝 21、行距 145 ≈ 我们的卡 43×51、缝 9/10、圆角 10）。月份首行按 1 号星期几错位——十月 1 号是周四就从第 5 格开始，九月 1 号是周二就从第 3 格开始，和系统日历对得上。今天是 10月11日，只有它会带一圈白环。</p></div>
+      <div class="note"><b>02 / 一张卡 = 一天的封面</b><p>一天只出现在一格，太密的日子也不会撑长页面——这正是参考图里「一排白块」的机制：<b>没有待整理照片的日子就是一张安静的空卡</b>，缩略图还没准备好时是带扫描光的占位卡。整理完一天，那天就退成空卡，日历会一点点变干净。</p></div>
+      <div class="note"><b>03 / 点一下就开始整理，没有常驻主按钮</b><p>点任意一张缩略图 = <b>整理这一年</b>（当前范围），从这张开始滑；月份右侧「▣ 1150 ›」（相片图标 + 张数 + 箭头，无底色）= <b>只整理这一月</b>。墙本身就是入口，所以页面常规态下没有琥珀——琥珀只出现在年份 sheet 的选中态。顶栏 48pt 玻璃圆钮与滑动整理页同规格，收集箱角标沿用珊瑚红。</p></div>
+      <div class="note"><b>04 / 年份是浏览范围</b><p>顶栏胶囊选年份（sheet 里选中态琥珀），墙按年份列出有待整理照片的月份。切到已经整理完的年份会看到空状态——那也是一种进度。</p></div>
+      <div class="note"><b>05 / 可爱版：相纸 + 微倾斜（可切换对比）</b><p>① <b>相纸白边</b>：2px 暖白内框（#F2EDE4）+ 圆角 12/8，卡片从「缩略图」变成「冲印出来的小照片」；未加载的卡在可爱版里就是一张空白相纸，和参考图那排白块同构。② <b>微倾斜</b>：按日期确定性 ±1.2°（<code>(day % 5 − 2) × 0.6</code>），进场从 ±3° 收正（settle），整理掉一天时卡片「揭下来」。点面板上的按钮可以看揭下动效。</p></div>
+      <div class="note"><b>06 / 相纸墙模式（月份抬头可切）</b><p>一个月 = 一块托盘（24 圆角 + 表面 4% 纵向渐变 + 上缘受光 + 底内阴影 + 外投影），相纸撒在里面：暖白框、<b>下边比上边厚</b>（4/4/13，拍立得的唯一必要特征）、照片保比例所以有竖有横。<b>上限 15 张</b>：最近的日期各一张，不够时照片多的日子再补一张（同一天第二张换 seed）。撒布用<b>抖动网格</b>——5×3 格位保证铺得匀，每张在格内随机偏移 ±26% 格宽并确定性倾斜（种子=月份，刷新位置不变）；落位按<b>旋转后的包围盒</b>夹在板内，斜角不会被裁掉。落 App 时把这张坐标表预先算好（同一种子），SwiftUI 用 ZStack + rotationEffect 静态渲染即可，别在布局里重算随机。</p></div>
+    </div>
+    <p class="test-label">卡片风格</p>
+    <div class="scenarios" aria-label="卡片风格">
+      <button class="style-opt" data-style="plain" aria-pressed="true">素（现在这样）</button>
+      <button class="style-opt" data-style="cute" aria-pressed="false">可爱（相纸边 + 微倾斜）</button>
+    </div>
+    <button class="demo-peel" id="demo-peel">演示：整理掉一天（看「揭下来」）</button>
+
+    <p class="test-label">切换示例状态</p>
+    <div class="scenarios" aria-label="示例状态">
+      <button class="scenario" data-scenario="normal" aria-pressed="true">正常日历墙</button>
+      <button class="scenario" data-scenario="allDone" aria-pressed="false">全部整理完</button>
+      <button class="scenario" data-scenario="loading" aria-pressed="false">缩略图加载中</button>
+    </div>
+    <p class="fine">原型演示：照片来自 Lorem Picsum 公共图库（按日期固定 seed，同一天永远同一张，需联网；断网时自动回落到内置示意画面）。数字为合成数据（每月每日张数之和 = 该月总数），不访问相册。手机里可操作——点封面卡、月份张数、年份胶囊、收集箱。规格依据 <code>style.md</code> §2–§5、§6.3。</p>
+    <a class="panel-link" href="../style.md">打开设计规范 style.md ↗</a>
+  </aside>
+</main>
+
+<!-- 示意画面与图标 -->
+<svg width="0" height="0" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9.5 5.5l6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chevd" viewBox="0 0 24 24"><path d="M5.5 9.5L12 16l6.5-6.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3.4" y="4" width="17.2" height="4.6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 8.6v9.6a1.8 1.8 0 0 0 1.8 1.8h10.4a1.8 1.8 0 0 0 1.8-1.8V8.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.6 12.6h4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.4l2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2z" fill="currentColor"/></symbol>
+  <symbol id="i-album" viewBox="0 0 24 24"><rect x="3.8" y="5.2" width="16.4" height="14.6" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9.4" cy="10.6" r="1.7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.8 17.4l4.6-4.6 3.2 3.2 3-3 4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.6" y="5" width="16.8" height="15.4" rx="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.6 9.6h16.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 3.2v3.2M16 3.2v3.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-pol" viewBox="0 0 24 24"><rect x="4.9" y="3.4" width="14.2" height="17.2" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="7.6" y="6.1" width="8.8" height="8.4" rx="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.6l4.3 4.3L19 7.2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+  <symbol id="p-forest" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="pf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b3c9b8"/><stop offset=".55" stop-color="#5f8d72"/><stop offset="1" stop-color="#2b5142"/></linearGradient></defs>
+    <rect width="200" height="240" fill="url(#pf)"/>
+    <circle cx="76" cy="62" r="30" fill="#f2f4dc" opacity=".85"/>
+    <path d="M0 170 Q30 118 62 164 Q96 122 130 166 Q162 130 200 168 L200 240 L0 240 Z" fill="#2e5a44"/>
+    <path d="M0 196 Q44 158 88 194 Q128 158 200 194 L200 240 L0 240 Z" fill="#1d3f2f"/>
+  </symbol>
+  <symbol id="p-sunset" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="ps" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffbe8a"/><stop offset=".48" stop-color="#f58570"/><stop offset="1" stop-color="#4b3f78"/></linearGradient></defs>
+    <rect width="200" height="240" fill="url(#ps)"/>
+    <circle cx="132" cy="86" r="34" fill="#ffdda8" opacity=".92"/>
+    <path d="M0 158 L44 116 L82 156 L120 102 L162 158 L200 128 L200 240 L0 240 Z" fill="#3b2f60"/>
+    <path d="M0 190 L56 152 L104 190 L152 146 L200 190 L200 240 L0 240 Z" fill="#251d44"/>
+  </symbol>
+  <symbol id="p-city" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <rect width="200" height="240" fill="#111a33"/>
+    <circle cx="150" cy="54" r="22" fill="#f6e8cc" opacity=".92"/>
+    <rect x="16" y="92" width="34" height="148" fill="#1d2b4e"/>
+    <rect x="58" y="62" width="42" height="178" fill="#243760"/>
+    <rect x="108" y="108" width="32" height="132" fill="#1b2851"/>
+    <rect x="148" y="48" width="42" height="192" fill="#283d70"/>
+    <g fill="#ffdb8e"><rect x="22" y="104" width="6" height="8"/><rect x="36" y="104" width="6" height="8"/><rect x="22" y="126" width="6" height="8"/><rect x="66" y="76" width="7" height="9"/><rect x="84" y="76" width="7" height="9"/><rect x="66" y="104" width="7" height="9"/><rect x="156" y="64" width="7" height="9"/><rect x="174" y="64" width="7" height="9"/><rect x="156" y="96" width="7" height="9"/></g>
+  </symbol>
+  <symbol id="p-beach" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="pb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a6dcea"/><stop offset=".56" stop-color="#52abc6"/><stop offset=".6" stop-color="#ecdcaa"/><stop offset="1" stop-color="#d6c086"/></linearGradient></defs>
+    <rect width="200" height="240" fill="url(#pb)"/>
+    <circle cx="56" cy="50" r="24" fill="#fff6d4"/>
+    <path d="M50 156 q10 -12 20 0 M84 166 q10 -12 20 0" stroke="#faf4dd" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="p-food" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <rect width="200" height="240" fill="#f0e4d0"/>
+    <rect x="0" y="132" width="200" height="108" fill="#b85f40"/>
+    <ellipse cx="100" cy="142" rx="82" ry="30" fill="#935136"/>
+    <ellipse cx="100" cy="134" rx="74" ry="25" fill="#e9b656"/>
+    <g fill="#84ab6e"><circle cx="56" cy="122" r="12"/><circle cx="92" cy="118" r="10"/><circle cx="128" cy="122" r="11"/></g>
+  </symbol>
+  <symbol id="p-meadow" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="pm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe0f0"/><stop offset=".5" stop-color="#8fbf8a"/><stop offset="1" stop-color="#4e7a52"/></linearGradient></defs>
+    <rect width="200" height="240" fill="url(#pm)"/>
+    <circle cx="146" cy="60" r="26" fill="#fff8dc" opacity=".9"/>
+    <path d="M0 172 Q44 138 88 168 Q132 138 200 168 L200 240 L0 240 Z" fill="#5c8f5e"/>
+    <g fill="#fff"><circle cx="46" cy="192" r="3"/><circle cx="84" cy="204" r="3"/><circle cx="124" cy="188" r="3"/><circle cx="160" cy="202" r="3"/></g>
+  </symbol>
+  <symbol id="p-lake" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="plk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe3ea"/><stop offset=".42" stop-color="#8fb6c4"/><stop offset=".5" stop-color="#3f6f83"/><stop offset="1" stop-color="#1f4657"/></linearGradient></defs>
+    <rect width="200" height="240" fill="url(#plk)"/>
+    <path d="M14 120 L74 46 L128 120 Z" fill="#4b6b7a"/>
+    <path d="M74 46 L92 68 L56 68 Z" fill="#e8f0f2"/>
+    <path d="M108 120 L152 66 L196 120 Z" fill="#3f5d6b"/>
+    <g stroke="#ffffff" stroke-width="2.4" opacity=".28" stroke-linecap="round"><path d="M34 156h44"/><path d="M96 176h58"/><path d="M48 198h34"/></g>
+  </symbol>
+  <symbol id="p-cafe" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <rect width="200" height="240" fill="#3a2b22"/>
+    <rect x="0" y="164" width="200" height="76" fill="#2b1f18"/>
+    <ellipse cx="100" cy="176" rx="74" ry="18" fill="#251a14"/>
+    <rect x="58" y="102" width="84" height="62" rx="12" fill="#efe6da"/>
+    <path d="M142 116h12a20 20 0 0 1 0 40h-12" fill="none" stroke="#efe6da" stroke-width="9"/>
+    <ellipse cx="100" cy="104" rx="42" ry="13" fill="#f7f1e8"/>
+    <ellipse cx="100" cy="104" rx="34" ry="9" fill="#8a5a3b"/>
+    <g fill="none" stroke="#ffffff" stroke-width="4" opacity=".3" stroke-linecap="round"><path d="M84 82q6-10 0-20"/><path d="M108 84q6-10 0-20"/></g>
+  </symbol>
+  <symbol id="p-portrait" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="ppt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2d9b8"/><stop offset="1" stop-color="#c99168"/></linearGradient></defs>
+    <rect width="200" height="240" fill="url(#ppt)"/>
+    <circle cx="100" cy="106" r="36" fill="#3b2c26"/>
+    <path d="M28 240 Q100 152 172 240 Z" fill="#3b2c26"/>
+  </symbol>
+  <symbol id="p-cat" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <rect width="200" height="240" fill="#5d6a63"/>
+    <path d="M56 96 L44 48 L86 74 Z" fill="#4a4a52"/>
+    <path d="M144 96 L156 48 L114 74 Z" fill="#4a4a52"/>
+    <circle cx="100" cy="128" r="52" fill="#4a4a52"/>
+    <ellipse cx="80" cy="120" rx="9" ry="12" fill="#e9e4d4"/>
+    <ellipse cx="120" cy="120" rx="9" ry="12" fill="#e9e4d4"/>
+    <ellipse cx="80" cy="121" rx="3.4" ry="7" fill="#20201f"/>
+    <ellipse cx="120" cy="121" rx="3.4" ry="7" fill="#20201f"/>
+    <path d="M100 138l-6 6h12z" fill="#d98b8b"/>
+    <g stroke="#ffffff" stroke-width="2" opacity=".5" stroke-linecap="round"><path d="M42 132h20"/><path d="M44 144h18"/><path d="M158 132h-20"/><path d="M156 144h-18"/></g>
+  </symbol>
+  <symbol id="p-snow" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="psn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dfe8ee"/><stop offset=".62" stop-color="#a9bfcd"/><stop offset="1" stop-color="#eef4f7"/></linearGradient></defs>
+    <rect width="200" height="240" fill="url(#psn)"/>
+    <path d="M40 176 L64 92 L88 176 Z" fill="#5b7286"/>
+    <path d="M84 186 L116 78 L148 186 Z" fill="#4c6274"/>
+    <path d="M140 180 L160 118 L180 180 Z" fill="#647a8c"/>
+    <path d="M0 190 Q60 168 120 188 Q160 200 200 186 L200 240 L0 240 Z" fill="#f4f9fb"/>
+    <g fill="#fff" opacity=".9"><circle cx="34" cy="60" r="3"/><circle cx="170" cy="46" r="3"/><circle cx="120" cy="34" r="2.5"/><circle cx="62" cy="42" r="2.5"/></g>
+  </symbol>
+  <symbol id="p-doc" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <rect width="200" height="240" fill="#e7e3da"/>
+    <rect x="26" y="22" width="148" height="196" rx="10" fill="#fffdf8"/>
+    <rect x="44" y="44" width="76" height="12" rx="4" fill="#9d968a"/>
+    <g fill="#cfc9bd"><rect x="44" y="72" width="112" height="7" rx="3"/><rect x="44" y="88" width="112" height="7" rx="3"/><rect x="44" y="104" width="88" height="7" rx="3"/><rect x="44" y="126" width="112" height="7" rx="3"/><rect x="44" y="142" width="98" height="7" rx="3"/><rect x="44" y="158" width="112" height="7" rx="3"/><rect x="44" y="174" width="70" height="7" rx="3"/></g>
+  </symbol>
+  <symbol id="p-ui" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <rect width="200" height="240" fill="#f4f5f7"/>
+    <rect x="0" y="0" width="200" height="34" fill="#e7e9ef"/>
+    <rect x="14" y="13" width="52" height="9" rx="4.5" fill="#c2c7d2"/>
+    <rect x="14" y="50" width="172" height="64" rx="12" fill="#ffffff"/>
+    <rect x="26" y="64" width="58" height="36" rx="8" fill="#ffd9c9"/>
+    <g fill="#c9ceda"><rect x="96" y="66" width="76" height="8" rx="4"/><rect x="96" y="82" width="58" height="8" rx="4"/><rect x="96" y="98" width="66" height="8" rx="4"/></g>
+    <rect x="14" y="126" width="172" height="64" rx="12" fill="#ffffff"/>
+    <rect x="26" y="140" width="58" height="36" rx="8" fill="#cfe3f7"/>
+    <g fill="#c9ceda"><rect x="96" y="142" width="66" height="8" rx="4"/><rect x="96" y="158" width="76" height="8" rx="4"/><rect x="96" y="174" width="48" height="8" rx="4"/></g>
+    <rect x="14" y="202" width="172" height="26" rx="10" fill="#e7e9ef"/>
+  </symbol>
+  <symbol id="p-flower" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="pfl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe7ef"/><stop offset="1" stop-color="#eec2d4"/></linearGradient></defs>
+    <rect width="200" height="240" fill="url(#pfl)"/>
+    <path d="M100 240 Q104 178 100 150" stroke="#7fa26a" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M100 196 Q72 184 66 160 Q92 162 100 186 Z" fill="#8fb47a"/>
+    <g fill="#fff6fa"><circle cx="100" cy="86" r="26"/><circle cx="128" cy="110" r="26"/><circle cx="116" cy="142" r="26"/><circle cx="84" cy="142" r="26"/><circle cx="72" cy="110" r="26"/></g>
+    <circle cx="100" cy="116" r="20" fill="#e9c46a"/>
+  </symbol>
+  <symbol id="p-street" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="pst" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0b27a"/><stop offset=".5" stop-color="#b3748a"/><stop offset="1" stop-color="#5b4a75"/></linearGradient></defs>
+    <rect width="200" height="240" fill="url(#pst)"/>
+    <path d="M0 240 L84 128 L116 128 L200 240 Z" fill="#4a4152"/>
+    <g stroke="#f7e9c8" stroke-width="4" opacity=".7" stroke-linecap="round"><path d="M100 150v16"/><path d="M100 182v22"/><path d="M100 220v14"/></g>
+    <path d="M36 240 L36 96" stroke="#3a3145" stroke-width="5"/>
+    <circle cx="36" cy="88" r="13" fill="#ffe9b0"/>
+    <path d="M164 240 L164 120" stroke="#3a3145" stroke-width="5"/>
+    <circle cx="164" cy="112" r="11" fill="#ffe9b0"/>
+  </symbol>
+  <symbol id="p-fireworks" viewBox="0 0 200 240" preserveAspectRatio="xMidYMid slice">
+    <rect width="200" height="240" fill="#0e1730"/>
+    <g stroke="#ffd98e" stroke-width="2.6" stroke-linecap="round"><path d="M74 70v-30M74 70v30M74 70h-30M74 70h30M52 48l-20-20M96 48l20-20M52 92l-20 20M96 92l20 20"/></g>
+    <circle cx="74" cy="70" r="5" fill="#fff3d0"/>
+    <g stroke="#f0aac8" stroke-width="2.4" stroke-linecap="round"><path d="M142 148v-24M142 148v24M142 148h-24M142 148h24M124 130l-15-15M160 130l15-15M124 166l-15 15M160 166l15 15"/></g>
+    <circle cx="142" cy="148" r="4" fill="#ffe2ef"/>
+    <g fill="#ffffff" opacity=".8"><circle cx="30" cy="188" r="2.5"/><circle cx="176" cy="66" r="2.5"/><circle cx="108" cy="204" r="2"/></g>
+  </symbol>
+</svg>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const CODE2ART = { fo:'forest', su:'sunset', ci:'city', be:'beach', fd:'food', me:'meadow', la:'lake', cf:'cafe', po:'portrait', ca:'cat', sn:'snow', do:'doc', ui:'ui', fl:'flower', st:'street', fw:'fireworks' };
+  const TODAY = { y: 2026, m: 10, d: 11 };
+  const scopeYears = [2026, 2025, 2024];
+
+  /* ---------- 合成数据 ----------
+     每一天 = [那天待整理张数, 封面代号]；每月各天相加 = 该月总数；全部 = 2974（与首页卡片一致）。
+     只列有照片的日子，其余日期渲染成空卡。 */
+  const MONTHS = [
+    { y: 2026, m: 10, label: '十月', pending: 1150, days: {
+      1:[98,'ci'], 2:[82,'po'], 3:[143,'fo'], 4:[76,'su'], 5:[54,'cf'], 6:[121,'ci'],
+      7:[88,'me'], 8:[164,'fw'], 9:[92,'la'], 10:[121,'po'], 11:[111,'ui'] } },
+    { y: 2026, m: 9, label: '九月', pending: 812, days: {
+      1:[64,'la'], 2:[38,'po'], 3:[52,'be'], 4:[71,'ci'], 6:[44,'fl'], 9:[96,'su'], 11:[58,'ui'],
+      13:[47,'ca'], 16:[83,'me'], 18:[39,'cf'], 20:[62,'fd'], 21:[55,'la'], 22:[41,'sn'], 26:[62,'st'] } },
+    { y: 2026, m: 8, label: '八月', pending: 388, days: {
+      2:[41,'me'], 5:[53,'la'], 8:[26,'sn'], 11:[37,'ca'], 14:[62,'be'], 17:[29,'ci'], 20:[44,'fd'], 23:[31,'cf'], 26:[38,'su'], 29:[27,'po'] } },
+    { y: 2026, m: 7, label: '七月', pending: 214, days: {
+      1:[22,'fw'], 4:[31,'me'], 7:[18,'la'], 10:[26,'po'], 13:[19,'ci'], 16:[34,'be'], 19:[17,'fl'], 22:[28,'su'], 25:[19,'cf'] } },
+    { y: 2026, m: 6, label: '六月', pending: 102, days: {
+      3:[14,'ui'], 7:[21,'me'], 11:[9,'fl'], 15:[17,'la'], 19:[13,'po'], 23:[16,'fd'], 27:[12,'ci'] } },
+    { y: 2025, m: 12, label: '十二月', pending: 168, days: {
+      1:[24,'fw'], 5:[31,'cf'], 9:[18,'sn'], 13:[22,'po'], 17:[29,'fl'], 21:[14,'ci'], 25:[18,'me'], 29:[12,'la'] } },
+    { y: 2025, m: 10, label: '十月', pending: 96, days: {
+      2:[18,'me'], 6:[12,'la'], 10:[21,'st'], 14:[9,'su'], 18:[22,'cf'], 22:[14,'ui'] } },
+    { y: 2025, m: 8, label: '八月', pending: 44, days: {
+      3:[9,'be'], 8:[12,'la'], 13:[7,'su'], 18:[11,'ci'], 23:[5,'po'] } }
+  ];
+
+  const state = { year: 2026, badge: 9, done: 1274, scenario: 'normal', style: 'plain', mode: 'cal' };
+  const yearPending = y => MONTHS.filter(mo => mo.y === y).reduce((n, mo) => n + mo.pending, 0);
+
+  /* ---------- 渲染 ---------- */
+  const wall = $('wall');
+  let animIndex = 0;
+
+  function renderWall({ anim = false } = {}) {
+    animIndex = 0;
+    wall.dataset.anim = anim ? '1' : '0';
+    wall.dataset.style = state.style;
+    wall.replaceChildren(...buildContent());
+  }
+
+  function buildContent() {
+    if (state.scenario === 'allDone') return [emptyState()];
+    const months = MONTHS.filter(mo => mo.y === state.year);
+    if (!months.length) return [emptyState(true)];
+
+    const nodes = [];
+    if (state.scenario === 'loading') nodes.push(el('p', 'load-note', '<i></i>正在准备缩略图 · 已就绪 128 / 2974'));
+    for (const mo of months) nodes.push(monthBlock(mo));
+    return nodes;
+  }
+
+  function monthBlock(mo) {
+    const box = el('section', 'month');
+
+    const head = el('header', 'month-head');
+    head.append(el('h2', '', mo.label));
+    const right = el('div', 'right');
+    right.append(modeSeg());
+    const cta = el('button', 'month-cta',
+      '<svg class="ph-ico"><use href="#i-album"/></svg><span class="num">' + mo.pending + '</span><svg class="chev"><use href="#i-chev"/></svg>');
+    cta.setAttribute('aria-label', '整理' + mo.label + ' · ' + mo.pending + ' 张');
+    cta.addEventListener('click', () => toast('进入「' + mo.label + '」滑动整理 · ' + mo.pending + ' 张（原型示意）'));
+    right.append(cta);
+    head.append(right);
+    box.append(head);
+
+    if (state.mode === 'wall') { box.append(boardBlock(mo)); return box; }
+
+    box.append(el('div', 'cal-week', ['日','一','二','三','四','五','六'].map(d => '<span>' + d + '</span>').join('')));
+    const grid = el('div', 'cal-grid');
+    // 首行按 1 号星期几错位（周日起）
+    const offset = new Date(mo.y, mo.m - 1, 1).getDay();
+    const daysInMonth = new Date(mo.y, mo.m, 0).getDate();
+    for (let i = 0; i < offset; i++) grid.append(el('div', 'cell blank', ''));
+    for (let d = 1; d <= daysInMonth; d++) grid.append(cell(mo, d));
+    box.append(grid);
+    return box;
+  }
+
+  /* 显示方式切换：日历 / 相纸墙（全局显示偏好，所以每个月抬头的那组是同步的） */
+  function modeSeg() {
+    const seg = el('div', 'mode-seg');
+    seg.setAttribute('role', 'group');
+    seg.setAttribute('aria-label', '显示方式');
+    [['cal', 'i-cal', '日历'], ['wall', 'i-pol', '相纸墙']].forEach(([mode, icon, label]) => {
+      const b = el('button', '', '<svg><use href="#' + icon + '"/></svg>');
+      b.setAttribute('aria-pressed', String(state.mode === mode));
+      b.setAttribute('aria-label', label);
+      b.addEventListener('click', () => {
+        state.mode = mode;
+        renderWall({ anim: true });
+        toast('已切到「' + label + '」' + (mode === 'wall' ? ' · 每月挂最近 ' + MAX_POLAROIDS + ' 张' : ''));
+      });
+      seg.append(b);
+    });
+    return seg;
+  }
+
+  /* ---------- 相纸墙：确定性撒布（种子 = 月份，刷新/重渲染位置不变） ---------- */
+  const MAX_POLAROIDS = 15;
+  const BOARD_W = 358, BOARD_H = 310, POL_INSET = 5;
+  const POL_COLS = 5, POL_ROWS = 3;                      // 抖动网格：格位保证铺得匀、抖动给自然感
+  const POL_AR = [0.75, 0.8, 1, 1, 1.33, 1.5];
+  function seededRng(key) {
+    let s = 2166136261;
+    for (const ch of key) s = ((s ^ ch.charCodeAt(0)) * 16777619) >>> 0;
+    return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+  }
+  /* 池子：最近的天各一张；不够 15 张时，照片最多的那几天再补一张（同一天第二张换 seed） */
+  function polaroidPool(mo) {
+    const days = Object.keys(mo.days).map(Number).sort((a, b) => b - a);
+    const pool = days.map(d => ({ d, v: 0 }));
+    for (const d of days) {
+      if (pool.length >= MAX_POLAROIDS) break;
+      if (mo.days[d][0] >= 20) pool.push({ d, v: 1 });
+    }
+    return pool.slice(0, MAX_POLAROIDS);
+  }
+  function polaroids(mo) {
+    const rnd = seededRng('board-' + mo.y + '-' + mo.m);
+    const cw = BOARD_W / POL_COLS, ch = BOARD_H / POL_ROWS;
+    const cells = [...Array(POL_COLS * POL_ROWS).keys()];
+    for (let i = cells.length - 1; i > 0; i--) {         // 打乱格位，避免按行整齐排
+      const j = Math.floor(rnd() * (i + 1));
+      [cells[i], cells[j]] = [cells[j], cells[i]];
+    }
+    return polaroidPool(mo).map((item, i) => {
+      const [count, code] = mo.days[item.d];
+      const ar = POL_AR[Math.floor(rnd() * POL_AR.length)];
+      const photoW = 50 + rnd() * 26;                    // 照片宽 50–76
+      const photoH = photoW / ar;
+      const w = photoW + 8, h = photoH + 17;             // 相纸：左右 4、上 4、下 13
+      let rot = (rnd() * 2 - 1) * 13;
+      if (Math.abs(rot) < 3) rot = (rot >= 0 ? 1 : -1) * (3 + rnd() * 3.5);   // 别都撞在 ±3°
+      const cell = cells[i % cells.length];
+      const cx = ((cell % POL_COLS) + 0.5) * cw;
+      const cy = (Math.floor(cell / POL_COLS) + 0.5) * ch;
+      // 按「旋转后的包围盒」夹在板内：斜着的角不会被板边裁掉
+      const rad = rot * Math.PI / 180;
+      const aabbW = w * Math.abs(Math.cos(rad)) + h * Math.abs(Math.sin(rad));
+      const aabbH = w * Math.abs(Math.sin(rad)) + h * Math.abs(Math.cos(rad));
+      const padX = (aabbW - w) / 2, padY = (aabbH - h) / 2;
+      const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), Math.max(lo, hi));
+      const x = clamp(cx + (rnd() * 2 - 1) * cw * 0.26 - w / 2, POL_INSET + padX, BOARD_W - POL_INSET - aabbW + padX);
+      const y = clamp(cy + (rnd() * 2 - 1) * ch * 0.26 - h / 2, POL_INSET + padY, BOARD_H - POL_INSET - aabbH + padY);
+      return { d: item.d, v: item.v, count, code, x, y, w, h, rot, ar };
+    });
+  }
+  function boardBlock(mo) {
+    const board = el('div', 'board');
+    const list = polaroids(mo);
+    list.forEach((p, i) => {
+      const btn = el('button', 'pol');
+      btn.style.left = p.x.toFixed(1) + 'px';
+      btn.style.top = p.y.toFixed(1) + 'px';
+      btn.style.width = p.w.toFixed(1) + 'px';
+      btn.style.zIndex = String(i + 1);                  // 最近的压在最上面
+      btn.style.setProperty('--rot', p.rot.toFixed(1) + 'deg');
+      btn.style.setProperty('--i', animIndex++);
+      btn.setAttribute('aria-label', '整理 ' + mo.y + ' 年 · 从 ' + mo.m + '月' + p.d + '日 这张开始 · 这天 ' + p.count + ' 张');
+      const photo = el('span', 'pol-photo');
+      photo.style.aspectRatio = String(p.ar);
+      if (state.scenario === 'loading') {
+        btn.classList.add('ph');
+      } else {
+        photo.append(photoImg(mo, p.d, CODE2ART[p.code] || 'forest', p.v));
+        btn.addEventListener('click', () =>
+          toast('整理 ' + mo.y + ' 年 · ' + yearPending(mo.y) + ' 张（从 ' + mo.m + '月' + p.d + '日 这张开始）'));
+      }
+      btn.append(photo);
+      board.append(btn);
+    });
+    const wrap = el('div');
+    wrap.append(board);
+    wrap.append(el('p', 'board-hint', '挂了 ' + list.length + ' 张 · 共 <span class="num">' + mo.pending + '</span> 张'));
+    return wrap;
+  }
+
+  /* 真实照片走公共 CDN（按日期固定 seed，两种模式下同一天同一张；v=1 是同一天的第二张）；拿不到就回落内置示意画面 */
+  function photoImg(mo, d, art, v) {
+    const img = el('img');
+    img.alt = '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.src = 'https://picsum.photos/seed/pd-' + mo.y + '-' + mo.m + '-' + d + (v ? 'b' : '') + '/240/300';
+    img.addEventListener('load', () => img.classList.add('loaded'));
+    if (img.complete && img.naturalWidth > 0) img.classList.add('loaded');
+    img.addEventListener('error', () => {
+      const svg = el('svg');
+      svg.setAttribute('viewBox', '0 0 200 240');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+      svg.innerHTML = '<use href="#p-' + art + '"/>';
+      img.replaceWith(svg);
+    });
+    return img;
+  }
+
+  function cell(mo, d) {
+    const info = mo.days[d];
+    const isToday = mo.y === TODAY.y && mo.m === TODAY.m && d === TODAY.d;
+    if (!info) {
+      const blank = el('div', 'cell blank' + (isToday ? ' today' : ''));
+      blank.setAttribute('aria-hidden', 'true');
+      return blank;
+    }
+    const [count, code] = info;
+    const btn = el('button', 'cell' + (isToday ? ' today' : ''));
+    btn.style.setProperty('--i', animIndex++);
+    // 按日期确定性微倾斜（−1.2°…+1.2°），只在「可爱」风格下生效
+    btn.style.setProperty('--tilt', ((d % 5) - 2) * 0.6 + 'deg');
+    btn.setAttribute('aria-label', '整理 ' + mo.y + ' 年 · 从 ' + mo.m + '月' + d + '日 这张开始 · 这天 ' + count + ' 张');
+    if (state.scenario === 'loading') {
+      btn.classList.add('ph');
+      return btn;
+    }
+    btn.append(photoImg(mo, d, CODE2ART[code] || 'forest'));
+    btn.addEventListener('click', () =>
+      toast('整理 ' + mo.y + ' 年 · ' + yearPending(mo.y) + ' 张（从 ' + mo.m + '月' + d + '日 这张开始）'));
+    return btn;
+  }
+
+  function emptyState(scoped) {
+    const box = el('div', 'empty');
+    box.innerHTML =
+      '<div class="em-icon"><svg><use href="#i-check"/></svg></div>' +
+      '<h2>' + (scoped ? '这一年整理完了' : '全部整理完了') + '</h2>' +
+      '<p>' + (scoped ? '换一年看看，或者继续往下整理。' : '4248 张照片，一张没落下。') + '</p>';
+    const pill = el('button', 'empty-pill', '查看整理记录 <svg><use href="#i-chev"/></svg>');
+    pill.addEventListener('click', () => toast('打开使用统计（原型示意）'));
+    box.append(pill);
+    return box;
+  }
+
+  /* ---------- 顶栏 / 进度 ---------- */
+  function syncChrome() {
+    $('scope-label').textContent = state.year + '年';
+    const badge = $('bin-badge');
+    badge.textContent = state.badge > 99 ? '99+' : state.badge;
+    badge.hidden = state.badge === 0;
+  }
+
+  /* ---------- 年份 sheet ---------- */
+  function renderScopeSheet() {
+    const grid = $('year-grid');
+    grid.replaceChildren();
+    for (const y of scopeYears) {
+      const b = el('button', 'year-opt', '<b>' + y + '年</b><span>' + (yearPending(y) || '已清空') + '</span>');
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', String(state.year === y));
+      b.addEventListener('click', () => {
+        state.year = y;
+        closeScopeSheet();
+        renderWall({ anim: true });
+        syncChrome();
+        wall.scrollTop = 0;
+      });
+      grid.append(b);
+    }
+  }
+  const openScopeSheet = () => { renderScopeSheet(); $('scope-sheet').hidden = false; $('sheet-scrim').hidden = false; };
+  const closeScopeSheet = () => { $('scope-sheet').hidden = true; $('sheet-scrim').hidden = true; };
+
+  /* ---------- 顶栏按钮 ---------- */
+  $('back').addEventListener('click', () => toast('返回首页（原型示意）'));
+  $('bin').addEventListener('click', () => toast('打开待删除收集箱 · ' + state.badge + ' 张（原型示意）'));
+  $('scope-pill').addEventListener('click', openScopeSheet);
+  $('sheet-scrim').addEventListener('click', closeScopeSheet);
+  $('scope-done').addEventListener('click', closeScopeSheet);
+
+  /* ---------- Toast ---------- */
+  let toastTimer;
+  function toast(text) {
+    const box = $('toast');
+    box.textContent = text; box.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => box.hidden = true, 2400);
+  }
+
+  /* ---------- 卡片风格：素 / 可爱 ---------- */
+  document.querySelectorAll('.style-opt').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.style-opt').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+    state.style = btn.dataset.style;
+    renderWall({ anim: true });          // 重播进场，看「落位」
+  }));
+
+  /* ---------- 演示：把一天整理掉（卡片「揭下来」→ 变成空卡） ---------- */
+  $('demo-peel').addEventListener('click', () => {
+    const target = [...document.querySelectorAll('.cell, .pol')]
+      .find(c => c.tagName === 'BUTTON' && !c.classList.contains('ph') && c.querySelector('img'));
+    if (!target) { toast('没有可演示的照片了'); return; }
+    const m = (target.getAttribute('aria-label') || '').match(/从 (\d+)月(\d+)日 .*?这天 (\d+) 张/);
+    if (!m) return;
+    const mo = MONTHS.find(x => x.y === state.year && x.m === +m[1]);
+    if (!mo) return;
+    const d = +m[2], count = +m[3];
+    const done = () => {
+      delete mo.days[d];
+      mo.pending -= count; state.done += count;
+      renderWall(); syncChrome();
+      toast(m[1] + '月' + d + '日 整理完 · ' + count + ' 张，这天退回空卡');
+    };
+    if (reduceMotion) { done(); return; }
+    // 揭下来：从自身倾角转开、缩小、淡出
+    target.style.transition = 'transform .44s cubic-bezier(.4,.05,.6,1), opacity .44s ease';
+    target.style.transformOrigin = '50% 92%';
+    target.style.transform = 'rotate(-15deg) translateY(12px) scale(.78)';
+    target.style.opacity = '0';
+    setTimeout(done, 430);
+  });
+
+  /* ---------- 示例状态 ---------- */
+  document.querySelectorAll('.scenario').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.scenario').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+    state.scenario = btn.dataset.scenario;
+    if (state.year === 2024 && state.scenario === 'normal') state.year = 2026;
+    renderWall({ anim: true });
+    syncChrome();
+    wall.scrollTop = 0;
+  }));
+
+  function el(tag, cls, html) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (html !== undefined) n.innerHTML = html;
+    return n;
+  }
+
+  renderWall({ anim: true });
+  syncChrome();
+})();
+</script>
+</body>
+</html>

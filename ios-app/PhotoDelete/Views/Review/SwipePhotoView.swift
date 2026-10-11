@@ -33,15 +33,12 @@ struct SwipePhotoView: View {
     let explicitReviewScope: ExplicitAssetReviewScope?
 
     @StateObject private var session = PhotoReviewSession()
-    @State private var showBatchConfirm = false
     @State private var showingPendingDeletion = false
     @State private var showCompletionMessage = false
     @StateObject private var actions = PhotoReviewActions()
     @State private var randomReviewSeed = UUID().uuidString
     @AppStorage(AppConstants.randomReviewHideFiledPhotosKey) private var randomReviewHideFiledPhotos = true
     @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
-    @State private var shouldDismissAfterBatch = false
-    @State private var didCompleteBatch = false
     @State private var feedbackToast: PhotoDeleteToast?
     @State private var didInitializeSession = false
     @State private var preloadedAssets: [PHAsset] = []
@@ -132,10 +129,6 @@ struct SwipePhotoView: View {
     private var organizedProgress: Int {
         guard totalPhotosCount > 0 else { return 0 }
         return min(session.reviewedIDs.count, totalPhotosCount)
-    }
-
-    private var remainingPhotosCount: Int {
-        max(totalPhotosCount - organizedProgress, 0)
     }
 
     private var progressFraction: Double {
@@ -293,21 +286,6 @@ struct SwipePhotoView: View {
         }
         .sheet(item: $sharePayload, onDismiss: cleanupSharePayload) { payload in
             SystemShareSheet(activityItems: [payload.fileURL])
-        }
-        .fullScreenCover(isPresented: $showBatchConfirm, onDismiss: {
-            let shouldCloseReview = shouldDismissAfterBatch && didCompleteBatch
-            shouldDismissAfterBatch = false
-            didCompleteBatch = false
-            if shouldCloseReview {
-                dismiss()
-            } else {
-                refreshSessionForSourceChangeIfNeeded(force: true)
-            }
-        }) {
-            BatchConfirmView(albumInfo: activeAlbumInfo) { _ in
-                didCompleteBatch = true
-            }
-                .environmentObject(dataManager)
         }
         .fullScreenCover(isPresented: $showingPendingDeletion) {
             NavigationStack {
@@ -557,6 +535,7 @@ struct SwipePhotoView: View {
                     preloadUpcomingImages(from: index)
                     persistSessionProgressIfPossible()
                 },
+                onBrowsePastEnd: presentRoundSummary,
                 onDelete: handleDeleteAction,
                 onFile: openAlbumFilingSheet
             ) { photo, isCurrent in
@@ -685,52 +664,21 @@ struct SwipePhotoView: View {
 
     private var completionOverlay: some View {
         ReviewCompletionOverlay(
-            title: completionTitle, subtitle: completionSubtitle,
-            hasUnreviewedPhotos: hasUnreviewedPhotos,
-            primaryActionTitle: completionPrimaryActionTitle,
-            showsSessionStats: randomReviewScope != nil,
-            deleteCount: actions.deleteActionCount,
-            favoriteCount: actions.favoriteActionCount,
-            onContinue: {
-                continueToNextUnreviewedPhoto()
-                showCompletionMessage = false
+            sourceTitle: source.title(dataManager: dataManager, activeAlbumInfo: activeAlbumInfo),
+            itemCount: totalPhotosCount,
+            sessionDeleteCount: actions.deleteActionCount,
+            sessionFavoriteCount: actions.favoriteActionCount,
+            collectionBinCount: pendingDeleteCount,
+            onDismiss: {
+                withAnimation(.easeOut(duration: 0.18)) {
+                    showCompletionMessage = false
+                }
             },
-            onFinish: handleFinishAction
+            onFinish: {
+                showCompletionMessage = false
+                dismiss()
+            }
         )
-    }
-
-    private var completionTitle: String {
-        hasUnreviewedPhotos ? L10n.string("Reached the last photo") : L10n.string("Cleanup Complete!")
-    }
-
-    private var completionSubtitle: String {
-        if hasUnreviewedPhotos {
-            return String(
-                format: L10n.string("%lld remaining · %lld total"),
-                Int64(remainingPhotosCount),
-                Int64(totalPhotosCount)
-            )
-        }
-
-        if randomReviewScope == nil {
-            return L10n.string("You have reviewed all photos")
-        }
-
-        return String(
-            format: L10n.string("%lld/%lld reviewed. Confirm before anything is deleted."),
-            Int64(organizedProgress),
-            Int64(totalPhotosCount)
-        )
-    }
-
-    private var completionPrimaryActionTitle: String {
-        if pendingDeleteCount > 0 || !dataManager.deleteCandidates.isEmpty {
-            return L10n.string("Confirm Deletion")
-        }
-        if pendingFavoriteCount > 0 || !dataManager.favoriteCandidates.isEmpty {
-            return L10n.string("Confirm Favorites")
-        }
-        return L10n.string("Finish Organizing")
     }
 
     // MARK: - 底部控制区域
@@ -797,8 +745,7 @@ struct SwipePhotoView: View {
                     title: L10n.string("Finish Organizing"),
                     color: Theme.positive
                 ) {
-                    handleFinishAction()
-
+                    presentRoundSummary()
                 }
             }
             .disabled(!canPerformPhotoAction)
@@ -941,10 +888,6 @@ struct SwipePhotoView: View {
     private func loadAlbumShortcutsIfNeeded() {
         guard !isAlbumMode else { return }
         dataManager.loadAlbumsIfNeeded()
-    }
-
-    private var hasUnreviewedPhotos: Bool {
-        remainingPhotosCount > 0
     }
 
     private var albumStateRefreshToken: [String] {
@@ -1212,11 +1155,7 @@ struct SwipePhotoView: View {
         while horizontalNeighborIndex(step: 1) == nil,
               session.expand(for: session.photos.count, force: true) { }
         guard let index = horizontalNeighborIndex(step: 1) else {
-            if randomReviewScope != nil {
-                showFeedback(L10n.string("Reached the last photo"), icon: "checkmark", style: .positive, duration: 1.5)
-            } else {
-                showCompletionMessage = true
-            }
+            presentRoundSummary()
             persistSessionProgressIfPossible()
             return
         }
@@ -1242,7 +1181,7 @@ struct SwipePhotoView: View {
                   session.expand(for: session.photos.count, force: true) { }
 
             guard newIndex < session.photos.count else {
-                showCompletionMessage = true
+                presentRoundSummary()
                 return
             }
             var transaction = Transaction()
@@ -1252,7 +1191,7 @@ struct SwipePhotoView: View {
             }
             preloadUpcomingImages(from: newIndex)
         } else {
-            showCompletionMessage = true
+            presentRoundSummary()
         }
     }
 
@@ -1272,24 +1211,6 @@ struct SwipePhotoView: View {
         }
         showCompletionMessage = false
         preloadUpcomingImages(from: session.currentIndex)
-    }
-
-    private func continueToNextUnreviewedPhoto() {
-        var nextIndex = firstLocallyUnreviewedPhotoIndex(startingAt: 0)
-        while nextIndex == nil,
-              session.expand(for: session.photos.count, force: true) {
-            nextIndex = firstLocallyUnreviewedPhotoIndex(startingAt: 0)
-        }
-
-        guard let nextIndex else {
-            return
-        }
-        session.currentIndex = nextIndex
-        preloadUpcomingImages(from: nextIndex)
-    }
-
-    private func firstLocallyUnreviewedPhotoIndex(startingAt startIndex: Int) -> Int? {
-        session.firstUnreviewedIndex(startingAt: startIndex)
     }
 
     private var restoredSessionProgressAssetID: String? {
@@ -1369,11 +1290,14 @@ struct SwipePhotoView: View {
     }
 
     private func handleFinishAction() {
-        if hasPendingOperations {
-            showCompletionMessage = false
-            presentBatchConfirmation(dismissAfter: true)
-        } else {
-            dismiss()
+        presentRoundSummary()
+    }
+
+    /// 本轮结算（完成钮 / 末张越界滑 / 队列到头）。不提交删除。
+    private func presentRoundSummary() {
+        guard !showCompletionMessage else { return }
+        withAnimation(.easeOut(duration: 0.2)) {
+            showCompletionMessage = true
         }
     }
 
@@ -1493,22 +1417,8 @@ struct SwipePhotoView: View {
         preloadUpcomingImages(from: index)
     }
 
-    private func presentBatchConfirmation(dismissAfter: Bool) {
-        shouldDismissAfterBatch = dismissAfter
-        showBatchConfirm = true
-    }
-
     private func handleBackAction() {
-        // 如果有待处理的删除操作，显示确认对话框
-        if hasPendingOperations {
-            presentBatchConfirmation(dismissAfter: true)
-        } else {
-            dismiss()
-        }
-    }
-
-    private var hasPendingOperations: Bool {
-        pendingDeleteCount > 0 || pendingFavoriteCount > 0
+        dismiss()
     }
 
     private func showAlbumFilingSuccessToast(albumTitle: String) {

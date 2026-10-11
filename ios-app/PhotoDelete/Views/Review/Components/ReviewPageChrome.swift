@@ -36,7 +36,7 @@ struct ReviewNavigationHeader: View {
 
             Button(action: onDelete) {
                 ZStack(alignment: .topTrailing) {
-                    Image(systemName: "trash")
+                    Image(systemName: "archivebox")
                         .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
                         .foregroundColor(Theme.primaryText)
                         .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
@@ -62,7 +62,7 @@ struct ReviewNavigationHeader: View {
             .modifier(ReviewGlassCircleChrome())
             .disabled(!canDelete)
             .accessibilityIdentifier("review-trash-button")
-            .accessibilityLabel(L10n.string("To delete"))
+            .accessibilityLabel(L10n.string("Collection bin"))
             .accessibilityValue(L10n.string("\(deleteCount) to delete"))
             .frame(width: 116, alignment: .trailing)
         }
@@ -73,75 +73,104 @@ struct ReviewNavigationHeader: View {
     }
 }
 
+/// 本轮结算：汇报本次待删 / 本次收藏 / 收集箱共计。
+/// 「完成」离开整理；点遮罩关闭弹窗并留在本轮（误触可回）。
 struct ReviewCompletionOverlay: View {
-    let title: String
-    let subtitle: String
-    let hasUnreviewedPhotos: Bool
-    let primaryActionTitle: String
-    let showsSessionStats: Bool
-    let deleteCount: Int
-    let favoriteCount: Int
-    let onContinue: () -> Void
+    let sourceTitle: String
+    let itemCount: Int
+    let sessionDeleteCount: Int
+    let sessionFavoriteCount: Int
+    let collectionBinCount: Int
+    let onDismiss: () -> Void
     let onFinish: () -> Void
 
     var body: some View {
         ZStack {
-            Theme.reviewCanvas.opacity(0.96)
+            Color.black.opacity(0.72)
                 .ignoresSafeArea()
-
-            VStack(spacing: 18) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 54, weight: .medium))
-                    .foregroundColor(Theme.positive)
-
-                Text(title)
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(Theme.primaryText)
-
-                Text(subtitle)
-                    .font(.system(size: 15, weight: .regular))
-                    .foregroundColor(Theme.secondaryText)
-                    .multilineTextAlignment(.center)
-
-                if showsSessionStats {
-                    HStack(spacing: 10) {
-                        CompletionStatPill(
-                            icon: "trash",
-                            value: deleteCount,
-                            title: L10n.string("Delete"),
-                            tint: Theme.destructive
-                        )
-                        CompletionStatPill(
-                            icon: "heart",
-                            value: favoriteCount,
-                            title: L10n.string("Favorite"),
-                            tint: Theme.iconTint(for: "favorite")
-                        )
-
-                    }
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onDismiss)
+                .accessibilityLabel(L10n.string("Close"))
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction(named: Text(L10n.string("Close"))) {
+                    onDismiss()
                 }
 
-                HStack(spacing: 12) {
-                    if hasUnreviewedPhotos {
-                        Button(L10n.string("Keep Organizing")) {
-                            onContinue()
-                        }
-                        .photoDeleteSecondaryButton()
-                    }
-
-                    Button(primaryActionTitle) {
-                        onFinish()
-                    }
-                    .photoDeletePrimaryButton()
-                    .accessibilityIdentifier("review-completion-primary-button")
-
+            VStack(alignment: .leading, spacing: 22) {
+                HStack(alignment: .center, spacing: 10) {
+                    Text(sourceTitle)
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Theme.secondaryText)
+                        .lineLimit(1)
+                    Spacer(minLength: 8)
+                    Text(String(format: L10n.string("%lld items"), Int64(itemCount)))
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Theme.secondaryText)
+                        .monospacedDigit()
+                    PhotoDeleteCircleIconButton(
+                        systemName: "xmark",
+                        accessibilityLabel: L10n.string("Close"),
+                        accessibilityIdentifier: "review-completion-close",
+                        action: onDismiss
+                    )
                 }
+
+                VStack(spacing: 16) {
+                    completionStatRow(
+                        tint: Theme.destructive,
+                        title: L10n.string("Marked for deletion this round"),
+                        value: sessionDeleteCount
+                    )
+                    completionStatRow(
+                        tint: Theme.iconTint(for: "favorite"),
+                        title: L10n.string("Favorited this round"),
+                        value: sessionFavoriteCount
+                    )
+                    completionStatRow(
+                        tint: Theme.accent,
+                        title: L10n.string("Collection bin total"),
+                        value: collectionBinCount
+                    )
+                }
+
+                Button(L10n.string("Done")) {
+                    onFinish()
+                }
+                .photoDeletePrimaryButton()
+                .accessibilityIdentifier("review-completion-primary-button")
             }
-            .padding(24)
-            .photoDeleteCard()
+            .padding(22)
+            .background {
+                RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                    .fill(Theme.elevatedSurface)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                            .stroke(Theme.hairline, lineWidth: Theme.stroke)
+                    }
+            }
+            .shadow(color: Theme.floatingShadow, radius: 18, y: 10)
             .padding(.horizontal, Theme.space5)
+            // 挡住点击穿透到遮罩，避免点卡片也关闭。
+            .contentShape(Rectangle())
         }
         .transition(.opacity)
+    }
+
+    private func completionStatRow(tint: Color, title: String, value: Int) -> some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(tint)
+                .frame(width: 8, height: 8)
+            Text(title)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Theme.primaryText)
+            Spacer(minLength: 12)
+            Text(PhotoDeleteCountFormat.plain(value))
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.primaryText)
+                .monospacedDigit()
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -228,7 +257,7 @@ struct ReviewActionToolbar: View {
             .modifier(ReviewGlassCapsuleChrome())
             .shadow(color: Theme.floatingShadow, radius: 12, y: 6)
 
-            // 终点动作独立成珠：琥珀玻璃「完成整理」（待删数字由头部角标承担）
+            // 终点动作独立成珠：琥珀玻璃「完成整理」→ 本轮结算（收集箱角标在顶栏）
             finishButton
         }
         .padding(.horizontal, 18)
@@ -257,7 +286,7 @@ struct ReviewActionToolbar: View {
     private var finishButton: some View {
         if #available(iOS 26.0, *) {
             Button(action: onFinish) {
-                Image(systemName: "archivebox")
+                Image(systemName: "checkmark")
                     .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
                     .foregroundColor(Theme.onAccent)
                     .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
@@ -267,7 +296,7 @@ struct ReviewActionToolbar: View {
             .accessibilityLabel(L10n.string("Finish Organizing"))
         } else {
             Button(action: onFinish) {
-                Image(systemName: "archivebox")
+                Image(systemName: "checkmark")
                     .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
                     .foregroundColor(Theme.onAccent)
                     .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
