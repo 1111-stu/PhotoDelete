@@ -52,14 +52,15 @@ struct CleanupAssetBrowserView: View {
         .toolbar(.visible, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button { showsFilters = true } label: {
-                    Image(systemName: model.query == defaultQuery
-                          ? "line.3.horizontal.decrease" : "line.3.horizontal.decrease.circle.fill")
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    cleanupFilterButton
                 }
-                .photoDeleteMinimumTapTarget()
-                .accessibilityLabel(L10n.string("Filter and sort"))
-                .accessibilityIdentifier("cleanup-browser-filter")
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    cleanupFilterButton
+                }
             }
         }
         .safeAreaInset(edge: .bottom) { organizeButton }
@@ -80,6 +81,15 @@ struct CleanupAssetBrowserView: View {
         .onDisappear { model.stop() }
         .onChange(of: scenePhase) { phase in
             if phase == .active { model.refresh() }
+        }
+    }
+
+    private var cleanupFilterButton: some View {
+        PhotoDeleteFilterToolbarButton(
+            isActive: model.query != defaultQuery,
+            accessibilityIdentifier: "cleanup-browser-filter"
+        ) {
+            showsFilters = true
         }
     }
 
@@ -272,8 +282,8 @@ struct CleanupAssetCard: View {
                 .padding(.bottom, 3)
             }
             .padding(6)
-            .photoDeleteCard(radius: Theme.Metrics.compactRadius)
-            .contentShape(RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius))
+            .photoDeleteCard(radius: Theme.radiusLg)
+            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(fullDate), \(metadata.size.displayText)\(asset.mediaType == .video ? ", \(durationText)" : "")\(isPendingDeletion ? ", \(L10n.string("Pending deletion"))" : metadata.isReviewed ? ", \(L10n.string("Reviewed"))" : "")")

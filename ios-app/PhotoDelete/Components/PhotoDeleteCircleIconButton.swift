@@ -4,7 +4,7 @@
 //
 //  标题栏圆形 icon 按钮：可见圆 36 / 图标 15，触控区仍为 44。
 //  iOS 26+ 液态玻璃圆钮，老系统回落 elevatedSurface 实心圆。
-//  尺寸 token 见 Theme.Metrics（titleBarIcon* / minimumTapTarget）。
+//  尺寸 token：Theme.space9 / textSizeMd / space11。
 //
 
 import SwiftUI
@@ -66,8 +66,8 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
         .buttonBorderShape(.circle)
         .foregroundStyle(Theme.primaryText)
         .frame(
-            width: Theme.Metrics.minimumTapTarget,
-            height: Theme.Metrics.minimumTapTarget
+            width: Theme.space11,
+            height: Theme.space11
         )
         .contentShape(Circle())
     }
@@ -78,8 +78,8 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
                 .foregroundColor(Theme.primaryText)
                 .background(Theme.elevatedSurface, in: Circle())
                 .frame(
-                    width: Theme.Metrics.minimumTapTarget,
-                    height: Theme.Metrics.minimumTapTarget
+                    width: Theme.space11,
+                    height: Theme.space11
                 )
                 .contentShape(Circle())
         }
@@ -88,10 +88,10 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
 
     private var iconLabel: some View {
         Image(systemName: systemName)
-            .font(.system(size: Theme.Metrics.titleBarIconPointSize, weight: .semibold))
+            .font(.system(size: Theme.textSizeMd, weight: .semibold))
             .frame(
-                width: Theme.Metrics.titleBarIconVisualSize,
-                height: Theme.Metrics.titleBarIconVisualSize
+                width: Theme.space9,
+                height: Theme.space9
             )
     }
 }

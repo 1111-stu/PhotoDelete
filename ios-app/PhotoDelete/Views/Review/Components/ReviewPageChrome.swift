@@ -66,7 +66,7 @@ struct ReviewNavigationHeader: View {
             .accessibilityValue(L10n.string("\(deleteCount) to delete"))
             .frame(width: 116, alignment: .trailing)
         }
-        .padding(.horizontal, Theme.screenHorizontalPadding)
+        .padding(.horizontal, Theme.space5)
         .padding(.top, 16)
         .padding(.bottom, 12)
         .background(Theme.reviewCanvas)
@@ -139,7 +139,7 @@ struct ReviewCompletionOverlay: View {
             }
             .padding(24)
             .photoDeleteCard()
-            .padding(.horizontal, Theme.screenHorizontalPadding)
+            .padding(.horizontal, Theme.space5)
         }
         .transition(.opacity)
     }
@@ -320,7 +320,7 @@ struct ReviewGlassCapsuleChrome: ViewModifier {
                         .fill(Theme.surface.opacity(0.9))
                         .overlay {
                             Capsule(style: .continuous)
-                                .stroke(Theme.hairline, lineWidth: Theme.Metrics.cardStrokeWidth)
+                                .stroke(Theme.hairline, lineWidth: Theme.stroke)
                         }
                 }
         }

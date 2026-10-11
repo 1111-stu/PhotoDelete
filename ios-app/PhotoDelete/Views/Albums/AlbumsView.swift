@@ -166,7 +166,7 @@ struct AlbumsView: View {
                 displayStyleEntryButton
             }
         }
-        .padding(.horizontal, Theme.screenHorizontalPadding)
+        .padding(.horizontal, Theme.space5)
         .padding(.top, 10)
         .padding(.bottom, 6)
     }
@@ -216,7 +216,7 @@ struct AlbumsView: View {
         }
         .padding(.horizontal, 14)
         .frame(minHeight: 44)
-        .background(Theme.elevatedSurface, in: RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous))
+        .background(Theme.elevatedSurface, in: RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
     }
 
     private func createAlbum() {
@@ -232,7 +232,7 @@ struct AlbumsView: View {
                 subtitle: L10n.string("OnePhoto needs photo library access to manage albums. \(AppConstants.privacyShortText)"),
                 onRequestAccess: { dataManager.requestPhotoLibraryAccess() }
             )
-            .padding(.horizontal, Theme.screenHorizontalPadding)
+            .padding(.horizontal, Theme.space5)
             Spacer()
         }
     }
@@ -258,9 +258,9 @@ struct AlbumsView: View {
                         albumItems(proxy: proxy)
                     }
                 }
-                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.horizontal, Theme.space5)
                 .padding(.top, 4)
-                .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
+                .padding(.bottom, Theme.space24)
                 .coordinateSpace(name: Self.contentSpace)
                 .overlay(alignment: .topLeading) {
                     reorderOverlays
@@ -326,7 +326,7 @@ struct AlbumsView: View {
     private func albumItems(proxy: ScrollViewProxy) -> some View {
         let rows = Array(displayedRows.enumerated())
         if displayStyle == .list {
-            LazyVStack(spacing: Theme.albumListCardSpacing) {
+            LazyVStack(spacing: Theme.space2) {
                 ForEach(rows, id: \.element.id) { index, row in
                     albumItem(row, index: index, proxy: proxy)
                         .id(row.id)
@@ -474,7 +474,7 @@ struct AlbumsView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, Theme.Metrics.contentBottomPadding)
+        .padding(.vertical, Theme.space6)
     }
 
     private var emptyRow: some View {
@@ -1431,11 +1431,11 @@ private struct AlbumNameDialog: View {
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
                     .background(
-                        RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                        RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                             .fill(Theme.elevatedSurface)
                             .overlay(
-                                RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
-                                    .stroke(Theme.hairline, lineWidth: Theme.Metrics.cardStrokeWidth)
+                                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                                    .stroke(Theme.hairline, lineWidth: Theme.stroke)
                             )
                     )
                     .disabled(isBusy)
@@ -1476,11 +1476,11 @@ private struct AlbumNameDialog: View {
         .padding(.top, 18)
         .padding(.bottom, 18)
         .background(
-            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusXl, style: .continuous)
                 .fill(Theme.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
-                        .stroke(Theme.hairline, lineWidth: Theme.Metrics.cardStrokeWidth)
+                    RoundedRectangle(cornerRadius: Theme.radiusXl, style: .continuous)
+                        .stroke(Theme.hairline, lineWidth: Theme.stroke)
                 )
                 .shadow(color: Theme.floatingShadow.opacity(0.35), radius: 24, y: 12)
         )

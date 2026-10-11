@@ -244,7 +244,7 @@ struct OneAppsCatalogPage: View {
                     studioFooterCard
                         .padding(.top, 8)
                 }
-                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.horizontal, Theme.space5)
                 .padding(.top, 16)
                 .padding(.bottom, 28)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
@@ -358,7 +358,7 @@ struct OneAppsCatalogDetailPage: View {
                     .photoDeletePrimaryButton()
                     .accessibilityIdentifier("settings-oneapps-\(item.id)-open")
                 }
-                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.horizontal, Theme.space5)
                 .padding(.top, 20)
                 .padding(.bottom, 28)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))

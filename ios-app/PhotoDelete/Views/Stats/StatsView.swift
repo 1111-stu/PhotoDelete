@@ -36,7 +36,7 @@ private struct StatsScreen: View {
             PhotoDeleteScreenBackground()
 
             ScrollView {
-                VStack(spacing: Theme.sectionSpacing) {
+                VStack(spacing: Theme.space6) {
                     progressSection
                     cleanupHistorySection
 
@@ -48,8 +48,8 @@ private struct StatsScreen: View {
                     }
                     .photoDeleteDestructiveButton()
                 }
-                .padding(.horizontal, Theme.screenHorizontalPadding)
-                .padding(.top, Theme.rootContentTopSpacing)
+                .padding(.horizontal, Theme.space5)
+                .padding(.top, Theme.space2)
                 .padding(.bottom, 36)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
@@ -247,7 +247,7 @@ private struct StatsScreen: View {
                         }
                     }
                     .photoDeleteCard(radius: 22)
-                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.top, 16)
                 }
                 .scrollIndicators(.hidden)

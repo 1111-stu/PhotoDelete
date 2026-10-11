@@ -118,8 +118,8 @@ struct AdvancedView: View {
                     Spacer()
                         .frame(height: isLocked ? 24 : 96)
                 }
-                .padding(.horizontal, Theme.screenHorizontalPadding)
-                .padding(.top, Theme.rootContentTopSpacing)
+                .padding(.horizontal, Theme.space5)
+                .padding(.top, Theme.space2)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
@@ -785,7 +785,7 @@ private struct AdvancedMiniMetric: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
         .background(
-            RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                 .fill(Theme.elevatedSurface)
         )
     }
@@ -831,10 +831,10 @@ private struct AdvancedPeriodChip: View {
         .frame(width: 94, alignment: .leading)
         .padding(10)
         .background(
-            RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                 .fill(isSelected ? Theme.accent.opacity(0.16) : Theme.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                         .stroke(isSelected ? Theme.accent.opacity(0.65) : Theme.hairline, lineWidth: 1)
                 )
         )
@@ -987,10 +987,10 @@ private struct AdvancedPaywallBar: View {
                     .foregroundColor(Theme.accent)
                     .frame(maxWidth: .infinity, minHeight: 40)
                     .background(
-                        RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+                        RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                             .fill(Theme.elevatedSurface)
                             .overlay(
-                                RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+                                RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                                     .stroke(Theme.hairline, lineWidth: 1)
                             )
                     )
@@ -1024,15 +1024,15 @@ private struct AdvancedPaywallBar: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(.horizontal, Theme.screenHorizontalPadding)
+        .padding(.horizontal, Theme.space5)
         .padding(.top, 16)
         .padding(.bottom, 28)
         .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusXl, style: .continuous)
                 .fill(Theme.background.opacity(0.98))
                 .overlay(
-                    RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusXl, style: .continuous)
                         .stroke(Theme.hairline, lineWidth: 1)
                 )
                 .ignoresSafeArea(edges: .bottom)
@@ -1146,7 +1146,7 @@ private struct AdvancedPeriodListView: View {
                     Spacer()
                         .frame(height: 72)
                 }
-                .padding(Theme.screenHorizontalPadding)
+                .padding(Theme.space5)
             }
         }
         .advancedDetailNavigation(title: L10n.string("Time Progress"))
@@ -1373,7 +1373,7 @@ private struct AdvancedAssetListView: View {
                     Spacer()
                         .frame(height: 24)
                 }
-                .padding(Theme.screenHorizontalPadding)
+                .padding(Theme.space5)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -1966,7 +1966,7 @@ private struct AdvancedImageCompressionView: View {
                     Spacer()
                         .frame(height: 24)
                 }
-                .padding(Theme.screenHorizontalPadding)
+                .padding(Theme.space5)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -2353,7 +2353,7 @@ private struct AdvancedImageCompressionOptionsSheet: View {
                         .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(Theme.screenHorizontalPadding)
+                .padding(Theme.space5)
                 .padding(.top, 12)
                 .padding(.bottom, 24)
             }
@@ -2384,12 +2384,12 @@ private struct AdvancedImageCompressionOptionsSheet: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
-            RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                             .fill(Theme.accent)
                     )
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.horizontal, Theme.space5)
                 .padding(.bottom, 14)
                 .padding(.top, 8)
                 .background(Theme.background.opacity(0.94))
@@ -2601,7 +2601,7 @@ private struct AdvancedImageCompressionComparisonSheet: View {
                         }
                     }
                 }
-                .padding(Theme.screenHorizontalPadding)
+                .padding(Theme.space5)
                 .padding(.vertical, 16)
             }
             .background(Theme.background.ignoresSafeArea())
@@ -3005,7 +3005,7 @@ private struct AdvancedImageCompressionActionBar: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                    RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                                 .fill(Theme.destructive.opacity(0.12))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -3041,7 +3041,7 @@ private struct AdvancedImageCompressionActionBar: View {
                 .disabled(isCompressing)
             }
         }
-        .padding(.horizontal, Theme.screenHorizontalPadding)
+        .padding(.horizontal, Theme.space5)
         .padding(.bottom, 24)
         .padding(.top, 10)
         .background(
@@ -3256,7 +3256,7 @@ private struct AdvancedVideoCompressionView: View {
                     Spacer()
                         .frame(height: 24)
                 }
-                .padding(Theme.screenHorizontalPadding)
+                .padding(Theme.space5)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -3942,7 +3942,7 @@ private struct AdvancedVideoCompressionOptionsSheet: View {
                         .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(Theme.screenHorizontalPadding)
+                .padding(Theme.space5)
                 .padding(.top, 12)
                 .padding(.bottom, 24)
             }
@@ -3978,7 +3978,7 @@ private struct AdvancedVideoCompressionOptionsSheet: View {
                     )
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.horizontal, Theme.space5)
                 .padding(.bottom, 14)
                 .padding(.top, 8)
                 .background(Theme.background.opacity(0.94))
@@ -4329,10 +4329,10 @@ private struct AdvancedVideoCompressionCompactActionButton: View {
                 .frame(minHeight: 44)
                 .padding(.horizontal, 10)
                 .background(
-                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                         .fill(Theme.elevatedSurface)
                         .overlay(
-                            RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                                 .stroke(Theme.hairline, lineWidth: 1)
                         )
                 )
@@ -4368,7 +4368,7 @@ private struct AdvancedVideoCompressionComparisonSheet: View {
                         }
                     }
                 }
-                .padding(Theme.screenHorizontalPadding)
+                .padding(Theme.space5)
                 .padding(.vertical, 16)
             }
             .background(Theme.background.ignoresSafeArea())
@@ -4820,7 +4820,7 @@ private struct AdvancedVideoCompressionActionBar: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                            RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous)
+                            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                                 .fill(Theme.destructive.opacity(0.12))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -4856,7 +4856,7 @@ private struct AdvancedVideoCompressionActionBar: View {
                 .disabled(isCompressing)
             }
         }
-        .padding(.horizontal, Theme.screenHorizontalPadding)
+        .padding(.horizontal, Theme.space5)
         .padding(.bottom, 24)
         .padding(.top, 10)
         .background(
@@ -6201,7 +6201,7 @@ private struct AdvancedSelectionActionBar: View {
             )
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, Theme.screenHorizontalPadding)
+        .padding(.horizontal, Theme.space5)
         .padding(.bottom, 24)
         .background(
             Theme.background.opacity(0.92)

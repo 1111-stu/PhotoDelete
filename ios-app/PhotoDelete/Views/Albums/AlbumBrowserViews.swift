@@ -236,7 +236,7 @@ struct AlbumDisplayStyleSheet: View {
             .frame(minHeight: 84)
             .foregroundStyle(isSelected ? Theme.accent : Theme.primaryText)
             .background(
-            RoundedRectangle(cornerRadius: Theme.Metrics.compactRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                     .fill(isSelected ? Theme.accent.opacity(0.16) : Theme.surface)
             )
         }
@@ -281,8 +281,8 @@ struct AlbumListCard: View {
     var body: some View {
         Group {
             if isDropSlot {
-                AlbumDropSlot(cornerRadius: Theme.albumListCardRadius)
-                    .frame(maxWidth: .infinity, minHeight: Theme.albumListCardMinHeight)
+                AlbumDropSlot(cornerRadius: Theme.radiusLg)
+                    .frame(maxWidth: .infinity, minHeight: Theme.space16)
             } else {
                 AlbumInfoRow(
                     id: id,
@@ -297,16 +297,16 @@ struct AlbumListCard: View {
                 .padding(.horizontal, 14)
                 .frame(
                     maxWidth: .infinity,
-                    minHeight: Theme.albumListCardMinHeight,
+                    minHeight: Theme.space16,
                     alignment: .leading
                 )
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                 .fill(isDropSlot ? Color.clear : Theme.surface)
         )
-        .contentShape(RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
     }
 }
 
@@ -572,13 +572,15 @@ struct AlbumPhotoBrowserView: View {
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showsFilters = true
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease")
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    albumFilterButton
                 }
-                .accessibilityLabel(L10n.string("Filter and sort"))
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    albumFilterButton
+                }
             }
         }
         .sheet(isPresented: $showsFilters) {
@@ -603,6 +605,17 @@ struct AlbumPhotoBrowserView: View {
         }
         .task {
             await loadAssets()
+        }
+    }
+
+    private var albumFilterButton: some View {
+        PhotoDeleteFilterToolbarButton(
+            isActive: contentFilter != .all
+                || grouping != .day
+                || density != .standard
+                || sort != .newest
+        ) {
+            showsFilters = true
         }
     }
 

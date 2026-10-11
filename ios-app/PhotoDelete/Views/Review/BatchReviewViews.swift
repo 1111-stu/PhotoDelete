@@ -168,7 +168,7 @@ struct BatchConfirmView: View {
                         }
                     }
                     .frame(maxWidth: 620, alignment: .leading)
-                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.top, 8)
                     .padding(.bottom, 20)
                     .frame(maxWidth: .infinity)
@@ -484,7 +484,7 @@ private struct BatchCleanupCompletionView: View {
 
                 Spacer(minLength: 24)
             }
-            .padding(.horizontal, Theme.screenHorizontalPadding)
+            .padding(.horizontal, Theme.space5)
         }
         .task {
             await startCompletionAnimation()
@@ -1703,7 +1703,7 @@ struct CandidatePhotoPreviewView: View {
                             photoLibraryManager: photoLibraryManager,
                             locationTitle: locationTitle
                         )
-                        .padding(.horizontal, Theme.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.space5)
                         .padding(.top, 18)
                         .padding(.bottom, 32)
                     }

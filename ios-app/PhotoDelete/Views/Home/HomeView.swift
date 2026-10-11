@@ -171,7 +171,7 @@ struct HomeView: View {
                                     horizontalSizeClass: horizontalSizeClass
                                 )
                             )
-                            .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
+                            .padding(.bottom, Theme.space24)
                             .frame(
                                 maxWidth: PhotoDeleteAdaptiveLayout.homeContentMaxWidth(
                                     in: geometry.size,
@@ -269,12 +269,12 @@ struct HomeView: View {
     @ViewBuilder
     private func homeContent() -> some View {
         if libraryContentState != .needsAuthorization {
-            VStack(spacing: Theme.sectionSpacing) {
+            VStack(spacing: Theme.space6) {
                 homeTitleBar
                 libraryDashboard
             }
         } else {
-            VStack(spacing: Theme.sectionSpacing) {
+            VStack(spacing: Theme.space6) {
                 homeTitleBar
                 authorizationSection
             }
@@ -418,7 +418,7 @@ struct HomeView: View {
                     .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
             }
         }
-            .padding(Theme.Metrics.contentBottomPadding)
+            .padding(Theme.space6)
         .photoDeleteCard()
     }
 

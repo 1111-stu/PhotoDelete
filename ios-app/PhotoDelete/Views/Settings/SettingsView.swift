@@ -22,10 +22,10 @@ enum SettingsChrome {
     static let accent = Theme.accent
     static let divider = Theme.hairline
     static let pill = Theme.elevatedSurface
-    static let pageInset: CGFloat = Theme.screenHorizontalPadding
-    static let cardRadius: CGFloat = Theme.cardRadius
-    static let sectionSpacing: CGFloat = Theme.sectionSpacing
-    static let rowMinHeight: CGFloat = Theme.rowMinHeight
+    static let pageInset: CGFloat = Theme.space5
+    static let cardRadius: CGFloat = Theme.radiusXl
+    static let sectionSpacing: CGFloat = Theme.space6
+    static let rowMinHeight: CGFloat = Theme.space14_5
 }
 
 private extension Color {
@@ -131,7 +131,7 @@ struct SettingsView: View {
                             .frame(height: 100)
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
-                    .padding(.top, Theme.rootContentTopSpacing)
+                    .padding(.top, Theme.space2)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }
@@ -380,7 +380,7 @@ struct SettingsView: View {
         VStack {
             Spacer()
             PhotoDeleteToastView(toast: toast)
-                .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
+                .padding(.bottom, Theme.space24)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
@@ -766,10 +766,10 @@ private struct AppPromotionRow: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 38, height: 38)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
-                            .stroke(Theme.hairline, lineWidth: Theme.Metrics.cardStrokeWidth)
+                        RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                            .stroke(Theme.hairline, lineWidth: Theme.stroke)
                     )
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -792,7 +792,7 @@ private struct AppPromotionRow: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
-            .frame(minHeight: Theme.rowMinHeight)
+            .frame(minHeight: Theme.space14_5)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
@@ -830,7 +830,7 @@ struct GestureSettingsView: View {
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
                     .padding(.top, 16)
-                    .padding(.bottom, Theme.Metrics.contentBottomPadding)
+                    .padding(.bottom, Theme.space6)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }
@@ -951,7 +951,7 @@ private struct LanguageSettingsView: View {
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
                     .padding(.top, 16)
-                    .padding(.bottom, Theme.Metrics.contentBottomPadding)
+                    .padding(.bottom, Theme.space6)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }
@@ -1187,7 +1187,7 @@ struct PrivacyInfoView: View {
                             )
                         }
                     }
-                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.top, 20)
                     .padding(.bottom, 24)
                 }
@@ -1279,7 +1279,7 @@ struct AboutView: View {
                                 .lineLimit(nil)
                         }
                     }
-                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.top, 52)
                     .padding(.bottom, 32)
                 }

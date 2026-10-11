@@ -49,7 +49,7 @@ struct RecentOrganizedPhotosView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, Theme.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.space5)
                         .padding(.top, 12)
                         .padding(.bottom, 32)
                     }

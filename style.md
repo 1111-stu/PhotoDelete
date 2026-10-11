@@ -108,11 +108,13 @@
 ### 4.5 顶栏圆形 icon 按钮
 
 - 组件：`PhotoDeleteCircleIconButton`（`ios-app/PhotoDelete/Components/PhotoDeleteCircleIconButton.swift`）。
-- 规格：**可见圆 36** / 图标 **15** semibold / 触控区 **44**（`Metrics.titleBarIconVisualSize` / `titleBarIconPointSize` / `minimumTapTarget`）。
+- 规格：**可见圆 36** / 图标 **15** semibold / 触控区 **44**（`Theme.space9` / `textSizeMd` / `space11`）。
 - 样式：iOS 26+ 液态玻璃（`.buttonStyle(.glass)` + `.buttonBorderShape(.circle)`）；老系统回落 `elevatedSurface` 实心圆钮。
+- 图标色：**白色**（`Theme.primaryText`），不用琥珀 tint。
 - 首页右上：`archivebox` → 待删除暂存（`TrashBinView`），可挂数量角标。
 - 相册页右上：`square.grid.2x2` → 显示方式；搜索行右侧 `plus` → 新建相册（同一组件）。
-- **勿与整理页 chrome 混用**：整理页顶/底栏圆钮为 **52 / 19**（`Metrics.reviewChromeTarget` / `reviewChromeIconPointSize`）。
+- 专项清理 / 相册浏览右上：扁筛选 `line.3.horizontal.decrease`（`PhotoDeleteFilterToolbarButton`）；有筛选条件时右上角挂琥珀小圆点，不用 `.circle.fill`。ToolbarItem 在 iOS 26+ 加 `.sharedBackgroundVisibility(.hidden)`，避免系统玻璃再套一层。
+- **勿与整理页 chrome 混用**：整理页顶/底栏圆钮为 **52 / 19**（`Theme.space13` / `textSizeLg`）。
 
 ### 4.6 待整理卡入口语义（硬约束）
 

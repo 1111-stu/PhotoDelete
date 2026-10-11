@@ -255,7 +255,7 @@ struct SwipePhotoView: View {
                             handleUndoAction()
 
                         }
-                        .padding(.horizontal, Theme.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.space5)
                         .allowsHitTesting(feedbackToast.showsUndo)
                         .padding(.top, 88)
                         .frame(
@@ -438,7 +438,7 @@ struct SwipePhotoView: View {
                             subtitle: L10n.string("Allow photo library access to start organizing photos"),
                             onRequestAccess: { dataManager.requestPhotoLibraryAccess() }
                         )
-                        .padding(.horizontal, Theme.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.space5)
                     }
                 } else if let realPhoto = currentRealPhoto {
                     ZStack {
@@ -457,7 +457,7 @@ struct SwipePhotoView: View {
                             message: L10n.string("When reading finishes, this cleanup will start automatically."),
                             progress: activeLibraryLoadingProgress
                         )
-                        .padding(.horizontal, Theme.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.space5)
                     }
                 } else if shouldShowBackgroundLoadingState {
                     centeredPhotoAreaPlaceholder(in: geometry, bottomReserve: placeholderBottomReserve) {
@@ -466,7 +466,7 @@ struct SwipePhotoView: View {
                             message: L10n.string("Large libraries can take a few seconds. Cleanup starts automatically when ready."),
                             progress: activeLibraryLoadingProgress
                         )
-                        .padding(.horizontal, Theme.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.space5)
                     }
                 } else {
                     centeredPhotoAreaPlaceholder(in: geometry, bottomReserve: placeholderBottomReserve) {
@@ -486,7 +486,7 @@ struct SwipePhotoView: View {
                                     .font(.system(size: 16, weight: .regular))
                                     .foregroundColor(Theme.secondaryText)
                                     .multilineTextAlignment(.center)
-                                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                                    .padding(.horizontal, Theme.space5)
 
                                 Button(action: { dismiss() }) {
                                     Text(L10n.string("Back to Home"))
@@ -516,7 +516,7 @@ struct SwipePhotoView: View {
                         }
                         .padding(24)
                         .photoDeleteCard()
-                        .padding(.horizontal, Theme.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.space5)
                     }
                 }
             }
@@ -844,11 +844,11 @@ struct SwipePhotoView: View {
                             AlbumAssetThumbnail(
                                 assetID: asset.localIdentifier,
                                 photoLibraryManager: dataManager.photoLibraryManager,
-                                cornerRadius: Theme.Metrics.thumbnailRadius
+                                cornerRadius: Theme.radiusSm
                             )
                             .frame(width: 64, height: 64)
                             .overlay {
-                                RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+                                RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                                     .stroke(
                                         index == session.currentIndex ? Theme.accent : Color.clear,
                                         lineWidth: 2
@@ -859,7 +859,7 @@ struct SwipePhotoView: View {
                         .id(asset.localIdentifier)
                     }
                 }
-                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.horizontal, Theme.space5)
             }
             .frame(height: 72)
             .onChange(of: session.currentIndex) { index in

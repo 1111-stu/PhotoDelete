@@ -15,12 +15,12 @@ struct ReviewAlbumFilingSheet: View {
         NavigationStack {
             VStack(spacing: 0) {
                 searchField
-                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.top, 6)
                     .padding(.bottom, 12)
 
                 ScrollView {
-                    LazyVStack(spacing: Theme.albumListCardSpacing) {
+                    LazyVStack(spacing: Theme.space2) {
                         if filteredAlbums.isEmpty {
                             emptyState
                                 .padding(.top, 36)
@@ -35,7 +35,7 @@ struct ReviewAlbumFilingSheet: View {
                             }
                         }
                     }
-                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.bottom, 20)
                 }
                 .scrollDismissesKeyboard(.interactively)
@@ -98,13 +98,13 @@ struct ReviewAlbumFilingSheet: View {
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 52)
                 .background(
-                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                         .fill(isEnabled ? Theme.accent : Theme.secondaryText.opacity(0.28))
                 )
         }
         .buttonStyle(FilingContinueButtonStyle())
         .disabled(!isEnabled)
-        .padding(.horizontal, Theme.screenHorizontalPadding)
+        .padding(.horizontal, Theme.space5)
         .padding(.top, 10)
         .padding(.bottom, 12)
         .background(Color.black)
@@ -172,19 +172,19 @@ private struct FilingAlbumRow: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, minHeight: Theme.albumListCardMinHeight, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: Theme.space16, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                     .fill(Theme.surface)
                     .overlay {
-                        RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous)
+                        RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                             .strokeBorder(
                                 isSelected ? Theme.accent.opacity(0.42) : Color.clear,
                                 lineWidth: 1
                             )
                     }
             )
-            .contentShape(RoundedRectangle(cornerRadius: Theme.albumListCardRadius, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
         }
         .buttonStyle(FilingAlbumRowButtonStyle())
         .accessibilityElement(children: .ignore)

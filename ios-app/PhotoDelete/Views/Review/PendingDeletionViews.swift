@@ -139,7 +139,7 @@ private struct DeletionQueueScreen: View {
                             }
                         }
                     }
-                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.top, 20)
                     .padding(.bottom, 24)
                 }
@@ -229,7 +229,7 @@ struct CleanupReviewAssetCell: View {
                 AlbumAssetThumbnail(
                     assetID: asset.localIdentifier,
                     photoLibraryManager: photoLibraryManager,
-                    cornerRadius: Theme.Metrics.thumbnailRadius
+                    cornerRadius: Theme.radiusSm
                 )
                 .aspectRatio(1, contentMode: .fit)
             }
@@ -266,9 +266,9 @@ struct CleanupReviewSecondaryButtonStyle: ButtonStyle {
             .foregroundStyle(Theme.secondaryText)
             .frame(minHeight: 52)
             .background(configuration.isPressed ? Theme.surface : Theme.elevatedSurface)
-            .clipShape(RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                     .stroke(Theme.hairline, lineWidth: 1)
             }
             .opacity(isEnabled ? 1 : 0.42)
@@ -280,7 +280,7 @@ struct CleanupReviewFooterStyle: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .padding(.horizontal, Theme.screenHorizontalPadding)
+            .padding(.horizontal, Theme.space5)
             .padding(.top, 12)
             .padding(.bottom, 8)
             .background {

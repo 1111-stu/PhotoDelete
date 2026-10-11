@@ -15,7 +15,7 @@ struct CleanupAssetFilterSheet: View {
         NavigationStack {
             VStack(spacing: 18) {
                 FilterSheetPanePicker(selection: $pane)
-                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.top, 8)
 
                 if let summary {
@@ -23,7 +23,7 @@ struct CleanupAssetFilterSheet: View {
                         .font(.footnote)
                         .foregroundStyle(Theme.secondaryText)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Theme.screenHorizontalPadding)
+                        .padding(.horizontal, Theme.space5)
                         .accessibilityIdentifier("cleanup-filter-result-count")
                 }
 
@@ -38,7 +38,7 @@ struct CleanupAssetFilterSheet: View {
                             displayPane
                         }
                     }
-                    .padding(.horizontal, Theme.screenHorizontalPadding)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.bottom, 20)
                     .animation(.easeInOut(duration: 0.18), value: pane)
                 }

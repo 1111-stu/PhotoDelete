@@ -115,7 +115,7 @@ struct CleanupAchievementsView: View {
             PhotoDeleteScreenBackground()
 
             ScrollView {
-                VStack(spacing: Theme.sectionSpacing) {
+                VStack(spacing: Theme.space6) {
                     if AppConstants.achievementsEnabled {
                         archiveSummarySection
                         nextBadgeSection
@@ -126,9 +126,9 @@ struct CleanupAchievementsView: View {
                         historySection
                     }
                 }
-                .padding(.horizontal, Theme.screenHorizontalPadding)
-                .padding(.top, Theme.rootContentTopSpacing)
-                .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
+                .padding(.horizontal, Theme.space5)
+                .padding(.top, Theme.space2)
+                .padding(.bottom, Theme.space24)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
@@ -527,7 +527,7 @@ private struct CleanupAchievementNextRow: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .frame(minHeight: Theme.rowMinHeight)
+        .frame(minHeight: Theme.space14_5)
         .accessibilityElement(children: .combine)
     }
 }
@@ -556,7 +556,7 @@ private struct CleanupAchievementAllUnlockedRow: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .frame(minHeight: Theme.rowMinHeight)
+        .frame(minHeight: Theme.space14_5)
         .accessibilityElement(children: .combine)
     }
 }

@@ -71,9 +71,9 @@ struct TimeOrganizeView: View {
                         }
                     }
                 }
-                .padding(.horizontal, Theme.screenHorizontalPadding)
-                .padding(.top, Theme.rootContentTopSpacing)
-                .padding(.bottom, Theme.Metrics.bottomChromeSpacing)
+                .padding(.horizontal, Theme.space5)
+                .padding(.top, Theme.space2)
+                .padding(.bottom, Theme.space24)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }

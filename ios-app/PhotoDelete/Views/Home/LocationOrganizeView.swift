@@ -22,7 +22,7 @@ struct LocationOrganizeView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     content
                 }
-                .padding(.horizontal, Theme.screenHorizontalPadding)
+                .padding(.horizontal, Theme.space5)
                 .padding(.top, 12)
                 .padding(.bottom, 28)
             }
@@ -181,7 +181,7 @@ private struct LocationGroupThumbnail: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                 .fill(Theme.elevatedSurface)
 
             if let image {
@@ -195,7 +195,7 @@ private struct LocationGroupThumbnail: View {
             }
         }
         .frame(width: 50, height: 50)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Metrics.thumbnailRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous))
         .onAppear(perform: loadImage)
         .onChange(of: asset?.localIdentifier) { _ in
             loadImage()
@@ -268,7 +268,7 @@ private struct LocationOrganizeStateCard: View {
                 }
                 .buttonStyle(.plain)
                 .background(
-                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                         .fill(Theme.elevatedSurface)
                 )
             }

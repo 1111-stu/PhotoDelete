@@ -2,13 +2,13 @@
 //  Theme.swift
 //  PhotoDelete
 //
-//  全局设计 token（暗色静态，非可切换主题）。规范见仓库根目录 style.md。
+//  全局设计 token（暗色静态）。规范见仓库根目录 style.md。
 //
-//  分层：
-//  1. Color — 画布 / 表面 / 文字 / 行动色 / 语义色 / 功能渐变
-//  2. Metrics — 间距、圆角、触控
-//  3. Typography — 字阶
-//  不做「buttonPrimaryFill = accent」这类别名；组件直接用语义色。
+//  命名对齐 Tailwind：分类写在名字前缀里，全部打平在 Theme 上。
+//  - color / surface / text colors（无前缀或语义名）
+//  - space*  — 间距与尺寸（4pt 网格：space5 = 20）
+//  - radius* — 圆角
+//  - text*   — Font 字阶；textSize* — 字号 CGFloat（SF Symbol 等）
 //
 
 import SwiftUI
@@ -73,64 +73,45 @@ enum Theme {
     static let dropSlotLineWidth: CGFloat = 2.5
     static let dropSlotDash: [CGFloat] = [11, 9]
 
-    // MARK: - Metrics
+    // MARK: - Space（4pt 网格，spaceN ≈ N×4）
 
-    enum Metrics {
-        static let minimumTapTarget: CGFloat = 44
-        static let titleBarIconVisualSize: CGFloat = 36
-        static let titleBarIconPointSize: CGFloat = 15
-        static let reviewChromeTarget: CGFloat = 52
-        static let reviewChromeIconPointSize: CGFloat = 19
+    static let space2: CGFloat = 8
+    /// Toast 竖直内边距（略偏离网格，保留原值）。
+    static let space2_75: CGFloat = 11
+    static let space3: CGFloat = 12
+    static let space3_5: CGFloat = 14
+    static let space5: CGFloat = 20
+    static let space6: CGFloat = 24
+    static let space8: CGFloat = 32
+    static let space9: CGFloat = 36
+    static let space11: CGFloat = 44
+    static let space13: CGFloat = 52
+    static let space14_5: CGFloat = 58
+    static let space16: CGFloat = 64
+    static let space24: CGFloat = 96
 
-        static let screenHorizontalPadding: CGFloat = 20
-        static let sectionSpacing: CGFloat = 24
-        static let rootContentTopSpacing: CGFloat = 8
-        static let contentBottomPadding: CGFloat = 24
-        static let bottomChromeSpacing: CGFloat = 96
+    // MARK: - Radius
 
-        static let cardRadius: CGFloat = 22
-        static let controlRadius: CGFloat = 14
-        static let compactRadius: CGFloat = 16
-        static let thumbnailRadius: CGFloat = 12
-        static let cardStrokeWidth: CGFloat = 1
+    static let radiusSm: CGFloat = 12
+    static let radiusMd: CGFloat = 14
+    static let radiusLg: CGFloat = 16
+    static let radiusXl: CGFloat = 22
+    static let stroke: CGFloat = 1
 
-        static let rowIconSize: CGFloat = 32
-        static let rowMinHeight: CGFloat = 58
-        static let albumListCardRadius: CGFloat = 16
-        static let albumListCardSpacing: CGFloat = 8
-        static let albumListCardMinHeight: CGFloat = 64
+    // MARK: - Text size（CGFloat，给 SF Symbol / 自定义字号）
 
-        static let toastHorizontalPadding: CGFloat = 14
-        static let toastVerticalPadding: CGFloat = 11
-        static let toastIconSize: CGFloat = 15
-        static let toastTextSize: CGFloat = 14
-        static let capsuleHorizontalPadding: CGFloat = 14
-    }
+    static let textSizeSm: CGFloat = 14
+    static let textSizeMd: CGFloat = 15
+    static let textSizeLg: CGFloat = 19
 
-    // MARK: - Typography
+    // MARK: - Text（Font 字阶）
 
-    enum Typography {
-        static let pageTitle: Font = .title2.weight(.semibold)
-        static let cardTitle: Font = .headline
-        static let body: Font = .body
-        static let secondary: Font = .subheadline
-        static let label: Font = .caption
-        static let metric: Font = .title.weight(.semibold)
-    }
-
-    // MARK: - Convenience (常用 Metrics 短路径，避免写 Metrics.xxx)
-
-    static let screenHorizontalPadding = Metrics.screenHorizontalPadding
-    static let cardRadius = Metrics.cardRadius
-    static let controlRadius = Metrics.controlRadius
-    static let sectionSpacing = Metrics.sectionSpacing
-    static let rootContentTopSpacing = Metrics.rootContentTopSpacing
-    static let rowIconSize = Metrics.rowIconSize
-    static let rowMinHeight = Metrics.rowMinHeight
-    static var contentBottomPadding: CGFloat { Metrics.contentBottomPadding }
-    static let albumListCardRadius = Metrics.albumListCardRadius
-    static let albumListCardSpacing = Metrics.albumListCardSpacing
-    static let albumListCardMinHeight = Metrics.albumListCardMinHeight
+    static let textSm: Font = .caption
+    static let textBase: Font = .subheadline
+    static let textMd: Font = .body
+    static let textLg: Font = .headline
+    static let textXl: Font = .title2.weight(.semibold)
+    static let text2Xl: Font = .title.weight(.semibold)
 
     // MARK: - UIKit
 

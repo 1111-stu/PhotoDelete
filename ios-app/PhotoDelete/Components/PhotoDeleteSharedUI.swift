@@ -35,11 +35,11 @@ enum PhotoDeleteAdaptiveLayout {
     }
 
     static func homeHorizontalPadding(in size: CGSize, horizontalSizeClass: UserInterfaceSizeClass?) -> CGFloat {
-        prefersExpandedContent(in: size, horizontalSizeClass: horizontalSizeClass) ? 32 : Theme.screenHorizontalPadding
+        prefersExpandedContent(in: size, horizontalSizeClass: horizontalSizeClass) ? 32 : Theme.space5
     }
 
     static func homeTopPadding(in size: CGSize, horizontalSizeClass: UserInterfaceSizeClass?) -> CGFloat {
-        Theme.rootContentTopSpacing
+        Theme.space2
     }
 
     static func readableContentMaxWidth(horizontalSizeClass: UserInterfaceSizeClass?) -> CGFloat? {
@@ -93,7 +93,7 @@ struct PhotoDeleteScreenBackground: View {
 }
 
 struct PhotoDeleteCardBackground: ViewModifier {
-    var radius: CGFloat = Theme.cardRadius
+    var radius: CGFloat = Theme.radiusXl
 
     func body(content: Content) -> some View {
         content
@@ -102,7 +102,7 @@ struct PhotoDeleteCardBackground: ViewModifier {
                     .fill(Theme.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: radius, style: .continuous)
-                            .stroke(Theme.cardStroke, lineWidth: Theme.Metrics.cardStrokeWidth)
+                            .stroke(Theme.cardStroke, lineWidth: Theme.stroke)
                     )
             )
     }
@@ -112,7 +112,7 @@ struct PhotoDeleteFloatingSurface<Content: View>: View {
     let radius: CGFloat
     let content: Content
 
-    init(radius: CGFloat = Theme.cardRadius, @ViewBuilder content: () -> Content) {
+    init(radius: CGFloat = Theme.radiusXl, @ViewBuilder content: () -> Content) {
         self.radius = radius
         self.content = content()
     }
@@ -124,7 +124,7 @@ struct PhotoDeleteFloatingSurface<Content: View>: View {
                     .fill(Theme.surface.opacity(0.9))
                     .overlay {
                         RoundedRectangle(cornerRadius: radius, style: .continuous)
-                            .stroke(Theme.hairline, lineWidth: Theme.Metrics.cardStrokeWidth)
+                            .stroke(Theme.hairline, lineWidth: Theme.stroke)
                     }
             }
             .shadow(color: Theme.floatingShadow, radius: 12, y: 6)
@@ -139,19 +139,19 @@ struct PhotoDeleteMetricCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(value)
-                .font(Theme.Typography.metric)
+                .font(Theme.text2Xl)
                 .monospacedDigit()
                 .foregroundStyle(tint)
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
 
             Text(label)
-                .font(Theme.Typography.secondary.weight(.medium))
+                .font(Theme.textBase.weight(.medium))
                 .foregroundStyle(Theme.secondaryText)
         }
         .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
         .padding(.horizontal, 14)
-        .photoDeleteCard(radius: Theme.Metrics.compactRadius)
+        .photoDeleteCard(radius: Theme.radiusLg)
     }
 }
 
@@ -200,7 +200,7 @@ enum PhotoDeleteIconTileStyle {
 struct PhotoDeleteIconTile: View {
     let icon: String
     var tint: Color?
-    var size: CGFloat = Theme.rowIconSize
+    var size: CGFloat = Theme.space8
     var cornerRadius: CGFloat = 9
     var style: PhotoDeleteIconTileStyle = .soft
     var filled: Bool? = nil
@@ -208,7 +208,7 @@ struct PhotoDeleteIconTile: View {
     init(
         icon: String,
         tint: Color? = nil,
-        size: CGFloat = Theme.rowIconSize,
+        size: CGFloat = Theme.space8,
         cornerRadius: CGFloat = 9,
         style: PhotoDeleteIconTileStyle = .soft,
         filled: Bool? = nil
@@ -257,7 +257,7 @@ struct PhotoDeleteIconTile: View {
                 .fill(softFill)
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .stroke(softStroke, lineWidth: Theme.Metrics.cardStrokeWidth)
+                        .stroke(softStroke, lineWidth: Theme.stroke)
                 )
                 .overlay(symbol.foregroundColor(resolvedTint))
         case .solid:
@@ -286,7 +286,7 @@ struct PhotoDeletePrimaryButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
             .background(
-                RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                     .fill(configuration.isPressed ? Theme.accentPressed : Theme.accent)
             )
             .opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.42)
@@ -305,11 +305,11 @@ struct PhotoDeleteSecondaryButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
             .background(
-                RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                     .fill(Theme.surface)
                     .overlay(
-                        RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
-                            .stroke(Theme.accentSoftStroke, lineWidth: Theme.Metrics.cardStrokeWidth)
+                        RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                            .stroke(Theme.accentSoftStroke, lineWidth: Theme.stroke)
                     )
             )
             .opacity(isEnabled ? (configuration.isPressed ? 0.74 : 1) : 0.42)
@@ -328,11 +328,11 @@ struct PhotoDeleteDestructiveButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
             .background(
-                RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                     .fill(Theme.destructive.opacity(configuration.isPressed ? 0.18 : 0.12))
                     .overlay(
-                        RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
-                        .stroke(Theme.destructive.opacity(0.28), lineWidth: Theme.Metrics.cardStrokeWidth)
+                        RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                        .stroke(Theme.destructive.opacity(0.28), lineWidth: Theme.stroke)
                     )
             )
             .opacity(isEnabled ? (configuration.isPressed ? 0.78 : 1) : 0.42)
@@ -342,10 +342,10 @@ struct PhotoDeleteDestructiveButtonStyle: ButtonStyle {
 }
 
 extension View {
-    func photoDeleteMinimumTapTarget(_ size: CGFloat = Theme.Metrics.minimumTapTarget) -> some View {
+    func photoDeleteMinimumTapTarget(_ size: CGFloat = Theme.space11) -> some View {
         frame(
-            minWidth: max(size, Theme.Metrics.minimumTapTarget),
-            minHeight: max(size, Theme.Metrics.minimumTapTarget)
+            minWidth: max(size, Theme.space11),
+            minHeight: max(size, Theme.space11)
         )
             .contentShape(Rectangle())
     }
@@ -404,12 +404,12 @@ struct PhotoDeleteToastView: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: toast.icon)
-                .font(.system(size: Theme.Metrics.toastIconSize, weight: .semibold))
+                .font(.system(size: Theme.textSizeMd, weight: .semibold))
                 .foregroundColor(toastColor)
                 .frame(width: 22)
 
             Text(toast.message)
-                .font(.system(size: Theme.Metrics.toastTextSize, weight: .semibold))
+                .font(.system(size: Theme.textSizeSm, weight: .semibold))
                 .foregroundColor(Theme.primaryText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -420,13 +420,13 @@ struct PhotoDeleteToastView: View {
                     .background(Theme.hairline)
 
                 Button(L10n.string("Undo"), action: onUndo)
-                    .font(.system(size: Theme.Metrics.toastTextSize, weight: .semibold))
+                    .font(.system(size: Theme.textSizeSm, weight: .semibold))
                     .foregroundColor(Theme.accent)
                     .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, Theme.Metrics.toastHorizontalPadding)
-        .padding(.vertical, Theme.Metrics.toastVerticalPadding)
+        .padding(.horizontal, Theme.space3_5)
+        .padding(.vertical, Theme.space2_75)
         .background(
             Capsule(style: .continuous)
                 .fill(Theme.elevatedSurface.opacity(0.94))
@@ -472,7 +472,7 @@ struct PhotoAuthorizationCard: View {
 }
 
 extension View {
-    func photoDeleteCard(radius: CGFloat = Theme.cardRadius) -> some View {
+    func photoDeleteCard(radius: CGFloat = Theme.radiusXl) -> some View {
         modifier(PhotoDeleteCardBackground(radius: radius))
     }
 

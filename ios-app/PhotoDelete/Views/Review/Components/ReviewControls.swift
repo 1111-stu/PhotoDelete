@@ -25,10 +25,10 @@ struct CompletionStatPill: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 9)
         .background(
-            RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                 .fill(Theme.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                         .stroke(Theme.hairline, lineWidth: 1)
                 )
         )
