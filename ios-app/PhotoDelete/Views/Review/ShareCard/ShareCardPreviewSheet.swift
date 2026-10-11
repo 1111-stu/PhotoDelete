@@ -222,10 +222,10 @@ struct ShareCardPreviewSheet: View {
                 .font(.system(size: 15, weight: .regular))
                 .foregroundStyle(Theme.primaryText)
             Spacer()
-            // 中性白轨：琥珀只留给底部「分享」主 CTA（style.md §2.3 / §6.3）。
+            // ON 用 secondaryText 浅灰轨（62%），避免 primaryText 近白满胶囊发糊；本 sheet 不染琥珀。
             Toggle("", isOn: isOn)
                 .labelsHidden()
-                .tint(Theme.primaryText)
+                .tint(Theme.secondaryText)
         }
         .frame(height: 50)
     }
@@ -233,15 +233,10 @@ struct ShareCardPreviewSheet: View {
     private var shareButton: some View {
         Button(action: handleShare) {
             ZStack {
+                // 白胶囊主 CTA：elevatedSurface 上的反色 pill，不用琥珀渐变。
                 Capsule(style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [Theme.secondaryAccent, Theme.accent, Theme.accentPressed],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .shadow(color: Theme.accent.opacity(0.22), radius: 16, y: 8)
+                    .fill(Color.white)
+                    .shadow(color: Color.black.opacity(0.18), radius: 10, y: 4)
 
                 if isSharing {
                     ProgressView()
@@ -252,6 +247,7 @@ struct ShareCardPreviewSheet: View {
                         .foregroundStyle(Theme.onAccent)
                 }
             }
+            .frame(maxWidth: .infinity)
             .frame(height: 52)
         }
         .buttonStyle(.plain)
