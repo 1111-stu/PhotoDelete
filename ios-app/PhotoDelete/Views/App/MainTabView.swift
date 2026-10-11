@@ -138,10 +138,10 @@ struct MainTabView: View {
 
 private enum PhotoDeleteTabBarColors {
     static let selectedIcon = Theme.uiAccent
-    static let selectedLabel = UIColor(white: 1, alpha: 0.96)
-    static let unselected = UIColor(red: 142.0 / 255.0, green: 144.0 / 255.0, blue: 152.0 / 255.0, alpha: 1)
-    static let barBackground = UIColor(red: 23.0 / 255.0, green: 24.0 / 255.0, blue: 31.0 / 255.0, alpha: 1)
-    static let selectionPlate = UIColor(red: 44.0 / 255.0, green: 46.0 / 255.0, blue: 54.0 / 255.0, alpha: 1)
+    static let selectedLabel = UIColor(Theme.primaryText)
+    static let unselected = Theme.uiSecondaryText
+    static let barBackground = UIColor(Theme.reviewCanvas)
+    static let selectionPlate = UIColor(Theme.elevatedSurface)
 
     static var selectedIconColor: Color { Color(uiColor: selectedIcon) }
 

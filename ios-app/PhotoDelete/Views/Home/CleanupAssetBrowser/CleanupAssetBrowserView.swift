@@ -100,20 +100,24 @@ struct CleanupAssetBrowserView: View {
                      ? CleanupStatsFormatter.fileSize(result.summary.knownSizeMB)
                      : (result.isCalculatingSizes ? L10n.string("Calculating") : L10n.string("Unknown size")))
                     .font(.largeTitle.bold()).monospacedDigit()
+                    .foregroundStyle(Theme.primaryText)
                     .accessibilityIdentifier("cleanup-browser-size")
                 if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 8) }
                 Text(String(format: L10n.string("%lld items"), Int64(result.summary.count)))
-                    .font(.subheadline).foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.secondaryText)
                     .accessibilityIdentifier("cleanup-browser-count")
             }
             Text(String(format: L10n.string("%lld to organize"), Int64(result.summary.pendingCount)))
-                .font(.subheadline).foregroundStyle(.secondary)
+                .font(.subheadline)
+                .foregroundStyle(Theme.secondaryText)
                 .accessibilityIdentifier("cleanup-browser-pending")
             if result.summary.unknownSizeCount > 0 {
                 Text(result.isCalculatingSizes ? L10n.string("Reading file sizes") :
                      String(format: L10n.string("Known size %@ · %lld unknown"),
                             CleanupStatsFormatter.fileSize(result.summary.knownSizeMB), Int64(result.summary.unknownSizeCount)))
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(.caption)
+                    .foregroundStyle(Theme.secondaryText)
             }
             if dataManager.photoLibraryManager.hasLimitedPhotoLibraryAccess {
                 Button(L10n.string("Manage photo access")) { dataManager.managePhotoLibraryAccessSettings() }
@@ -123,7 +127,9 @@ struct CleanupAssetBrowserView: View {
                 Button(L10n.string("Clear filters")) { model.reset() }
                     .font(.caption).tint(Theme.accent)
             }
-            Divider().padding(.top, 10)
+            Theme.hairline
+                .frame(height: 1)
+                .padding(.top, 10)
         }
         .padding(.horizontal, 4)
     }
@@ -135,13 +141,16 @@ struct CleanupAssetBrowserView: View {
             ForEach(result.sections) { section in
                 VStack(alignment: .leading, spacing: 10) {
                     if section.id != .ungrouped {
-                        HStack {
-                            Text(sectionTitle(section.id)).font(.headline)
-                            Spacer()
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text(sectionTitle(section.id))
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(Theme.primaryText)
+                            Spacer(minLength: 8)
                             Text(String(format: L10n.string("%lld items"), Int64(section.assetIDs.count)))
-                                .font(.caption).foregroundStyle(.secondary)
+                                .font(.system(size: 12.5, weight: .semibold))
+                                .foregroundStyle(Theme.secondaryText)
                         }
-                        .padding(.horizontal, 4)
+                        .padding(.horizontal, 6)
                     }
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: columns), spacing: 10) {
                         ForEach(section.assetIDs, id: \.self) { id in
@@ -173,27 +182,40 @@ struct CleanupAssetBrowserView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: Theme.space4) {
             Image(systemName: category == .screenshots ? "photo" : "video")
-                .font(.largeTitle).foregroundStyle(.secondary)
+                .font(.system(size: 44, weight: .medium))
+                .foregroundStyle(Theme.secondaryText)
             Text(model.query == defaultQuery ? category.emptyTitle : L10n.string("No matching items"))
-                .font(.headline)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Theme.primaryText)
+                .multilineTextAlignment(.center)
             if model.query != defaultQuery {
                 Button(L10n.string("Clear filters")) { model.reset() }
                     .tint(Theme.accent)
             }
         }
-        .frame(maxWidth: .infinity).padding(.vertical, 64)
+        .padding(Theme.space6)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Theme.space8)
+        .photoDeleteCard()
     }
 
     private var accessState: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "photo.badge.exclamationmark").font(.largeTitle)
-            Text(L10n.string("Photo access required")).font(.headline)
+        VStack(spacing: Theme.space4) {
+            Image(systemName: "photo.badge.exclamationmark")
+                .font(.system(size: 44, weight: .medium))
+                .foregroundStyle(Theme.secondaryText)
+            Text(L10n.string("Photo access required"))
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Theme.primaryText)
             Button(L10n.string("Manage photo access")) { dataManager.requestPhotoLibraryAccess() }
                 .photoDeletePrimaryButton()
         }
-        .frame(maxWidth: .infinity).padding(.vertical, 64)
+        .padding(Theme.space6)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Theme.space8)
+        .photoDeleteCard()
     }
 
     private var organizeButton: some View {
@@ -274,9 +296,9 @@ struct CleanupAssetCard: View {
                         }
                     }
                 HStack(spacing: 4) {
-                    Text(shortDate).foregroundStyle(.secondary)
+                    Text(shortDate).foregroundStyle(Theme.secondaryText)
                     Spacer(minLength: 0)
-                    Text(metadata.size.cardText).foregroundStyle(.primary)
+                    Text(metadata.size.cardText).foregroundStyle(Theme.primaryText)
                 }
                 .font(.system(size: metadataSize)).monospacedDigit().lineLimit(1).fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 3)

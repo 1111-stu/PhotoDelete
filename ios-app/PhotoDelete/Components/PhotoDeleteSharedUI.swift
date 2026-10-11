@@ -184,6 +184,80 @@ struct PhotoDeleteSectionHeader: View {
     }
 }
 
+/// 列表行（style.md §4.4）：32 icon tile + 15/600 标题 + 次级值 + chevron。
+struct PhotoDeleteListRow: View {
+    var icon: String? = nil
+    let title: String
+    var subtitle: String? = nil
+    var value: String? = nil
+    var accessibilityIdentifier: String? = nil
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: icon == nil ? 12 : 14) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundColor(Theme.secondaryText)
+                        .frame(width: Theme.sizeIcon, height: Theme.sizeIcon)
+                        .background(
+                            Color.white.opacity(0.07),
+                            in: RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                        )
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(Theme.primaryText)
+
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(.system(size: 11.5, weight: .regular))
+                            .foregroundColor(Theme.secondaryText)
+                    }
+                }
+
+                Spacer(minLength: 8)
+
+                if let value {
+                    Text(value)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(Theme.secondaryText)
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Theme.tertiaryText)
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 13)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .modifier(PhotoDeleteOptionalAccessibilityIdentifier(accessibilityIdentifier))
+    }
+}
+
+private struct PhotoDeleteOptionalAccessibilityIdentifier: ViewModifier {
+    let identifier: String?
+
+    init(_ identifier: String?) {
+        self.identifier = identifier
+    }
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let identifier {
+            content.accessibilityIdentifier(identifier)
+        } else {
+            content
+        }
+    }
+}
+
 /// 数字格式约定：一律不带千分位（2974，而不是 2,974）。
 enum PhotoDeleteCountFormat {
     static func plain(_ count: Int) -> String {
@@ -201,7 +275,7 @@ struct PhotoDeleteIconTile: View {
     let icon: String
     var tint: Color?
     var size: CGFloat = Theme.sizeIcon
-    var cornerRadius: CGFloat = 9
+    var cornerRadius: CGFloat = Theme.radiusSm
     var style: PhotoDeleteIconTileStyle = .soft
     var filled: Bool? = nil
 
@@ -209,7 +283,7 @@ struct PhotoDeleteIconTile: View {
         icon: String,
         tint: Color? = nil,
         size: CGFloat = Theme.sizeIcon,
-        cornerRadius: CGFloat = 9,
+        cornerRadius: CGFloat = Theme.radiusSm,
         style: PhotoDeleteIconTileStyle = .soft,
         filled: Bool? = nil
     ) {

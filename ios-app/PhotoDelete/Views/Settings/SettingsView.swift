@@ -28,16 +28,6 @@ enum SettingsChrome {
     static let rowMinHeight: CGFloat = Theme.sizeRow
 }
 
-private extension Color {
-    init(settingsRGB hex: UInt32) {
-        self.init(
-            red: Double((hex >> 16) & 0xFF) / 255,
-            green: Double((hex >> 8) & 0xFF) / 255,
-            blue: Double(hex & 0xFF) / 255
-        )
-    }
-}
-
 private struct SettingsHairline: View {
     var body: some View {
         SettingsChrome.divider
@@ -64,11 +54,6 @@ extension View {
                 .fill(SettingsChrome.surface)
         )
         .clipShape(RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous))
-    }
-
-    func settingsSectionHeading() -> some View {
-        font(.title2.weight(.bold))
-            .foregroundStyle(SettingsChrome.ink)
     }
 
     func settingsRowTitle() -> some View {
@@ -223,11 +208,7 @@ struct SettingsView: View {
     // MARK: - 关于与支持
     private var aboutSection: some View {
         VStack(spacing: 16) {
-            HStack {
-                Text(L10n.string("About and Support"))
-                    .settingsSectionHeading()
-                Spacer()
-            }
+            PhotoDeleteSectionHeader(title: L10n.string("About and Support"))
 
             VStack(spacing: 0) {
                 SettingRow(
@@ -265,11 +246,7 @@ struct SettingsView: View {
     // MARK: - 偏好设置
     private var preferencesSection: some View {
         VStack(spacing: 16) {
-            HStack {
-                Text(L10n.string("Preferences"))
-                    .settingsSectionHeading()
-                Spacer()
-            }
+            PhotoDeleteSectionHeader(title: L10n.string("Preferences"))
 
             VStack(spacing: 0) {
                 SettingRow(
@@ -309,11 +286,7 @@ struct SettingsView: View {
     // MARK: - 数据与权限
     private var dataPermissionsSection: some View {
         VStack(spacing: 16) {
-            HStack {
-                Text(L10n.string("Data & Permissions"))
-                    .settingsSectionHeading()
-                Spacer()
-            }
+            PhotoDeleteSectionHeader(title: L10n.string("Data & Permissions"))
 
             VStack(spacing: 0) {
                 SettingRow(
@@ -851,8 +824,7 @@ struct GestureSettingsView: View {
 
     private var reviewSortOrderSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("Browsing Order"))
-                .settingsSectionHeading()
+            PhotoDeleteSectionHeader(title: L10n.string("Browsing Order"))
 
             ReviewSortOrderSettingRow(selectedValue: $reviewSortOrderValue)
                 .settingsGroupedCard()
@@ -861,8 +833,7 @@ struct GestureSettingsView: View {
 
     private var randomReviewSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("Random Browse"))
-                .settingsSectionHeading()
+            PhotoDeleteSectionHeader(title: L10n.string("Random Browse"))
 
             VStack(spacing: 0) {
                 RandomReviewBatchSizeSettingRow(selectedValue: $randomReviewBatchSizeValue)
@@ -881,8 +852,7 @@ struct GestureSettingsView: View {
 
     private var mediaPlaybackSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.string("Playback"))
-                .settingsSectionHeading()
+            PhotoDeleteSectionHeader(title: L10n.string("Playback"))
 
             VStack(spacing: 0) {
                 SettingToggleRow(
@@ -936,8 +906,7 @@ private struct LanguageSettingsView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(L10n.string("Display Language"))
-                                .settingsSectionHeading()
+                            PhotoDeleteSectionHeader(title: L10n.string("Display Language"))
 
                             Text(L10n.string("By default, OnePhoto follows your iPhone language. You can also pin a display language here."))
                                 .font(.body)
@@ -1218,7 +1187,7 @@ struct PrivacyInfoRow: View {
                 .foregroundColor(Theme.accent)
                 .frame(width: 34, height: 34)
                 .background(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                         .fill(Theme.elevatedSurface)
                 )
 

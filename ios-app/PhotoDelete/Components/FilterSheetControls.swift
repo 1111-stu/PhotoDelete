@@ -10,10 +10,9 @@
 import SwiftUI
 
 private enum FilterSheetChrome {
-    /// 外轨道圆角
-    static let trackRadius: CGFloat = 14
-    /// 内滑块圆角（略小于轨道，给 3pt 内边留呼吸）
-    static let thumbRadius: CGFloat = 11
+    /// 外轨道：radiusMd；内滑块：radiusSm（配合 3pt padding 形成明确内缩）
+    static let trackRadius: CGFloat = Theme.radiusMd
+    static let thumbRadius: CGFloat = Theme.radiusSm
 }
 
 // MARK: - Pane
@@ -141,10 +140,10 @@ private struct FilterGlassSegmentTrack<Value: Hashable>: View {
         .padding(3)
         .background {
             trackShape
-                .fill(Color.white.opacity(0.06))
+                .fill(Theme.surface)
                 .overlay {
                     trackShape
-                        .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
+                        .stroke(Theme.hairline, lineWidth: 0.5)
                 }
         }
     }
@@ -188,11 +187,14 @@ struct FilterGlassChoiceGrid<Value: Hashable>: View {
                         .padding(.horizontal, 10)
                         .background {
                             RoundedRectangle(cornerRadius: FilterSheetChrome.thumbRadius, style: .continuous)
-                                .fill(Color.white.opacity(isSelected ? 0.10 : 0.045))
+                                .fill(isSelected ? Theme.elevatedSurface : Theme.surface)
                                 .overlay {
+                                    // 选中态保留白高光描边语言（见文件头）；未选中用 hairline
                                     RoundedRectangle(cornerRadius: FilterSheetChrome.thumbRadius, style: .continuous)
                                         .stroke(
-                                            Color.white.opacity(isSelected ? 0.34 : 0.08),
+                                            isSelected
+                                                ? Color.white.opacity(0.34)
+                                                : Theme.hairline,
                                             lineWidth: isSelected ? 1 : 0.5
                                         )
                                 }
@@ -221,6 +223,26 @@ struct FilterSheetSection<Content: View>: View {
     }
 }
 
+// MARK: - Toolbar (Reset / Done)
+
+enum FilterSheetToolbar {
+    /// 重置：安静次级；禁用时 tertiary。
+    @ViewBuilder
+    static func resetButton(isDefault: Bool, action: @escaping () -> Void) -> some View {
+        Button(L10n.string("Reset"), action: action)
+            .disabled(isDefault)
+            .foregroundStyle(isDefault ? Theme.tertiaryText : Theme.secondaryText)
+    }
+
+    /// 完成：琥珀主操作（导航 tint 语义）。
+    @ViewBuilder
+    static func doneButton(action: @escaping () -> Void) -> some View {
+        Button(L10n.string("Done"), action: action)
+            .fontWeight(.semibold)
+            .foregroundStyle(Theme.accent)
+    }
+}
+
 // MARK: - Glass thumb
 
 private struct FilterGlassThumb: View {
@@ -236,8 +258,9 @@ private struct FilterGlassThumb: View {
                 }
         } else {
             shape
-                .fill(.ultraThinMaterial)
+                .fill(Theme.elevatedSurface)
                 .overlay {
+                    // 选中滑块白高光（与 iOS 26 glass 描边同语言）
                     shape.fill(Color.white.opacity(0.10))
                 }
                 .overlay {

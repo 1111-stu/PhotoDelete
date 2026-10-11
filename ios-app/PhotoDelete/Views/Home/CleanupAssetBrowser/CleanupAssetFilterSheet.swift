@@ -48,23 +48,15 @@ struct CleanupAssetFilterSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(L10n.string("Reset")) {
+                    FilterSheetToolbar.resetButton(isDefault: query == defaultQuery) {
                         query = defaultQuery
                     }
-                    .disabled(query == defaultQuery)
-                    .foregroundStyle(
-                        query == defaultQuery
-                            ? Theme.tertiaryText
-                            : Theme.secondaryText
-                    )
                     .accessibilityIdentifier("cleanup-filter-reset")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(L10n.string("Done")) {
+                    FilterSheetToolbar.doneButton {
                         dismiss()
                     }
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Theme.accent)
                     .accessibilityIdentifier("cleanup-filter-done")
                 }
             }

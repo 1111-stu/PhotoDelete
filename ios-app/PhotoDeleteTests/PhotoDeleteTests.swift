@@ -2743,6 +2743,34 @@ struct PhotoDeleteTests {
         #expect(groups.isEmpty)
     }
 
+    @Test func similarPhotoGroupingLooserMatchAcceptsWiderGaps() async throws {
+        let date = Date(timeIntervalSince1970: 1_000)
+        let groups = DataManager.similarPhotoIdentifierGroups(
+            from: [
+                similarFingerprint("a", date: date),
+                similarFingerprint("b", date: date.addingTimeInterval(8)),
+                similarFingerprint("c", date: date.addingTimeInterval(16))
+            ],
+            matchProfile: .looser
+        )
+
+        #expect(groups == [["a", "b", "c"]])
+    }
+
+    @Test func similarPhotoGroupingStricterMatchRejectsDefaultGap() async throws {
+        let date = Date(timeIntervalSince1970: 1_000)
+        let groups = DataManager.similarPhotoIdentifierGroups(
+            from: [
+                similarFingerprint("a", date: date),
+                similarFingerprint("b", date: date.addingTimeInterval(3)),
+                similarFingerprint("c", date: date.addingTimeInterval(6))
+            ],
+            matchProfile: .stricter
+        )
+
+        #expect(groups.isEmpty)
+    }
+
     @Test func similarPhotoGroupingRejectsSmallDimensionDrift() async throws {
         let date = Date(timeIntervalSince1970: 1_000)
         let groups = DataManager.similarPhotoIdentifierGroups(from: [

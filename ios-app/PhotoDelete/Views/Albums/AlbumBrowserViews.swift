@@ -189,56 +189,57 @@ enum AlbumBrowserGroupingBuilder {
 
 struct AlbumDisplayStyleSheet: View {
     @Binding var style: AlbumDisplayStyle
-    @Environment(\.dismiss) private var dismiss
+
+    /// 标题栏 + 一排三卡；内容极少，固定小高度，不给 medium/large。
+    private static let sheetHeight: CGFloat = 248
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    HStack(spacing: 10) {
-                        ForEach(AlbumDisplayStyle.allCases) { item in
-                            styleCard(item)
-                        }
-                    }
+            HStack(spacing: 10) {
+                ForEach(AlbumDisplayStyle.allCases) { item in
+                    styleCard(item)
                 }
-                .padding(20)
             }
+            .padding(.horizontal, Theme.space5)
+            .padding(.top, 12)
+            .padding(.bottom, Theme.space5)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(PhotoDeleteScreenBackground())
             .navigationTitle(L10n.string("Display"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.body.weight(.semibold))
-                    }
-                    .accessibilityLabel(L10n.string("Close"))
-                }
-            }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.height(Self.sheetHeight)])
+        .presentationDragIndicator(.visible)
     }
 
     private func styleCard(_ item: AlbumDisplayStyle) -> some View {
         let isSelected = style == item
+        let cardShape = RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
         return Button {
+            HapticManager.impact(.light)
             style = item
         } label: {
             VStack(spacing: 8) {
                 Image(systemName: item.icon)
                     .font(.title3.weight(.semibold))
                 Text(item.title)
-                    .font(.subheadline.weight(.medium))
+                    .font(.subheadline.weight(.semibold))
             }
             .frame(maxWidth: .infinity)
             .frame(minHeight: 84)
-            .foregroundStyle(isSelected ? Theme.accent : Theme.primaryText)
-            .background(
-            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                    .fill(isSelected ? Theme.accent.opacity(0.16) : Theme.surface)
-            )
+            // 选中态对齐 FilterGlassChoiceGrid：白字 + elevated + 白高光描边，不用琥珀铺底。
+            .foregroundStyle(isSelected ? Theme.primaryText : Theme.secondaryText)
+            .background {
+                cardShape
+                    .fill(isSelected ? Theme.elevatedSurface : Theme.surface)
+                    .overlay {
+                        cardShape
+                            .stroke(
+                                isSelected ? Color.white.opacity(0.34) : Theme.hairline,
+                                lineWidth: isSelected ? 1 : 0.5
+                            )
+                    }
+            }
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
@@ -345,7 +346,7 @@ struct AlbumActionMenu: View {
         }
         .padding(6)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                 .fill(Theme.elevatedSurface)
         )
         .shadow(color: .black.opacity(0.45), radius: 22, x: 0, y: 12)
@@ -383,20 +384,20 @@ struct AlbumCoverTile: View {
         VStack(spacing: 8) {
             ZStack(alignment: .bottomTrailing) {
                 if isDropSlot {
-                    AlbumDropSlot(cornerRadius: isCompact ? 14 : 18)
+                    AlbumDropSlot(cornerRadius: isCompact ? Theme.radiusSm : Theme.radiusMd)
                         .aspectRatio(1, contentMode: .fit)
                 } else {
                     AlbumAssetThumbnail(
                         assetID: thumbnailAssetID,
                         photoLibraryManager: photoLibraryManager,
-                        cornerRadius: isCompact ? 14 : 18,
+                        cornerRadius: isCompact ? Theme.radiusSm : Theme.radiusMd,
                         emptyIcon: "photo.on.rectangle.angled"
                     )
                     .aspectRatio(1, contentMode: .fit)
 
-                    Text(photosCount.formatted(.number.grouping(.automatic)))
+                    Text(PhotoDeleteCountFormat.plain(photosCount))
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.primaryText)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(.black.opacity(0.55), in: Capsule(style: .continuous))
@@ -421,7 +422,7 @@ struct AlbumCoverTile: View {
 struct AlbumAssetThumbnail: View {
     let assetID: String?
     let photoLibraryManager: PhotoLibraryManager
-    var cornerRadius: CGFloat = 12
+    var cornerRadius: CGFloat = Theme.radiusSm
     var emptyIcon: String = "photo"
 
     @State private var image: UIImage?
@@ -551,7 +552,7 @@ struct AlbumPhotoBrowserView: View {
                                         AlbumAssetThumbnail(
                                             assetID: asset.localIdentifier,
                                             photoLibraryManager: dataManager.photoLibraryManager,
-                                            cornerRadius: 10
+                                            cornerRadius: Theme.radiusSm
                                         )
                                         .aspectRatio(1, contentMode: .fit)
                                     }
@@ -690,7 +691,7 @@ struct AlbumBrowserFilterSheet: View {
         NavigationStack {
             VStack(spacing: 18) {
                 FilterSheetPanePicker(selection: $pane)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.top, 8)
 
                 if isDefault {
@@ -698,7 +699,7 @@ struct AlbumBrowserFilterSheet: View {
                         .font(.footnote)
                         .foregroundStyle(Theme.secondaryText)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, Theme.space5)
                 }
 
                 ScrollView {
@@ -712,7 +713,7 @@ struct AlbumBrowserFilterSheet: View {
                             displayPane
                         }
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, Theme.space5)
                     .padding(.bottom, 20)
                     .animation(.easeInOut(duration: 0.18), value: pane)
                 }
@@ -722,21 +723,17 @@ struct AlbumBrowserFilterSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(L10n.string("Reset")) {
+                    FilterSheetToolbar.resetButton(isDefault: isDefault) {
                         contentFilter = .all
                         grouping = .day
                         density = .standard
                         sort = .newest
                     }
-                    .disabled(isDefault)
-                    .foregroundStyle(isDefault ? Theme.tertiaryText : Theme.secondaryText)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(L10n.string("Done")) {
+                    FilterSheetToolbar.doneButton {
                         dismiss()
                     }
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Theme.accent)
                 }
             }
         }
@@ -755,7 +752,7 @@ struct AlbumBrowserFilterSheet: View {
                     FilterSegmentOption(
                         value: item,
                         title: item.title,
-                        subtitle: count(for: item).formatted(.number.grouping(.automatic))
+                        subtitle: PhotoDeleteCountFormat.plain(count(for: item))
                     )
                 },
                 selection: $contentFilter

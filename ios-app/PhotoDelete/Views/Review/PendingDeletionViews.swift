@@ -31,7 +31,9 @@ struct PendingDeletionView: View {
             secondarySystemImage: "arrow.uturn.backward",
             primarySystemImage: "arrow.right",
             primaryRequiresSelection: false,
-            showsModalClose: true
+            showsModalClose: true,
+            // 整理中打开：出口是「继续整理」，移出降级为中性次操作。
+            usesStackedContinueFooter: true
         )
         .onAppear {
             guard !hasInitializedSelection else { return }
@@ -74,7 +76,8 @@ struct TrashBinView: View {
             primaryTitle: L10n.string("Delete Selected"),
             secondarySystemImage: "arrow.uturn.backward",
             primarySystemImage: "trash.fill",
-            primaryRequiresSelection: true
+            primaryRequiresSelection: true,
+            primaryIsDestructive: true
         )
         .onAppear {
             guard !hasInitializedSelection else { return }
@@ -108,6 +111,10 @@ private struct DeletionQueueScreen: View {
     let primarySystemImage: String
     let primaryRequiresSelection: Bool
     var showsModalClose: Bool = false
+    /// 垃圾桶「删除所选」等确认删除 CTA 用 destructive；「继续整理」等用琥珀 primary。
+    var primaryIsDestructive: Bool = false
+    /// 整理中待删除页：满宽主按钮 + 移出降级为中性文字；首页垃圾桶仍用左右双钮。
+    var usesStackedContinueFooter: Bool = false
 
     private let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
 
@@ -129,7 +136,7 @@ private struct DeletionQueueScreen: View {
                                 else { selectedIDs = Set(assets.map(\.localIdentifier)) }
                             }
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(Theme.accent)
+                            .foregroundColor(Theme.secondaryText)
                             .frame(minHeight: 44)
                         }
 
@@ -151,33 +158,97 @@ private struct DeletionQueueScreen: View {
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
             if showsModalClose {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.string("Close")) { dismiss() }
+                if #available(iOS 26.0, *) {
+                    ToolbarItem(placement: .topBarLeading) {
+                        modalCloseButton
+                    }
+                    .sharedBackgroundVisibility(.hidden)
+                } else {
+                    ToolbarItem(placement: .topBarLeading) {
+                        modalCloseButton
+                    }
                 }
             }
         }
         .safeAreaInset(edge: .bottom) {
-            HStack(spacing: 10) {
-                Button {
-                    for asset in assets where selectedIDs.contains(asset.localIdentifier) { onRemove(asset) }
-                } label: {
-                    Label(secondaryTitle, systemImage: secondarySystemImage)
-                        .frame(maxWidth: .infinity)
+            Group {
+                if usesStackedContinueFooter {
+                    stackedContinueFooter
+                } else {
+                    dualActionFooter
                 }
-                .buttonStyle(CleanupReviewSecondaryButtonStyle())
-                .disabled(selectedIDs.isEmpty)
-
-                Button(action: onPrimaryAction) {
-                    Label(primaryTitle, systemImage: primarySystemImage)
-                        .frame(maxWidth: .infinity)
-                }
-                .photoDeletePrimaryButton()
-                .disabled(primaryRequiresSelection && selectedIDs.isEmpty)
             }
             .modifier(CleanupReviewFooterStyle())
         }
         .sheet(item: $previewAsset) { item in
             CandidatePhotoPreviewView(asset: item.asset, photoLibraryManager: dataManager.photoLibraryManager)
+        }
+    }
+
+    private var modalCloseButton: some View {
+        PhotoDeleteCircleIconButton(
+            systemName: "xmark",
+            accessibilityLabel: L10n.string("Close"),
+            action: { dismiss() }
+        )
+    }
+
+    /// 整理中待删除：唯一主操作是离开；有选中时才露出中性「移出」。
+    private var stackedContinueFooter: some View {
+        VStack(spacing: 10) {
+            if !selectedIDs.isEmpty {
+                Button(action: removeSelected) {
+                    Text("\(secondaryTitle) · \(selectedIDs.count)")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Theme.secondaryText)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: Theme.sizeTap)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("\(secondaryTitle), \(selectedIDs.count)")
+            }
+
+            Button(action: onPrimaryAction) {
+                Text(primaryTitle)
+                    .frame(maxWidth: .infinity)
+            }
+            .photoDeletePrimaryButton()
+        }
+    }
+
+    /// 首页垃圾桶：移出 vs 删除所选，双行动并排。
+    private var dualActionFooter: some View {
+        HStack(spacing: 10) {
+            Button(action: removeSelected) {
+                Label(secondaryTitle, systemImage: secondarySystemImage)
+                    .frame(maxWidth: .infinity)
+            }
+            .photoDeleteSecondaryButton()
+            .disabled(selectedIDs.isEmpty)
+
+            Group {
+                if primaryIsDestructive {
+                    Button(action: onPrimaryAction) {
+                        Label(primaryTitle, systemImage: primarySystemImage)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .photoDeleteDestructiveButton()
+                } else {
+                    Button(action: onPrimaryAction) {
+                        Label(primaryTitle, systemImage: primarySystemImage)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .photoDeletePrimaryButton()
+                }
+            }
+            .disabled(primaryRequiresSelection && selectedIDs.isEmpty)
+        }
+    }
+
+    private func removeSelected() {
+        for asset in assets where selectedIDs.contains(asset.localIdentifier) {
+            onRemove(asset)
         }
     }
 
@@ -254,25 +325,6 @@ struct CleanupReviewAssetCell: View {
             .accessibilityAddTraits(isSelected ? .isSelected : [])
             .accessibilityIdentifier("cleanup-selection-\(asset.localIdentifier)")
         }
-    }
-}
-
-struct CleanupReviewSecondaryButtonStyle: ButtonStyle {
-    @Environment(\.isEnabled) private var isEnabled
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.body.weight(.semibold))
-            .foregroundStyle(Theme.secondaryText)
-            .frame(minHeight: 52)
-            .background(configuration.isPressed ? Theme.surface : Theme.elevatedSurface)
-            .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                    .stroke(Theme.hairline, lineWidth: 1)
-            }
-            .opacity(isEnabled ? 1 : 0.42)
-            .animation(.easeOut(duration: 0.16), value: configuration.isPressed)
     }
 }
 

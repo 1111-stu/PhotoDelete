@@ -1395,16 +1395,12 @@ private struct AlbumNameDialog: View {
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 36)
 
-                Button(action: onCancel) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Theme.secondaryText)
-                        .frame(width: 30, height: 30)
-                        .background(Circle().fill(Theme.elevatedSurface))
-                }
-                .buttonStyle(.plain)
+                PhotoDeleteCircleIconButton(
+                    systemName: "xmark",
+                    accessibilityLabel: L10n.string("Cancel"),
+                    action: onCancel
+                )
                 .disabled(isBusy)
-                .accessibilityLabel(Text(L10n.string("Cancel")))
             }
 
             Image(systemName: iconSystemName)

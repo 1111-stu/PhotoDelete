@@ -73,9 +73,9 @@
 | 渐变卡大数字 | 31 / 700（单位 14 / 600 @72%） | `RollingNumberText` |
 | 渐变卡价值 | 标签 11 @72% + 值 18 / 700 | `pendingReviewCard` |
 | Band 段 | 标签 11.5 medium 次级 + chevron 8；计数 23 / 700 白；可释放 10.5 次级 | `periodBandSegment` |
-| 列表行名称 | 15 / 600 白 | `cleanupRow` / `toolRow` |
+| 列表行名称 | 15 / 600 白 | `PhotoDeleteListRow` |
 | 列表行数值 | 15 / 600 `secondaryText` | 同上 |
-| 行副标题 | 11.5 `secondaryText` | `toolRow` |
+| 行副标题 | 11.5 `secondaryText` | `PhotoDeleteListRow` subtitle |
 
 **数字格式（硬约束）**：一律 `PhotoDeleteCountFormat.plain(_:)`（= `String(count)`，无千分位、不受 locale 影响）；大数字加 `.monospacedDigit()`。金额/容量走 `CleanupStatsFormatter.space(_:)`（已 `.grouping(.never)`）。
 
@@ -103,7 +103,7 @@
 
 - 结构：`Theme.sizeIcon`(32) 图标 tile（白 7% 底、圆角 `radiusSm`、图标 17 `secondaryText`）+ 名称 15/600 白 + 右侧值 15/600 次级 + chevron 12 弱色。
 - 内边距 13/18；行间 `insetHairline`；行为 `Button(.plain)`。
-- 实现：`cleanupRow` / `toolRow`。
+- 实现：`PhotoDeleteListRow`（首页 `specialCleanupSection` / `toolSection`）。
 
 ### 4.5 顶栏圆形 icon 按钮
 
@@ -114,6 +114,7 @@
 - 首页右上：`archivebox` → 待删除暂存（`TrashBinView`），可挂数量角标。
 - 相册页右上：`square.grid.2x2` → 显示方式；搜索行右侧 `plus` → 新建相册（同一组件）。
 - 专项清理 / 相册浏览右上：扁筛选 `line.3.horizontal.decrease`（`PhotoDeleteFilterToolbarButton`）；有筛选条件时右上角挂琥珀小圆点，不用 `.circle.fill`。ToolbarItem 在 iOS 26+ 加 `.sharedBackgroundVisibility(.hidden)`，避免系统玻璃再套一层。
+- **相似与重复页**：正文不再常驻「全部 / 连拍」分段；筛选进右上扁钮 + sheet（`SimilarPhotosFilterSheet`，复用 `FilterSheetControls` / `FilterSheetToolbar`）。Sheet 段序：范围（全部相似组 | 连拍）→ 时间（不限 | 近 30 天 | 近一年）→ 匹配松紧（更严 | 默认 | 更松，离散三段，无连续滑杆）。默认 = 全部相似组 + 不限 + 默认；非默认时琥珀小圆点。匹配松紧映射现有时序/尺寸容差 knobs（`SimilarPhotoMatchProfile`），不另造模型。
 - **勿与整理页 chrome 混用**：整理页顶/底栏圆钮为 **48 / 20**（`Theme.sizeChrome` / `textSizeLg`）。
 
 ### 4.6 待整理卡入口语义（硬约束）
@@ -175,6 +176,7 @@
 - **顶栏**：居中 `1 / 19`（17/700、monospaced、**无千分位**）；两侧 **48pt**（`Theme.sizeChrome`）圆形按钮 = 液态玻璃（iOS 26 `.glassEffect(.regular, in: .circle)`，老系统回落 `elevatedSurface` 实心圆）：左=返回（白箭头）、右=垃圾桶（**白图标** + 珊瑚红数量角标；>99 显示 99+；角标描边用幕布色）。颜色只承担"数量"语义。
 - **底栏（双珠形态）**：左 = 液态玻璃胶囊（iOS 26 `.glassEffect(.regular, in: .capsule)`；老系统回落 surface 实心胶囊），内四枚**纯图标**工具（`sizeTap` 触区、`textSizeLg` **白色加粗 rounded**）：**详情（info.circle → 半屏「照片详情」）** / 撤销 / 收藏（状态只用形状：`heart` ⇄ `heart.fill`，不用颜色）/ 分享；右 = 独立 **48pt** 琥珀玻璃圆钮（`sizeChrome`；iOS 26 `.glassEffect(.regular.tint(accent))`；老系统琥珀渐变圆）= 完成整理，图标用 **`archivebox`**，高度与玻璃条、顶栏圆钮一致。文字标签不进底栏，语义靠 VoiceOver 标签；**颜色完全退出底栏**（唯一有色的是琥珀终点按钮）。底栏安全区用幕布色自上而下渐显，避免硬切照片卡。
 - **照片详情弹窗**：medium 固定档、surface 底、行=左灰标签+右白数值+hairline；内容：拍摄时间 / 位置 / 文件大小 / 分辨率（无千分位）/ 所属相册——**空数据的行自动隐藏**。
+- **整理中「待删除」页**（`PendingDeletionView`）：左上白圆 X（非文案「关闭」）；底栏**满宽琥珀「继续整理」**为唯一主操作；有选中时上方再露中性「移出待删除 · N」。首页垃圾桶（`TrashBinView`）仍为左右双钮（移出 / 删除所选）。
 - **手势（保持现状，文案改真）**：左滑=下一张、右滑=上一张、上滑=加入待删除、下滑=加入相册；不做"左滑删除"。**待办**：引导页 / 首页 intro / 手势设置页的旧文案（"左滑删除、右滑保留"）需改成真实手势——注意 UI 测试断言了引导页那句；并为"上滑=删除"补首见 hint pill。
 - **照片卡**：卡随照片高（收敛上下 letterbox）——原型已做，**SwiftUI 待落地**。
 - 底栏不显示待删数字：唯一真相 = 顶栏垃圾桶角标。
@@ -185,6 +187,7 @@
 
 ### 6.4 相册页（2026-10-09 排序交互重做）
 
+- **显示方式 sheet**（`AlbumDisplayStyleSheet`）：固定小高度（~248），点选即生效、靠拖柄下滑关闭，**不放关闭钮**；三卡选中态对齐筛选格——`elevatedSurface` + 白 34% 描边 + 白字，**不用琥珀铺底**。
 - **三种展示方式**（紧凑 / 封面 / 列表）**共用一套长按拖拽排序**：长按 0.45s 抬起 → 拖动换位 → 松手落位。**不再有编辑模式**：显示方式 sheet 的「调整顺序」按钮、列表拖动把手、页头提示卡（`AlbumSwipeHintRow` + `hasDismissedAlbumSwipeHintKey`）一并下线。
 - **站位（空位）**：被拿起的那一格留在原位变成空槽，与封面同尺寸同圆角。画法为 **2.5pt 虚线、白 34%、虚实间隔 11/9**（`AlbumDropSlot`，token `Theme.dropSlot*`）。中性色是有意的——琥珀只留给「会执行的行动」，虚线本身已表达「这里可以插入」，同时与空相册的深色封面区分开（视觉基准 `designs/albums-reorder-prototype.html`）。
 - **让位与落位**：越过其他项中心时其余项 0.22s 平移让位（每次换位一次 light 触觉），松手后写回 `saveCustomAlbumOrder`；拖动期间冻结列表刷新，拖到滚动区上下边缘 70pt 内自动滚动。

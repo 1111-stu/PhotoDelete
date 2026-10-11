@@ -280,10 +280,10 @@ struct SidebarActionButton: View {
             .padding(.horizontal, 13)
             .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                     .fill(Theme.surface)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                             .stroke(color.opacity(0.32), lineWidth: 1)
                     )
             )

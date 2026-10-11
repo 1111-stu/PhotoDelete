@@ -184,6 +184,7 @@ struct BatchConfirmView: View {
                     Button(action: cancelOperations) {
                         Label(L10n.string("Back"), systemImage: "chevron.left")
                     }
+                    .foregroundStyle(Theme.secondaryText)
                     .disabled(isProcessing)
                     .accessibilityIdentifier("cleanup-back")
                 }
@@ -222,22 +223,22 @@ struct BatchConfirmView: View {
     private var confirmButton: some View {
         Button(action: executeBatchOperations) {
             HStack(spacing: 8) {
-                if isProcessing { ProgressView().tint(Theme.onAccent) }
+                if isProcessing { ProgressView().tint(Theme.destructive) }
                 Text(isProcessing ? L10n.string("Running...") : L10n.string("Confirm Cleanup"))
             }
             .frame(maxWidth: .infinity, minHeight: 22)
         }
-        .photoDeletePrimaryButton()
+        .photoDeleteDestructiveButton()
         .disabled(isProcessing || !hasSelectedOperations)
         .accessibilityIdentifier("cleanup-confirm")
     }
 
     private func cancelPendingButton(hasVisiblePendingOperations: Bool) -> some View {
-        Button(role: .destructive, action: cancelAllPendingOperations) {
+        Button(action: cancelAllPendingOperations) {
             Text(deleteOnly ? L10n.string("Cancel Pending Deletions") : L10n.string("Cancel All Actions"))
                 .frame(maxWidth: .infinity, minHeight: 22)
         }
-        .buttonStyle(CleanupReviewSecondaryButtonStyle())
+        .photoDeleteSecondaryButton()
         .disabled(isProcessing || !hasVisiblePendingOperations)
         .accessibilityIdentifier("cleanup-cancel-all")
     }
@@ -589,10 +590,10 @@ private struct BatchCleanupCompletionView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 13)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                 .fill(Theme.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                         .stroke(Theme.cardStroke, lineWidth: 1)
                 )
         )
@@ -634,20 +635,9 @@ private struct BatchCleanupCompletionView: View {
             if AppConstants.achievementsEnabled {
                 Button(action: onViewAchievements) {
                     Label(L10n.string("View Achievements"), systemImage: "seal.fill")
-                        .font(.system(size: 15, weight: .semibold))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.plain)
-                .foregroundColor(Theme.primaryText)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Theme.surface)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(Theme.cardStroke, lineWidth: 1)
-                        )
-                )
+                .photoDeleteSecondaryButton()
             }
 
             Button(action: onContinue) {
@@ -693,10 +683,10 @@ private struct BatchCleanupCompletionView: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                 .fill(Theme.elevatedSurface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                         .stroke(Theme.cardStroke, lineWidth: 1)
                 )
         )
@@ -708,7 +698,7 @@ private struct BatchCleanupCompletionView: View {
                 icon: icon,
                 tint: tint,
                 size: 34,
-                cornerRadius: 10
+                cornerRadius: Theme.radiusSm
             )
 
             VStack(alignment: .leading, spacing: 3) {
@@ -741,7 +731,7 @@ private struct BatchCleanupCompletionView: View {
                     icon: progress.achievement.systemImage,
                     tint: progress.achievement.tint.color,
                     size: 34,
-                    cornerRadius: 10
+                    cornerRadius: Theme.radiusSm
                 )
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -1976,7 +1966,7 @@ private struct PhotoAssetDetailsPanel: View {
 
     private func detailRow(label: String, value: String, icon: String) -> some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(icon: icon, tint: Theme.accent, size: 32, cornerRadius: 10)
+            PhotoDeleteIconTile(icon: icon, tint: Theme.accent, size: 32, cornerRadius: Theme.radiusSm)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(label)

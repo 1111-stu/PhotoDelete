@@ -82,7 +82,7 @@ struct ReviewAlbumFilingSheet: View {
         .padding(.horizontal, 14)
         .frame(height: 44)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                 .fill(Theme.elevatedSurface)
         )
         .accessibilityElement(children: .contain)
@@ -211,7 +211,7 @@ private struct FilingAlbumThumbnail: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                 .fill(Theme.elevatedSurface)
 
             if let image {
@@ -221,7 +221,7 @@ private struct FilingAlbumThumbnail: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: size, height: size)
                     .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous))
                     .transaction { $0.animation = nil }
             } else {
                 Image(systemName: emptyIcon)

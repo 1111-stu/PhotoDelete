@@ -655,38 +655,37 @@ struct HomeView: View {
             )
 
             VStack(spacing: 0) {
-                cleanupRow(
+                PhotoDeleteListRow(
                     icon: "rectangle.on.rectangle",
                     title: L10n.string("Similar"),
                     value: cleanupQueue(for: .similarPhotos)?.formattedSpace,
-                    identifier: "home-cleanup-similar"
+                    accessibilityIdentifier: "home-cleanup-similar"
                 ) {
                     navigationPath.append(SwipeViewDestination.cleanup(.similarPhotos))
                 }
                 insetHairline
-                cleanupRow(
+                PhotoDeleteListRow(
                     icon: "video",
                     title: L10n.string("Videos"),
                     value: cleanupQueue(for: .videos)?.formattedSpace,
-                    identifier: "home-cleanup-videos"
+                    accessibilityIdentifier: "home-cleanup-videos"
                 ) {
                     navigationPath.append(SwipeViewDestination.assetBrowser(.videos))
                 }
                 insetHairline
-                cleanupRow(
+                PhotoDeleteListRow(
                     icon: "iphone",
                     title: L10n.string("Screenshots"),
-                    value: nil,
-                    identifier: "home-cleanup-screenshots"
+                    accessibilityIdentifier: "home-cleanup-screenshots"
                 ) {
                     navigationPath.append(SwipeViewDestination.assetBrowser(.screenshots))
                 }
                 insetHairline
-                cleanupRow(
+                PhotoDeleteListRow(
                     icon: "record.circle",
                     title: L10n.string("Screen Recordings"),
                     value: screenRecordingsQueueValue,
-                    identifier: "home-cleanup-screen-recordings"
+                    accessibilityIdentifier: "home-cleanup-screen-recordings"
                 ) {
                     navigationPath.append(SwipeViewDestination.assetBrowser(.screenRecordings))
                 }
@@ -702,110 +701,34 @@ struct HomeView: View {
             .padding(.horizontal, 18)
     }
 
-    private func cleanupRow(
-        icon: String,
-        title: String,
-        value: String?,
-        identifier: String,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                Image(systemName: icon)
-                    .font(.system(size: 17, weight: .regular))
-                    .foregroundColor(Theme.secondaryText)
-                    .frame(width: 32, height: 32)
-                    .background(
-                        Color.white.opacity(0.07),
-                        in: RoundedRectangle(cornerRadius: 11, style: .continuous)
-                    )
-
-                Text(title)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(Theme.primaryText)
-
-                Spacer(minLength: 8)
-
-                if let value {
-                    Text(value)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(Theme.secondaryText)
-                }
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(Theme.tertiaryText)
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 13)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(identifier)
-    }
-
     private var toolSection: some View {
         VStack(alignment: .leading, spacing: 9) {
             PhotoDeleteSectionHeader(title: L10n.string("Tools"))
 
             VStack(spacing: 0) {
                 if AppConstants.isImageCompressionVisible {
-                    toolRow(
+                    PhotoDeleteListRow(
                         title: L10n.string("Image Compression"),
-                        count: cleanupQueue(for: .imageCompression)?.assetCount,
-                        identifier: "home-tool-image-compression"
+                        subtitle: L10n.string("Smaller, not deleted"),
+                        value: countText(cleanupQueue(for: .imageCompression)?.assetCount),
+                        accessibilityIdentifier: "home-tool-image-compression"
                     ) {
                         navigationPath.append(SwipeViewDestination.cleanup(.imageCompression))
                     }
                     insetHairline
                 }
 
-                toolRow(
+                PhotoDeleteListRow(
                     title: L10n.string("Video Compression"),
-                    count: cleanupQueue(for: .videoCompression)?.assetCount,
-                    identifier: "home-tool-video-compression"
+                    subtitle: L10n.string("Smaller, not deleted"),
+                    value: countText(cleanupQueue(for: .videoCompression)?.assetCount),
+                    accessibilityIdentifier: "home-tool-video-compression"
                 ) {
                     navigationPath.append(SwipeViewDestination.cleanup(.videoCompression))
                 }
             }
             .photoDeleteCard(radius: Theme.radiusLg)
         }
-    }
-
-    private func toolRow(
-        title: String,
-        count: Int?,
-        identifier: String,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(Theme.primaryText)
-                    Text(L10n.string("Smaller, not deleted"))
-                        .font(.system(size: 11.5, weight: .regular))
-                        .foregroundColor(Theme.secondaryText)
-                }
-
-                Spacer(minLength: 8)
-
-                Text(countText(count))
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(Theme.secondaryText)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(Theme.tertiaryText)
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 13)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(identifier)
     }
 
     private func refreshHomeLibrarySummaries() {
@@ -946,7 +869,8 @@ private struct CoralProgressBar: View {
     }
 }
 
-/// 扇形牌的三张静态渐变占位（对应原型里的森林 / 城市 / 落日三张照片卡）。
+/// 扇形牌的三张静态渐变占位（森林 / 城市冷蓝 / 落日）。
+/// 故意保留的装饰例外色，勿统一进 Theme。
 private enum HomeFanArt {
     static let gradients: [LinearGradient] = [
         LinearGradient(
@@ -1012,6 +936,7 @@ private struct RandomFanDecoration: View {
         let restX = Self.radius * sin(radians)
         let restY = Self.radius * (1 - cos(radians))
 
+        // 9pt：46×62 微缩媒体牌 chrome，低于 radiusSm 以保持扇形比例
         return RoundedRectangle(cornerRadius: 9, style: .continuous)
             .fill(HomeFanArt.gradients[index % HomeFanArt.gradients.count])
             .frame(width: 46, height: 62)
@@ -1038,13 +963,13 @@ struct ScanningSwipeGlyph: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                 .fill(Theme.elevatedSurface)
                 .frame(width: 132, height: 92)
                 .rotationEffect(.degrees(animate ? 5 : 1))
                 .offset(x: animate ? 20 : 14, y: -3)
 
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                 .fill(Color.white.opacity(0.9))
                 .frame(width: 132, height: 92)
                 .overlay(

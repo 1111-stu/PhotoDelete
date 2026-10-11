@@ -672,16 +672,11 @@ private struct AdvancedPeriodNavigator: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Button(action: onPrevious) {
-                Label(L10n.string("Previous Period"), systemImage: "chevron.left")
-                    .labelStyle(.iconOnly)
-                    .font(.system(size: 15, weight: .bold))
-                    .frame(width: 38, height: 38)
-                    .background(Circle().fill(Theme.surface))
-                    .photoDeleteMinimumTapTarget()
-            }
-            .buttonStyle(.plain)
-            .foregroundColor(Theme.primaryText)
+            PhotoDeleteCircleIconButton(
+                systemName: "chevron.left",
+                accessibilityLabel: L10n.string("Previous Period"),
+                action: onPrevious
+            )
 
             VStack(spacing: 3) {
                 Text(AdvancedPeriodFormatter.title(for: summary))
@@ -698,17 +693,13 @@ private struct AdvancedPeriodNavigator: View {
             }
             .frame(maxWidth: .infinity)
 
-            Button(action: onNext) {
-                Label(L10n.string("Next Period"), systemImage: "chevron.right")
-                    .labelStyle(.iconOnly)
-                    .font(.system(size: 15, weight: .bold))
-                    .frame(width: 38, height: 38)
-                    .background(Circle().fill(Theme.surface))
-                    .photoDeleteMinimumTapTarget()
-            }
-            .buttonStyle(.plain)
-            .foregroundColor(canGoForward ? Theme.primaryText : Theme.tertiaryText)
+            PhotoDeleteCircleIconButton(
+                systemName: "chevron.right",
+                accessibilityLabel: L10n.string("Next Period"),
+                action: onNext
+            )
             .disabled(!canGoForward)
+            .opacity(canGoForward ? 1 : 0.42)
         }
         .padding(12)
         .photoDeleteCard()
@@ -854,7 +845,7 @@ private struct AdvancedCleanupEntryRow: View {
                 icon: queue.kind.icon,
                 tint: queue.kind.tint,
                 size: 38,
-                cornerRadius: 11
+                cornerRadius: Theme.radiusSm
             )
 
             VStack(alignment: .leading, spacing: 3) {
@@ -2710,7 +2701,7 @@ private struct AdvancedImageCompressionComparisonRow: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                     .fill(Theme.elevatedSurface)
             )
         }
@@ -2793,7 +2784,7 @@ private struct AdvancedImageCompressionHistoryCard: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                                 .fill(Theme.destructive.opacity(0.10))
                         )
                 }
@@ -4477,7 +4468,7 @@ private struct AdvancedVideoCompressionComparisonRow: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                     .fill(Theme.elevatedSurface)
             )
         }
@@ -4585,7 +4576,7 @@ private struct AdvancedVideoCompressionHistoryCard: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                                 .fill(Theme.destructive.opacity(0.10))
                         )
                 }
@@ -4884,7 +4875,8 @@ private struct AdvancedSimilarPhotoGroupsView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var groups: [AdvancedSimilarPhotoGroup] = []
     @State private var selectedAssetIDs: Set<String> = []
-    @State private var selectedFilter: AdvancedCleanupFilter = .all
+    @State private var filterQuery = SimilarPhotosFilterQuery.default
+    @State private var showsFilters = false
     @State private var showBatchConfirm = false
     @State private var previewAsset: AdvancedPreviewAsset?
     @State private var visibleGroupLimit = 24
@@ -4896,7 +4888,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
     }
 
     private func makeGroupSnapshot() -> AdvancedSimilarGroupSnapshot {
-        let filteredGroups = groups.filter { matches(group: $0, filter: selectedFilter) }
+        let filteredGroups = groups.filter { matches(group: $0, query: filterQuery) }
         return AdvancedSimilarGroupSnapshot(
             groups: filteredGroups,
             visibleGroups: VisibleListPagination.visibleItems(filteredGroups, limit: visibleGroupLimit),
@@ -4913,8 +4905,6 @@ private struct AdvancedSimilarPhotoGroupsView: View {
 
             ScrollView {
                 VStack(spacing: 14) {
-                    AdvancedFilterPills(kind: .similarPhotos, selection: $selectedFilter)
-
                     AdvancedAssetListSummaryCard(
                         title: String(format: L10n.string("Found %lld similar groups"), Int64(snapshot.groups.count)),
                         subtitle: String(
@@ -4922,6 +4912,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                             Int64(snapshot.suggestedDeleteCount)
                         ),
                         buttonTitle: selectedAssetIDs.isEmpty ? L10n.string("Select Suggested") : L10n.string("Cancel"),
+                        buttonStyle: selectedAssetIDs.isEmpty ? .accent : .quiet,
                         action: toggleRecommendedSelection
                     )
 
@@ -4935,7 +4926,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                         AdvancedEmptyState(
                             icon: AdvancedCleanupKind.similarPhotos.icon,
                             title: L10n.string("No Results for This Filter"),
-                            subtitle: L10n.string("Switch to All, or check again later.")
+                            subtitle: L10n.string("Try adjusting filters, or check again later.")
                         )
                     } else {
                         LazyVStack(spacing: 10) {
@@ -4983,6 +4974,21 @@ private struct AdvancedSimilarPhotoGroupsView: View {
             }
         }
         .advancedDetailNavigation(title: L10n.string("Similar Photos"))
+        .toolbar {
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    similarFilterButton
+                }
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    similarFilterButton
+                }
+            }
+        }
+        .sheet(isPresented: $showsFilters) {
+            SimilarPhotosFilterSheet(query: $filterQuery)
+        }
         .fullScreenCover(isPresented: $showBatchConfirm, onDismiss: {
             syncSelectionWithPendingDeleteCandidates()
             reloadGroups()
@@ -5001,9 +5007,22 @@ private struct AdvancedSimilarPhotoGroupsView: View {
         .task {
             reloadGroups()
         }
-        .onChange(of: selectedFilter) { _ in
+        .onChange(of: filterQuery.match) { _ in
+            reloadGroups()
+        }
+        .onChange(of: filterQuery.scope) { _ in
             visibleGroupLimit = groupLimitStep
             pruneSelectionToFilteredGroups()
+        }
+        .onChange(of: filterQuery.time) { _ in
+            visibleGroupLimit = groupLimitStep
+            pruneSelectionToFilteredGroups()
+        }
+    }
+
+    private var similarFilterButton: some View {
+        PhotoDeleteFilterToolbarButton(isActive: !filterQuery.isDefault) {
+            showsFilters = true
         }
     }
 
@@ -5050,7 +5069,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
     }
 
     private func reloadGroups() {
-        groups = dataManager.makeSimilarPhotoGroups()
+        groups = dataManager.makeSimilarPhotoGroups(matchProfile: filterQuery.match.matchProfile)
         visibleGroupLimit = groupLimitStep
         pruneSelectionToFilteredGroups()
     }
@@ -5076,20 +5095,14 @@ private struct AdvancedSimilarPhotoGroupsView: View {
         showMoreGroups()
     }
 
-    private func matches(group: AdvancedSimilarPhotoGroup, filter: AdvancedCleanupFilter) -> Bool {
-        switch filter {
-        case .all:
-            return true
-        case .recommended:
-            return group.suggestedDeleteCount > 0
-        case .burst:
-            return isLikelyBurst(group)
-        case .month:
-            guard let representativeDate = group.representativeDate else { return false }
-            return Calendar.current.isDate(representativeDate, equalTo: Date(), toGranularity: .month)
-        case .videos, .photos, .large, .long:
-            return true
+    private func matches(group: AdvancedSimilarPhotoGroup, query: SimilarPhotosFilterQuery) -> Bool {
+        if query.scope == .burst, !isLikelyBurst(group) {
+            return false
         }
+
+        guard let lookback = query.time.lookbackInterval else { return true }
+        guard let newestDate = group.assets.compactMap(\.creationDate).max() else { return false }
+        return newestDate >= Date().addingTimeInterval(-lookback)
     }
 
     private func isLikelyBurst(_ group: AdvancedSimilarPhotoGroup) -> Bool {
@@ -5166,14 +5179,14 @@ private struct AdvancedSimilarPhotoGroupCard: View {
                     AdvancedSimilarPhotoGroupActionButton(
                         title: L10n.string("Preview"),
                         systemImage: "rectangle.stack",
-                        tint: Theme.accent,
+                        style: .quiet,
                         action: onPreviewGroup
                     )
 
                     AdvancedSimilarPhotoGroupActionButton(
                         title: L10n.string("Keep First"),
                         systemImage: "checkmark.circle.fill",
-                        tint: Theme.positive,
+                        style: .accent,
                         action: onSelectRecommended
                     )
                     .accessibilityHint(Text(L10n.string("Select similar photos except the first one; tap again to clear the selection.")))
@@ -5201,8 +5214,8 @@ private struct AdvancedSimilarPhotoGroupCard: View {
                                 .padding(.horizontal, 12)
                                 .frame(height: 66)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 13, style: .continuous)
-                                        .fill(Theme.accent.opacity(0.12))
+                                    RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                                        .fill(Theme.accentSoftFill)
                                 )
                         }
                         .buttonStyle(.plain)
@@ -5230,6 +5243,7 @@ private struct AdvancedAssetListSummaryCard: View {
     let title: String
     let subtitle: String
     let buttonTitle: String
+    var buttonStyle: AdvancedBulkSelectionButton.Style = .accent
     let action: () -> Void
 
     var body: some View {
@@ -5250,7 +5264,7 @@ private struct AdvancedAssetListSummaryCard: View {
 
             Spacer(minLength: 8)
 
-            AdvancedBulkSelectionButton(title: buttonTitle, action: action)
+            AdvancedBulkSelectionButton(title: buttonTitle, style: buttonStyle, action: action)
         }
         .padding(14)
         .photoDeleteCard()
@@ -5258,45 +5272,87 @@ private struct AdvancedAssetListSummaryCard: View {
 }
 
 private struct AdvancedSimilarPhotoGroupActionButton: View {
+    enum Style {
+        /// 次要：预览等安静操作
+        case quiet
+        /// 选中/主行动：琥珀软底
+        case accent
+    }
+
     let title: String
     let systemImage: String
-    let tint: Color
+    let style: Style
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(tint)
+                .foregroundColor(foreground)
                 .lineLimit(1)
                 .minimumScaleFactor(0.78)
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 12)
                 .frame(minHeight: 44)
                 .background(
-                    Capsule(style: .continuous)
-                        .fill(tint.opacity(0.14))
+                    RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                        .fill(fill)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                                .stroke(stroke, lineWidth: Theme.stroke)
+                        )
                 )
         }
         .buttonStyle(.plain)
     }
+
+    private var foreground: Color {
+        switch style {
+        case .quiet: return Theme.secondaryText
+        case .accent: return Theme.accent
+        }
+    }
+
+    private var fill: Color {
+        switch style {
+        case .quiet: return Theme.elevatedSurface
+        case .accent: return Theme.accentSoftFill
+        }
+    }
+
+    private var stroke: Color {
+        switch style {
+        case .quiet: return Theme.hairline
+        case .accent: return Theme.accentSoftStroke
+        }
+    }
 }
 
 private struct AdvancedBulkSelectionButton: View {
+    enum Style {
+        case accent
+        case quiet
+    }
+
     let title: String
     var isDisabled = false
+    var style: Style = .accent
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Theme.onAccent)
+                .foregroundColor(style == .accent ? Theme.onAccent : Theme.secondaryText)
                 .lineLimit(1)
                 .padding(.horizontal, 15)
                 .frame(minHeight: 44)
                 .background(
-                    RoundedRectangle(cornerRadius: 11, style: .continuous)
-                        .fill(Theme.accent)
+                    RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                        .fill(style == .accent ? Theme.accent : Theme.elevatedSurface)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                                .stroke(style == .accent ? Color.clear : Theme.hairline, lineWidth: Theme.stroke)
+                        )
                 )
                 .opacity(isDisabled ? 0.45 : 1)
         }
@@ -5483,7 +5539,10 @@ private struct AdvancedSelectableThumbnail: View {
                     .foregroundColor(Theme.onAccent)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 3)
-                    .background(Capsule(style: .continuous).fill(Theme.positive))
+                    .background(
+                        RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                            .fill(Theme.accent)
+                    )
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                     .padding(5)
             }
@@ -5631,12 +5690,12 @@ private struct AdvancedAssetThumbnail: View {
                 }
             }
             .frame(width: size, height: size)
-            .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous))
 
             if let badgeSystemImage {
                 Image(systemName: badgeSystemImage)
                     .font(.system(size: 8, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.primaryText)
                     .frame(width: 20, height: 20)
                     .background(Circle().fill(Theme.background.opacity(0.72)))
                     .padding(5)
@@ -6187,26 +6246,23 @@ private struct AdvancedSelectionActionBar: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
-                Image(systemName: "trash")
-                Text(String(format: L10n.string("Add %lld items to delete"), Int64(count)))
-            }
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundColor(Theme.onAccent)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 15)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Theme.accent)
+            Label(
+                String(format: L10n.string("Add %lld items to delete"), Int64(count)),
+                systemImage: "trash"
             )
+            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.plain)
+        .photoDeletePrimaryButton()
         .padding(.horizontal, Theme.space5)
+        .padding(.top, 12)
         .padding(.bottom, 24)
-        .background(
-            Theme.background.opacity(0.92)
+        .background {
+            Theme.background
+                .overlay(alignment: .top) {
+                    Rectangle().fill(Theme.hairline).frame(height: 1)
+                }
                 .ignoresSafeArea(edges: .bottom)
-        )
+        }
     }
 }
 
@@ -6266,33 +6322,16 @@ private struct AdvancedFilterPills: View {
     @Binding var selection: AdvancedCleanupFilter
 
     var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 8) {
-                ForEach(filters) { filter in
-                    Button {
-                        selection = filter
-                        HapticManager.impact(.light)
-                    } label: {
-                        Text(filter.title)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(selection == filter ? Theme.onAccent : Theme.secondaryText)
-                            .padding(.horizontal, 10)
-                            .frame(minHeight: 44)
-                            .background(
-                                Capsule(style: .continuous)
-                                    .fill(selection == filter ? Theme.accent : Theme.surface)
-                                    .overlay(
-                                        Capsule(style: .continuous)
-                                            .stroke(selection == filter ? Theme.accent.opacity(0.65) : Theme.hairline, lineWidth: 1)
-                                    )
-                            )
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(selection == filter ? .isSelected : [])
-                }
-            }
+        let options = filters.map {
+            FilterSegmentOption(value: $0, title: $0.title)
         }
-        .scrollIndicators(.hidden)
+
+        // 与筛选弹窗同一套玻璃分段 / 选择格，避免胶囊 pill 另立一套。
+        if options.count <= 4 {
+            FilterGlassSegmentedControl(options: options, selection: $selection)
+        } else {
+            FilterGlassChoiceGrid(options: options, selection: $selection)
+        }
     }
 
     private var filters: [AdvancedCleanupFilter] {
@@ -6345,17 +6384,18 @@ private struct AdvancedProgressRing<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
+        // 中性进度环：琥珀不用于「已完成」状态（style.md §2.3）。
         ZStack {
             Circle()
                 .stroke(
-                    Theme.accentSoftStroke.opacity(0.9),
+                    Theme.primaryText.opacity(0.12),
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
 
             Circle()
                 .trim(from: 0, to: min(max(progress, 0), 1))
                 .stroke(
-                    Theme.accent,
+                    Theme.primaryText.opacity(0.55),
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
@@ -6386,35 +6426,26 @@ private struct AdvancedEmptyState: View {
     let subtitle: String
 
     var body: some View {
-        Group {
-            if #available(iOS 17.0, *) {
-                ContentUnavailableView(
-                    title,
-                    systemImage: icon,
-                    description: Text(subtitle)
-                )
-                .foregroundStyle(Theme.secondaryText)
-            } else {
-                VStack(spacing: 12) {
-                    Image(systemName: icon)
-                        .font(.system(size: 38, weight: .medium))
-                        .foregroundColor(Theme.secondaryText)
+        VStack(spacing: Theme.space4) {
+            Image(systemName: icon)
+                .font(.system(size: 38, weight: .medium))
+                .foregroundColor(Theme.secondaryText)
 
-                    VStack(spacing: 5) {
-                        Text(title)
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(Theme.primaryText)
+            VStack(spacing: 5) {
+                Text(title)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(Theme.primaryText)
+                    .multilineTextAlignment(.center)
 
-                        Text(subtitle)
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundColor(Theme.secondaryText)
-                            .multilineTextAlignment(.center)
-                    }
-                }
+                Text(subtitle)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundColor(Theme.secondaryText)
+                    .multilineTextAlignment(.center)
             }
         }
+        .padding(Theme.space6)
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 42)
+        .padding(.vertical, Theme.space8)
         .photoDeleteCard()
     }
 }

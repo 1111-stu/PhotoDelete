@@ -97,6 +97,16 @@
         }
       }
     },
+    "%@ · %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$lld"
+          }
+        }
+      }
+    },
     "%@ · 0 photos" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -726,6 +736,16 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@, %2$@%3$@%4$@"
+          }
+        }
+      }
+    },
+    "%@, %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$lld"
           }
         }
       }
@@ -6848,6 +6868,28 @@
         }
       }
     },
+    "All similar groups" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All similar groups"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部相似组"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部相似組"
+          }
+        }
+      }
+    },
     "Allow photo library access to start organizing photos" : {
       "localizations" : {
         "ar" : {
@@ -7635,6 +7677,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "再遇見一組"
+          }
+        }
+      }
+    },
+    "Any time" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Any time"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不限"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不限"
           }
         }
       }
@@ -15910,6 +15974,28 @@
         }
       }
     },
+    "Default" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "默认"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "預設"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "ar" : {
@@ -23109,6 +23195,28 @@
         }
       }
     },
+    "Last 30 days" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last 30 days"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "近 30 天"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "近 30 天"
+          }
+        }
+      }
+    },
     "Last month" : {
       "localizations" : {
         "ar" : {
@@ -23145,6 +23253,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "上個月的照片"
+          }
+        }
+      }
+    },
+    "Last year" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last year"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "近一年"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "近一年"
           }
         }
       }
@@ -24865,6 +24995,28 @@
         }
       }
     },
+    "Looser" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looser"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更松"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更鬆"
+          }
+        }
+      }
+    },
     "Lower resolution can greatly reduce size, but details will be reduced." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -25515,6 +25667,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "自動匹配 iPhone 的首選語言"
+          }
+        }
+      }
+    },
+    "Match tightness" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Match tightness"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匹配松紧"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匹配鬆緊"
           }
         }
       }
@@ -39885,6 +40059,28 @@
         }
       }
     },
+    "Scope" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scope"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "范围"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "範圍"
+          }
+        }
+      }
+    },
     "Screen Recordings" : {
       "localizations" : {
         "ar" : {
@@ -43061,6 +43257,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "嚴格"
+          }
+        }
+      }
+    },
+    "Stricter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stricter"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更严"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更嚴"
           }
         }
       }
@@ -49160,6 +49378,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "免費試用 7 天"
+          }
+        }
+      }
+    },
+    "Try adjusting filters, or check again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try adjusting filters, or check again later."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "试试调整筛选，或稍后再看。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "試試調整篩選，或稍後再看。"
           }
         }
       }

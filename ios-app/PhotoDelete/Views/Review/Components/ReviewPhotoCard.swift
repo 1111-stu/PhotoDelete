@@ -105,7 +105,7 @@ struct RealPhotoCard: View {
                 )
             } else if shouldShowLivePhotoPlayback, let livePhoto {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                         .fill(Color.black.opacity(0.22))
 
                     LivePhotoPreviewRepresentable(
@@ -132,7 +132,7 @@ struct RealPhotoCard: View {
                 )
             } else if let image = image {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                         .fill(Color.black.opacity(0.22))
 
                     Image(uiImage: image)
@@ -168,7 +168,7 @@ struct RealPhotoCard: View {
                         )
                     )
                     .frame(width: displaySize.width, height: displaySize.height)
-                    .cornerRadius(20)
+                    .cornerRadius(Theme.radiusMd)
                     .overlay(
                         VStack(spacing: 10) {
                             if isLoading || isDownloadingFromCloud {
@@ -275,7 +275,7 @@ struct RealPhotoCard: View {
     private var candidateOverlay: some View {
         if isInDeleteCandidates || isBeingFiledToAlbum || isFiledToAlbum {
             ZStack {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                     .fill(Theme.background.opacity(0.72))
 
                 VStack(spacing: 12) {
@@ -289,7 +289,7 @@ struct RealPhotoCard: View {
                 }
             }
             .frame(width: displaySize.width, height: displaySize.height)
-            .cornerRadius(20)
+            .cornerRadius(Theme.radiusMd)
             .allowsHitTesting(false)
         }
     }

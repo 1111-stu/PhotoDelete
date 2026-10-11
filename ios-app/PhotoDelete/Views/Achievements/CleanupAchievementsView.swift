@@ -172,7 +172,7 @@ struct CleanupAchievementsView: View {
                         icon: "seal.fill",
                         tint: Theme.warning,
                         size: 38,
-                        cornerRadius: 11
+                        cornerRadius: Theme.radiusSm
                     )
 
                     VStack(alignment: .leading, spacing: 3) {
@@ -235,12 +235,7 @@ struct CleanupAchievementsView: View {
 
     private var nextBadgeSection: some View {
         VStack(spacing: 16) {
-            HStack {
-                Text(L10n.string("Next Badge"))
-                    .photoDeleteSectionHeading()
-
-                Spacer()
-            }
+            PhotoDeleteSectionHeader(title: L10n.string("Next Badge"))
 
             VStack(spacing: 0) {
                 if let nextProgress {
@@ -256,12 +251,12 @@ struct CleanupAchievementsView: View {
     private var badgeWallSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.string("Milestone Badges"))
-                    .photoDeleteSectionHeading()
+                PhotoDeleteSectionHeader(title: L10n.string("Milestone Badges"))
 
                 Text(L10n.string("Light up each cleanup badge by category"))
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(Theme.secondaryText)
+                    .padding(.horizontal, 6)
             }
 
             if groupedAllProgress.isEmpty {
@@ -297,7 +292,7 @@ struct CleanupAchievementsView: View {
                 Text(L10n.string("Clear Stats"))
                     .frame(maxWidth: .infinity)
             }
-            .photoDeleteSecondaryButton()
+            .photoDeleteDestructiveButton()
         }
     }
 }
@@ -313,25 +308,23 @@ struct RecentOrganizedPhotosSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack {
+            ZStack(alignment: .topTrailing) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(L10n.string("Recently Organized"))
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(Theme.primaryText)
+                    PhotoDeleteSectionHeader(title: L10n.string("Recently Organized"))
 
                     Text(L10n.string("Tap Organize Again to remove it from pending deletion and return it to review."))
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(Theme.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 6)
                 }
-
-                Spacer(minLength: 8)
 
                 if !items.isEmpty {
                     Button(L10n.string("Clear"), role: .destructive) {
                         showingClearConfirmation = true
                     }
                     .font(.system(size: 13, weight: .semibold))
+                    .padding(.trailing, 6)
                 }
             }
 
@@ -413,7 +406,7 @@ private struct RecentOrganizedPhotoCard: View {
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 32)
                 .background(
-                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                         .fill(Theme.accent.opacity(0.12))
                 )
         }
@@ -539,7 +532,7 @@ private struct CleanupAchievementAllUnlockedRow: View {
                 icon: "checkmark.seal.fill",
                 tint: Theme.positive,
                 size: 38,
-                cornerRadius: 11
+                cornerRadius: Theme.radiusSm
             )
 
             VStack(alignment: .leading, spacing: 3) {
@@ -720,7 +713,7 @@ private struct CleanupAchievementEmptyCard: View {
                 icon: "seal",
                 tint: Theme.tertiaryText,
                 size: 38,
-                cornerRadius: 11
+                cornerRadius: Theme.radiusSm
             )
 
             VStack(alignment: .leading, spacing: 3) {

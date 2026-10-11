@@ -168,11 +168,7 @@ struct OneAppsPromotionItem: Identifiable, Equatable {
 struct OneAppsPromotionSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text(L10n.string("More Apps"))
-                    .settingsSectionHeading()
-                Spacer()
-            }
+            PhotoDeleteSectionHeader(title: L10n.string("More Apps"))
 
             NavigationLink {
                 OneAppsCatalogPage()
@@ -182,9 +178,9 @@ struct OneAppsPromotionSection: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 42, height: 42)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
                                 .stroke(SettingsChrome.divider, lineWidth: 1)
                         )
                         .accessibilityHidden(true)

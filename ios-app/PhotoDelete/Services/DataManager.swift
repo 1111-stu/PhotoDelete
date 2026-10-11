@@ -61,6 +61,43 @@ struct SimilarPhotoAssetFingerprint: Equatable {
     }
 }
 
+/// Tunable knobs for similar-photo clustering. Maps UI match tightness to the
+/// existing temporal + dimension engine (no separate ML / hash model).
+struct SimilarPhotoMatchProfile: Equatable {
+    let temporalMaxGap: TimeInterval
+    let temporalMaxClusterSpan: TimeInterval
+    let aspectTolerance: Double
+    let dimensionRelativeTolerance: Double
+    let minimumTemporalGroupSize: Int
+
+    /// ~更严: tighter time/dimension window (closer to near-identical sequences).
+    static let stricter = SimilarPhotoMatchProfile(
+        temporalMaxGap: 2,
+        temporalMaxClusterSpan: 6,
+        aspectTolerance: 0.004,
+        dimensionRelativeTolerance: 0.012,
+        minimumTemporalGroupSize: 2
+    )
+
+    /// Product default (~当前引擎).
+    static let standard = SimilarPhotoMatchProfile(
+        temporalMaxGap: 5,
+        temporalMaxClusterSpan: 14,
+        aspectTolerance: 0.008,
+        dimensionRelativeTolerance: 0.025,
+        minimumTemporalGroupSize: 2
+    )
+
+    /// ~更松: wider gap/span and looser dimension drift.
+    static let looser = SimilarPhotoMatchProfile(
+        temporalMaxGap: 12,
+        temporalMaxClusterSpan: 40,
+        aspectTolerance: 0.02,
+        dimensionRelativeTolerance: 0.06,
+        minimumTemporalGroupSize: 2
+    )
+}
+
 enum RecentOrganizedPhotoAction: String, Codable, Equatable {
     case kept
     case queuedForDeletion
@@ -372,12 +409,6 @@ class DataManager: ObservableObject {
         let imageCompressionSessionCount: Int
         let imageCompressionItemCount: Int
     }
-
-    private static let similarPhotoTemporalMaxGap: TimeInterval = 5
-    private static let similarPhotoTemporalMaxClusterSpan: TimeInterval = 14
-    private static let similarPhotoAspectTolerance = 0.008
-    private static let similarPhotoDimensionRelativeTolerance = 0.025
-    private static let similarPhotoMinimumTemporalGroupSize = 2
 
     private struct DaySummaryAccumulator {
         var photoCount = 0
@@ -2025,18 +2056,23 @@ class DataManager: ObservableObject {
         return queues
     }
 
-    func makeSimilarPhotoGroups(maxGroups: Int? = nil) -> [AdvancedSimilarPhotoGroup] {
+    func makeSimilarPhotoGroups(
+        maxGroups: Int? = nil,
+        matchProfile: SimilarPhotoMatchProfile = .standard
+    ) -> [AdvancedSimilarPhotoGroup] {
         Self.makeSimilarPhotoGroups(
             photos: photoLibraryManager.allPhotos,
             screenshotIDs: Set(photoLibraryManager.screenshots.map(\.localIdentifier)),
-            maxGroups: maxGroups
+            maxGroups: maxGroups,
+            matchProfile: matchProfile
         )
     }
 
     private static func makeSimilarPhotoGroups(
         photos allPhotos: [PHAsset],
         screenshotIDs: Set<String>,
-        maxGroups: Int? = nil
+        maxGroups: Int? = nil,
+        matchProfile: SimilarPhotoMatchProfile = .standard
     ) -> [AdvancedSimilarPhotoGroup] {
         let assetsByID = Dictionary(uniqueKeysWithValues: allPhotos.map { ($0.localIdentifier, $0) })
         let fingerprints = allPhotos.map { asset in
@@ -2045,7 +2081,10 @@ class DataManager: ObservableObject {
                 isScreenshot: screenshotIDs.contains(asset.localIdentifier)
             )
         }
-        let groups = similarPhotoIdentifierGroups(from: fingerprints).compactMap { identifiers -> AdvancedSimilarPhotoGroup? in
+        let groups = similarPhotoIdentifierGroups(
+            from: fingerprints,
+            matchProfile: matchProfile
+        ).compactMap { identifiers -> AdvancedSimilarPhotoGroup? in
             let assets = identifiers.compactMap { assetsByID[$0] }
             return makeSimilarPhotoGroup(assets: assets)
         }
@@ -2090,7 +2129,8 @@ class DataManager: ObservableObject {
     }
 
     static func similarPhotoIdentifierGroups(
-        from fingerprints: [SimilarPhotoAssetFingerprint]
+        from fingerprints: [SimilarPhotoAssetFingerprint],
+        matchProfile: SimilarPhotoMatchProfile = .standard
     ) -> [[String]] {
         let candidates = fingerprints
             .filter(\.isEligibleImage)
@@ -2129,7 +2169,7 @@ class DataManager: ObservableObject {
         var cluster: [SimilarPhotoAssetFingerprint] = []
 
         func flushCluster() {
-            guard cluster.count >= similarPhotoMinimumTemporalGroupSize else {
+            guard cluster.count >= matchProfile.minimumTemporalGroupSize else {
                 cluster.removeAll()
                 return
             }
@@ -2140,8 +2180,12 @@ class DataManager: ObservableObject {
 
         for candidate in candidates where !consumedIdentifiers.contains(candidate.identifier) {
             if let previous = cluster.last,
-               isPotentiallySimilar(candidate, to: previous),
-               isWithinSimilarPhotoClusterSpan(candidate, clusterStart: cluster.first) {
+               isPotentiallySimilar(candidate, to: previous, matchProfile: matchProfile),
+               isWithinSimilarPhotoClusterSpan(
+                candidate,
+                clusterStart: cluster.first,
+                maxClusterSpan: matchProfile.temporalMaxClusterSpan
+               ) {
                 cluster.append(candidate)
             } else {
                 flushCluster()
@@ -2341,31 +2385,33 @@ class DataManager: ObservableObject {
 
     private static func isWithinSimilarPhotoClusterSpan(
         _ candidate: SimilarPhotoAssetFingerprint,
-        clusterStart: SimilarPhotoAssetFingerprint?
+        clusterStart: SimilarPhotoAssetFingerprint?,
+        maxClusterSpan: TimeInterval
     ) -> Bool {
         guard let startDate = clusterStart?.creationDate,
               let candidateDate = candidate.creationDate else { return false }
-        return abs(candidateDate.timeIntervalSince(startDate)) <= similarPhotoTemporalMaxClusterSpan
+        return abs(candidateDate.timeIntervalSince(startDate)) <= maxClusterSpan
     }
 
     private static func isPotentiallySimilar(
         _ candidate: SimilarPhotoAssetFingerprint,
-        to previous: SimilarPhotoAssetFingerprint
+        to previous: SimilarPhotoAssetFingerprint,
+        matchProfile: SimilarPhotoMatchProfile
     ) -> Bool {
         guard let assetDate = candidate.creationDate,
               let previousDate = previous.creationDate else { return false }
 
         let timeDistance = abs(assetDate.timeIntervalSince(previousDate))
-        guard timeDistance <= similarPhotoTemporalMaxGap else { return false }
+        guard timeDistance <= matchProfile.temporalMaxGap else { return false }
 
         guard hasSameOrientation(candidate, previous),
-              hasSimilarDimensions(candidate, previous) else {
+              hasSimilarDimensions(candidate, previous, matchProfile: matchProfile) else {
             return false
         }
 
         let assetAspect = aspectRatio(width: candidate.pixelWidth, height: candidate.pixelHeight)
         let previousAspect = aspectRatio(width: previous.pixelWidth, height: previous.pixelHeight)
-        return abs(assetAspect - previousAspect) <= similarPhotoAspectTolerance
+        return abs(assetAspect - previousAspect) <= matchProfile.aspectTolerance
     }
 
     private static func hasSameOrientation(
@@ -2379,10 +2425,11 @@ class DataManager: ObservableObject {
 
     private static func hasSimilarDimensions(
         _ lhs: SimilarPhotoAssetFingerprint,
-        _ rhs: SimilarPhotoAssetFingerprint
+        _ rhs: SimilarPhotoAssetFingerprint,
+        matchProfile: SimilarPhotoMatchProfile
     ) -> Bool {
-        relativeDifference(lhs.pixelWidth, rhs.pixelWidth) <= similarPhotoDimensionRelativeTolerance &&
-            relativeDifference(lhs.pixelHeight, rhs.pixelHeight) <= similarPhotoDimensionRelativeTolerance
+        relativeDifference(lhs.pixelWidth, rhs.pixelWidth) <= matchProfile.dimensionRelativeTolerance &&
+            relativeDifference(lhs.pixelHeight, rhs.pixelHeight) <= matchProfile.dimensionRelativeTolerance
     }
 
     private static func relativeDifference(_ lhs: Int, _ rhs: Int) -> Double {

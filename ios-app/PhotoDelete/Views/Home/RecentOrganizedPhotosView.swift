@@ -67,15 +67,15 @@ struct RecentOrganizedPhotosView: View {
                         .font(.system(size: 14, weight: .semibold))
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(Theme.primaryText)
+                if #available(iOS 26.0, *) {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        recentOrganizedCloseButton
                     }
-                    .accessibilityLabel(L10n.string("Close"))
+                    .sharedBackgroundVisibility(.hidden)
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        recentOrganizedCloseButton
+                    }
                 }
             }
         }
@@ -97,6 +97,14 @@ struct RecentOrganizedPhotosView: View {
         } message: {
             Text(L10n.string("This clears only local history and won’t change photos or pending deletion."))
         }
+    }
+
+    private var recentOrganizedCloseButton: some View {
+        PhotoDeleteCircleIconButton(
+            systemName: "xmark",
+            accessibilityLabel: L10n.string("Close"),
+            action: { dismiss() }
+        )
     }
 
     // MARK: - 网格
@@ -158,16 +166,16 @@ struct RecentOrganizedPhotosView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Theme.space3) {
             Image(systemName: "clock.arrow.circlepath")
                 .font(.system(size: 34, weight: .medium))
                 .foregroundColor(Theme.tertiaryText)
 
             Text(L10n.string("Recently organized photos appear here so you can revise them."))
-                .font(.system(size: 14, weight: .regular))
+                .font(.system(size: Theme.textSizeSm, weight: .regular))
                 .foregroundColor(Theme.secondaryText)
                 .multilineTextAlignment(.center)
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, Theme.space8)
     }
 }
