@@ -28607,6 +28607,28 @@
         }
       }
     },
+    "No Favorites Yet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Favorites Yet"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有收藏"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還沒有收藏"
+          }
+        }
+      }
+    },
     "No Goals Pending" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -35020,6 +35042,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "讀取完成後會顯示可按地點整理的照片。"
+          }
+        }
+      }
+    },
+    "Photos you favorite will appear here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos you favorite will appear here."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收藏的照片会显示在这里。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收藏的照片會顯示在這裡。"
           }
         }
       }
@@ -46531,6 +46575,7 @@
       }
     },
     "System" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

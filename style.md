@@ -1,278 +1,248 @@
-# 删图 · 设计规范（Design Spec）
+# PhotoDelete Design System
 
-> **本文件是 PhotoDelete 的唯一设计规范，后续 UI 一律严格按此执行。**
+> 这是全局视觉与组件规范，不是页面需求或产品流程文档。页面布局、交互和数据规则应放在对应功能文档中。实现以 `ios-app/PhotoDelete/DesignSystem/Theme.swift` 和 `Components/` 为准；本文件说明共用标准与新增 UI 的约束。
 >
-> 三方对应关系（改 UI 前先读本文件）：
-> - 视觉基准（细节以实际渲染为准）：`designs/home-prototype.html`
-> - 代码实现（禁止绕开）：token=`DesignSystem/Theme.swift`；共用 UI=`Components/`；首页=`Views/Home/HomeView.swift`
-> - 文案：`Localizable.xcstrings`（源语言 zh-Hans，key 即中文原文）
->
-> 最近更新：2026-10-11（Theme 并入 `Theme` 暗色静态 token；目录迁至 `DesignSystem/`）。
+> 最近核对：2026-10-11。
 
----
+## Overview
 
-## 1. 设计语言总览
+PhotoDelete 使用**黑白中性的暗色设计系统**。近黑画布、黑灰表面和白灰文字构成界面主体；珊瑚与琥珀是少量、语义明确的点缀色，不构成大面积暖色主题。照片是主要内容，UI 应保持安静，让照片和信息层级自然突出。
 
-- **近黑画布 + 中性暗面**：背景 `#0A0A0D`，卡片 `#16161A`，浮层 `#1E1E24`。不用蓝调、不用半透明白叠加出灰雾。
-- **单一琥珀行动色**：琥珀（`#F3B14C`）只负责「主操作 / 选中 / 导航 tint / 合计价值」。
-- **两张暖色渐变入口卡**：珊瑚（待整理）与琥珀（随机整理），深色墨字。
-- **两套卡片语言，不混用**：
-  - **彩色入口卡** = 渐变填充 + 深色墨字 + 同色系进度条（卡内不出现琥珀）；
-  - **深色数据卡** = `#16161A` + 白字 + 至多一个琥珀「合计值」，明细数值一律中性灰。
-- **数字一律无千分位**（2974 / 1470 / 1024，不是 2,974）。
-- 界面安静、照片优先；层级靠表面明度差与留白，不靠描边和阴影堆叠。
+全局默认：
 
-## 2. 色彩
+- 页面背景使用近黑中性层级，卡片和浮层逐级提亮。
+- 普通文字、图标和分隔线使用白色透明度阶梯。
+- 琥珀表达主操作、选中状态和系统 tint。
+- 珊瑚只用于登记的品牌入口。首页两张核心入口卡是大面积珊瑚/琥珀渐变的特例；删除数量与危险状态使用 `destructive`。
+- 成功、警告、危险、收藏使用各自状态 token；不要用品牌强调色替代状态色。
+- 页面局部规则不能自行增加颜色、字号或圆角 token。确需扩展时先修改 `Theme.swift` 和本规范。
 
-### 2.1 基础 token（`Theme`，暗色静态）
+## Color Palette
 
-| Token | 值 | Hex | 用途 |
-| --- | --- | --- | --- |
-| `backgroundTop` | 0.039/0.039/0.051 | `#0A0A0D` | 页面背景上端 |
-| `background` | 0.031/0.031/0.039 | `#08080A` | 页面主背景、UIKit 背景（原 `backgroundBottom`） |
-| `surface` | 0.086/0.086/0.102 | `#16161A` | 普通卡片、分组列表（`.photoDeleteCard`） |
-| `elevatedSurface` | 0.118/0.118/0.141 | `#1E1E24` | 浮层、输入框、次级按钮、Toast |
-| `cardStroke` | 白 9% | — | 卡片描边（`.photoDeleteCard` 自带，克制使用） |
-| `hairline` | 白 7.5% | — | 分割线 |
-| `floatingShadow` | 黑 30% | — | 浮层阴影 |
-| `accent` | 0.953/0.694/0.298 | `#F3B14C` | 琥珀：主操作、选中、导航 tint、合计值 |
-| `accentPressed` | 0.788/0.541/0.196 | `#C98A32` | 琥珀按下态 |
-| `onAccent` | 0.04/0.035/0.03 | — | 琥珀填充上的文字 |
-| `secondaryAccent` | 1.00/0.78/0.48 | `#FFC77A` | 次级暖色 |
-| `positive` / `warning` / `destructive` / `favorite` | — | — | 状态色：完成 / 注意 / 删除 / 收藏 |
+### Neutral foundation
 
-文字色：`primaryText` 白 96%、`secondaryText` 白 62%、`tertiaryText` 白 42%。
-
-### 2.2 渐变入口卡 token（`Theme`，绝对色）
-
-| Token | 值 | Hex |
+| Token | Value | Usage |
 | --- | --- | --- |
-| `coralGradientTop` | 0.984/0.522/0.494 | `#FB857E` |
-| `coralGradientBottom` | 0.949/0.361/0.329 | `#F25C54` |
-| `coralInk` | 0.180/0.059/0.024 | `#2E0F06` |
-| `amberGradientTop` | 1.00/0.784/0.369 | `#FFC85E` |
-| `amberGradientBottom` | 0.941/0.604/0.133 | `#F09A22` |
-| `amberInk` | 0.102/0.071/0.024 | `#1A1206` |
+| `backgroundTop` | `#0A0A0D` | 普通页面背景渐变上端 |
+| `background` | `#08080A` | 页面主背景 |
+| `reviewCanvas` | `#17181F` | 整理场景专用中性画布 |
+| `surface` | `#16161A` | 普通卡片、列表容器 |
+| `elevatedSurface` | `#1E1E24` | 输入、浮层、toast、次级操作表面 |
+| `primaryText` | White 96% | 标题和主要内容 |
+| `secondaryText` | White 62% | 说明、次级值 |
+| `tertiaryText` | White 42% | 弱图标、辅助信息 |
+| `cardStroke` | White 9% | 卡片描边 |
+| `hairline` | White 7.5% | 细分隔线 |
 
-渐变方向：`LinearGradient(topLeading → bottomTrailing)`（对应原型 135°）。待整理 / 随机整理均为均分双停。
+### Accent and status colors
 
-### 2.3 琥珀使用规则（硬约束）
-
-- 琥珀 = 合计价值、可操作、选中、导航 tint。
-- **深色卡内至多一个琥珀数值**（如专项清理头部的「预计可清理」），明细数值一律 `secondaryText`。
-- **彩色渐变卡内不出现琥珀**：文字一律用对应 ink 色，进度条用 ink 实心 + ink 18% 轨道。
-- 琥珀不用于「已完成」状态（进度条在深色卡上不染琥珀）。
-
-## 3. 字体与数字
-
-| 层级 | 规格 | 实现 |
+| Token | Value | Semantic role |
 | --- | --- | --- |
-| 页面大标题 | 34 / 700 | `HomeView.homeTitleBar` |
-| Section 标题 | **14 / 700 白** + 可选右侧 12.5 / 600 琥珀值 | `PhotoDeleteSectionHeader` |
-| 渐变卡标题 | 16.5 / 700（ink 色） | `HomeView.pendingReviewCard` / `randomReviewFanCard` |
-| 渐变卡大数字 | 31 / 700（单位 14 / 600 @72%） | `RollingNumberText` |
-| 渐变卡价值 | 标签 11 @72% + 值 18 / 700 | `pendingReviewCard` |
-| Band 段 | 标签 11.5 medium 次级 + chevron 8；计数 23 / 700 白；可释放 10.5 次级 | `periodBandSegment` |
-| 列表行名称 | 15 / 600 白 | `PhotoDeleteListRow` |
-| 列表行数值 | 15 / 600 `secondaryText` | 同上 |
-| 行副标题 | 11.5 `secondaryText` | `PhotoDeleteListRow` subtitle |
+| `accent` | `#F3B14C` | 琥珀：主 CTA、选中状态、系统 tint |
+| `accentPressed` | `#C98A32` | 琥珀按下态 |
+| `secondaryAccent` | `#FFC77A` | 琥珀体系的辅助色，仅限已有语义 |
+| `coralGradientTop` | `#FB857E` | 珊瑚品牌入口点缀；收藏快捷入口复用此色 |
+| `coralGradientBottom` | `#F25C54` | 珊瑚入口卡渐变下端 |
+| `coralInk` | `#2E0F06` | 珊瑚卡片上的深色文字 |
+| `amberGradientTop` | `#FFC85E` | 琥珀入口卡渐变上端 |
+| `amberGradientBottom` | `#F09A22` | 琥珀入口卡渐变下端 |
+| `amberInk` | `#1A1206` | 琥珀卡片上的深色文字 |
+| `positive` | `#B8DB85` | 成功、已完成 |
+| `warning` | `#FFC773` | 警告 |
+| `destructive` | `#FF7561` | 删除、危险状态 |
+| `favorite` | `#FFA3B8` | 照片收藏状态 |
 
-**数字格式（硬约束）**：一律 `PhotoDeleteCountFormat.plain(_:)`（= `String(count)`，无千分位、不受 locale 影响）；大数字加 `.monospacedDigit()`。金额/容量走 `CleanupStatsFormatter.space(_:)`（已 `.grouping(.never)`）。
+RGB tokens in `Theme.swift` are the source of truth; hex values above are rounded documentation equivalents.
 
-## 4. 组件规范
+### Color rules
 
-### 4.1 卡片容器
+- **Black and white are the theme.** Accent colors remain subordinate in area and frequency.
+- Use `accent` only when an action or selected state needs emphasis. Do not tint every icon or heading amber.
+- Use coral for registered brand entry points and deletion-count indicators. The collection/favorite data state itself uses `favorite`; the album shortcut uses coral only as a small brand accent.
+- Use status colors for their matching status. Favorite state uses `favorite`; deletion counts and destructive actions use `destructive`, not coral.
+- The paired home entry cards are the only routine large-area accent surfaces. Each card uses its own gradient and ink color; do not introduce the other accent inside the card.
+- Do not add one-off RGB/hex colors in views. Add or reuse a semantic `Theme` token.
 
-- 标准卡片：`.photoDeleteCard(radius: Theme.radiusLg)` = **24**（`surface` 底 + 连续圆角）。
-- 同一组内容用一个外层卡片，内部用内缩 18pt 的 1pt `hairline` 分隔（`insetHairline`）；不在卡中套同等重量的卡。
+## Typography
 
-### 4.2 渐变入口双卡（首页）
+The native app uses the system San Francisco family with the system Chinese fallback. It does not bundle a global display font. `.rounded` is a limited variant for action chrome and prominent numeric controls. The HTML prototypes may load Archivo for Latin display text; that font is not part of the native app typography.
 
-- 一行两张，**等高 158**、间距 12、圆角 **24**（`Theme.radiusLg`）。
-- **珊瑚卡（待整理）**：标题 → 大数字「N 张」 → Spacer → 「预计可释放」+ 值 → **7pt 进度条沉底**（ink 实心填充 + ink 18% 轨道）。整卡 ink 色文字。点击 → **待整理照片墙**（`SwipeViewDestination.pendingPhotoWall`）。
-- **琥珀卡（随机整理）**：标题 + 「最多 N 项」 + 底部居中**扇形牌轮**装饰（3 张 46×62、白描边 2、±24°、弧半径 104、静息摊开）。点击 → 随机整理。
-- 实现：`HomeView.duoRow / pendingReviewCard / randomReviewFanCard / CoralProgressBar / RandomFanDecoration / HomeFanArt`。
-
-### 4.3 分段 Band（按时间段）
-
-- Section 标题「按时间段开始」+ 一张卡内 3 等分段（本周/本月/本年），段间 1pt 内缩 13/12 的分隔线。
-- 段内容：标签+chevron（次级 11.5）→ 计数（23/700 白）→ 「可释放 X」（10.5 次级）。
-- 实现：`periodBandSection / periodBandSegment / bandDivider`。
-
-### 4.4 列表行（专项清理 / 工具）
-
-- 结构：`Theme.sizeIcon`(32) 图标 tile（白 7% 底、圆角 `radiusSm`、图标 17 `secondaryText`）+ 名称 15/600 白 + 右侧值 15/600 次级 + chevron 12 弱色。
-- 内边距 13/18；行间 `insetHairline`；行为 `Button(.plain)`。
-- 实现：`PhotoDeleteListRow`（首页 `specialCleanupSection` / `toolSection`）。
-
-### 4.4.1 主 Tab 底栏（硬约束 · 方案 C）
-
-- 结构：`MainTabView` 里 **根 `NavigationStack` 包住 `TabView`**（`MainTabRouter.path`）。只有三个 Tab 根页（整理 / 相册 / 设置）看得到底栏；任意 `path.append` 后整页盖住 `TabView`，子页 `.toolbar` 无法再把底栏翻出来。
-- Tab 根页是 **内容-only**：不再各自套 `NavigationStack`；push 一律走 `@EnvironmentObject MainTabRouter`（`push(_:)` / `pushPaywall()` / `pushExplicitReview(...)`）。
-- 二次 push（清理浏览器 / 相册浏览器 → 整理）用 `MainTabSystemDestination.explicitReview` + router 侧 payload，勿再嵌套 `navigationDestination(isPresented:)`。
-- 切 Tab 时 `popToRoot()`，避免跨 Tab 残留目的地。
-- 有顶栏按钮的 push 页仍用 `photoDeletePushedToolbar { … }`（只负责导航栏 + toolbar 内容；**不再**依赖 per-page hide Tab）。
-- `photoDeleteMainTabBarVisible` / `photoDeleteHidesMainTabBar` 已退役（no-op），勿再新增调用。
-
-### 4.5 顶栏圆形 icon 按钮（统一）
-
-- 组件：`PhotoDeleteCircleIconButton`（`Components/PhotoDeleteCircleIconButton.swift`）+ 玻璃壳 `PhotoDeleteGlassCircleChrome`。
-- **唯一头部规格**：**可见圆 48** / 图标 **17** bold rounded / 触控随圆（`Theme.sizeChrome` / `textSizeChromeIcon`）。调用方只传 `systemName` + `accessibilityLabel`（+ 可选 `iconColor` / `badge` / `isEnabled`）。
-- 样式：iOS 26+ `.glassEffect(.regular, in: .circle)`；老系统 `elevatedSurface` 实心圆。
-- 图标色：默认白（`Theme.primaryText`）；有状态入口（筛选生效）可传 `Theme.accent`。
-- 适用：首页收集箱、照片墙返回/收集箱、整理顶栏返回/收集箱、相册/清理页工具栏圆钮、筛选扁钮外壳。
-- ToolbarItem 在 iOS 26+ 加 `.sharedBackgroundVisibility(.hidden)`，避免系统玻璃再套一层。
-- **筛选 sheet 顶栏**：「重置 / 完成」纯文字（完成=琥珀字），用 `FilterSheetPlainToolbarItem`；不要灰胶囊。
-- **相似与重复页**：筛选进右上扁钮 + sheet（`SimilarPhotosFilterSheet`）。
-- **例外**：整理底栏工具条 / 琥珀「完成」圆钮仍是整理专用形态，不走本组件。
-
-### 4.6 待整理卡入口语义（硬约束）
-
-- 卡片大数字 = **全库待整理**（total − reviewed）。
-- 点击先进 **待整理照片墙**（`PendingPhotoWallView`），墙上按年浏览未整理日封面；点某天封面 / 月份 CTA → **当月**滑动整理（`wallMonth`，点天可带 `startFromDay`）。
-- 年份胶囊只改墙的浏览范围，不单独开「整年整理」会话。
-- 首页「按时间段」band 仍直进周期整理，与照片墙并存。
-- 原型：`designs/photo-wall-prototype.html`；实现：`Views/Home/PendingPhotoWall/` + `PendingPhotoWallBuilder` / `PolaroidBoardLayout`。
-
-### 4.6.1 待整理照片墙（视觉）
-
-- 顶栏：**固定**（不随内容滚；右侧预留筛选位）。走系统 `NavigationBar` + `toolbarColorScheme(.dark)`（对齐相册详情页液态玻璃，跟近黑画布同色温；禁止用会发灰的 `ultraThinMaterial` 硬垫）。
-- 控件：48pt 玻璃圆钮（返回 / 收集箱）+ 年份胶囊下拉（液态玻璃面板，白勾、无分割线、无张数；库内有照片的年份都列出）。
-- **日历模式（默认可爱）**：周日首列 7 格；有待整理的日子 = 相纸白边（`#F2EDE4`）+ 圆角 12/8 + 确定性微倾斜 `(day%5-2)*0.6°`；空日 = 安静空卡；今天白环。
-- **相纸墙模式**：**按月切换**（默认日历；点某月 segment 只改那一个月，其它月保持日历）；托盘 + 确定性撒布（种子=`yyyy-MM`，上限 15）。
-- **加载**：年维度只建轻量元数据（后台）；相纸板布局与缩略图仅在该月切到相纸墙且进入视口后激活。
-- 不做素/可爱双风格开关（首版只可爱日历 + 相纸墙）。
-
-## 5. 动效（均尊重「减弱动态效果」）
-
-| 场景 | 规格 | 实现 |
+| Role | Size / weight | Typical use |
 | --- | --- | --- |
-| 数字滚动 | 0.9s easeOut；首页大数字 delay 0，band 三段 0.22/0.30/0.38 | `RollingNumberText` |
-| 进度条生长 | 0.26s 延迟 + 0.95s easeOut | `CoralProgressBar` |
-| 扇形摊开 | 0.62s easeOut，每张错峰 0.09s，进场一次 | `RandomFanDecoration` |
+| Display title | 34 / bold | Root screen title |
+| Section title | 14 / bold | Group heading |
+| Card title | 16.5 / bold | Main entry card |
+| Primary card number | 31 / bold | Large count |
+| Band count | 23 / bold | Period summary |
+| Row title / value | 15 / semibold | Standard list row |
+| Body | System body / regular or medium | Explanatory content |
+| Secondary metadata | 11.5–12 / regular | Subtitle, timestamp, hint |
+| Chrome symbol | 17 / bold rounded | Header icon button |
+| Review tool symbol | 20 / bold rounded | Photo review toolbar |
 
-不做：滚动视差、点击波纹、分区滚动渐入（原型手法，不落 App）。
+Regular is for reading text, medium for compact labels, semibold for controls and row titles, and bold for hierarchy or headline numbers. Keep a screen to a small number of weights. Use `.monospacedDigit()` for changing counts and progress values. Photo counts use `PhotoDeleteCountFormat.plain(_:)` with no grouping separators; capacities use `CleanupStatsFormatter.space(_:)`.
 
-## 6. 首页结构（唯一顺序）
+## Spacing System
 
-```
-大标题「整理」+ 右上待删除入口（`archivebox`）
-渐变双卡：待整理（珊瑚）→ 照片墙 | 随机整理（琥珀）
-按时间段开始：本周 / 本月 / 本年（点任一段 → 周期选择弹窗：标题「按周/按月/按年整理」，首行「本期全部」，下面列更细周期——本周→每天 / 本月→其他月份 / 本年→其他年份；选行进入对应整理。**每张弹窗的「本期全部」行数字为琥珀**——三档一致；明细行数字白字）
-专项清理：相似与重复 / 视频 / 截图 / 录屏（头部合计 = 各项之和）
-工具：图片压缩 / 视频压缩（**首页暂隐藏**；`HomeView.toolSection` 保留，代码入口未删）
-```
+`Theme` follows a 4pt base rhythm. Use the named tokens before adding a custom value.
 
-数据全部来自现有计算（`DataManager`），不得在页面造指标：
+| Token | Points | Typical use |
+| --- | ---: | --- |
+| `space2` | 8 | Compact group spacing |
+| `space3` | 12 | Small component gaps |
+| `space4` | 16 | Standard inner padding |
+| `space5` | 20 | Phone horizontal page inset |
+| `space6` | 24 | Card padding / major group gap |
+| `space8` | 32 | Wide-screen horizontal inset |
+| `space12` | 48 | Large breathing room |
+| `space16` | 64 | Empty-state and section spacing |
+| `space24` | 96 | Scroll content bottom clearance |
 
-| 位置 | 数据源 |
+Common fixed sizes are separate from spacing: `sizeTap=44`, `sizeIcon=32`, `sizeChrome=48`, and `sizeRow=56`. `PhotoDeleteAdaptiveLayout` expands horizontal insets and constrains content width on larger screens.
+
+## Component Styles
+
+### Surfaces and cards
+
+- Root pages use `PhotoDeleteScreenBackground` (`backgroundTop` to `background`).
+- Standard cards use `surface`, a subtle `cardStroke`, and `.continuous` corners.
+- Keep one visual container around a related group. Separate items inside it with an inset `hairline`; avoid stacking equally prominent cards inside cards.
+- Floating surfaces may use a slightly translucent `surface`, a hairline border, and a restrained shadow.
+
+### List rows
+
+`PhotoDeleteListRow` is the shared row pattern: optional 32pt icon tile, 15pt semibold title, optional 11.5pt secondary subtitle, optional 15pt secondary value, and a tertiary chevron. Typical padding is 18pt horizontal and 13pt vertical. Use `.plain` button styling and keep row content neutral unless an explicit state applies.
+
+### Buttons
+
+- Primary: amber fill, `onAccent` foreground, `radiusMd`; press feedback uses a small scale and opacity change.
+- Secondary: neutral surface with restrained amber label/stroke when it represents an available action.
+- Destructive: destructive-tinted surface and label. Do not disguise destructive actions as primary amber.
+- Header icon button: 48pt circular hit target, 17pt bold rounded symbol, white by default.
+- Header chrome uses iOS 26 regular glass where available and an `elevatedSurface` fallback on earlier versions.
+- Custom header icon color is limited to a documented semantic state or the registered coral favorite shortcut.
+
+### Navigation and sheets
+
+The root `NavigationStack` contains the `TabView`; pushed pages cover the tab bar structurally. Reuse `MainTabRouter` and `photoDeletePushedToolbar` instead of nesting navigation stacks. Sheets use the existing neutral surface and system presentation behavior; accent color is reserved for actionable or selected states.
+
+## Shadows & Elevation
+
+Elevation is primarily communicated through neutral surface brightness, not shadow. `floatingShadow` is black at 30% opacity.
+
+| Level | Treatment | Use |
+| --- | --- | --- |
+| Base | `background` gradient | Page canvas |
+| Surface | `surface` + subtle `cardStroke` | Standard card |
+| Elevated | `elevatedSurface` | Input, menu, sheet content |
+| Floating | Surface + hairline + shadow, commonly radius 12 / y 6 | Floating panel |
+| Modal focus | Elevated surface + shadow, commonly radius 18 / y 10 | Important overlay |
+
+Reserve stronger shadows for objects that physically lift, such as drag previews. Avoid shadows on ordinary list rows and avoid adding shadows on top of system glass.
+
+## Animations & Transitions
+
+Motion explains state changes and direct manipulation. Keep it short, respect Reduce Motion, and avoid decorative motion tied to scrolling.
+
+| Interaction | Existing range / pattern |
 | --- | --- |
-| 待整理张数 / 进度条 | `libraryStats`（total − reviewed / reviewed÷total） |
-| 预计可释放 | `librarySizeText`（年周期 estimatedSizeMB 汇总） |
-| Band 三段 | `currentPeriodSummary(for:)` |
-| 专项清理 | `cleanupQueue(for:)` 的 `estimatedSpaceMB` / `assetCount` |
+| Button press | 0.14s easeOut, scale to about 0.985 |
+| Light state change | 0.16–0.24s easeOut |
+| Reorder | About 0.22s easeOut |
+| Count roll | About 0.9s easeOut |
+| Entry card progress | About 0.95s easeOut after a short delay |
+| Fan card reveal | About 0.62s easeOut, staggered once |
 
-已知缺口（如实显示，待数据侧补齐）：视频队列 `estimatedSpaceMB` 恒为 0、无截图队列 → 两行可能显示 0.0 MB / 无值。
+Use spring motion for a lifted or movable object; use easeOut for ordinary state changes. Do not add parallax, click ripples, or scroll-triggered section reveals.
 
-录屏行：数值取 `cleanupQueue(for: .screenRecordings)` 的估算空间（`estimatedAssetSizeMBForAsset` 启发式，不读真实文件大小）；`assetCount == 0` 时右侧留空，不显示 0.0 MB。点击进入**滑动逐张整理**（`PhotoCategory.screenRecordings` → `SwipePhotoView`），与截图/视频一致，**不走**列表多选。
+## Border Radius
 
-大文件清理代码保留（`AdvancedCleanupKind.largeFiles` / `AdvancedAssetListView`），但首页暂不给入口，后续可能恢复。
+Use continuous rounded rectangles and the shared radius ladder:
 
-### 6.1 使用统计页（回望页，2026-10-05 重构）
+| Token | Points | Use |
+| --- | ---: | --- |
+| `radiusSm` | 12 | Icon tile, compact thumbnail |
+| `radiusMd` | 16 | Input, button, compact row card |
+| `radiusLg` | 24 | Standard large card |
 
-- 页面标题：**使用统计**（与入口/设置行命名一致）。
-- 结构（唯一顺序）：整理进度（单卡：已整理大数 + 共 N 张 + % + **中性进度条** + 删除内容/已删除 caption）→ 清理历史（**近 6 个月柱状图**，点柱钻取当月明细）→ 清空统计记录（**破坏性按钮样式**，即 danger）。
-- 柱状图规格：每根柱 = 该月删除张数；**珊瑚渐变柱体**（`coralGradientTop→coralGradientBottom`，同「待整理」卡），当月全饱和、其余 65% 透明度；柱顶为数字（无千分位）、柱底为月份短标签（`MMM`）；无坐标轴/网格线；点柱弹出当月逐条明细。
+Circles and capsules follow their semantic shapes. A small number of content-specific masks may use a different radius when the image format requires it; do not introduce a new general-purpose radius for a single view.
 
-### 6.2 最近整理（独立模块）
+## Opacity & Transparency
 
-- 入口：**首页右上角按钮**（sheet 呈现；按钮沿用液态玻璃圆钮，语义=最近整理）。
-- 布局：标题「最近整理」+ 右上关闭 X、左上「清空」（有记录时）；三列方形网格（间距 10，圆角 12，复用 `AlbumAssetThumbnail`）；网格上方一行说明「点按查看大图，长按可再次整理。」。
-- 状态角标（右下角，22pt 实心圆 + 白描边）：保留 = `success` ✓、待删除 = `danger` 🗑、已收藏 = `favorite` ♥。
-- 交互：点按 = 大图预览（`CandidatePhotoPreviewView`）；长按 = contextMenu「再次整理」；清空 = 破坏性确认后仅清本机记录。
-- 实现：`RecentOrganizedPhotosView.swift`（统计页不再包含此模块；成就页的旧横向条待其改版时统一下线）。
+Reuse opacity tokens instead of creating near-duplicate gray values.
 
-### 6.3 滑动整理页（Swipe；收集箱与本轮结算见 `docs/organize-collection-bin-flow.md`）
+| Value | Use |
+| ---: | --- |
+| White 96% | Primary text |
+| White 62% | Secondary text |
+| White 42% | Tertiary text |
+| White 9% | Card outline |
+| White 7.5% | Hairline |
+| White 7% | Neutral icon tile fill |
+| White 5% | Reorder slot fill |
+| White 34% | Reorder slot stroke / selected outline |
+| Ink 18% | Accent-card progress track |
+| Black 30% | Base floating shadow |
 
-- **幕布**：`reviewCanvas #17181F`（平铺）——有意比首页画布（#0A0A0D）亮一档，让照片卡边界更隐；"是否统一画布"仍为待定项。
-- **顶栏**：居中 `1 / 19`（17/700、monospaced、**无千分位**）；两侧走统一 `PhotoDeleteCircleIconButton`（圆 48 / 图标 17）：左=返回（白箭头，**直接离开、不拦截**）、右=**`archivebox` 收集箱**（与首页同语义；**白图标** + 珊瑚红**全局**数量角标；>99 显示 99+；角标描边用幕布色）。颜色只承担"数量"语义。
-- **底栏（双珠形态）**：左 = 液态玻璃胶囊（iOS 26 `.glassEffect(.regular, in: .capsule)`；老系统回落 surface 实心胶囊），内四枚**纯图标**工具（`sizeTap` 触区、`textSizeLg` **白色加粗 rounded**）：**详情（info.circle → 半屏「照片详情」）** / 撤销 / 收藏（状态只用形状：`heart` ⇄ `heart.fill`，不用颜色）/ 分享；右 = 独立 **48pt** 琥珀玻璃圆钮（`sizeChrome`；iOS 26 `.glassEffect(.regular.tint(accent))`；老系统琥珀渐变圆）= 完成整理，图标用 **`checkmark`**（不再用 `archivebox`），高度与玻璃条、顶栏圆钮一致。点完成 → **本轮结算弹窗**（非确认删除）。文字标签不进底栏，语义靠 VoiceOver 标签；**颜色完全退出底栏**（唯一有色的是琥珀终点按钮）。底栏安全区用幕布色自上而下渐显，避免硬切照片卡。
-- **本轮结算弹窗**：通道名 + `N 项`；三行固定——本次待删除 / 本次收藏 / 收集箱共计；单按钮「完成」离开。触发：右下完成、末张再往下一张滑、队列到头。真删仍只在收集箱。
-- **照片详情弹窗**：medium 固定档、surface 底、行=左灰标签+右白数值+hairline；内容：拍摄时间 / 位置 / 文件大小 / 分辨率（无千分位）/ 所属相册——**空数据的行自动隐藏**。
-- **分享卡片预览 sheet**（底栏分享 → 图片；视频仍直发原文件）：large detent、`elevatedSurface`；主区左右滑切模板（极简相框 / 邮票票根 / Colorwork / 原图）；页下 dots + 模板名（中性白/灰，无琥珀）；**仅票根**露出成对色导轨（上下对半圆点、选中白环）；日期/地点开关仅卡片模板显示，**无 `creationDate` / 无地点则整行隐藏**（双缺则整段开关区消失；对齐照片详情空行隐藏），开关 ON 用 `secondaryText` 中性浅轨（勿用 `primaryText` 近白满轨）、**不染琥珀**；主 CTA「分享」= **白填充胶囊** + `onAccent` 墨字（高 ~52、无琥珀渐变/影）。出图卡（A/B/C）是社交产物，**不套 App 琥珀体系**；规格见 `docs/share-card-templates-research.md`。
-- **待删除队列页**（整理中 `PendingDeletionView` / 首页 `TrashBinView`）：同一全局收集箱；共用左右双钮底栏——左「移出待删除」，右为主操作（整理中=琥珀「继续整理」，首页=destructive「删除所选」）。**默认不选中**（先点选 / 全选再动手；避免误触移出清空整队）。确认清理页（`BatchConfirm`）仍默认全选，且**仅从收集箱进入**。左上白圆 X（整理中打开时）；点缩略图 = 切换勾选（不进详情）；角标为单层 SF Symbol（未选细圈 / 已选 `checkmark.circle.fill`）。
-- **手势（保持现状，文案改真）**：左滑=下一张、右滑=上一张、上滑=加入待删除、下滑=加入相册；不做"左滑删除"；**末张再左滑 → 本轮结算**。**待办**：引导页 / 首页 intro / 手势设置页的旧文案（"左滑删除、右滑保留"）需改成真实手势——注意 UI 测试断言了引导页那句；并为"上滑=删除"补首见 hint pill。
-- **照片卡**：卡随照片高（收敛上下 letterbox）——原型已做，**SwiftUI 待落地**。
-- 底栏不显示待删数字：唯一真相 = 顶栏收集箱角标（全局）。
-- 横屏/iPad 侧栏（`ReviewSessionSummaryPanel` + `SidebarActionButton`）本轮未动，待其后单独迭代。
-- 已移除（勿回退）：2×2 四色指标宫格（与进度卡重复）、手机存储卡（与「预计可释放」重复且偏题）、独立「月度统计」段（并入按月分组的清理历史）。
-- 数据：`makeSettingsStatsSummary` / `CleanupStatsStore.sessions`（按 `monthKey` 分组，`CleanupStatsFormatter.month` 出标题）。
-- 共享组件注意：`SupporterMonthlySection` / `SupporterHistorySection` / `RecentOrganizedPhotosSection` 同时被支持者页与成就页复用——改样式前先查这三处，勿破坏其他页面（它们的整体改版另行 review）。
+Transparency is for hierarchy, glass chrome, overlays, and disabled states. Do not make important text translucent or build a stack of multiple translucent surfaces to simulate elevation.
 
-### 6.4 相册页（2026-10-09 排序交互重做）
+## Common Tailwind CSS Usage in Project
 
-- **系统区置顶个人收藏**（2026-10-11）：有张数时在搜索行下显示「系统」小节 + 个人收藏卡（封面 / 紧凑 / 列表均可见）；点进复用现有相册浏览器。**不参与**长按菜单与拖拽排序，**不进** `customAlbumOrder`。其下为「我的相册」可排序区。数量为 0 时整卡隐藏。产品定稿见 `docs/albums-favorites-entry.md`。
-- **显示方式 sheet**（`AlbumDisplayStyleSheet`）：固定小高度（~248），点选即生效、靠拖柄下滑关闭，**不放关闭钮**；三卡选中态对齐筛选格——`elevatedSurface` + 白 34% 描边 + 白字，**不用琥珀铺底**。
-- **三种展示方式**（紧凑 / 封面 / 列表）**共用一套长按拖拽排序**：长按 0.45s 抬起 → 拖动换位 → 松手落位。**不再有编辑模式**：显示方式 sheet 的「调整顺序」按钮、列表拖动把手、页头提示卡（`AlbumSwipeHintRow` + `hasDismissedAlbumSwipeHintKey`）一并下线。
-- **站位（空位）**：被拿起的那一格留在原位变成空槽，与封面同尺寸同圆角。画法为 **2.5pt 虚线、白 34%、虚实间隔 11/9**（`AlbumDropSlot`，token `Theme.dropSlot*`）。中性色是有意的——琥珀只留给「会执行的行动」，虚线本身已表达「这里可以插入」，同时与空相册的深色封面区分开（视觉基准 `designs/albums-reorder-prototype.html`）。
-- **让位与落位**：越过其他项中心时其余项 0.22s 平移让位（每次换位一次 light 触觉），松手后写回 `saveCustomAlbumOrder`；拖动期间冻结列表刷新，拖到滚动区上下边缘 70pt 内自动滚动。
-- **列表 = 每个相册一张独立卡片**（surface 底、圆角 `radiusMd`=16、间距 `space2`=8、最小高 `space16`=64）：**这是 §4.1「同一组内容用一个外层卡片」的明确例外**——拖拽要把整张托出、空位要是同样的卡槽，分组卡 + 分隔线做不到这件事。
-- **长按菜单**是自绘浮层（替代系统 contextMenu）：整理 / 编辑 / 删除，最后一行小字「按住拖动即可调整顺序」。系统菜单只放得下可点条目，而这行小字是排序的唯一入口提示，所以必须自绘。
-- 搜索非空时禁用排序（沿用「请先清除搜索再调整顺序」文案）。无障碍路径：每项提供「上移 / 下移」动作与「第 N 个，共 M 个」位置播报。
+The native app is **SwiftUI**, not a Tailwind CSS project. There is no Tailwind configuration, `className`, `@tailwind`, or utility-class build step. `designs/*.html` are standalone HTML/CSS prototypes using handwritten CSS.
 
-## 7. 边界与待办（本轮之外）
+`Theme.swift` borrows Tailwind-like token naming (`space*`, `size*`, `radius*`, `text*`) as a naming convention only. Native UI should use SwiftUI modifiers and `Theme` tokens; HTML prototypes should use their CSS custom properties. Do not add Tailwind-specific assumptions to native feature code.
 
-- **付费页（`Views/Paywall/`）是本规范的唯一有意例外**：它自带一套冷调画布 token（`Views/Paywall/PaywallTheme.swift`：`#121722` 画布 + 24pt 点阵 + 樱粉 `#F0AAC8` 强调色 + 纯黑卡片 + 反色白 CTA），不复用 `Theme` 的暖黑与琥珀。这是刻意的语境切换（产品内 vs 购买决策），**不要按本文件把它「修」回琥珀体系**。其余页面仍严格遵循本规范。
-- 底部为系统 TabView（未做浮动胶囊标签栏）。
-- 回收站 / 最近删除功能未做（顶栏仅占位）。
-- iPad 宽屏下 158 高双卡会被拉宽，如需限制可给 dashboard 列 `frame(maxWidth: 560)`。
-- 全仓仍有其他页面的旧分组数字格式（SettingsView、AlbumBrowserViews 等），后续统一扫尾为无千分位。
+## Example Component Reference Design Code
 
-## 8. 实施锚点（文件地图）
+This reference uses existing project components and tokens. Product copy and action destinations are placeholders; feature-specific behavior belongs in the owning screen.
 
-| 内容 | 文件 |
-| --- | --- |
-| 全局 token | `ios-app/PhotoDelete/DesignSystem/Theme.swift`（仅 token） |
-| 共用 UI | `ios-app/PhotoDelete/Components/`（`PhotoDeleteSharedUI` / `PhotoDeleteCircleIconButton` / `FilterSheetControls`） |
-| 首页 | `ios-app/PhotoDelete/Views/Home/HomeView.swift` |
-| 周期选择弹窗 | `ios-app/PhotoDelete/Views/Home/PeriodPickerSheet.swift`（半屏 sheet，行结构对齐原型） |
-| 时间周期纯逻辑 | `ios-app/PhotoDelete/Services/TimePeriodBrowser.swift`（弹窗切片 / 当前周期匹配 / 行格式化，视图无关） |
-| 最近整理 | `ios-app/PhotoDelete/Views/Home/RecentOrganizedPhotosView.swift` |
-| 滑动整理页 chrome | `ios-app/PhotoDelete/Views/Review/Components/ReviewPageChrome.swift`（顶栏 + 双珠底栏 + 玻璃 chrome modifiers） |
-| 文案 | `ios-app/PhotoDelete/Localizable.xcstrings` |
-| 视觉原型 | `designs/home-prototype.html` |
+```swift
+struct ExampleSection: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.space2) {
+            PhotoDeleteSectionHeader(title: "Section title")
 
----
+            VStack(spacing: 0) {
+                PhotoDeleteListRow(
+                    icon: "photo",
+                    title: "Primary row",
+                    subtitle: "Optional supporting text",
+                    value: "12",
+                    action: openPrimaryRow
+                )
 
-## 9. 产品图标生成 Prompt（保留）
+                Rectangle()
+                    .fill(Theme.hairline)
+                    .frame(height: Theme.stroke)
+                    .padding(.leading, 18)
 
-```text
-Create a premium iOS app icon for “PhotoDelete”, a privacy-first on-device photo cleanup app.
+                PhotoDeleteListRow(
+                    icon: "video",
+                    title: "Secondary row",
+                    value: "4",
+                    action: openSecondaryRow
+                )
+            }
+            .photoDeleteCard(radius: Theme.radiusLg)
+        }
+    }
 
-Concept:
-A single elegant amber deletion mark forming a subtle abstract photo frame, with one small empty corner suggesting decluttering and space. The symbol should communicate photo organization, cleanup, and clarity without showing a literal trash can.
-
-Visual direction:
-Minimal, refined, quiet, high-end utility app.
-Deep charcoal black background with a warm amber focal symbol.
-Use one brand color only: muted luminous amber.
-No extra rainbow colors, no multiple-hue gradients, no text, no letters, no UI screenshot, no camera illustration, no literal garbage bin.
-
-Material and lighting:
-Soft anodized metal or premium glass-like symbol, very subtle depth, restrained highlight, clean edge definition.
-The amber mark should feel precise and calm, not playful or aggressive.
-The background should be near-black charcoal with a barely perceptible warm undertone.
-Strong silhouette at small sizes, excellent contrast, instantly recognizable at 60px.
-
-Composition:
-Centered symbol, generous negative space, balanced optical weight.
-Rounded-square iOS icon canvas.
-The symbol should occupy approximately 55% of the canvas.
-No border, no shadow extending outside the icon, no decorative particles.
-
-Style:
-Apple-quality product icon, modern editorial minimalism, crisp vector-like geometry, sophisticated dark mode aesthetic, premium photography utility app.
-
-Output:
-1024x1024 square, opaque background, no transparency, no text, no watermark.
+    private func openPrimaryRow() {}
+    private func openSecondaryRow() {}
+}
 ```
+
+Shared implementation anchors:
+
+- Tokens: `ios-app/PhotoDelete/DesignSystem/Theme.swift`
+- Shared surfaces, rows, and button styles: `ios-app/PhotoDelete/Components/PhotoDeleteSharedUI.swift`
+- Header chrome: `ios-app/PhotoDelete/Components/PhotoDeleteCircleIconButton.swift` and `PhotoDeleteGlassChrome.swift`
+- Adaptive layout: `ios-app/PhotoDelete/Components/PhotoDeleteSharedUI.swift`
+
+## Extension Rules
+
+- Start with a neutral surface and neutral text/icon color. Add accent only when its semantic role is clear.
+- Prefer an existing shared component over a page-local lookalike.
+- Keep color, spacing, typography, radius, and motion decisions in their respective token/guide sections; keep feature flow details in feature docs.
+- When implementation intentionally changes the system, update tokens and this guide in the same change.
+- Visual prototypes demonstrate a direction or interaction; they do not override global tokens.

@@ -31,6 +31,44 @@ private struct AlbumListRowModel: Identifiable, Equatable {
     }
 }
 
+private struct EmptyFavoritesSheet: View {
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "heart.fill")
+                .font(.system(size: 30, weight: .semibold))
+                .foregroundStyle(Theme.coralGradientTop)
+                .padding(.top, 24)
+
+            Text(L10n.string("No Favorites Yet"))
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(Theme.primaryText)
+
+            Text(L10n.string("Photos you favorite will appear here."))
+                .font(.system(size: 15))
+                .foregroundStyle(Theme.secondaryText)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.surface)
+    }
+}
+
+private struct FavoritesEntryButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        PhotoDeleteCircleIconButton(
+            systemName: "heart.fill",
+            accessibilityLabel: L10n.string("Favorites"),
+            accessibilityIdentifier: "album-favorites-entry",
+            iconColor: Theme.coralGradientTop,
+            action: action
+        )
+    }
+}
+
 struct AlbumsView: View {
     @EnvironmentObject var dataManager: DataManager
     @EnvironmentObject private var router: MainTabRouter
@@ -39,12 +77,10 @@ struct AlbumsView: View {
     @State private var activeSheet: AlbumSheet?
     @AppStorage(AppConstants.albumDisplayStyleKey) private var albumDisplayStyleValue = AlbumDisplayStyle.cover.rawValue
     @State private var showsDisplayStyle = false
+    @State private var showsEmptyFavorites = false
     @State private var albumToast: PhotoDeleteToast?
     @State private var displayedRows: [AlbumListRowModel] = []
-    /// 系统区置顶的个人收藏；不进入 `displayedRows` / 排序。
-    @State private var favoritesRow: AlbumListRowModel?
     @State private var albumsByID: [String: AlbumInfo] = [:]
-    @State private var displayedAlbumCount = 0
 
     // MARK: - 长按拖拽排序
     @State private var reorder = AlbumReorderSession()
@@ -89,6 +125,11 @@ struct AlbumsView: View {
             }
             .sheet(isPresented: $showsDisplayStyle) {
                 AlbumDisplayStyleSheet(style: displayStyleBinding)
+            }
+            .sheet(isPresented: $showsEmptyFavorites) {
+                EmptyFavoritesSheet()
+                    .presentationDetents([.height(260)])
+                    .presentationDragIndicator(.visible)
             }
             .fullScreenCover(item: $activeSheet) { sheet in
                 Group {
@@ -147,7 +188,7 @@ struct AlbumsView: View {
     }
 
     /// 相册页顶栏（对齐 style.md §4.5：左侧大标题 34/700 + 右上圆钮）。
-    /// 排序不再有编辑模式：长按即可拖动，右上只保留显示方式入口。
+    /// 排序不再有编辑模式：长按即可拖动；右上提供显示方式与个人收藏入口。
     private var albumsTitleBar: some View {
         HStack(alignment: .center, spacing: 12) {
             Text(L10n.string("Albums"))
@@ -156,6 +197,7 @@ struct AlbumsView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if dataManager.photoLibraryManager.hasPhotoLibraryAccess {
+                FavoritesEntryButton(action: openFavorites)
                 displayStyleEntryButton
             }
         }
@@ -317,13 +359,6 @@ struct AlbumsView: View {
 
     @ViewBuilder
     private func albumSections(proxy: ScrollViewProxy) -> some View {
-        if let favoritesRow {
-            VStack(alignment: .leading, spacing: 10) {
-                PhotoDeleteSectionHeader(title: L10n.string("System"))
-                pinnedFavoritesItem(favoritesRow)
-            }
-        }
-
         if showsMyAlbumsSection {
             VStack(alignment: .leading, spacing: 10) {
                 PhotoDeleteSectionHeader(title: L10n.string("My Albums"))
@@ -334,33 +369,6 @@ struct AlbumsView: View {
                 }
             }
         }
-    }
-
-    /// 系统区个人收藏：可点进浏览器，不参与长按菜单 / 拖拽排序。
-    @ViewBuilder
-    private func pinnedFavoritesItem(_ row: AlbumListRowModel) -> some View {
-        if displayStyle == .list {
-            pinnedFavoritesCard(row)
-        } else {
-            // 与用户区同列网格，只占第一格，避免单卡拉满整行。
-            LazyVGrid(columns: gridColumns, spacing: 18) {
-                pinnedFavoritesCard(row)
-            }
-        }
-    }
-
-    private func pinnedFavoritesCard(_ row: AlbumListRowModel) -> some View {
-        albumItemContent(row, isPlaceholder: false)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                AlbumScrollDebug.log("favoritesTap id=\(row.id) \(reorderDebugSnapshot())")
-                openAlbum(id: row.id)
-            }
-            .accessibilityElement(children: .combine)
-            .accessibilityAddTraits(.isButton)
-            .accessibilityIdentifier("album-item-favorites")
-            .accessibilityLabel("\(row.title), \(L10n.photoCount(row.photosCount))")
-            .accessibilityHint(L10n.string("Tap to organize this album"))
     }
 
     private var myAlbumsEmptyRow: some View {
@@ -572,6 +580,10 @@ struct AlbumsView: View {
         searchText.isEmpty ? L10n.string("Tap the plus button in the top right to create a new album.") : L10n.string("Try another keyword.")
     }
 
+    private var displayedAlbumCount: Int {
+        dataManager.getUserAlbums().count
+    }
+
     private var albumHeaderSubtitle: String {
         if isLoadingPhotoLibraryForAlbums {
             return L10n.string("Initializing Photo Library")
@@ -584,7 +596,7 @@ struct AlbumsView: View {
 
     // MARK: - 计算属性
     private var isAlbumsListEmpty: Bool {
-        favoritesRow == nil && displayedRows.isEmpty
+        displayedRows.isEmpty
     }
 
     private var isLoadingAlbums: Bool {
@@ -981,8 +993,6 @@ struct AlbumsView: View {
         guard !reorder.isActive else { return }
 
         let sourceAlbums = dataManager.getUserAlbums()
-        displayedAlbumCount = sourceAlbums.count
-
         let sorted = DataManager.albumsSortedByCustomOrder(
             sourceAlbums,
             customOrder: dataManager.customAlbumOrderForDisplay
@@ -995,23 +1005,7 @@ struct AlbumsView: View {
         }
 
         var nextAlbumsByID: [String: AlbumInfo] = [:]
-        nextAlbumsByID.reserveCapacity(filtered.count + 1)
-
-        let nextFavoritesRow: AlbumListRowModel? = {
-            guard let album = dataManager.favoritesAlbumForDisplay() else { return nil }
-            if !searchText.isEmpty, !album.title.localizedStandardContains(searchText) {
-                return nil
-            }
-            nextAlbumsByID[album.id] = album
-            return AlbumListRowModel(
-                id: album.id,
-                title: album.title,
-                photosCount: album.photosCount,
-                type: album.type,
-                thumbnailAssetID: album.thumbnailAsset?.localIdentifier,
-                canEdit: false
-            )
-        }()
+        nextAlbumsByID.reserveCapacity(filtered.count)
 
         let rows: [AlbumListRowModel] = filtered.map { album in
             nextAlbumsByID[album.id] = album
@@ -1039,9 +1033,6 @@ struct AlbumsView: View {
         if rows != displayedRows {
             displayedRows = rows
         }
-        if nextFavoritesRow != favoritesRow {
-            favoritesRow = nextFavoritesRow
-        }
         albumsByID = nextAlbumsByID
     }
 
@@ -1064,6 +1055,15 @@ struct AlbumsView: View {
 
         HapticManager.impact(.light)
         router.push(AlbumNavigationDestination.browser(currentAlbumInfo))
+    }
+
+    private func openFavorites() {
+        guard let album = dataManager.favoritesAlbumForDisplay() else {
+            showsEmptyFavorites = true
+            return
+        }
+        albumsByID[album.id] = album
+        openAlbum(id: album.id)
     }
 
     private func openAlbumSwipe(id: String) {

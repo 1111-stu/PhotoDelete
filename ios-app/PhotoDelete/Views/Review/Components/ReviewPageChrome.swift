@@ -218,31 +218,25 @@ struct ReviewActionToolbar: View {
     let onFinish: () -> Void
 
     var body: some View {
-        HStack(spacing: 10) {
-            // 四枚纯图标工具：详情 / 撤销 / 收藏 / 分享（名称靠 VoiceOver 标签；状态只用形状表达）
+        HStack(alignment: .center, spacing: 16) {
+            shareButton
+
+            // 中间胶囊固定承载三个高频动作：收藏 / 详情 / 撤回。
             HStack(spacing: 0) {
-                toolButton(
-                    icon: "info.circle",
-                    label: L10n.string("Photo Details"),
-                    action: onShowDetails
-                )
-                Spacer(minLength: 0)
-                toolButton(
-                    icon: "arrow.uturn.backward",
-                    label: L10n.string("Undo"),
-                    action: onUndo
-                )
-                Spacer(minLength: 0)
                 toolButton(
                     icon: isFavorite ? "heart.fill" : "heart",
                     label: isFavorite ? L10n.string("Unfavorite") : L10n.string("Favorite"),
                     action: onFavorite
                 )
-                Spacer(minLength: 0)
                 toolButton(
-                    icon: isPreparingShare ? "hourglass" : "square.and.arrow.up",
-                    label: isPreparingShare ? L10n.string("Preparing") : L10n.string("Share"),
-                    action: onShare
+                    icon: "info.circle",
+                    label: L10n.string("Photo Details"),
+                    action: onShowDetails
+                )
+                toolButton(
+                    icon: "arrow.uturn.backward",
+                    label: L10n.string("Undo"),
+                    action: onUndo
                 )
             }
             .padding(.horizontal, 8)
@@ -250,7 +244,7 @@ struct ReviewActionToolbar: View {
             .modifier(ReviewGlassCapsuleChrome())
             .shadow(color: Theme.floatingShadow, radius: 12, y: 6)
 
-            // 终点动作独立成珠：琥珀玻璃「完成整理」→ 本轮结算（收集箱角标在顶栏）
+            // 终点动作保持独立成珠：液态玻璃「完成整理」→ 本轮结算。
             finishButton
         }
         .padding(.horizontal, 18)
@@ -275,42 +269,30 @@ struct ReviewActionToolbar: View {
         .accessibilityLabel(label)
     }
 
-    @ViewBuilder
-    private var finishButton: some View {
-        if #available(iOS 26.0, *) {
-            Button(action: onFinish) {
-                Image(systemName: "checkmark")
-                    .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
-                    .foregroundColor(Theme.onAccent)
-                    .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
-                    .glassEffect(.regular.tint(Theme.accent), in: .circle)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("Finish Organizing"))
-        } else {
-            Button(action: onFinish) {
-                Image(systemName: "checkmark")
-                    .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
-                    .foregroundColor(Theme.onAccent)
-                    .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
-                    .background(
-                        Circle().fill(
-                            LinearGradient(
-                                colors: [
-                                    Theme.amberGradientTop,
-                                    Theme.amberGradientBottom
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                    )
-                    .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 1))
-                    .shadow(color: Theme.accent.opacity(0.3), radius: 12, y: 5)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.string("Finish Organizing"))
+    private var shareButton: some View {
+        Button(action: onShare) {
+            Image(systemName: isPreparingShare ? "hourglass" : "square.and.arrow.up")
+                .font(.system(size: Theme.textSizeChromeIcon, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.primaryText)
+                .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
         }
+        .modifier(ReviewGlassCircleChrome())
+        .buttonStyle(.plain)
+        .shadow(color: Theme.floatingShadow, radius: 12, y: 6)
+        .accessibilityLabel(L10n.string(isPreparingShare ? "Preparing" : "Share"))
+    }
+
+    private var finishButton: some View {
+        Button(action: onFinish) {
+            Image(systemName: "checkmark")
+                .font(.system(size: Theme.textSizeLg, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.primaryText)
+                .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
+        }
+        .modifier(ReviewGlassCircleChrome())
+        .buttonStyle(.plain)
+        .shadow(color: Theme.floatingShadow, radius: 12, y: 6)
+        .accessibilityLabel(L10n.string("Finish Organizing"))
     }
 }
 

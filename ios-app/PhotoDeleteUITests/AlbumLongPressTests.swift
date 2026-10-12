@@ -17,6 +17,24 @@ final class AlbumLongPressTests: XCTestCase {
         verifyMenuAndContinuousDrag(style: "List")
     }
 
+    func testFavoritesEntryIsBesideDisplayAndShowsEmptyStateWithoutFavorites() {
+        let app = XCUIApplication()
+        app.launchEnvironment = [
+            "PHOTO_DELETE_UI_TEST": "1",
+            "PHOTO_DELETE_UI_TEST_SEED_LIBRARY": "1",
+            "PHOTO_DELETE_UI_TEST_APP_LANGUAGE": "en",
+            "PHOTO_DELETE_UI_TEST_HAS_COMPLETED_ONBOARDING": "1"
+        ]
+        app.launch()
+        app.tabBars.buttons["Albums"].tap()
+
+        let favoritesEntry = app.buttons["album-favorites-entry"]
+        XCTAssertTrue(favoritesEntry.waitForExistence(timeout: 30))
+        XCTAssertTrue(app.buttons["album-display-style"].exists)
+        favoritesEntry.tap()
+        XCTAssertTrue(app.staticTexts["No Favorites Yet"].waitForExistence(timeout: 5))
+    }
+
     private func verifyMenuAndContinuousDrag(style: String) {
         let app = XCUIApplication()
         app.launchEnvironment = [
