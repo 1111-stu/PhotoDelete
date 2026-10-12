@@ -218,11 +218,12 @@ struct ReviewActionToolbar: View {
     let onFinish: () -> Void
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: 0) {
             shareButton
 
             // 中间胶囊固定承载三个高频动作：收藏 / 详情 / 撤回。
-            HStack(spacing: 0) {
+            Spacer(minLength: 0)
+            HStack(spacing: 12) {
                 toolButton(
                     icon: isFavorite ? "heart.fill" : "heart",
                     label: isFavorite ? L10n.string("Unfavorite") : L10n.string("Favorite"),
@@ -245,9 +246,11 @@ struct ReviewActionToolbar: View {
             .shadow(color: Theme.floatingShadow, radius: 12, y: 6)
 
             // 终点动作保持独立成珠：液态玻璃「完成整理」→ 本轮结算。
+            Spacer(minLength: 0)
             finishButton
         }
         .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity)
         .disabled(!canPerformAction)
         .opacity(canPerformAction ? 1 : 0.45)
     }
