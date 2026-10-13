@@ -3,8 +3,11 @@ import Photos
 
 /// 相册整理模式的底部胶片导轨，视觉与交互对齐 iOS 原生「照片」查看器：
 /// 每一格都是同一个固定宽高比的竖幅卡片（不是照片各自的原始比例），只有当前生效的那一格放大成正方形；
-/// 按住拖动时所有格保持同一尺寸（不放大），松手后当前格才带一点弹簧感放大；
-/// 拖动导轨实时切换大图，滑大图 / 点缩略图时导轨居中跟随。
+/// 按住拖动时所有格收拢成同一尺寸，松手后吸附到最近一格，当前格带弹簧放大、两侧邻居被推开；
+/// 拖动导轨实时切换大图并逐格「咔哒」，滑大图 / 点缩略图时导轨居中跟随。
+///
+/// 布局槽位始终等宽：当前格的放大与邻居让位只是视觉位移（offset），不改变滚动内容，
+/// 所以放大 / 收拢永远不会把当前格推离中心，也不会和滚动动画互相拉扯。
 struct ReviewPhotoStrip: View {
     let photos: [PHAsset]
     let currentIndex: Int
@@ -15,28 +18,24 @@ struct ReviewPhotoStrip: View {
 
     /// 视口中心命中的照片下标（随滚动变化，仅在跨格时写入，避免逐帧刷新视图）。
     @State private var centeredIndex: Int?
-    /// 本次停手前用户是否真的滚动过：区分「用户拖动后的收尾」与「程序化滚动结束」。
-    @State private var didUserScrollSinceIdle = false
 
-    /// 拖动中不放大：手指按在导轨上时所有格子保持同一尺寸（原生就是这样），
-    /// 松手后当前格才放大成正方形；同时也让拖动期间完全没有布局重排。
+    /// 拖动中不放大：手指按在导轨上时所有格子保持同一尺寸（原生就是这样），松手吸附后当前格才放大。
     private var activeIndex: Int? {
         isScrubbing ? nil : currentIndex
     }
 
     var body: some View {
         let active = activeIndex
-        let slotWidths = photos.indices.map { ReviewPhotoStripLayout.slotWidth(isCurrent: $0 == active) }
+        let photoCount = photos.count
         ScrollViewReader { proxy in
             GeometryReader { geometry in
-                let edgeInset = ReviewPhotoStripLayout.centeringInset(viewportWidth: geometry.size.width)
                 let viewportWidth = geometry.size.width
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: ReviewPhotoStripLayout.spacing) {
                         ForEach(Array(photos.enumerated()), id: \.element.localIdentifier) { index, asset in
                             let isCurrent = index == active
                             Button {
-                                onSelect(index)
+                                select(index)
                             } label: {
                                 AlbumAssetThumbnail(
                                     assetID: asset.localIdentifier,
@@ -48,9 +47,9 @@ struct ReviewPhotoStrip: View {
                                     width: ReviewPhotoStripLayout.itemWidth(isCurrent: isCurrent),
                                     height: ReviewPhotoStripLayout.itemHeight
                                 )
-                                .padding(.horizontal, isCurrent ? ReviewPhotoStripLayout.activeExtraMargin : 0)
-                                // 放大 / 复原都带一点弹簧感（原生松手放大时的观感）。
-                                .animation(ReviewPhotoStripLayout.morphAnimation, value: isCurrent)
+                                .frame(width: ReviewPhotoStripLayout.slotWidth)
+                                .offset(x: ReviewPhotoStripLayout.displacement(of: index, activeIndex: active))
+                                .animation(ReviewPhotoStripLayout.morphAnimation(isExpanding: active != nil), value: active)
                             }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier("review-photo-strip-item-\(index)")
@@ -67,39 +66,31 @@ struct ReviewPhotoStrip: View {
                             .id(asset.localIdentifier)
                         }
                     }
-                    .padding(.horizontal, edgeInset)
+                    .padding(.horizontal, ReviewPhotoStripLayout.centeringInset(viewportWidth: viewportWidth))
                 }
+                .scrollTargetBehavior(ReviewPhotoStripSnapBehavior(itemCount: photoCount))
                 .coordinateSpace(name: ReviewPhotoStripLayout.edgeCoordinateSpace)
                 .accessibilityIdentifier("review-photo-strip")
                 .onScrollGeometryChange(for: Int?.self) { scrollGeometry in
                     ReviewPhotoStripLayout.centeredIndex(
                         offset: scrollGeometry.contentOffset.x,
-                        viewportWidth: scrollGeometry.containerSize.width,
-                        itemWidths: slotWidths,
-                        spacing: ReviewPhotoStripLayout.spacing,
-                        edgeInset: edgeInset
+                        itemCount: photoCount
                     )
-                } action: { _, index in
+                } action: { oldIndex, index in
                     centeredIndex = index
-                    // 拖动中实时切换（原生行为）；停手收尾在 phase 回调里补齐。
-                    guard isScrubbing, let index, index != currentIndex else { return }
-                    onSelect(index)
+                    // 只有用户驱动的滚动才逐格切图 + 咔哒；程序化居中不打扰。
+                    guard isScrubbing, let index, oldIndex != nil, index != oldIndex else { return }
+                    HapticManager.selection()
+                    if index != currentIndex {
+                        onSelect(index)
+                    }
                 }
                 .onScrollPhaseChange { _, phase in
-                    let isScrolling = phase == .interacting || phase == .decelerating
-                    if isScrubbing != isScrolling {
-                        isScrubbing = isScrolling
-                    }
-                    if isScrolling {
-                        didUserScrollSinceIdle = true
-                    } else if phase == .idle, didUserScrollSinceIdle {
-                        didUserScrollSinceIdle = false
-                        commitCenteredPhotoForSettledScroll()
-                    }
+                    handleScrollPhase(phase)
                 }
                 .onChange(of: currentIndex) { index in
                     guard !isScrubbing, photos.indices.contains(index) else { return }
-                    withAnimation(.easeOut(duration: ReviewPhotoStripLayout.centeringDuration)) {
+                    withAnimation(ReviewPhotoStripLayout.centeringAnimation) {
                         proxy.scrollTo(photos[index].localIdentifier, anchor: .center)
                     }
                 }
@@ -114,12 +105,41 @@ struct ReviewPhotoStrip: View {
         .frame(height: ReviewPhotoStripLayout.containerHeight)
     }
 
-    /// 惯性滚动停手后，把最后的居中结果补一次；索引变化会经由 currentIndex 回调居中。
-    private func commitCenteredPhotoForSettledScroll() {
-        guard let centeredIndex,
-              photos.indices.contains(centeredIndex),
-              centeredIndex != currentIndex else { return }
-        onSelect(centeredIndex)
+    private func select(_ index: Int) {
+        guard index != currentIndex else { return }
+        HapticManager.selection()
+        onSelect(index)
+    }
+
+    /// 吸附动画（.animating）是松手后的收尾，仍算拖动中；全部停稳才放大当前格。
+    private func handleScrollPhase(_ phase: ScrollPhase) {
+        let isUserDriven = phase == .interacting
+            || phase == .decelerating
+            || (isScrubbing && phase == .animating)
+        if isUserDriven {
+            guard !isScrubbing else { return }
+            HapticManager.prepareSelection()
+            isScrubbing = true
+            return
+        }
+        guard isScrubbing else { return }
+        if let centeredIndex, photos.indices.contains(centeredIndex), centeredIndex != currentIndex {
+            onSelect(centeredIndex)
+        }
+        isScrubbing = false
+        HapticManager.softImpact(intensity: ReviewPhotoStripLayout.settleHapticIntensity)
+    }
+}
+
+/// 松手后的落点吸附到最近一格的中心：快速甩动照常惯性滑行，只把终点对齐到格子上。
+struct ReviewPhotoStripSnapBehavior: ScrollTargetBehavior {
+    let itemCount: Int
+
+    func updateTarget(_ target: inout ScrollTarget, context: TargetContext) {
+        target.rect.origin.x = ReviewPhotoStripLayout.snappedOffset(
+            proposed: target.rect.minX,
+            itemCount: itemCount
+        )
     }
 }
 
@@ -134,15 +154,21 @@ enum ReviewPhotoStripLayout {
     static let activeExtraMargin: CGFloat = 11
     static let spacing: CGFloat = 3
     static let cornerRadius: CGFloat = 4
-    /// 松手后当前格放大成正方形：带一点点弹簧的观感（原生行为）。
-    static var morphAnimation: Animation { .spring(response: 0.3, dampingFraction: 0.75) }
-    /// 导轨居中跟随的滑动时长。
-    static let centeringDuration: TimeInterval = 0.2
+    /// 停稳那一下的落定触感，比逐格咔哒更轻更软。
+    static let settleHapticIntensity: CGFloat = 0.55
     /// 贴近边缘的卡片渐进模糊 + 渐隐；越靠边越虚，溶进背景而不是被硬裁切。
     static let edgeFadeWidth: CGFloat = 20
     static let edgeBlurRadius: CGFloat = 5
     static let edgeFadeOpacity: Double = 0.65
     static let edgeCoordinateSpace = "reviewPhotoStrip"
+
+    /// 放大带一点回弹（原生松手后的「啵」感）；按下收拢要干脆，不回弹。
+    static func morphAnimation(isExpanding: Bool) -> Animation {
+        isExpanding ? .spring(duration: 0.38, bounce: 0.24) : .smooth(duration: 0.2)
+    }
+
+    /// 导轨居中跟随大图：不过冲，避免整条导轨来回晃。
+    static let centeringAnimation: Animation = .smooth(duration: 0.32)
 
     /// 0 = 完全清晰（距边缘 >= edgeFadeWidth），1 = 已到导轨边缘。
     static func edgeFadeProgress(distanceToEdge: CGFloat) -> Double {
@@ -157,37 +183,43 @@ enum ReviewPhotoStripLayout {
         itemHeight * itemAspectRatio(isCurrent: isCurrent)
     }
 
-    /// 布局槽宽 = 卡片宽 + 当前格的额外留白；滚动定位与居中判断都按槽宽计算。
-    static func slotWidth(isCurrent: Bool) -> CGFloat {
-        itemWidth(isCurrent: isCurrent) + (isCurrent ? activeExtraMargin * 2 : 0)
+    /// 布局槽宽：所有格等宽，当前格的放大溢出槽位、由邻居让位承接。
+    static var slotWidth: CGFloat { itemWidth(isCurrent: false) }
+
+    /// 相邻两格中心的距离，也是逐格滚动的步长。
+    static var pitch: CGFloat { slotWidth + spacing }
+
+    /// 当前格放大时，两侧每一格各自被推开的距离：半个放大增量 + 额外隔离留白。
+    static var neighborShift: CGFloat {
+        (itemWidth(isCurrent: true) - slotWidth) / 2 + activeExtraMargin
     }
 
-    /// 内容两侧留白：让任意一格（含首尾）都能滚到视口正中，首尾与居中模型自洽。
+    /// 某一格相对布局槽位的视觉位移：当前格左侧整体左移、右侧整体右移，当前格自身不动。
+    static func displacement(of index: Int, activeIndex: Int?) -> CGFloat {
+        guard let activeIndex, index != activeIndex else { return 0 }
+        return index < activeIndex ? -neighborShift : neighborShift
+    }
+
+    /// 内容两侧留白：让任意一格（含首尾）都能滚到视口正中，第 i 格居中时偏移恰为 i × pitch。
     static func centeringInset(viewportWidth: CGFloat) -> CGFloat {
-        max(0, viewportWidth / 2 - slotWidth(isCurrent: true) / 2)
+        max(0, viewportWidth / 2 - slotWidth / 2)
     }
 
-    /// 视口中心命中的照片下标；贴首尾时夹到首/末张。
-    /// 内容窄于视口（无法滚动）或视口未布局时返回 nil，表示无需切换。
-    static func centeredIndex(
-        offset: CGFloat,
-        viewportWidth: CGFloat,
-        itemWidths: [CGFloat],
-        spacing: CGFloat,
-        edgeInset: CGFloat = 0
-    ) -> Int? {
-        guard !itemWidths.isEmpty, viewportWidth > 0 else { return nil }
-        let contentWidth = edgeInset * 2 + itemWidths.reduce(0, +) + spacing * CGFloat(itemWidths.count - 1)
-        guard contentWidth > viewportWidth else { return nil }
-        if offset <= 0 { return 0 }
-        if offset >= contentWidth - viewportWidth { return itemWidths.count - 1 }
+    /// 第 index 格居中时的滚动偏移。
+    static func contentOffset(for index: Int) -> CGFloat {
+        CGFloat(index) * pitch
+    }
 
-        let center = offset + viewportWidth / 2
-        var leading = edgeInset
-        for (index, width) in itemWidths.enumerated() {
-            if center < leading + width { return index }
-            leading += width + spacing
-        }
-        return itemWidths.count - 1
+    /// 视口中心最近的照片下标；越界（橡皮筋）时夹到首/末张，没有照片时返回 nil。
+    static func centeredIndex(offset: CGFloat, itemCount: Int) -> Int? {
+        guard itemCount > 0 else { return nil }
+        let nearest = Int((offset / pitch).rounded())
+        return min(max(nearest, 0), itemCount - 1)
+    }
+
+    /// 惯性滚动的预计落点吸附到最近一格的居中偏移。
+    static func snappedOffset(proposed: CGFloat, itemCount: Int) -> CGFloat {
+        guard let index = centeredIndex(offset: proposed, itemCount: itemCount) else { return proposed }
+        return contentOffset(for: index)
     }
 }

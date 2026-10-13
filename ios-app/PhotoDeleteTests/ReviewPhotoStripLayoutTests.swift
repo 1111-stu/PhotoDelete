@@ -17,18 +17,38 @@ struct ReviewPhotoStripLayoutTests {
         #expect(ReviewPhotoStripLayout.itemWidth(isCurrent: true) == ReviewPhotoStripLayout.itemHeight)
     }
 
-    @Test func activeSlotAddsMarginOnBothSides() {
-        #expect(ReviewPhotoStripLayout.slotWidth(isCurrent: false) == ReviewPhotoStripLayout.itemWidth(isCurrent: false))
-        #expect(ReviewPhotoStripLayout.slotWidth(isCurrent: true) ==
-            ReviewPhotoStripLayout.itemHeight + ReviewPhotoStripLayout.activeExtraMargin * 2)
+    @Test func slotsAreUniformSoExpandingNeverShiftsScrollContent() {
+        #expect(ReviewPhotoStripLayout.slotWidth == ReviewPhotoStripLayout.itemWidth(isCurrent: false))
+        #expect(ReviewPhotoStripLayout.pitch == ReviewPhotoStripLayout.slotWidth + ReviewPhotoStripLayout.spacing)
     }
 
     @Test func centeringInsetLetsEveryCardReachTheViewportCenter() {
         let viewport: CGFloat = 402
         let inset = ReviewPhotoStripLayout.centeringInset(viewportWidth: viewport)
-        #expect(inset == viewport / 2 - ReviewPhotoStripLayout.slotWidth(isCurrent: true) / 2)
-        // 当前格刚好居中：首项槽的左缘 + 半个槽宽 = 视口中心。
-        #expect(inset + ReviewPhotoStripLayout.slotWidth(isCurrent: true) / 2 == viewport / 2)
+        // 第 i 格的中心 = inset + i × pitch + 半槽；滚动 i × pitch 后正好落在视口中心。
+        for index in [0, 1, 7] {
+            let center = inset + CGFloat(index) * ReviewPhotoStripLayout.pitch + ReviewPhotoStripLayout.slotWidth / 2
+            #expect(abs(center - ReviewPhotoStripLayout.contentOffset(for: index) - viewport / 2) < 0.0001)
+        }
+    }
+
+    // MARK: - 当前格放大时邻居让位
+
+    @Test func neighborsMoveApartWhileActiveCardStaysPut() {
+        let shift = ReviewPhotoStripLayout.neighborShift
+        #expect(ReviewPhotoStripLayout.displacement(of: 5, activeIndex: 5) == 0)
+        #expect(ReviewPhotoStripLayout.displacement(of: 4, activeIndex: 5) == -shift)
+        #expect(ReviewPhotoStripLayout.displacement(of: 0, activeIndex: 5) == -shift)
+        #expect(ReviewPhotoStripLayout.displacement(of: 6, activeIndex: 5) == shift)
+        #expect(ReviewPhotoStripLayout.displacement(of: 3, activeIndex: nil) == 0)
+    }
+
+    @Test func neighborGapEqualsSpacingPlusExtraMargin() {
+        // 放大后当前格右缘到右邻左缘的可见间隙 = 原间距 + 隔离留白。
+        let activeRightEdge = ReviewPhotoStripLayout.slotWidth / 2 + ReviewPhotoStripLayout.itemWidth(isCurrent: true) / 2
+        let neighborLeftEdge = ReviewPhotoStripLayout.pitch + ReviewPhotoStripLayout.neighborShift
+        let gap = neighborLeftEdge - activeRightEdge
+        #expect(abs(gap - (ReviewPhotoStripLayout.spacing + ReviewPhotoStripLayout.activeExtraMargin)) < 0.0001)
     }
 
     // MARK: - 边缘模糊渐隐
@@ -44,70 +64,34 @@ struct ReviewPhotoStripLayoutTests {
 
     // MARK: - 视口中心命中（拖动导轨时的实时切换目标）
 
-    @Test func leadingEdgeKeepsFirstPhoto() {
-        #expect(centered(offset: 0) == 0)
-        #expect(centered(offset: -30) == 0)
+    @Test func centeredIndexPicksNearestSlot() {
+        let pitch = ReviewPhotoStripLayout.pitch
+        #expect(ReviewPhotoStripLayout.centeredIndex(offset: 0, itemCount: 10) == 0)
+        #expect(ReviewPhotoStripLayout.centeredIndex(offset: pitch * 0.49, itemCount: 10) == 0)
+        #expect(ReviewPhotoStripLayout.centeredIndex(offset: pitch * 0.51, itemCount: 10) == 1)
+        #expect(ReviewPhotoStripLayout.centeredIndex(offset: pitch * 3, itemCount: 10) == 3)
     }
 
-    @Test func trailingEdgeKeepsLastPhoto() {
-        #expect(centered(offset: 118) == 3)
-        #expect(centered(offset: 400) == 3)
+    @Test func rubberBandingClampsToFirstAndLastPhoto() {
+        #expect(ReviewPhotoStripLayout.centeredIndex(offset: -40, itemCount: 4) == 0)
+        #expect(ReviewPhotoStripLayout.centeredIndex(offset: 10_000, itemCount: 4) == 3)
     }
 
-    @Test func centerPicksPhotoUnderViewportMiddle() {
-        // 宽度 40/60/40/60 + 间距 6：中心 109 落在第三张 [112,152) 之前、第二张 [46,106) 之后。
-        #expect(centered(offset: 59) == 2)
-        #expect(centered(offset: 56) == 2)
-        #expect(centered(offset: 46) == 1)
+    @Test func emptyStripHasNoCenteredIndex() {
+        #expect(ReviewPhotoStripLayout.centeredIndex(offset: 10, itemCount: 0) == nil)
     }
 
-    @Test func centerAccountsForEdgeInset() {
-        let inset: CGFloat = 100
-        let viewport: CGFloat = 200
-        let widths: [CGFloat] = [
-            ReviewPhotoStripLayout.slotWidth(isCurrent: true),
-            ReviewPhotoStripLayout.slotWidth(isCurrent: false),
-            ReviewPhotoStripLayout.slotWidth(isCurrent: false)
-        ]
-        let spacing = ReviewPhotoStripLayout.spacing
-        func centered(offset: CGFloat) -> Int? {
-            ReviewPhotoStripLayout.centeredIndex(
-                offset: offset, viewportWidth: viewport, itemWidths: widths, spacing: spacing, edgeInset: inset
-            )
-        }
-        // 取各槽中点对应的滚动偏移，验证命中的就是那一格。
-        let firstSlotMid = inset + widths[0] / 2
-        let secondSlotMid = inset + widths[0] + spacing + widths[1] / 2
-        let thirdSlotMid = inset + widths[0] + spacing + widths[1] + spacing + widths[2] / 2
-        #expect(centered(offset: 0) == 0)
-        #expect(centered(offset: firstSlotMid - viewport / 2) == 0)
-        #expect(centered(offset: secondSlotMid - viewport / 2) == 1)
-        #expect(centered(offset: thirdSlotMid - viewport / 2) == 2)
-        #expect(centered(offset: 10_000) == 2)
+    // MARK: - 松手吸附
+
+    @Test func flingTargetSnapsToNearestSlotCenter() {
+        let pitch = ReviewPhotoStripLayout.pitch
+        #expect(ReviewPhotoStripLayout.snappedOffset(proposed: pitch * 4.3, itemCount: 20) == pitch * 4)
+        #expect(ReviewPhotoStripLayout.snappedOffset(proposed: pitch * 4.7, itemCount: 20) == pitch * 5)
+        #expect(ReviewPhotoStripLayout.snappedOffset(proposed: -25, itemCount: 20) == 0)
+        #expect(ReviewPhotoStripLayout.snappedOffset(proposed: pitch * 99, itemCount: 20) == pitch * 19)
     }
 
-    @Test func contentNarrowerThanViewportCannotScroll() {
-        #expect(ReviewPhotoStripLayout.centeredIndex(
-            offset: 0, viewportWidth: 400, itemWidths: [40, 60], spacing: 6
-        ) == nil)
-    }
-
-    @Test func missingLayoutInputsReturnNil() {
-        #expect(ReviewPhotoStripLayout.centeredIndex(
-            offset: 10, viewportWidth: 100, itemWidths: [], spacing: 6
-        ) == nil)
-        #expect(ReviewPhotoStripLayout.centeredIndex(
-            offset: 10, viewportWidth: 0, itemWidths: [40, 60, 40, 60], spacing: 6
-        ) == nil)
-    }
-
-    private let widths: [CGFloat] = [40, 60, 40, 60]
-    private let spacing: CGFloat = 6
-    private let viewport: CGFloat = 100
-
-    private func centered(offset: CGFloat) -> Int? {
-        ReviewPhotoStripLayout.centeredIndex(
-            offset: offset, viewportWidth: viewport, itemWidths: widths, spacing: spacing
-        )
+    @Test func snappingWithoutPhotosKeepsProposedOffset() {
+        #expect(ReviewPhotoStripLayout.snappedOffset(proposed: 12, itemCount: 0) == 12)
     }
 }

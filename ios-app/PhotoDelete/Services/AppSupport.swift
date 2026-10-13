@@ -102,7 +102,28 @@ enum HapticManager {
     private static let mediumFeedback = UIImpactFeedbackGenerator(style: .medium)
     private static let lightFeedback = UIImpactFeedbackGenerator(style: .light)
     private static let heavyFeedback = UIImpactFeedbackGenerator(style: .heavy)
+    private static let softFeedback = UIImpactFeedbackGenerator(style: .soft)
     private static let notificationFeedback = UINotificationFeedbackGenerator()
+    private static let selectionFeedback = UISelectionFeedbackGenerator()
+
+    /// 滚轮 / 导轨逐格划过时的「咔哒」；连续触发前先 prepare 以压低首帧延迟。
+    static func prepareSelection() {
+        guard isEnabled else { return }
+        selectionFeedback.prepare()
+        softFeedback.prepare()
+    }
+
+    static func selection() {
+        guard isEnabled else { return }
+        selectionFeedback.selectionChanged()
+        selectionFeedback.prepare()
+    }
+
+    /// 轻柔的落定感，用于吸附停稳等收尾时刻。
+    static func softImpact(intensity: CGFloat) {
+        guard isEnabled else { return }
+        softFeedback.impactOccurred(intensity: intensity)
+    }
 
     static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
         guard isEnabled else { return }

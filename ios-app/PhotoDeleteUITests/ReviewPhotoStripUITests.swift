@@ -1,6 +1,6 @@
 import XCTest
 
-/// 相册整理页底部胶片导轨：等高异宽（保留各照片原始比例），拖动导轨实时切换大图。
+/// 相册整理页底部胶片导轨：固定竖幅、当前格正方形，拖动导轨实时切换大图，松手吸附居中。
 final class ReviewPhotoStripUITests: XCTestCase {
     private let stripIdentifier = "review-photo-strip"
     private let stripItemIdentifierPrefix = "review-photo-strip-item-"
@@ -72,13 +72,13 @@ final class ReviewPhotoStripUITests: XCTestCase {
 
         attachScreenshot(app, name: "strip-after-scrub")
 
-        // 停手后当前项回到视口中央。
+        // 停手后吸附：当前项精确落在视口中央（不再停在两格之间）。
         waitForSettle()
         let settledItem = stripItem(app, index: selectedAfterScrub ?? 0)
         XCTAssertNotNil(settledItem)
         if let settledItem {
             let offset = abs(settledItem.frame.midX - strip.frame.midX)
-            XCTAssertLessThanOrEqual(offset, 40, "当前项应居中跟随，实际偏差 \(offset)pt")
+            XCTAssertLessThanOrEqual(offset, 2, "当前项应吸附居中，实际偏差 \(offset)pt")
         }
 
         // 点按相邻缩略图 = 直接跳转。
