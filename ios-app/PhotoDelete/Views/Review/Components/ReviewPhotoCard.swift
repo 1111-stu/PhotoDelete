@@ -127,7 +127,7 @@ struct RealPhotoCard: View {
             } else if shouldShowLivePhotoPlayback, let livePhoto {
                 ZStack {
                     RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                        .fill(Color.black.opacity(0.22))
+                        .fill(Theme.reviewPhotoSurface)
 
                     LivePhotoPreviewRepresentable(
                         livePhoto: livePhoto,
@@ -154,7 +154,7 @@ struct RealPhotoCard: View {
             } else if let image = image {
                 ZStack {
                     RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                        .fill(Color.black.opacity(0.22))
+                        .fill(Theme.reviewPhotoSurface)
 
                     Image(uiImage: image)
                         .resizable()
@@ -178,16 +178,7 @@ struct RealPhotoCard: View {
                     )
             } else {
                 Rectangle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Theme.surface,
-                                Theme.elevatedSurface
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(Theme.reviewPhotoSurface)
                     .frame(width: displaySize.width, height: displaySize.height)
                     .cornerRadius(Theme.radiusMd)
                     .overlay(
@@ -211,6 +202,10 @@ struct RealPhotoCard: View {
                     )
                     .frame(width: displaySize.width, height: displaySize.height)
             }
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                .stroke(Theme.reviewPhotoStroke, lineWidth: Theme.stroke)
         }
         .frame(width: displaySize.width, height: displaySize.height)
         .overlay(alignment: .topTrailing) {

@@ -62,6 +62,8 @@ struct SwipePhotoView: View {
     @State private var pendingAlbumSuccessToastTitle: String?
     /// 「完成并继续」已触发写入、sheet 正在关闭：成功 Toast 仍走 pending，避免异步回调连弹多次。
     @State private var isCommittingAlbumFiling = false
+    /// 相册导轨正在被拖动/惯性滚动：切换照片不加动画，预加载推迟到停手。
+    @State private var isStripScrubbing = false
 
     private static let countFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -403,6 +405,12 @@ struct SwipePhotoView: View {
             manuallyStoppedVideoAssetID = nil
             session.expand(for: session.currentIndex)
             scheduleSessionProgressSave()
+        }
+        .onChange(of: isStripScrubbing) { isScrubbing in
+            // 拖动中每跨一格都会切照片，预加载推迟到停手后补一次。
+            if !isScrubbing {
+                preloadUpcomingImages(from: session.currentIndex)
+            }
         }
         .onReceive(actions.events, perform: handleActionEvent)
         .onChange(of: defaultReviewVideoMuted) { muted in
@@ -797,41 +805,13 @@ struct SwipePhotoView: View {
     }
 
     private var albumPhotoStrip: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(Array(session.photos.enumerated()), id: \.element.localIdentifier) { index, asset in
-                        Button {
-                            selectAlbumStripPhoto(at: index)
-                        } label: {
-                            AlbumAssetThumbnail(
-                                assetID: asset.localIdentifier,
-                                photoLibraryManager: dataManager.photoLibraryManager,
-                                cornerRadius: Theme.radiusSm
-                            )
-                            .frame(width: 64, height: 64)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
-                                    .stroke(
-                                        index == session.currentIndex ? Theme.accent : Color.clear,
-                                        lineWidth: 2
-                                    )
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .id(asset.localIdentifier)
-                    }
-                }
-                .padding(.horizontal, Theme.space5)
-            }
-            .frame(height: 72)
-            .onChange(of: session.currentIndex) { index in
-                guard session.photos.indices.contains(index) else { return }
-                withAnimation(.easeOut(duration: 0.2)) {
-                    proxy.scrollTo(session.photos[index].localIdentifier, anchor: .center)
-                }
-            }
-        }
+        ReviewPhotoStrip(
+            photos: session.photos,
+            currentIndex: session.currentIndex,
+            photoLibraryManager: dataManager.photoLibraryManager,
+            isScrubbing: $isStripScrubbing,
+            onSelect: selectAlbumStripPhoto(at:)
+        )
     }
 
     // MARK: - 手势处理
@@ -1197,9 +1177,14 @@ struct SwipePhotoView: View {
         persistSessionProgressIfPossible()
     }
 
-    private func setCurrentPhotoIndex(_ index: Int) {
+    private func setCurrentPhotoIndex(_ index: Int, animated: Bool = true) {
         guard isValidPhotoIndex(index), index != session.currentIndex else { return }
-        withAnimation(.easeOut(duration: 0.18)) {
+        if animated {
+            withAnimation(.easeOut(duration: 0.18)) {
+                session.currentIndex = index
+            }
+        } else {
+            // 导轨拖动中即时切换：0.18s 动画会让快速 scrub 发粘。
             session.currentIndex = index
         }
     }
@@ -1445,8 +1430,13 @@ struct SwipePhotoView: View {
     private func selectAlbumStripPhoto(at index: Int) {
         guard session.photos.indices.contains(index), index != session.currentIndex else { return }
         stopInlineVideoPlayback()
-        setCurrentPhotoIndex(index)
-        preloadUpcomingImages(from: index)
+        // 只有相邻一张才走滑动动画；远处跳转会整组换页，加动画反而会浮出错的过渡。
+        let isNeighborStep = abs(index - session.currentIndex) == 1
+        setCurrentPhotoIndex(index, animated: !isStripScrubbing && isNeighborStep)
+        // 拖动中每跨一格都会走到这里：预加载留到停手后统一补（见 isStripScrubbing 的 onChange）。
+        if !isStripScrubbing {
+            preloadUpcomingImages(from: index)
+        }
     }
 
     private func handleBackAction() {

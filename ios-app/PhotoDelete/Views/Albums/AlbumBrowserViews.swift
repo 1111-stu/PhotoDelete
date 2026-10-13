@@ -424,6 +424,8 @@ struct AlbumAssetThumbnail: View {
     let photoLibraryManager: PhotoLibraryManager
     var cornerRadius: CGFloat = Theme.radiusSm
     var emptyIcon: String = "photo"
+    /// 期望宽高比（宽 / 高）。默认 1 保持方形；相册整理页导轨传固定竖幅（当前格为正方形）。
+    var aspectRatio: CGFloat = 1
 
     @State private var image: UIImage?
     @State private var requestID: PHImageRequestID?
@@ -431,7 +433,7 @@ struct AlbumAssetThumbnail: View {
 
     var body: some View {
         Color.clear
-            .aspectRatio(1, contentMode: .fit)
+            .aspectRatio(aspectRatio, contentMode: .fit)
             .overlay {
                 GeometryReader { proxy in
                     ZStack {
@@ -451,8 +453,8 @@ struct AlbumAssetThumbnail: View {
                     }
                     .frame(width: proxy.size.width, height: proxy.size.height)
                     .clipped()
-                    .task(id: "\(assetID ?? "")-\(Int(proxy.size.width.rounded()))") {
-                        load(side: proxy.size.width)
+                    .task(id: "\(assetID ?? "")-\(Int(proxy.size.width.rounded()))x\(Int(proxy.size.height.rounded()))") {
+                        load(size: proxy.size)
                     }
                 }
             }
@@ -464,9 +466,9 @@ struct AlbumAssetThumbnail: View {
     }
 
     @MainActor
-    private func load(side: CGFloat) {
+    private func load(size: CGSize) {
         cancel()
-        guard let assetID, side > 1 else {
+        guard let assetID, size.width > 1, size.height > 1 else {
             if assetID == nil {
                 image = nil
             }
@@ -482,8 +484,8 @@ struct AlbumAssetThumbnail: View {
         loadGeneration += 1
         let generation = loadGeneration
         let scale = UIScreen.main.scale
-        let pixels = side * scale
-        let target = CGSize(width: pixels, height: pixels)
+        // 目标尺寸与格子同比：aspectFill 请求即按格子比例中心裁好，视图层不再二次裁切。
+        let target = CGSize(width: size.width * scale, height: size.height * scale)
         let manager = photoLibraryManager
         requestID = manager.loadAlbumCoverThumbnail(for: asset, size: target) { loaded in
             guard generation == loadGeneration else { return }

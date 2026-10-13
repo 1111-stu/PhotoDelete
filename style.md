@@ -25,9 +25,10 @@ PhotoDelete 使用**黑白中性的暗色设计系统**。近黑画布、黑灰�
 | --- | --- | --- |
 | `backgroundTop` | `#0A0A0D` | 普通页面背景渐变上端 |
 | `background` | `#08080A` | 页面主背景 |
-| `reviewCanvas` | `#17181F` | 整理场景专用中性画布 |
+| `reviewCanvas` | `#000000` | 整理场景专用黑色画布 |
 | `surface` | `#16161A` | 普通卡片、列表容器 |
 | `elevatedSurface` | `#1E1E24` | 输入、浮层、toast、次级操作表面 |
+| `reviewPhotoSurface` | `#12131B` | 整理页照片框留白与加载态的石墨深灰承托 |
 | `primaryText` | White 96% | 标题和主要内容 |
 | `secondaryText` | White 62% | 说明、次级值 |
 | `tertiaryText` | White 42% | 弱图标、辅助信息 |
@@ -166,6 +167,8 @@ Use continuous rounded rectangles and the shared radius ladder:
 | `radiusLg` | 24 | Standard large card |
 
 Circles and capsules follow their semantic shapes. A small number of content-specific masks may use a different radius when the image format requires it; do not introduce a new general-purpose radius for a single view.
+
+已登记的内容专用例外：整理页相册导轨的胶片缩略图为固定 2:3 竖幅卡片、当前生效格变正方形，用 4pt 圆角 / 3pt 间距（对齐 iOS 原生「照片」查看器底部胶片条），常量见 `ios-app/PhotoDelete/Views/Review/Components/ReviewPhotoStrip.swift` 的 `ReviewPhotoStripLayout`。
 
 ## Opacity & Transparency
 

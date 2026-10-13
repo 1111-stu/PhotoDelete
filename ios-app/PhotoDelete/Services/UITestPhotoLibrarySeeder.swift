@@ -96,6 +96,8 @@ enum UITestPhotoLibrarySeeder {
         case beach
         case city
         case pet
+        /// 胶片导轨验收：混合比例、数量足够让导轨内容宽于视口（可滚动、可拖动切换）。
+        case filmstrip
     }
 
     private struct PhotoSeed {
@@ -115,7 +117,8 @@ enum UITestPhotoLibrarySeeder {
                 AlbumSeed(title: "Travel Photos", kind: .travel),
                 AlbumSeed(title: "Weekend Beach", kind: .beach),
                 AlbumSeed(title: "City Walk", kind: .city),
-                AlbumSeed(title: "Pet Photos", kind: .pet)
+                AlbumSeed(title: "Pet Photos", kind: .pet),
+                AlbumSeed(title: "Filmstrip Test", kind: .filmstrip)
             ]
         }
 
@@ -123,7 +126,8 @@ enum UITestPhotoLibrarySeeder {
             AlbumSeed(title: "旅行照片", kind: .travel),
             AlbumSeed(title: "周末海边", kind: .beach),
             AlbumSeed(title: "城市漫步", kind: .city),
-            AlbumSeed(title: "宠物照片", kind: .pet)
+            AlbumSeed(title: "宠物照片", kind: .pet),
+            AlbumSeed(title: "胶片导轨测试", kind: .filmstrip)
         ]
     }
 
@@ -235,6 +239,29 @@ enum UITestPhotoLibrarySeeder {
                     date: day(-7),
                     location: nil,
                     generatedVideoIndex: nil
+                ))
+            case .filmstrip:
+                // 数量足够让导轨内容宽于视口（可滚动、可拖动切换）；10 张资源各用两遍凑 20 张，另加一段视频。
+                let distinctResources = [
+                    "travel-seed-01", "travel-seed-04", "travel-seed-07",
+                    "travel-seed-02", "travel-seed-05", "travel-seed-08",
+                    "travel-seed-03", "travel-seed-06", "pet-seed-01", "pet-seed-02"
+                ]
+                for (index, resourceName) in (distinctResources + distinctResources).enumerated() {
+                    seeds.append(PhotoSeed(
+                        resourceName: resourceName,
+                        albumTitle: album.title,
+                        date: day(-10 - Double(index) * 0.05),
+                        location: nil,
+                        generatedVideoIndex: nil
+                    ))
+                }
+                seeds.append(PhotoSeed(
+                    resourceName: nil,
+                    albumTitle: album.title,
+                    date: day(-11),
+                    location: nil,
+                    generatedVideoIndex: 0
                 ))
             }
         }

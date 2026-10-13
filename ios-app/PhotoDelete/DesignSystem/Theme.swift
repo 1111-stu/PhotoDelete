@@ -23,8 +23,8 @@ enum Theme {
 
     static let backgroundTop = Color(red: 0.039, green: 0.039, blue: 0.051)
     static let background = Color(red: 0.031, green: 0.031, blue: 0.039)
-    /// 整理页幕布（比首页略亮）。
-    static let reviewCanvas = Color(red: 23.0 / 255.0, green: 24.0 / 255.0, blue: 31.0 / 255.0)
+    /// 整理页幕布：纯黑让照片成为唯一的视觉焦点。
+    static let reviewCanvas = Color.black
 
     // MARK: - Color · Surface
 
@@ -33,6 +33,9 @@ enum Theme {
     static let cardStroke = Color.white.opacity(0.09)
     static let hairline = Color.white.opacity(0.075)
     static let floatingShadow = Color.black.opacity(0.30)
+    /// 整理页照片框的石墨深灰承托色，不覆盖照片本身，只填充留白和加载态。
+    static let reviewPhotoSurface = Color(red: 0.070, green: 0.075, blue: 0.086)
+    static let reviewPhotoStroke = Color.white.opacity(0.12)
 
     // MARK: - Color · Text
 
