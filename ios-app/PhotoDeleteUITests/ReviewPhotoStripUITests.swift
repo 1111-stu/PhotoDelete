@@ -25,7 +25,7 @@ final class ReviewPhotoStripUITests: XCTestCase {
         let strip = app.descendants(matching: .any)[stripIdentifier]
         XCTAssertTrue(strip.waitForExistence(timeout: 10))
 
-        // 固定比例：所有格等高；普通格是同一个 2:3 竖幅，只有当前格变成正方形（两侧多留 11pt）。
+        // 固定比例：所有格等高；普通格是同一个 2:3 竖幅，只有当前格变成正方形（两侧多留一点空隙）。
         let items = visibleStripItems(app)
         XCTAssertGreaterThanOrEqual(items.count, 4, "导轨应同时展示多张缩略图")
         let heights = items.map(\.frame.height)
@@ -46,7 +46,7 @@ final class ReviewPhotoStripUITests: XCTestCase {
         )
         if let selectedItem {
             XCTAssertEqual(selectedItem.frame.height, heights.first ?? 0, accuracy: 1, "当前格与普通格等高")
-            // 当前格是正方形卡片（可能含两侧 11pt 留白），一定明显宽于固定 2:3 的普通格。
+            // 当前格是正方形卡片（两侧另有隔离留白），一定明显宽于固定 2:3 的普通格。
             XCTAssertGreaterThan(
                 selectedItem.frame.width, (normalWidths.max() ?? 0) * 1.4,
                 "当前格应变成正方形，实际宽度：\(selectedItem.frame.width)"

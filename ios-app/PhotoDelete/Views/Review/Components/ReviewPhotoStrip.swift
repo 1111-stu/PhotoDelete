@@ -151,7 +151,7 @@ enum ReviewPhotoStripLayout {
     /// 普通格固定 2:3 竖幅（照片按 aspectFill 居中裁切，不随各自原始比例变化）。
     static let itemAspect: CGFloat = 2.0 / 3.0
     /// 当前格两侧多留出的间距，形成原生那种「当前项被隔离」的观感。
-    static let activeExtraMargin: CGFloat = 11
+    static let activeExtraMargin: CGFloat = 6
     static let spacing: CGFloat = 3
     static let cornerRadius: CGFloat = 4
     /// 停稳那一下的落定触感，比逐格咔哒更轻更软。
