@@ -108,23 +108,22 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     0 12px 28px #0000007a,                 /* 外投影：从画布上浮起来 */
     0 1px 2px #00000059;
 }
-.pol{position:absolute;padding:4px 4px 13px;border-radius:3.5px;background:#f2ede4;box-shadow:0 1px 2px #00000073,0 6px 14px #00000085,0 0 0 1px #00000014;transform:translate3d(var(--swing-x,0px),var(--swing-y,0px),0) rotate(calc(var(--rot,0deg) + var(--swing-rot,0deg)));transform-origin:50% 50%}
+.pol{position:absolute;padding:4px 4px 13px;border-radius:3.5px;background:#f2ede4;box-shadow:0 1px 2px #00000073,0 6px 14px #00000085,0 0 0 1px #00000014;transform:rotate(var(--rot,0deg));transform-origin:50% 50%}
 .pol-photo{position:relative;display:block;width:100%;overflow:hidden;border-radius:2px;background:#d9d2c6}
 .pol-photo img,.pol-photo svg{display:block;width:100%;height:100%;object-fit:cover}
 .pol img{opacity:0;transition:opacity .3s ease}
 .pol img.loaded{opacity:1}
-.pol:active{opacity:.85}
-.wall[data-anim="1"] .pol{animation:polIn .52s cubic-bezier(.22,.61,.36,1) backwards;animation-delay:calc(var(--i,0)*16ms)}
+.wall[data-anim="1"] .pol,.wall[data-anim="1"] .sticker{animation:polIn .52s cubic-bezier(.22,.61,.36,1) backwards;animation-delay:calc(var(--i,0)*12ms)}
 @keyframes polIn{
-  from{opacity:0;transform:translate3d(var(--swing-x,0px),var(--swing-y,0px),0) rotate(calc(var(--rot,0deg) - 9deg)) scale(.86)}
-  to{opacity:1;transform:translate3d(var(--swing-x,0px),var(--swing-y,0px),0) rotate(calc(var(--rot,0deg) + var(--swing-rot,0deg))) scale(1)}
+  from{opacity:0;transform:rotate(calc(var(--rot,0deg) - 9deg)) scale(.86)}
+  to{opacity:1;transform:rotate(var(--rot,0deg)) scale(1)}
 }
 /* 未加载：一张空白相纸 */
 .pol.ph .pol-photo{background:#e2dbcf}
 .pol.ph .pol-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 24%,#00000009 42%,#00000013 50%,#00000009 58%,transparent 76%);background-size:220% 100%;animation:shimmer 1.7s linear infinite}
 .board-hint{margin:9px 2px 0;font-size:11.5px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
 
-/* 密铺钉板：近白相纸、能看清的木夹。全部带相框，尺寸只微差。板高随内容变。 */
+/* 拼贴板：近白相纸、能看清的夹子。尺寸/倾角拉开，板高随内容变。 */
 .board.pin{
   background:
     radial-gradient(120% 70% at 50% 0%, #ffffff14, transparent 46%),
@@ -151,6 +150,31 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
 .pol-clip:after{
   content:"";position:absolute;left:14%;right:14%;top:42%;height:1.6px;border-radius:1px;background:#00000038;
 }
+
+/* 拼贴板：抓取 / 拖拽 / 回弹 */
+.board.pin .pol,.board.pin .sticker{cursor:grab;touch-action:pan-y pinch-zoom;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.board.pin .pol img{-webkit-user-drag:none;user-drag:none}
+.board.pin .pol.dragging,.board.pin .sticker.dragging{cursor:grabbing}
+.board.pin .pol.dragging{transform:rotate(var(--rot,0deg)) scale(1.04);box-shadow:0 3px 6px #0000008f,0 20px 34px #000000d9,0 0 0 1px #00000020}
+.board.pin .pol.settling{transition:transform .24s cubic-bezier(.3,1.4,.6,1),box-shadow .24s ease}
+.sticker{position:absolute;transform:rotate(var(--rot,0deg));filter:drop-shadow(0 3px 4px #000000a6) drop-shadow(0 1px 1px #00000059);will-change:transform}
+.sticker svg{display:block;width:100%;height:100%;pointer-events:none;overflow:visible}
+.sticker.dragging{transform:rotate(var(--rot,0deg)) scale(1.06);filter:drop-shadow(0 6px 10px #000000c4)}
+.sticker.settling{transition:transform .24s cubic-bezier(.3,1.4,.6,1),filter .24s ease}
+.wall[data-hits="1"] .board.pin .sticker{outline:1.5px dashed #61a3e6cc;outline-offset:2px}
+
+/* 图钉变体：圆头 / 半球 / 圆环；衣夹保持默认 */
+.pol-clip[data-pin="round"],.pol-clip[data-pin="dome"],.pol-clip[data-pin="ring"]{
+  width:13px;height:13px;top:-6px;margin-left:-6.5px;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#ffffffb8 0 12%,transparent 46%),var(--clip,#e06b94);
+  box-shadow:0 1px 2px #0000008f,inset 0 1px 1px #ffffff55,inset 0 -1px 1px #00000038;
+}
+.pol-clip[data-pin="round"]:after,.pol-clip[data-pin="dome"]:after,.pol-clip[data-pin="ring"]:after{
+  content:"";position:absolute;left:50%;top:100%;width:2px;height:7px;margin-left:-1px;
+  background:linear-gradient(180deg,#dcdcdc,#858585);border-radius:0 0 1px 1px;box-shadow:0 1px 1px #00000066;
+}
+.pol-clip[data-pin="dome"]{width:11px;height:11px;top:-5px;margin-left:-5.5px;background:radial-gradient(circle at 36% 26%,#ffffffd8 0 9%,transparent 40%),radial-gradient(circle at 50% 72%,#00000033,transparent 62%),var(--clip,#78bd66)}
+.pol-clip[data-pin="ring"]{background:radial-gradient(circle,transparent 0 33%,var(--clip,#61a3e6) 35% 60%,#ffffff66 62% 68%,transparent 70%);box-shadow:0 1px 2px #0000008f}
 .wall[data-hits="1"] .pol{outline:1.5px dashed #f3b14caa;outline-offset:1px}
 .hit-toggle{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted);min-height:40px}
 .hit-toggle input{width:16px;height:16px;accent-color:var(--amber)}
@@ -270,20 +294,21 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
       <div class="note"><b>03 / 点一下就开始整理，没有常驻主按钮</b><p>点任意一张缩略图 = <b>整理这一年</b>（当前范围），从这张开始滑；月份右侧「▣ 1150 ›」（相片图标 + 张数 + 箭头，无底色）= <b>只整理这一月</b>。墙本身就是入口，所以页面常规态下没有琥珀——琥珀只出现在年份 sheet 的选中态。顶栏 48pt 玻璃圆钮与滑动整理页同规格，收集箱角标沿用珊瑚红。</p></div>
       <div class="note"><b>04 / 年份是浏览范围</b><p>顶栏胶囊选年份（sheet 里选中态琥珀），墙按年份列出有待整理照片的月份。切到已经整理完的年份会看到空状态——那也是一种进度。</p></div>
       <div class="note"><b>05 / 可爱版：相纸 + 微倾斜（可切换对比）</b><p>① <b>相纸白边</b>：2px 暖白内框（#F2EDE4）+ 圆角 12/8，卡片从「缩略图」变成「冲印出来的小照片」；未加载的卡在可爱版里就是一张空白相纸，和参考图那排白块同构。② <b>微倾斜</b>：按日期确定性 ±1.2°（<code>(day % 5 − 2) × 0.6</code>），进场从 ±3° 收正（settle），整理掉一天时卡片「揭下来」。点面板上的按钮可以看揭下动效。</p></div>
-      <div class="note"><b>06 / 相纸墙模式（月份抬头可切）</b><p>一个月 = 一块托盘。右侧可在两种构图间对照：<b>抖动网格</b>是现在 App 里那版（5×3 格、尺寸接近、上限 15）；<b>密铺钉板</b>是这一版要试的目标——全部带相框、尺寸只微差、压住邻边、夹子加粗。点相纸仍是「从这天开始整理」。</p></div>
-      <div class="note"><b>07 / 密铺钉板怎么排</b><p>还是确定性种子（<code>pin-年-月</code>），刷新位置不变。① 每张都是拍立得白边（下边更厚）。② 尺寸只抖约 ±12%，不再做一张特别大的主图。③ 宽高比收在 0.8–1.25，避免特别瘦或特别扁。④ 4 列错列，列距小于相纸宽所以会压边。⑤ 彩夹 9×20，颜色取自 <code>boardClipPalette</code>。刻意<b>不上贴纸、不抠无框图</b>。</p></div>
-      <div class="note"><b>08 / 悬挂微晃</b><p>相纸像夹在板上：倾斜手机（或在桌面上把指针划过手机）会偏 2–4px / ±2°，轻摇会带一点惯性再回正。每张刚度略有差别，不会整板一起平移。系统开了「减少动态效果」则完全静止。</p></div>
+      <div class="note"><b>06 / 相纸墙模式（月份抬头可切）</b><p>一个月 = 一块深色圆角托盘。右侧对照两种构图：<b>抖动网格</b>是现在 App 里那版（5×3 格、尺寸接近、上限 15）；<b>拼贴板</b>是这一版目标——18–20 张拍立得 + 6–8 个贴纸，尺寸、宽高比、倾角都拉开，靠聚簇和压边形成手账式的拼贴感。点相纸仍是「从这天开始整理」。</p></div>
+      <div class="note"><b>07 / 拼贴板怎么排</b><p>确定性种子（<code>collage-年-月-盐</code>），刷新位置不变。① 照片宽 46–82、宽高比 0.68–1.35、倾角 ±15°，分小/中/大三档。② 先按 3–6 个聚簇撒点，再做 90 轮两两重叠松弛（旋转后包围盒，单对重叠不超过约 50%）。③ 中心曝光检查：照片中心被更高层盖住就抬到最上层，保证每张都有一块能点到的区域。④ 保留彩夹，另加圆头、半球、圆环三种图钉。⑤ 8 个内联 SVG 贴纸带白描边和投影，按 z 穿插在照片前后。⑥ 板高随内容自动长。</p></div>
+      <div class="note"><b>08 / 拖拽排布</b><p>按住任意相纸或贴纸拖走：超过 6–8px 才算拖，抓起放大 1.04、阴影加深并置顶，松手短弹簧回正。纵向滑动优先给页面滚动，所以从照片上起手也能上下滚；先水平起手则进入拖拽。拖动后不触发 review；轻点相纸仍是「从这天开始整理」，点贴纸没有动作。位置按月份记在内存里，重渲染和调滑条都保留；「重新撒开」换种子并清空拖拽位置，「恢复默认」连参数一起复位。减少动态效果时进场和回弹瞬时完成。</p></div>
     </div>
     <p class="test-label">相纸墙构图</p>
     <div class="scenarios" aria-label="相纸墙构图">
       <button class="board-opt" data-board="jitter" aria-pressed="false">当前 · 抖动网格</button>
-      <button class="board-opt" data-board="pin" aria-pressed="true">目标 · 密铺钉板</button>
+      <button class="board-opt" data-board="pin" aria-pressed="true">目标 · 拼贴板</button>
     </div>
     <label class="hit-toggle"><input type="checkbox" id="show-hits"> 显示可点区域（核对照片是否叠到点不着）</label>
     <p class="test-label">钉板密度 · 拖滑条，满意后把下面 JSON 发给我</p>
     <div class="pin-tuner" id="pin-tuner"></div>
     <pre class="pin-dump" id="pin-dump"></pre>
     <div class="pin-actions">
+      <button class="demo-peel" id="pin-rescatter">重新撒开</button>
       <button class="demo-peel" id="pin-copy">复制当前参数</button>
       <button class="demo-peel" id="pin-reset">恢复默认</button>
     </div>
@@ -293,7 +318,6 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
       <button class="style-opt" data-style="cute" aria-pressed="false">可爱（相纸边 + 微倾斜）</button>
     </div>
     <button class="demo-peel" id="demo-peel">演示：整理掉一天（看「揭下来」）</button>
-    <button class="demo-peel" id="demo-wobble">演示：轻轻晃一下</button>
 
     <p class="test-label">切换示例状态</p>
     <div class="scenarios" aria-label="示例状态">
@@ -450,6 +474,106 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     <circle cx="142" cy="148" r="4" fill="#ffe2ef"/>
     <g fill="#ffffff" opacity=".8"><circle cx="30" cy="188" r="2.5"/><circle cx="176" cy="66" r="2.5"/><circle cx="108" cy="204" r="2"/></g>
   </symbol>
+
+  <!-- 拼贴贴纸：白色描边 + 彩色主体，内联 SVG 保证离线可用 -->
+  <symbol id="st-smile" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="46" fill="#fff"/>
+    <circle cx="50" cy="50" r="38" fill="#ffd23f"/>
+    <ellipse cx="37" cy="42" rx="4.2" ry="6.2" fill="#221d16"/>
+    <ellipse cx="63" cy="42" rx="4.2" ry="6.2" fill="#221d16"/>
+    <path d="M34 60q16 15 32 0" fill="none" stroke="#221d16" stroke-width="4.6" stroke-linecap="round"/>
+    <circle cx="27" cy="55" r="4.2" fill="#f59a8a" opacity=".7"/>
+    <circle cx="73" cy="55" r="4.2" fill="#f59a8a" opacity=".7"/>
+  </symbol>
+  <symbol id="st-rose" viewBox="0 0 100 100">
+    <path d="M50 4c27 0 44 18 44 40 0 28-20 44-44 44S6 72 6 44C6 22 23 4 50 4z" fill="#fff"/>
+    <circle cx="50" cy="42" r="30" fill="#b51f2e"/>
+    <path d="M50 14c16 0 27 12 27 27 0 17-12 28-27 28S23 58 23 41C23 26 34 14 50 14z" fill="#d9323f"/>
+    <path d="M50 22c10 0 18 8 18 19 0 12-8 20-18 20s-18-8-18-20c0-11 8-19 18-19z" fill="#a81b28"/>
+    <path d="M50 30c5 0 9 4 9 10s-4 11-9 11-9-5-9-11 4-10 9-10z" fill="#e8606b"/>
+    <path d="M36 64q-16 8-25 27 20-5 31-19z" fill="#4e8a4a"/>
+    <path d="M64 64q16 8 25 27-20-5-31-19z" fill="#3f783d"/>
+  </symbol>
+  <symbol id="st-sunflower" viewBox="0 0 100 100">
+    <g fill="#f2b21c" stroke="#fff" stroke-width="3">
+      <g transform="translate(50 42)">
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(30)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(60)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(90)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(120)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(150)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(180)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(210)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(240)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(270)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(300)"/>
+        <ellipse cx="0" cy="-27" rx="7.5" ry="15" transform="rotate(330)"/>
+      </g>
+    </g>
+    <circle cx="50" cy="42" r="18" fill="#6b4a22" stroke="#fff" stroke-width="3"/>
+    <circle cx="50" cy="42" r="13" fill="#7d5a2b"/>
+    <g fill="#5b3e1c"><circle cx="45" cy="38" r="1.6"/><circle cx="55" cy="39" r="1.5"/><circle cx="49" cy="45" r="1.5"/><circle cx="57" cy="47" r="1.3"/><circle cx="43" cy="46" r="1.2"/></g>
+    <path d="M50 58v26" stroke="#4e8a4a" stroke-width="5" stroke-linecap="round"/>
+    <path d="M50 72q-14 2-20 12 16 2 22-7z" fill="#4e8a4a"/>
+  </symbol>
+  <symbol id="st-bust" viewBox="0 0 100 108">
+    <path d="M20 104c2-18 13-26 27-29l1-6c-7-5-11-12-11-21 0-15 8-25 20-25 11 0 17 9 17 20 0 8-3 15-7 19l9 5c-1 8-4 14-9 17v4c12 3 21 8 25 16z" fill="#fff" stroke="#fff" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M20 104c2-18 13-26 27-29l1-6c-7-5-11-12-11-21 0-15 8-25 20-25 11 0 17 9 17 20 0 8-3 15-7 19l9 5c-1 8-4 14-9 17v4c12 3 21 8 25 16z" fill="#e8e2d4"/>
+    <path d="M48 33c5-4 12-4 17 0" stroke="#c3b8a4" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M54 39l-3 8 4 2" stroke="#c3b8a4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M44 54q6 4 12 0" stroke="#b9ac96" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M46 70q5 3 10 0" stroke="#c3b8a4" stroke-width="2" fill="none"/>
+    <path d="M28 96q22-10 44 0" stroke="#d6ccb9" stroke-width="2" fill="none"/>
+  </symbol>
+  <symbol id="st-cat" viewBox="0 0 100 100">
+    <path d="M20 40 14 12l24 14c8-3 16-3 24 0l24-14-6 28" fill="#fff" stroke="#fff" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M20 40 14 12l24 14c8-3 16-3 24 0l24-14-6 28" fill="#8b8b92"/>
+    <path d="M18 46c0 22 14 36 32 36s32-14 32-36-14-22-32-22-32 0-32 22z" fill="#fff" stroke="#fff" stroke-width="6"/>
+    <path d="M18 46c0 22 14 36 32 36s32-14 32-36-14-22-32-22-32 0-32 22z" fill="#9a9aa1"/>
+    <ellipse cx="38" cy="46" rx="5" ry="7" fill="#2b2b30"/>
+    <ellipse cx="62" cy="46" rx="5" ry="7" fill="#2b2b30"/>
+    <circle cx="39" cy="44" r="1.8" fill="#fff"/>
+    <circle cx="63" cy="44" r="1.8" fill="#fff"/>
+    <path d="M50 56l-5 5h10z" fill="#d98b8b"/>
+    <g stroke="#f2f2f2" stroke-width="2" stroke-linecap="round"><path d="M18 54h18"/><path d="M20 62h16"/><path d="M82 54H64"/><path d="M80 62H64"/></g>
+  </symbol>
+  <symbol id="st-egg" viewBox="0 0 100 90">
+    <path d="M22 84l8-20M78 84l-8-20" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+    <path d="M22 84l8-20M78 84l-8-20" stroke="#e08a3c" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="22" cy="86" rx="9" ry="5" fill="#fff"/>
+    <ellipse cx="78" cy="86" rx="9" ry="5" fill="#fff"/>
+    <ellipse cx="22" cy="86" rx="7" ry="3.4" fill="#3a2a1e"/>
+    <ellipse cx="78" cy="86" rx="7" ry="3.4" fill="#3a2a1e"/>
+    <ellipse cx="50" cy="40" rx="30" ry="36" fill="#fff"/>
+    <ellipse cx="50" cy="40" rx="25" ry="31" fill="#f7ecd2"/>
+    <ellipse cx="40" cy="38" rx="2.6" ry="4" fill="#3a2a1e"/>
+    <ellipse cx="60" cy="38" rx="2.6" ry="4" fill="#3a2a1e"/>
+    <path d="M44 48q6 5 12 0" stroke="#3a2a1e" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <circle cx="33" cy="46" r="3.4" fill="#f0a2a2" opacity=".7"/>
+    <circle cx="67" cy="46" r="3.4" fill="#f0a2a2" opacity=".7"/>
+  </symbol>
+  <symbol id="st-liberty" viewBox="0 0 100 115">
+    <g fill="#57b7a4" stroke="#fff" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M50 18c-7 0-10 6-10 12 0 5 3 9 7 11v14l-9 10c-5 8-8 18-9 30h42c-1-12-4-22-9-30l-9-10V41c4-2 7-6 7-11 0-6-3-12-10-12z"/>
+      <path d="M41 19l-7-8 2 11-9-3 6 9-9 2 9 6"/>
+      <path d="M56 32l12-22" stroke-width="5"/>
+      <path d="M68 10c-3-4-3-8 0-10 3 2 3 6 0 10z" fill="#ffd45c" stroke-width="3"/>
+      <path d="M28 96h44" stroke-width="5"/>
+    </g>
+    <path d="M50 24c-3 0-5 3-5 7 0 3 2 6 5 6s5-3 5-6c0-4-2-7-5-7z" fill="#e8f4ef"/>
+    <path d="M45 48l-6 16M55 48l6 16" stroke="#3f9282" stroke-width="2" fill="none"/>
+  </symbol>
+  <symbol id="st-bluecat" viewBox="0 0 100 130">
+    <rect x="2" y="2" width="96" height="126" rx="3" fill="#fff"/>
+    <rect x="8" y="8" width="84" height="114" fill="#1d49c9"/>
+    <path d="M30 54 22 34l18 12c7-3 13-3 20 0l18-12-8 20c4 5 6 11 6 18 0 14-12 24-26 24S24 86 24 72c0-7 2-13 6-18z" fill="#f4f1e8"/>
+    <ellipse cx="41" cy="66" rx="3" ry="4" fill="#1d49c9"/>
+    <ellipse cx="59" cy="66" rx="3" ry="4" fill="#1d49c9"/>
+    <path d="M50 73l-4 4h8z" fill="#ff9aa8"/>
+    <g fill="#f4f1e8" opacity=".9"><rect x="18" y="104" width="38" height="4"/><rect x="18" y="112" width="26" height="3"/></g>
+    <text x="66" y="112" font-size="7" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#ffd45c">MAO</text>
+  </symbol>
 </svg>
 
 <script>
@@ -564,36 +688,60 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
   const POL_COLS = 5, POL_ROWS = 3;
   const POL_AR = [0.75, 0.8, 1, 1, 1.33, 1.5];
   const CLIP_COLORS = ['#edd65c', '#9e87db', '#78bd66', '#61a3e6', '#e06b94', '#cca375'];
-  const PIN_AR = [0.8, 0.85, 1, 1, 1.15, 1.25];
+  const PIN_AR = [0.68, 0.75, 0.85, 0.95, 1.05, 1.15, 1.25, 1.35];
   const PIN_DEFAULTS = {
-    maxPolaroids: 16,
-    columnPitch3: 88,
-    columnPitch4: 78,
-    rowPitch: 72,
+    maxPolaroids: 19,
+    minPhotoWidth: 46,
+    photoWidthSpan: 36,
+    maxRotation: 15,
+    clusterCount: 4,
+    clusterSpread: 0.45,
+    itemJitter: 10,
+    overlapLimit: 0.58,
+    stickerCount: 7,
+    stickerScale: 1.12,
     inset: 10,
-    minPhotoWidth: 55,
-    photoWidthSpan: 10,
-    maxRotation: 12,
-    itemJitter: 9,
-    stagger: 0.32,
-    edgeHang: 8
+    edgeHang: 6
   };
   const PIN = { ...PIN_DEFAULTS };
   const PIN_FIELDS = [
-    { key: 'maxPolaroids', label: '最多张数', hint: '一块板上挂几张。少则疏，多则满。', min: 8, max: 20, step: 1 },
-    { key: 'columnPitch4', label: '4 列列距', hint: '照片多时的左右间距。越小越压边、越密。', min: 52, max: 96, step: 1 },
-    { key: 'columnPitch3', label: '3 列列距', hint: '照片少（≤8 张）时的左右间距。', min: 64, max: 112, step: 1 },
-    { key: 'rowPitch', label: '行距', hint: '上下两排中心距离。越小越叠、越密。', min: 48, max: 100, step: 1 },
-    { key: 'minPhotoWidth', label: '照片最小宽', hint: '相纸里照片的基准宽度。越大整板越满。', min: 46, max: 72, step: 1 },
-    { key: 'photoWidthSpan', label: '尺寸抖动', hint: '在最小宽之上再随机加多少。0 = 几乎一样大。', min: 0, max: 22, step: 1 },
-    { key: 'itemJitter', label: '落位抖动', hint: '每张在格子里再偏移多少。大则更散、更乱。', min: 0, max: 16, step: 1 },
-    { key: 'stagger', label: '错列', hint: '相邻列高低差（相对行距）。0 = 齐顶，大则波浪。', min: 0, max: 0.55, step: 0.01 },
-    { key: 'maxRotation', label: '最大倾斜', hint: '相纸左右歪多少度。', min: 0, max: 18, step: 0.5 },
-    { key: 'inset', label: '板内边距', hint: '相纸离托盘边缘的最小距离。大则更疏、更收。', min: 4, max: 24, step: 1 },
-    { key: 'edgeHang', label: '允许探出', hint: '包围盒可以探出边距多少。大则更贴边、更满。', min: 0, max: 18, step: 1 }
+    { key: 'maxPolaroids', label: '照片张数', hint: '一块板上挂几张照片。少则疏，多则满。', min: 14, max: 24, step: 1 },
+    { key: 'minPhotoWidth', label: '照片最小宽', hint: '最小一张照片的宽度。', min: 40, max: 64, step: 1 },
+    { key: 'photoWidthSpan', label: '尺寸范围', hint: '在最小宽之上还能大多少。拉到 0 就几乎一样大。', min: 0, max: 44, step: 1 },
+    { key: 'maxRotation', label: '最大倾斜', hint: '相纸左右歪多少度。', min: 0, max: 20, step: 0.5 },
+    { key: 'clusterCount', label: '聚簇数量', hint: '拼贴分成几团。多则更散更满。', min: 2, max: 6, step: 1 },
+    { key: 'clusterSpread', label: '聚簇扩散', hint: '每一团散开多大。', min: 0.2, max: 0.9, step: 0.01 },
+    { key: 'itemJitter', label: '落位抖动', hint: '每张额外的随机偏移。大则更乱。', min: 0, max: 30, step: 1 },
+    { key: 'overlapLimit', label: '允许重叠', hint: '单对相纸最多压住较小那张的多少。', min: 0.25, max: 0.65, step: 0.01 },
+    { key: 'stickerCount', label: '贴纸数量', hint: '穿插在相纸前后的贴纸数。', min: 0, max: 10, step: 1 },
+    { key: 'stickerScale', label: '贴纸大小', hint: '贴纸整体缩放。', min: 0.7, max: 1.4, step: 0.01 },
+    { key: 'inset', label: '板内边距', hint: '相纸离托盘边缘的最小距离。', min: 4, max: 24, step: 1 },
+    { key: 'edgeHang', label: '允许探出', hint: '包围盒可以探出边距多少。', min: 0, max: 16, step: 1 }
   ];
+  const STICKER_DEFS = [
+    { sym: 'smile', ar: 1, vb: '0 0 100 100' },
+    { sym: 'rose', ar: 1, vb: '0 0 100 100' },
+    { sym: 'sunflower', ar: 1, vb: '0 0 100 100' },
+    { sym: 'bust', ar: 1.08, vb: '0 0 100 108' },
+    { sym: 'cat', ar: 1, vb: '0 0 100 100' },
+    { sym: 'egg', ar: 0.9, vb: '0 0 100 90' },
+    { sym: 'liberty', ar: 1.15, vb: '0 0 100 115' },
+    { sym: 'bluecat', ar: 1.3, vb: '0 0 100 130' }
+  ];
+  const layoutMemory = new Map();
+  function monthMemory(mo) {
+    const key = mo.y + '-' + mo.m;
+    let mem = layoutMemory.get(key);
+    if (!mem) {
+      mem = { salt: 0, drags: new Map(), zTop: 1000 };
+      layoutMemory.set(key, mem);
+    }
+    return mem;
+  }
   function boardToast() {
-    return state.board === 'pin' ? '密铺钉板 · 最多 ' + PIN.maxPolaroids + ' 张' : '抖动网格 · 最多 ' + MAX_JITTER + ' 张';
+    return state.board === 'pin'
+      ? '拼贴板 · ' + PIN.maxPolaroids + ' 张 + ' + PIN.stickerCount + ' 个贴纸'
+      : '抖动网格 · 最多 ' + MAX_JITTER + ' 张';
   }
   function seededRng(key) {
     let s = 2166136261;
@@ -643,90 +791,345 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     });
   }
 
-  /* 目标：有主有次的密铺钉板。4 列错列，列距 < 相纸宽，板高随行数变。 */
-  function pinPolaroids(mo) {
-    const rnd = seededRng('pin-' + mo.y + '-' + mo.m);
-    const pool = polaroidPool(mo, PIN.maxPolaroids);
-    const n = pool.length;
-    if (!n) return { items: [], height: BOARD_H };
+  /* 拼贴板：确定性聚簇 + 重叠松弛 + 中心曝光，贴纸穿插在相纸前后。 */
+  function gauss(rnd) {
+    return (rnd() + rnd() + rnd() - 1.5) / 1.5;
+  }
 
-    const cols = n <= 4 ? Math.min(n, 3) : n <= 8 ? 3 : 4;
-    const rows = Math.ceil(n / cols);
-    const colPitch = cols <= 3 ? PIN.columnPitch3 : PIN.columnPitch4;
-    const rowPitch = PIN.rowPitch;
-    const inset = PIN.inset;
-    const lastRowCount = n - (rows - 1) * cols;
-    const lastRowShift = (cols - lastRowCount) * colPitch / 2;
-    const firstCX = (BOARD_W - (cols - 1) * colPitch) / 2;
-    const firstDropsLower = rnd() < 0.5;
-    const phases = Array.from({ length: cols }, (_, c) => {
-      const drops = (c % 2 === 0) === firstDropsLower;
-      return (drops ? PIN.stagger * (0.7 + rnd() * 0.3) : rnd() * PIN.stagger * 0.35) * rowPitch;
-    });
-
-    const items = pool.map((item, i) => {
-      const [count, code] = mo.days[item.d];
-      let row = Math.floor(i / cols);
-      let col = i % cols;
-      if (n >= 4 && cols >= 3 && i < 2) {
-        col = i === 0 ? 1 : 0;
-        row = 0;
+  function collagePool(mo, max) {
+    const days = Object.keys(mo.days).map(Number).sort((a, b) => b - a);
+    const pool = days.map(d => ({ d, v: 0 }));
+    const byCount = days.slice().sort((a, b) => mo.days[b][0] - mo.days[a][0] || b - a);
+    for (let v = 1; v < 4 && pool.length < max; v++) {
+      for (const d of byCount) {
+        if (pool.length >= max) break;
+        pool.push({ d, v });
       }
-      const photoW = PIN.minPhotoWidth + rnd() * PIN.photoWidthSpan;
+    }
+    return pool.slice(0, max);
+  }
+
+  function clusterCenters(rnd, count) {
+    const base = [[0.30, 0.27], [0.70, 0.30], [0.32, 0.70], [0.68, 0.72], [0.50, 0.48], [0.50, 0.20]];
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      const b = base[i % base.length];
+      out.push({
+        x: clamp(b[0] + (rnd() * 2 - 1) * 0.06, 0.12, 0.88),
+        y: clamp(b[1] + (rnd() * 2 - 1) * 0.06, 0.10, 0.90),
+        rx: 0.18 + rnd() * 0.10,
+        ry: 0.16 + rnd() * 0.10
+      });
+    }
+    return out;
+  }
+
+  function pointInItem(px, py, item) {
+    const rad = -item.rot * Math.PI / 180;
+    const dx = px - item.cx;
+    const dy = py - item.cy;
+    const x = dx * Math.cos(rad) - dy * Math.sin(rad);
+    const y = dx * Math.sin(rad) + dy * Math.cos(rad);
+    return Math.abs(x) <= item.w / 2 && Math.abs(y) <= item.h / 2;
+  }
+
+  function clampItemToBoard(p, height) {
+    const { padX, padY } = aabbPad(p.w, p.h, p.rot);
+    p.x = clamp(p.x, PIN.inset - PIN.edgeHang + padX, BOARD_W - PIN.inset + PIN.edgeHang - p.w - padX);
+    p.y = clamp(p.y, PIN.inset - PIN.edgeHang + padY, height - PIN.inset + PIN.edgeHang - p.h - padY);
+  }
+
+  function collageLayout(mo) {
+    const mem = monthMemory(mo);
+    const rnd = seededRng('collage-' + mo.y + '-' + mo.m + '-' + mem.salt);
+    const pool = collagePool(mo, PIN.maxPolaroids);
+    const n = pool.length;
+    if (!n) return { items: [], height: BOARD_H, photoCount: 0, stickerCount: 0 };
+
+    const H0 = 430;
+    const clusterCount = Math.max(2, Math.min(6, Math.round(PIN.clusterCount)));
+    const centers = clusterCenters(rnd, clusterCount);
+    const inset = PIN.inset;
+
+    // 1) 尺寸 / 倾角 / 聚簇撒点
+    const photos = pool.map((entry, i) => {
+      const [count, code] = mo.days[entry.d];
+      const band = rnd();
+      let baseW;
+      if (band < 0.28) baseW = 46 + rnd() * 8;
+      else if (band < 0.72) baseW = 55 + rnd() * 13;
+      else baseW = 69 + rnd() * 13;
+      const photoW = PIN.minPhotoWidth + (baseW - 46) / 36 * PIN.photoWidthSpan;
       const ar = PIN_AR[Math.floor(rnd() * PIN_AR.length)];
       const w = photoW + 10;
       const h = photoW / ar + 21;
-      let rot = (rnd() * 2 - 1) * PIN.maxRotation;
-      if (PIN.maxRotation >= 3 && Math.abs(rot) < 3) rot = (rot >= 0 ? 1 : -1) * (3 + rnd() * 3.5);
-      const clip = rnd() > 0.12 ? {
-        color: CLIP_COLORS[Math.floor(rnd() * CLIP_COLORS.length)],
-        x: (rnd() * 2 - 1) * 10,
-        rot: (rnd() * 2 - 1) * 14
-      } : null;
-      const shift = row === rows - 1 ? lastRowShift : 0;
-      const cx = firstCX + col * colPitch + shift + (rnd() * 2 - 1) * PIN.itemJitter;
-      const cy = row * rowPitch + phases[col] + h / 2 + (rnd() * 2 - 1) * PIN.itemJitter;
-      const z = row * 2 + rnd();
-      return { d: item.d, v: item.v, count, code, cx, cy, w, h, rot, ar, z, clip };
+      const sign = rnd() > 0.5 ? 1 : -1;
+      let rot = sign * PIN.maxRotation * (0.35 + rnd() * 0.65);
+      if (PIN.maxRotation >= 4 && Math.abs(rot) < 4) rot = sign * (4 + rnd() * 2.5);
+
+      const cluster = centers[i % centers.length];
+      const ax = cluster.x * BOARD_W;
+      const ay = cluster.y * H0;
+      const cx = ax + gauss(rnd) * PIN.clusterSpread * cluster.rx * BOARD_W * 0.55 + (rnd() * 2 - 1) * PIN.itemJitter;
+      const cy = ay + gauss(rnd) * PIN.clusterSpread * cluster.ry * H0 * 0.55 + (rnd() * 2 - 1) * PIN.itemJitter;
+
+      let clip = null;
+      const clipRoll = rnd();
+      if (clipRoll > 0.10) {
+        let variant = 'peg';
+        if (clipRoll > 0.94) variant = 'ring';
+        else if (clipRoll > 0.86) variant = 'dome';
+        else if (clipRoll > 0.72) variant = 'round';
+        clip = {
+          variant,
+          color: CLIP_COLORS[Math.floor(rnd() * CLIP_COLORS.length)],
+          x: (rnd() * 2 - 1) * 10,
+          rot: (rnd() * 2 - 1) * 14
+        };
+      }
+
+      return {
+        id: 'p-' + entry.d + '-' + entry.v,
+        kind: 'polaroid',
+        d: entry.d,
+        v: entry.v,
+        count,
+        code,
+        cx,
+        cy,
+        w,
+        h,
+        rot,
+        ar,
+        z: 0,
+        clip,
+        _ax: ax,
+        _ay: ay
+      };
     });
 
-    let minY = Infinity, maxY = -Infinity;
-    for (const p of items) {
+    // 2) 重叠松弛：允许压边，但单对重叠不超过 overlapLimit
+    const clampCenter = p => {
       const { padX, padY } = aabbPad(p.w, p.h, p.rot);
       p.cx = clamp(p.cx, inset + p.w / 2 + padX - PIN.edgeHang, BOARD_W - inset - p.w / 2 - padX + PIN.edgeHang);
-      const clipTop = p.clip ? p.cy - p.h / 2 - 10 : p.cy - p.h / 2 - padY;
+      p.cy = clamp(p.cy, inset + p.h / 2 + padY - PIN.edgeHang, H0 - inset - p.h / 2 - padY + PIN.edgeHang);
+    };
+    photos.forEach(clampCenter);
+    for (let round = 0; round < 3; round++) {
+      for (let iter = 0; iter < 30; iter++) {
+        for (let i = 0; i < photos.length; i++) {
+          for (let j = i + 1; j < photos.length; j++) {
+            const a = photos[i], b = photos[j];
+            const A = aabbPad(a.w, a.h, a.rot), B = aabbPad(b.w, b.h, b.rot);
+            const ox = (A.aabbW + B.aabbW) / 2 - Math.abs(a.cx - b.cx);
+            const oy = (A.aabbH + B.aabbH) / 2 - Math.abs(a.cy - b.cy);
+            if (ox <= 0 || oy <= 0) continue;
+            const minArea = Math.min(A.aabbW * A.aabbH, B.aabbW * B.aabbH);
+            if (ox * oy <= PIN.overlapLimit * minArea) continue;
+            if (ox < oy) {
+              const push = (ox / 2 + 0.5) * (a.cx < b.cx ? -1 : 1);
+              a.cx += push;
+              b.cx -= push;
+            } else {
+              const push = (oy / 2 + 0.5) * (a.cy < b.cy ? -1 : 1);
+              a.cy += push;
+              b.cy -= push;
+            }
+          }
+        }
+        photos.forEach(p => {
+          p.cx += (p._ax - p.cx) * 0.015;
+          p.cy += (p._ay - p.cy) * 0.015;
+          clampCenter(p);
+        });
+      }
+    }
+
+    // 2b) 中心分离：保证每张照片的中心不在其他照片内部，z 序就不会影响可点性
+    const supportRadius = (p, ux, uy) => {
+      const rad = p.rot * Math.PI / 180;
+      const c = Math.cos(rad), s = Math.sin(rad);
+      return Math.abs(p.w / 2 * (ux * c + uy * s)) + Math.abs(p.h / 2 * (-ux * s + uy * c));
+    };
+    for (let round = 0; round < 24; round++) {
+      let moved = false;
+      for (let i = 0; i < photos.length; i++) {
+        for (let j = i + 1; j < photos.length; j++) {
+          const a = photos[i], b = photos[j];
+          if (!pointInItem(a.cx, a.cy, b) && !pointInItem(b.cx, b.cy, a)) continue;
+          let dx = b.cx - a.cx, dy = b.cy - a.cy;
+          let dist = Math.hypot(dx, dy);
+          if (dist < 0.001) { dx = 1; dy = 0.35; dist = Math.hypot(dx, dy); }
+          const ux = dx / dist, uy = dy / dist;
+          const need = Math.max(supportRadius(a, ux, uy), supportRadius(b, ux, uy)) + 3;
+          if (dist >= need) continue;
+          const push = (need - dist) / 2;
+          a.cx -= ux * push;
+          a.cy -= uy * push;
+          b.cx += ux * push;
+          b.cy += uy * push;
+          clampCenter(a);
+          clampCenter(b);
+          moved = true;
+        }
+      }
+      if (!moved) break;
+    }
+
+    // 3) 板高：按旋转后的包围盒 + 夹子探出量
+    let minY = Infinity, maxY = -Infinity;
+    for (const p of photos) {
+      const { padY } = aabbPad(p.w, p.h, p.rot);
+      const clipTop = p.clip ? p.cy - p.h / 2 - 12 : p.cy - p.h / 2 - padY;
       minY = Math.min(minY, p.cy - p.h / 2 - padY, clipTop);
       maxY = Math.max(maxY, p.cy + p.h / 2 + padY);
     }
-    const offsetY = inset - minY;
-    const height = Math.max(maxY - minY + inset * 2, 280);
-    return {
-      height,
-      items: items.map(p => ({
-        ...p,
-        x: p.cx - p.w / 2,
-        y: p.cy + offsetY - p.h / 2
-      }))
-    };
+    const boardH = clamp(maxY - minY + inset * 2, 360, 520);
+    const offsetY = (boardH - (maxY - minY)) / 2 - minY;
+
+    // 4) z 序 + 中心曝光：每张照片的中心至少有一块能点到
+    photos.forEach(p => {
+      p.cy += offsetY;
+      p._k = 0.55 * rnd() + 0.45 * (p.cy / boardH);
+    });
+    photos.slice().sort((a, b) => a._k - b._k).forEach((p, i) => { p.z = 10 + i * 10; });
+
+    // 5) 贴纸：穿插在相纸前后；避开照片中心，别抢点击
+    const stickerCount = Math.max(0, Math.min(10, Math.round(PIN.stickerCount)));
+    const stickers = [];
+    if (stickerCount && photos.length) {
+      const defs = STICKER_DEFS.slice();
+      for (let i = defs.length - 1; i > 0; i--) {
+        const j = Math.floor(rnd() * (i + 1));
+        [defs[i], defs[j]] = [defs[j], defs[i]];
+      }
+      for (let i = 0; i < stickerCount; i++) {
+        const def = defs[i % defs.length];
+        const base = (38 + rnd() * 30) * PIN.stickerScale;
+        const w = def.ar >= 1.2 ? base * 0.85 : base;
+        const h = w * def.ar;
+        const rot = (rnd() * 2 - 1) * 19;
+        let placed = null;
+        for (let attempt = 0; attempt < 20 && !placed; attempt++) {
+          const host = photos[Math.floor(rnd() * photos.length)];
+          const cx = clamp(host.cx + (rnd() > 0.5 ? 1 : -1) * host.w * 0.36, inset + w / 2, BOARD_W - inset - w / 2);
+          const cy = clamp(host.cy + (rnd() > 0.5 ? 1 : -1) * host.h * 0.30, inset + h / 2, boardH - inset - h / 2);
+          const probe = { cx, cy, w: w + 16, h: h + 16, rot };
+          const blocks = photos.some(p => pointInItem(p.cx, p.cy, probe));
+          if (!blocks) placed = { cx, cy };
+        }
+        let coversCenter = false;
+        if (!placed) {
+          placed = {
+            cx: clamp(30 + rnd() * (BOARD_W - 60), inset + w / 2, BOARD_W - inset - w / 2),
+            cy: clamp(30 + rnd() * (boardH - 60), inset + h / 2, boardH - inset - h / 2)
+          };
+          const probe = { cx: placed.cx, cy: placed.cy, w: w + 16, h: h + 16, rot };
+          coversCenter = photos.some(p => pointInItem(p.cx, p.cy, probe));
+        }
+        const roll = rnd();
+        let z;
+        if (coversCenter) z = 2 + i;
+        else if (roll < 0.20) z = photos[Math.floor(rnd() * photos.length)].z - 5 + Math.floor(rnd() * 10);
+        else z = 500 + i;
+        stickers.push({
+          id: 's-' + i,
+          kind: 'sticker',
+          sym: def.sym,
+          vb: def.vb,
+          x: placed.cx - w / 2,
+          y: placed.cy - h / 2,
+          w,
+          h,
+          rot,
+          z,
+          _behindCenter: coversCenter
+        });
+      }
+    }
+
+    // 5b) 贴纸可见性：被压得太狠就抬到照片之上（不覆盖照片中心的才抬）
+    const maxPhotoZ = photos.reduce((m, p) => Math.max(m, p.z), 0);
+    for (let i = 0; i < stickers.length; i++) {
+      const st = stickers[i];
+      if (st._behindCenter) continue;
+      const rad = st.rot * Math.PI / 180;
+      const c = Math.cos(rad), sn = Math.sin(rad);
+      const scx = st.x + st.w / 2;
+      const scy = st.y + st.h / 2;
+      let visible = 0;
+      for (const lx of [-0.32, 0, 0.32]) {
+        for (const ly of [-0.32, 0, 0.32]) {
+          const px = scx + lx * st.w * c - ly * st.h * sn;
+          const py = scy + lx * st.w * sn + ly * st.h * c;
+          if (!photos.some(p => p.z > st.z && pointInItem(px, py, p))) visible++;
+        }
+      }
+      if (visible <= 2) st.z = maxPhotoZ + 10 + i;
+    }
+
+    // 6) 落成 top-left 坐标 + 拖拽覆盖
+    photos.forEach(p => {
+      p.x = p.cx - p.w / 2;
+      p.y = p.cy - p.h / 2;
+    });
+    const items = photos.concat(stickers);
+    for (const p of items) {
+      const dr = mem.drags.get(p.id);
+      if (dr) { p.x = dr.x; p.y = dr.y; p.z = dr.z; }
+      clampItemToBoard(p, boardH);
+    }
+
+    return { items, height: boardH, photoCount: photos.length, stickerCount: stickers.length };
   }
 
   function boardBlock(mo) {
     const pin = state.board === 'pin';
-    const packed = pin ? pinPolaroids(mo) : { items: jitterPolaroids(mo), height: BOARD_H };
+    let packed;
+    if (pin) packed = collageLayout(mo);
+    else {
+      const items = jitterPolaroids(mo);
+      packed = { items, height: BOARD_H, photoCount: items.length, stickerCount: 0 };
+    }
     const board = el('div', 'board' + (pin ? ' pin' : ''));
     board.style.aspectRatio = BOARD_W + ' / ' + Math.round(packed.height);
+    board.__height = packed.height;
+    board.__mem = pin ? monthMemory(mo) : null;
+    if (pin) bindBoardDrag(board);
+
     packed.items.forEach((p, i) => {
+      if (p.kind === 'sticker') {
+        const node = el('div', 'sticker');
+        node.__item = p;
+        node.style.left = (p.x / BOARD_W * 100).toFixed(2) + '%';
+        node.style.top = (p.y / packed.height * 100).toFixed(2) + '%';
+        node.style.width = (p.w / BOARD_W * 100).toFixed(2) + '%';
+        node.style.height = (p.h / packed.height * 100).toFixed(2) + '%';
+        node.style.zIndex = String(Math.round(p.z));
+        node.style.setProperty('--rot', p.rot.toFixed(1) + 'deg');
+        node.style.setProperty('--i', animIndex++);
+        node.setAttribute('aria-hidden', 'true');
+        node.innerHTML = '<svg viewBox="' + p.vb + '" preserveAspectRatio="xMidYMid meet"><use href="#st-' + p.sym + '"/></svg>';
+        board.append(node);
+        return;
+      }
+
       const btn = el('button', 'pol');
+      btn.__item = p;
       btn.style.left = (p.x / BOARD_W * 100).toFixed(2) + '%';
       btn.style.top = (p.y / packed.height * 100).toFixed(2) + '%';
       btn.style.width = (p.w / BOARD_W * 100).toFixed(2) + '%';
-      btn.style.zIndex = String(Math.round((p.z ?? i) * 10) + 1);
+      btn.style.zIndex = String(Math.round(p.z ?? (i + 1)));
       btn.style.setProperty('--rot', p.rot.toFixed(1) + 'deg');
-      btn.style.setProperty('--hang', (0.78 + ((p.d * 17 + (p.v || 0) * 9) % 11) / 40).toFixed(3));
       btn.style.setProperty('--i', animIndex++);
-      btn.setAttribute('aria-label', '整理 ' + mo.y + ' 年 · 从 ' + mo.m + '月' + p.d + '日 这张开始 · 这天 ' + p.count + ' 张');
+      btn.setAttribute(
+        'aria-label',
+        '整理 ' + mo.y + ' 年 · 从 ' + mo.m + '月' + p.d + '日 这张开始 · 这天 ' + p.count + ' 张'
+          + (p.v ? ' · 第 ' + (p.v + 1) + ' 张' : '')
+      );
       if (p.clip) {
         const clip = el('i', 'pol-clip');
+        clip.dataset.pin = p.clip.variant || 'peg';
         clip.style.setProperty('--clip', p.clip.color);
         clip.style.setProperty('--clip-x', p.clip.x.toFixed(1) + 'px');
         clip.style.setProperty('--clip-rot', p.clip.rot.toFixed(1) + 'deg');
@@ -738,15 +1141,19 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
         btn.classList.add('ph');
       } else {
         photo.append(photoImg(mo, p.d, CODE2ART[p.code] || 'forest', p.v));
-        btn.addEventListener('click', () =>
-          toast('整理 ' + mo.y + ' 年 · ' + yearPending(mo.y) + ' 张（从 ' + mo.m + '月' + p.d + '日 这张开始）'));
+        btn.addEventListener('click', () => {
+          if (performance.now() < suppressClickUntil) return;
+          toast('整理 ' + mo.y + ' 年 · ' + yearPending(mo.y) + ' 张（从 ' + mo.m + '月' + p.d + '日 这张开始）');
+        });
       }
       btn.append(photo);
       board.append(btn);
     });
+
     const wrap = el('div');
     wrap.append(board);
-    wrap.append(el('p', 'board-hint', '挂了 ' + packed.items.length + ' 张 · 共 <span class="num">' + mo.pending + '</span> 张'));
+    const stickerNote = packed.stickerCount ? ' + ' + packed.stickerCount + ' 个贴纸' : '';
+    wrap.append(el('p', 'board-hint', '挂了 ' + packed.photoCount + ' 张照片' + stickerNote + ' · 共 <span class="num">' + mo.pending + '</span> 张'));
     return wrap;
   }
 
@@ -756,7 +1163,9 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     img.alt = '';
     img.loading = 'lazy';
     img.decoding = 'async';
-    img.src = 'https://picsum.photos/seed/pd-' + mo.y + '-' + mo.m + '-' + d + (v ? 'b' : '') + '/240/300';
+    img.draggable = false;
+    const suffix = ['', 'b', 'c', 'd'][v % 4] || '';
+    img.src = 'https://picsum.photos/seed/pd-' + mo.y + '-' + mo.m + '-' + d + suffix + '/240/300';
     img.addEventListener('load', () => img.classList.add('loaded'));
     if (img.complete && img.naturalWidth > 0) img.classList.add('loaded');
     img.addEventListener('error', () => {
@@ -850,7 +1259,7 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     toastTimer = setTimeout(() => box.hidden = true, 2400);
   }
 
-  /* ---------- 相纸墙构图：抖动网格 / 密铺钉板 ---------- */
+  /* ---------- 相纸墙构图：抖动网格 / 拼贴板 ---------- */
   document.querySelectorAll('.board-opt').forEach(btn => btn.addEventListener('click', () => {
     document.querySelectorAll('.board-opt').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
     state.board = btn.dataset.board;
@@ -880,6 +1289,19 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     const n = Number(raw);
     PIN[key] = field && field.step < 1 ? n : Math.round(n);
   }
+  let pinRenderQueued = false;
+  function queuePinRender() {
+    if (pinRenderQueued) return;
+    pinRenderQueued = true;
+    requestAnimationFrame(() => {
+      pinRenderQueued = false;
+      if (activeDrag) return;
+      state.board = 'pin';
+      state.mode = 'wall';
+      document.querySelectorAll('.board-opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.board === 'pin')));
+      renderWall();
+    });
+  }
   function renderPinTuner(syncSliders) {
     const box = $('pin-tuner');
     if (syncSliders) {
@@ -904,10 +1326,7 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
           out.textContent = field.step < 1 ? PIN[field.key].toFixed(2) : PIN[field.key];
           refreshPinDump();
           try { localStorage.setItem(PIN_STORAGE, pinDump()); } catch (_) {}
-          state.board = 'pin';
-          state.mode = 'wall';
-          document.querySelectorAll('.board-opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.board === 'pin')));
-          renderWall();
+          queuePinRender();
         });
         row.append(input);
         box.append(row);
@@ -932,6 +1351,18 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     }
   } catch (_) {}
   renderPinTuner(true);
+  $('pin-rescatter').addEventListener('click', () => {
+    for (const mo of MONTHS.filter(m => m.y === state.year)) {
+      const mem = monthMemory(mo);
+      mem.salt += 1;
+      mem.drags.clear();
+    }
+    state.board = 'pin';
+    state.mode = 'wall';
+    document.querySelectorAll('.board-opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.board === 'pin')));
+    renderWall({ anim: true });
+    toast('已重新撒开 · 同一盐值刷新后不变');
+  });
   $('pin-copy').addEventListener('click', async () => {
     const text = pinDump();
     try {
@@ -944,12 +1375,13 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
   $('pin-reset').addEventListener('click', () => {
     Object.assign(PIN, PIN_DEFAULTS);
     try { localStorage.removeItem(PIN_STORAGE); } catch (_) {}
+    layoutMemory.clear();
     renderPinTuner(false);
     state.board = 'pin';
     state.mode = 'wall';
     document.querySelectorAll('.board-opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.board === 'pin')));
     renderWall();
-    toast('已恢复默认密度');
+    toast('已恢复默认');
   });
 
   /* ---------- 卡片风格：素 / 可爱 ---------- */
@@ -1001,85 +1433,103 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     return n;
   }
 
-  /* ---------- 悬挂微晃：倾斜跟随 + 轻摇惯性 ---------- */
-  const hang = { gx: 0, gy: 0, ix: 0, iy: 0, hasOrient: false, sensors: false };
-  const hangState = new WeakMap();
+  /* ---------- 拖拽排布：抓住相纸/贴纸拖走，松手回弹；点击仍是打开 ---------- */
+  let suppressClickUntil = 0;
+  let activeDrag = null;
 
-  function onOrient(e) {
-    hang.hasOrient = true;
-    hang.gx = Math.max(-1, Math.min(1, (e.gamma || 0) / 18));
-    hang.gy = Math.max(-1, Math.min(1, ((e.beta || 90) - 90) / 18));
+  function bindBoardDrag(board) {
+    board.addEventListener('pointerdown', onBoardPointerDown);
   }
-  function onMotion(e) {
-    const a = e.acceleration;
-    if (!a) return;
-    const mag = Math.hypot(a.x || 0, a.y || 0, a.z || 0);
-    if (mag < 1.1) return;
-    hang.ix = Math.max(-1.3, Math.min(1.3, hang.ix + Math.max(-1, Math.min(1, (a.x || 0) / 6))));
-    hang.iy = Math.max(-1.3, Math.min(1.3, hang.iy + Math.max(-1, Math.min(1, (a.y || 0) / 8))));
+
+  function onBoardPointerDown(e) {
+    if (!e.isPrimary || activeDrag) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const board = e.currentTarget;
+    const node = e.target.closest('.pol, .sticker');
+    if (!node || node.parentElement !== board || !node.__item) return;
+
+    const item = node.__item;
+    activeDrag = {
+      board,
+      node,
+      item,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      originX: item.x,
+      originY: item.y,
+      height: board.__height || BOARD_H,
+      threshold: e.pointerType === 'touch' ? 8 : 6,
+      moved: false
+    };
+    try { node.setPointerCapture(e.pointerId); } catch (_) {}
+    node.addEventListener('pointermove', onDragMove);
+    node.addEventListener('pointerup', onDragEnd);
+    node.addEventListener('pointercancel', onDragCancel);
   }
-  async function bindSensors() {
-    if (hang.sensors || reduceMotion) return;
-    try {
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        const status = await DeviceOrientationEvent.requestPermission();
-        if (status !== 'granted') return;
+
+  function onDragMove(e) {
+    const drag = activeDrag;
+    if (!drag || e.pointerId !== drag.pointerId) return;
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    if (!drag.moved) {
+      if (Math.hypot(dx, dy) < drag.threshold) return;
+      drag.moved = true;
+      drag.node.classList.add('dragging');
+      drag.node.classList.remove('settling');
+      const mem = drag.board.__mem;
+      if (mem) {
+        drag.item.z = ++mem.zTop;
+        drag.node.style.zIndex = String(drag.item.z);
       }
-      window.addEventListener('deviceorientation', onOrient);
-      window.addEventListener('devicemotion', onMotion);
-      hang.sensors = true;
-    } catch (_) { /* 桌面浏览器没有传感器，用指针划过即可 */ }
-  }
-  function nudgeHang() {
-    hang.ix = (Math.random() > 0.5 ? 1 : -1) * 0.95;
-    hang.iy = (Math.random() - 0.5) * 0.35;
-    setTimeout(() => { hang.ix *= -0.55; hang.iy *= -0.4; }, 150);
-    setTimeout(() => { hang.ix *= -0.4; }, 300);
-  }
-  function tickHang() {
-    hang.ix *= 0.88;
-    hang.iy *= 0.88;
-    if (!reduceMotion) {
-      document.querySelectorAll('.board .pol').forEach(el => {
-        const k = parseFloat(el.style.getPropertyValue('--hang')) || 1;
-        const tx = (hang.gx * 4.2 + hang.ix * 9) * k;
-        const ty = (hang.gy * 1.6 + hang.iy * 3.5) * k;
-        const tr = (hang.gx * 2.1 + hang.ix * 4.2) * k;
-        let s = hangState.get(el);
-        if (!s) { s = { x: 0, y: 0, r: 0, vx: 0, vy: 0, vr: 0 }; hangState.set(el, s); }
-        s.vx = (s.vx + (tx - s.x) * 0.14) * 0.78;
-        s.vy = (s.vy + (ty - s.y) * 0.14) * 0.78;
-        s.vr = (s.vr + (tr - s.r) * 0.12) * 0.8;
-        s.x += s.vx; s.y += s.vy; s.r += s.vr;
-        el.style.setProperty('--swing-x', s.x.toFixed(2) + 'px');
-        el.style.setProperty('--swing-y', s.y.toFixed(2) + 'px');
-        el.style.setProperty('--swing-rot', s.r.toFixed(2) + 'deg');
-      });
     }
-    requestAnimationFrame(tickHang);
+    const rect = drag.board.getBoundingClientRect();
+    const ux = dx / rect.width * BOARD_W;
+    const uy = dy / rect.height * drag.height;
+    const { padX, padY } = aabbPad(drag.item.w, drag.item.h, drag.item.rot);
+    drag.item.x = clamp(
+      drag.originX + ux,
+      PIN.inset - PIN.edgeHang + padX,
+      BOARD_W - PIN.inset + PIN.edgeHang - drag.item.w - padX
+    );
+    drag.item.y = clamp(
+      drag.originY + uy,
+      PIN.inset - PIN.edgeHang + padY,
+      drag.height - PIN.inset + PIN.edgeHang - drag.item.h - padY
+    );
+    drag.node.style.left = (drag.item.x / BOARD_W * 100).toFixed(3) + '%';
+    drag.node.style.top = (drag.item.y / drag.height * 100).toFixed(3) + '%';
   }
 
-  const phone = document.querySelector('.phone');
-  phone.addEventListener('pointermove', e => {
-    if (hang.hasOrient) return;
-    const box = phone.getBoundingClientRect();
-    hang.gx = ((e.clientX - box.left) / box.width - 0.5) * 2;
-    hang.gy = ((e.clientY - box.top) / box.height - 0.5) * 2;
-  });
-  phone.addEventListener('pointerleave', () => {
-    if (!hang.hasOrient) { hang.gx = 0; hang.gy = 0; }
-  });
-  phone.addEventListener('pointerdown', bindSensors, { once: true });
-  $('demo-wobble').addEventListener('click', () => {
-    bindSensors();
-    if (reduceMotion) { toast('系统开了减少动态效果，相纸保持静止'); return; }
-    nudgeHang();
-    toast('相纸轻轻晃了一下（手机上倾斜 / 轻摇也可）');
-  });
+  function finishDrag() {
+    const drag = activeDrag;
+    if (!drag) return;
+    activeDrag = null;
+    drag.node.removeEventListener('pointermove', onDragMove);
+    drag.node.removeEventListener('pointerup', onDragEnd);
+    drag.node.removeEventListener('pointercancel', onDragCancel);
+    try { drag.node.releasePointerCapture(drag.pointerId); } catch (_) {}
+    if (!drag.moved) return;
+    const mem = drag.board.__mem;
+    if (mem) mem.drags.set(drag.item.id, { x: drag.item.x, y: drag.item.y, z: drag.item.z });
+    drag.node.classList.remove('dragging');
+    if (!reduceMotion) {
+      drag.node.classList.add('settling');
+      setTimeout(() => drag.node.classList.remove('settling'), 280);
+    }
+    suppressClickUntil = performance.now() + 400;
+  }
+
+  function onDragEnd(e) {
+    if (activeDrag && e.pointerId === activeDrag.pointerId) finishDrag();
+  }
+  function onDragCancel(e) {
+    if (activeDrag && e.pointerId === activeDrag.pointerId) finishDrag();
+  }
 
   renderWall({ anim: true });
   syncChrome();
-  tickHang();
 })();
 </script>
 </body>
