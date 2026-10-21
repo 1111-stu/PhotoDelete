@@ -2391,6 +2391,32 @@ struct PhotoDeleteTests {
         #expect(index == 3)
     }
 
+    @Test func reviewSessionInitialTargetUsesWallCoverAssetIDEvenWhenItIsNotTheDaysNewest() async throws {
+        let ids = ["day2-newest", "day2-cover", "day1-screenshot", "day1-cover"]
+
+        let index = PhotoReviewSessionPaginator.initialTargetIndex(
+            assetIdentifiers: ids,
+            reviewedAssetIdentifiers: [],
+            savedAssetIdentifier: "day2-newest",
+            startFromAssetID: "day1-cover"
+        )
+
+        #expect(index == 3)
+    }
+
+    @Test func reviewSessionInitialTargetFallsBackWhenWallCoverAssetIsMissing() async throws {
+        let ids = ["kept-a", "kept-b", "kept-c"]
+
+        let index = PhotoReviewSessionPaginator.initialTargetIndex(
+            assetIdentifiers: ids,
+            reviewedAssetIdentifiers: ["kept-a"],
+            savedAssetIdentifier: nil,
+            startFromAssetID: "missing-cover"
+        )
+
+        #expect(index == 1)
+    }
+
     @Test func photoReviewReadinessAllowsAllPhotosDuringBackgroundLoading() async throws {
         #expect(PhotoReviewSourceReadiness.isWaiting(
             selectedCategory: .all,
@@ -3511,29 +3537,132 @@ struct PhotoDeleteTests {
 
     // MARK: - Pending photo wall
 
-    @Test func polaroidBoardLayoutIsDeterministicForSameMonthSeed() async throws {
+    private func polaroidBoardDays(
+        _ dayNumbers: ClosedRange<Int>,
+        remaining: (Int) -> Int = { _ in 8 }
+    ) -> [PendingPhotoWallDayCell] {
         let calendar = Calendar(identifier: .gregorian)
-        let days: [PendingPhotoWallDayCell] = (1...10).compactMap { day in
+        return dayNumbers.compactMap { day in
             guard let date = calendar.date(from: DateComponents(year: 2026, month: 10, day: day)) else {
                 return nil
             }
             return PendingPhotoWallDayCell(
                 date: date,
-                remainingCount: day == 1 ? 40 : 8,
-                coverAssetID: "cover-\(day)"
+                remainingCount: remaining(day),
+                coverAssetID: "cover-\(day)",
+                alternateCoverAssetID: "alt-\(day)"
             )
         }
+    }
+
+    @Test func polaroidBoardLayoutIsDeterministicForSameMonthSeed() async throws {
+        let days = polaroidBoardDays(1...10)
 
         let first = PolaroidBoardLayout.layout(year: 2026, month: 10, days: days)
-        let second = PolaroidBoardLayout.layout(year: 2026, month: 10, days: days)
+        let second = PolaroidBoardLayout.layout(year: 2026, month: 10, days: Array(days.reversed()))
 
-        #expect(first.count == second.count)
-        #expect(first.count <= PolaroidBoardLayout.maxPolaroids)
-        #expect(first.map(\.id) == second.map(\.id))
-        #expect(first.map(\.x) == second.map(\.x))
-        #expect(first.map(\.rotationDegrees) == second.map(\.rotationDegrees))
-        // remainingCount >= 20 的天会多挂一张 variant
-        #expect(first.contains { $0.dayOfMonth == 1 && $0.variant == 1 })
+        #expect(first == second)
+        #expect(first.items.count <= PolaroidBoardLayout.maxPolaroids)
+    }
+
+    @Test func polaroidBoardFillsOpenSlotsWithADifferentPhotoFromBusyDays() async throws {
+        let days = polaroidBoardDays(1...10, remaining: { $0 == 1 ? 40 : 2 })
+
+        let items = PolaroidBoardLayout.layout(year: 2026, month: 10, days: days).items
+        let assetIDs = items.compactMap(\.coverAssetID)
+
+        #expect(items.count == 11)
+        #expect(Set(assetIDs).count == assetIDs.count)
+        #expect(assetIDs.contains("alt-1"))
+        #expect(!assetIDs.contains("alt-2"))
+        let lastTwo = items.suffix(2).map(\.coverAssetID)
+        #expect(lastTwo == ["cover-1", "alt-1"])
+    }
+
+    @Test func polaroidBoardFitsBalancedGridInsideTheBoard() async throws {
+        func shape(_ count: Int) -> [Int] {
+            let grid = PolaroidBoardLayout.gridShape(for: count)
+            return [grid.rows, grid.columns]
+        }
+        #expect(shape(3) == [1, 3])
+        #expect(PolaroidBoardLayout.columnPitch(for: 3) == 88)
+        #expect(PolaroidBoardLayout.columnPitch(for: 4) == 78)
+        #expect(shape(4) == [2, 3])
+        #expect(shape(7) == [3, 3])
+        #expect(shape(13) == [4, 4])
+        #expect(shape(16) == [4, 4])
+
+        let small = PolaroidBoardLayout.layout(year: 2026, month: 10, days: polaroidBoardDays(1...3))
+        let full = PolaroidBoardLayout.layout(year: 2026, month: 10, days: polaroidBoardDays(1...28))
+
+        #expect(full.items.count == PolaroidBoardLayout.maxPolaroids)
+        #expect(small.height < full.height)
+
+        for board in [small, full] {
+            for item in board.items {
+                let radians = item.rotationDegrees * .pi / 180
+                let halfWidth = (item.width * abs(cos(radians)) + item.height * abs(sin(radians))) / 2
+                let halfHeight = (item.width * abs(sin(radians)) + item.height * abs(cos(radians))) / 2
+                let centerX = item.x + item.width / 2
+                let centerY = item.y + item.height / 2
+                #expect(centerX - halfWidth >= 0)
+                #expect(centerX + halfWidth <= PolaroidBoardLayout.boardWidth)
+                #expect(centerY - halfHeight >= 0)
+                #expect(centerY + halfHeight <= board.height)
+                #expect(abs(item.rotationDegrees) <= 12)
+                #expect(PolaroidBoardLayout.photoAspectRatios.contains(where: {
+                    abs($0 - item.photoAspectRatio) < 0.0001
+                }))
+            }
+        }
+    }
+
+    @Test func polaroidBoardStaggersColumnsAndLayersLowerRowsOnTop() async throws {
+        let items = PolaroidBoardLayout.layout(year: 2026, month: 10, days: polaroidBoardDays(1...28)).items
+        let columns = PolaroidBoardLayout.gridShape(for: items.count).columns
+        let firstRowYs = items.prefix(columns).map(\.y)
+        #expect((firstRowYs.max() ?? 0) - (firstRowYs.min() ?? 0) >= 4)
+        for index in 0..<(items.count - columns) {
+            let upper = items[index]
+            let lower = items[index + columns]
+            #expect(lower.zIndex > upper.zIndex)
+        }
+    }
+
+    @Test func polaroidKeepsItsTiltWhenAnotherDayIsOrganized() async throws {
+        let days = polaroidBoardDays(1...8)
+        let before = PolaroidBoardLayout.layout(year: 2026, month: 10, days: days).items
+        let after = PolaroidBoardLayout.layout(
+            year: 2026,
+            month: 10,
+            days: days.filter { $0.dayOfMonth != 8 }
+        ).items
+
+        let tiltBefore = Dictionary(uniqueKeysWithValues: before.map { ($0.id, $0.rotationDegrees) })
+        for item in after {
+            #expect(tiltBefore[item.id] == item.rotationDegrees)
+        }
+    }
+
+    @Test func pendingPhotoWallDayBucketPrefersPhotosOverScreenshots() async throws {
+        var mixed = PendingPhotoWallBuilder.DayBucket()
+        mixed.add(assetID: "shot-newest", isScreenshot: true)
+        mixed.add(assetID: "photo-newer", isScreenshot: false)
+        mixed.add(assetID: "shot-middle", isScreenshot: true)
+        mixed.add(assetID: "photo-oldest", isScreenshot: false)
+        #expect(mixed.remainingCount == 4)
+        #expect(mixed.coverAssetID == "photo-newer")
+        #expect(mixed.alternateCoverAssetID == "photo-oldest")
+
+        var screenshotsOnly = PendingPhotoWallBuilder.DayBucket()
+        screenshotsOnly.add(assetID: "shot-a", isScreenshot: true)
+        screenshotsOnly.add(assetID: "shot-b", isScreenshot: true)
+        #expect(screenshotsOnly.coverAssetID == "shot-a")
+        #expect(screenshotsOnly.alternateCoverAssetID == nil)
+
+        var singlePhoto = PendingPhotoWallBuilder.DayBucket()
+        singlePhoto.add(assetID: "only", isScreenshot: false)
+        #expect(singlePhoto.alternateCoverAssetID == nil)
     }
 
     @Test func pendingPhotoWallBuilderGroupsDaysBySelectedYear() async throws {

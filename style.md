@@ -53,6 +53,15 @@ PhotoDelete 使用**黑白中性的暗色设计系统**。近黑画布、黑灰�
 | `destructive` | `#FF7561` | 删除、危险状态 |
 | `favorite` | `#FFA3B8` | 照片收藏状态 |
 
+### Decorative colors
+
+| Token | Value | Usage |
+| --- | --- | --- |
+| `boardPaper` | `#FAFAF7` | 相纸墙相纸白边 |
+| `boardClipPalette` | `#EDD65C` `#9E87DB` `#78BD66` `#61A3E6` `#E06B94` `#CCA375` | 相纸墙小木夹；按相纸种子取色 |
+
+装饰色只出现在相纸墙这类「照片内容区」里的实物道具上，不表达状态或操作，不能用于按钮、图标、文字。不要往琥珀、珊瑚靠。
+
 RGB tokens in `Theme.swift` are the source of truth; hex values above are rounded documentation equivalents.
 
 ### Color rules

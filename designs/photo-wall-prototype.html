@@ -108,7 +108,7 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     0 12px 28px #0000007a,                 /* 外投影：从画布上浮起来 */
     0 1px 2px #00000059;
 }
-.pol{position:absolute;padding:4px 4px 13px;border-radius:3.5px;background:#f2ede4;box-shadow:0 1px 2px #00000073,0 6px 14px #00000085,0 0 0 1px #00000014;transform:rotate(var(--rot,0deg))}
+.pol{position:absolute;padding:4px 4px 13px;border-radius:3.5px;background:#f2ede4;box-shadow:0 1px 2px #00000073,0 6px 14px #00000085,0 0 0 1px #00000014;transform:translate3d(var(--swing-x,0px),var(--swing-y,0px),0) rotate(calc(var(--rot,0deg) + var(--swing-rot,0deg)));transform-origin:50% 50%}
 .pol-photo{position:relative;display:block;width:100%;overflow:hidden;border-radius:2px;background:#d9d2c6}
 .pol-photo img,.pol-photo svg{display:block;width:100%;height:100%;object-fit:cover}
 .pol img{opacity:0;transition:opacity .3s ease}
@@ -116,13 +116,52 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
 .pol:active{opacity:.85}
 .wall[data-anim="1"] .pol{animation:polIn .52s cubic-bezier(.22,.61,.36,1) backwards;animation-delay:calc(var(--i,0)*16ms)}
 @keyframes polIn{
-  from{opacity:0;transform:rotate(calc(var(--rot,0deg) - 9deg)) scale(.86)}
-  to{opacity:1;transform:rotate(var(--rot,0deg)) scale(1)}
+  from{opacity:0;transform:translate3d(var(--swing-x,0px),var(--swing-y,0px),0) rotate(calc(var(--rot,0deg) - 9deg)) scale(.86)}
+  to{opacity:1;transform:translate3d(var(--swing-x,0px),var(--swing-y,0px),0) rotate(calc(var(--rot,0deg) + var(--swing-rot,0deg))) scale(1)}
 }
 /* 未加载：一张空白相纸 */
 .pol.ph .pol-photo{background:#e2dbcf}
 .pol.ph .pol-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 24%,#00000009 42%,#00000013 50%,#00000009 58%,transparent 76%);background-size:220% 100%;animation:shimmer 1.7s linear infinite}
 .board-hint{margin:9px 2px 0;font-size:11.5px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+
+/* 密铺钉板：近白相纸、能看清的木夹。全部带相框，尺寸只微差。板高随内容变。 */
+.board.pin{
+  background:
+    radial-gradient(120% 70% at 50% 0%, #ffffff14, transparent 46%),
+    linear-gradient(180deg,#1c1c22,#121216);
+  box-shadow:
+    inset 0 1px 0 #ffffff28,
+    inset 0 0 0 1px #ffffff14,
+    inset 0 -22px 28px -18px #000000d4,
+    0 14px 32px #00000080,
+    0 1px 2px #00000066;
+}
+.board.pin .pol{
+  padding:5px 5px 16px;border-radius:3px;background:#fafaf7;
+  box-shadow:0 1px 2px #0000007a,0 8px 16px #0000008a,0 0 0 1px #00000018;
+}
+.pol-clip{
+  position:absolute;top:-9px;left:50%;width:9px;height:20px;z-index:3;pointer-events:none;
+  margin-left:-4.5px;border-radius:2px 2px 2.6px 2.6px;
+  background:linear-gradient(180deg,#ffffff6b 0%,#ffffff14 36%,transparent 48%),var(--clip,#edd65c);
+  box-shadow:0 1px 2px #0000008f,inset 0 1px 0 #ffffff55;
+  transform:translateX(var(--clip-x,0px)) rotate(var(--clip-rot,0deg));
+  transform-origin:50% 70%;
+}
+.pol-clip:after{
+  content:"";position:absolute;left:14%;right:14%;top:42%;height:1.6px;border-radius:1px;background:#00000038;
+}
+.wall[data-hits="1"] .pol{outline:1.5px dashed #f3b14caa;outline-offset:1px}
+.hit-toggle{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted);min-height:40px}
+.hit-toggle input{width:16px;height:16px;accent-color:var(--amber)}
+.pin-tuner{margin-top:12px;display:grid;gap:14px}
+.pin-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.pin-row span{font-size:13px;color:var(--ink);font-weight:600}
+.pin-row output{font-size:12px;color:var(--amber);font-variant-numeric:tabular-nums;font-family:"SF Mono",Menlo,monospace}
+.pin-row small{grid-column:1/-1;font-size:11.5px;color:var(--muted);line-height:1.5}
+.pin-row input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--amber)}
+.pin-dump{margin:12px 0 0;padding:12px 14px;border-radius:10px;border:1px solid var(--hairline);background:#ffffff0a;font-size:11.5px;line-height:1.65;color:var(--ink);overflow:auto;white-space:pre;font-family:"SF Mono",Menlo,monospace}
+.pin-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 
 /* ============ 空状态 ============ */
 .empty{padding:132px 24px 40px;text-align:center}
@@ -231,7 +270,22 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
       <div class="note"><b>03 / 点一下就开始整理，没有常驻主按钮</b><p>点任意一张缩略图 = <b>整理这一年</b>（当前范围），从这张开始滑；月份右侧「▣ 1150 ›」（相片图标 + 张数 + 箭头，无底色）= <b>只整理这一月</b>。墙本身就是入口，所以页面常规态下没有琥珀——琥珀只出现在年份 sheet 的选中态。顶栏 48pt 玻璃圆钮与滑动整理页同规格，收集箱角标沿用珊瑚红。</p></div>
       <div class="note"><b>04 / 年份是浏览范围</b><p>顶栏胶囊选年份（sheet 里选中态琥珀），墙按年份列出有待整理照片的月份。切到已经整理完的年份会看到空状态——那也是一种进度。</p></div>
       <div class="note"><b>05 / 可爱版：相纸 + 微倾斜（可切换对比）</b><p>① <b>相纸白边</b>：2px 暖白内框（#F2EDE4）+ 圆角 12/8，卡片从「缩略图」变成「冲印出来的小照片」；未加载的卡在可爱版里就是一张空白相纸，和参考图那排白块同构。② <b>微倾斜</b>：按日期确定性 ±1.2°（<code>(day % 5 − 2) × 0.6</code>），进场从 ±3° 收正（settle），整理掉一天时卡片「揭下来」。点面板上的按钮可以看揭下动效。</p></div>
-      <div class="note"><b>06 / 相纸墙模式（月份抬头可切）</b><p>一个月 = 一块托盘（24 圆角 + 表面 4% 纵向渐变 + 上缘受光 + 底内阴影 + 外投影），相纸撒在里面：暖白框、<b>下边比上边厚</b>（4/4/13，拍立得的唯一必要特征）、照片保比例所以有竖有横。<b>上限 15 张</b>：最近的日期各一张，不够时照片多的日子再补一张（同一天第二张换 seed）。撒布用<b>抖动网格</b>——5×3 格位保证铺得匀，每张在格内随机偏移 ±26% 格宽并确定性倾斜（种子=月份，刷新位置不变）；落位按<b>旋转后的包围盒</b>夹在板内，斜角不会被裁掉。落 App 时把这张坐标表预先算好（同一种子），SwiftUI 用 ZStack + rotationEffect 静态渲染即可，别在布局里重算随机。</p></div>
+      <div class="note"><b>06 / 相纸墙模式（月份抬头可切）</b><p>一个月 = 一块托盘。右侧可在两种构图间对照：<b>抖动网格</b>是现在 App 里那版（5×3 格、尺寸接近、上限 15）；<b>密铺钉板</b>是这一版要试的目标——全部带相框、尺寸只微差、压住邻边、夹子加粗。点相纸仍是「从这天开始整理」。</p></div>
+      <div class="note"><b>07 / 密铺钉板怎么排</b><p>还是确定性种子（<code>pin-年-月</code>），刷新位置不变。① 每张都是拍立得白边（下边更厚）。② 尺寸只抖约 ±12%，不再做一张特别大的主图。③ 宽高比收在 0.8–1.25，避免特别瘦或特别扁。④ 4 列错列，列距小于相纸宽所以会压边。⑤ 彩夹 9×20，颜色取自 <code>boardClipPalette</code>。刻意<b>不上贴纸、不抠无框图</b>。</p></div>
+      <div class="note"><b>08 / 悬挂微晃</b><p>相纸像夹在板上：倾斜手机（或在桌面上把指针划过手机）会偏 2–4px / ±2°，轻摇会带一点惯性再回正。每张刚度略有差别，不会整板一起平移。系统开了「减少动态效果」则完全静止。</p></div>
+    </div>
+    <p class="test-label">相纸墙构图</p>
+    <div class="scenarios" aria-label="相纸墙构图">
+      <button class="board-opt" data-board="jitter" aria-pressed="false">当前 · 抖动网格</button>
+      <button class="board-opt" data-board="pin" aria-pressed="true">目标 · 密铺钉板</button>
+    </div>
+    <label class="hit-toggle"><input type="checkbox" id="show-hits"> 显示可点区域（核对照片是否叠到点不着）</label>
+    <p class="test-label">钉板密度 · 拖滑条，满意后把下面 JSON 发给我</p>
+    <div class="pin-tuner" id="pin-tuner"></div>
+    <pre class="pin-dump" id="pin-dump"></pre>
+    <div class="pin-actions">
+      <button class="demo-peel" id="pin-copy">复制当前参数</button>
+      <button class="demo-peel" id="pin-reset">恢复默认</button>
     </div>
     <p class="test-label">卡片风格</p>
     <div class="scenarios" aria-label="卡片风格">
@@ -239,6 +293,7 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
       <button class="style-opt" data-style="cute" aria-pressed="false">可爱（相纸边 + 微倾斜）</button>
     </div>
     <button class="demo-peel" id="demo-peel">演示：整理掉一天（看「揭下来」）</button>
+    <button class="demo-peel" id="demo-wobble">演示：轻轻晃一下</button>
 
     <p class="test-label">切换示例状态</p>
     <div class="scenarios" aria-label="示例状态">
@@ -430,7 +485,7 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
       3:[9,'be'], 8:[12,'la'], 13:[7,'su'], 18:[11,'ci'], 23:[5,'po'] } }
   ];
 
-  const state = { year: 2026, badge: 9, done: 1274, scenario: 'normal', style: 'plain', mode: 'cal' };
+  const state = { year: 2026, badge: 9, done: 1274, scenario: 'normal', style: 'plain', mode: 'wall', board: 'pin' };
   const yearPending = y => MONTHS.filter(mo => mo.y === y).reduce((n, mo) => n + mo.pending, 0);
 
   /* ---------- 渲染 ---------- */
@@ -441,6 +496,7 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     animIndex = 0;
     wall.dataset.anim = anim ? '1' : '0';
     wall.dataset.style = state.style;
+    wall.dataset.hits = $('show-hits') && $('show-hits').checked ? '1' : '0';
     wall.replaceChildren(...buildContent());
   }
 
@@ -495,7 +551,7 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
       b.addEventListener('click', () => {
         state.mode = mode;
         renderWall({ anim: true });
-        toast('已切到「' + label + '」' + (mode === 'wall' ? ' · 每月挂最近 ' + MAX_POLAROIDS + ' 张' : ''));
+        toast('已切到「' + label + '」' + (mode === 'wall' ? ' · ' + boardToast() : ''));
       });
       seg.append(b);
     });
@@ -503,67 +559,179 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
   }
 
   /* ---------- 相纸墙：确定性撒布（种子 = 月份，刷新/重渲染位置不变） ---------- */
-  const MAX_POLAROIDS = 15;
+  const MAX_JITTER = 15;
   const BOARD_W = 358, BOARD_H = 310, POL_INSET = 5;
-  const POL_COLS = 5, POL_ROWS = 3;                      // 抖动网格：格位保证铺得匀、抖动给自然感
+  const POL_COLS = 5, POL_ROWS = 3;
   const POL_AR = [0.75, 0.8, 1, 1, 1.33, 1.5];
+  const CLIP_COLORS = ['#edd65c', '#9e87db', '#78bd66', '#61a3e6', '#e06b94', '#cca375'];
+  const PIN_AR = [0.8, 0.85, 1, 1, 1.15, 1.25];
+  const PIN_DEFAULTS = {
+    maxPolaroids: 16,
+    columnPitch3: 88,
+    columnPitch4: 78,
+    rowPitch: 72,
+    inset: 10,
+    minPhotoWidth: 55,
+    photoWidthSpan: 10,
+    maxRotation: 12,
+    itemJitter: 9,
+    stagger: 0.32,
+    edgeHang: 8
+  };
+  const PIN = { ...PIN_DEFAULTS };
+  const PIN_FIELDS = [
+    { key: 'maxPolaroids', label: '最多张数', hint: '一块板上挂几张。少则疏，多则满。', min: 8, max: 20, step: 1 },
+    { key: 'columnPitch4', label: '4 列列距', hint: '照片多时的左右间距。越小越压边、越密。', min: 52, max: 96, step: 1 },
+    { key: 'columnPitch3', label: '3 列列距', hint: '照片少（≤8 张）时的左右间距。', min: 64, max: 112, step: 1 },
+    { key: 'rowPitch', label: '行距', hint: '上下两排中心距离。越小越叠、越密。', min: 48, max: 100, step: 1 },
+    { key: 'minPhotoWidth', label: '照片最小宽', hint: '相纸里照片的基准宽度。越大整板越满。', min: 46, max: 72, step: 1 },
+    { key: 'photoWidthSpan', label: '尺寸抖动', hint: '在最小宽之上再随机加多少。0 = 几乎一样大。', min: 0, max: 22, step: 1 },
+    { key: 'itemJitter', label: '落位抖动', hint: '每张在格子里再偏移多少。大则更散、更乱。', min: 0, max: 16, step: 1 },
+    { key: 'stagger', label: '错列', hint: '相邻列高低差（相对行距）。0 = 齐顶，大则波浪。', min: 0, max: 0.55, step: 0.01 },
+    { key: 'maxRotation', label: '最大倾斜', hint: '相纸左右歪多少度。', min: 0, max: 18, step: 0.5 },
+    { key: 'inset', label: '板内边距', hint: '相纸离托盘边缘的最小距离。大则更疏、更收。', min: 4, max: 24, step: 1 },
+    { key: 'edgeHang', label: '允许探出', hint: '包围盒可以探出边距多少。大则更贴边、更满。', min: 0, max: 18, step: 1 }
+  ];
+  function boardToast() {
+    return state.board === 'pin' ? '密铺钉板 · 最多 ' + PIN.maxPolaroids + ' 张' : '抖动网格 · 最多 ' + MAX_JITTER + ' 张';
+  }
   function seededRng(key) {
     let s = 2166136261;
     for (const ch of key) s = ((s ^ ch.charCodeAt(0)) * 16777619) >>> 0;
     return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
   }
-  /* 池子：最近的天各一张；不够 15 张时，照片最多的那几天再补一张（同一天第二张换 seed） */
-  function polaroidPool(mo) {
+  function polaroidPool(mo, max) {
     const days = Object.keys(mo.days).map(Number).sort((a, b) => b - a);
     const pool = days.map(d => ({ d, v: 0 }));
     for (const d of days) {
-      if (pool.length >= MAX_POLAROIDS) break;
+      if (pool.length >= max) break;
       if (mo.days[d][0] >= 20) pool.push({ d, v: 1 });
     }
-    return pool.slice(0, MAX_POLAROIDS);
+    return pool.slice(0, max);
   }
-  function polaroids(mo) {
+  function aabbPad(w, h, rot) {
+    const rad = rot * Math.PI / 180;
+    const aabbW = w * Math.abs(Math.cos(rad)) + h * Math.abs(Math.sin(rad));
+    const aabbH = w * Math.abs(Math.sin(rad)) + h * Math.abs(Math.cos(rad));
+    return { padX: (aabbW - w) / 2, padY: (aabbH - h) / 2, aabbW, aabbH };
+  }
+  const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), Math.max(lo, hi));
+
+  /* 当前 App：5×3 抖动网格，尺寸接近、固定板高 310 */
+  function jitterPolaroids(mo) {
     const rnd = seededRng('board-' + mo.y + '-' + mo.m);
     const cw = BOARD_W / POL_COLS, ch = BOARD_H / POL_ROWS;
     const cells = [...Array(POL_COLS * POL_ROWS).keys()];
-    for (let i = cells.length - 1; i > 0; i--) {         // 打乱格位，避免按行整齐排
+    for (let i = cells.length - 1; i > 0; i--) {
       const j = Math.floor(rnd() * (i + 1));
       [cells[i], cells[j]] = [cells[j], cells[i]];
     }
-    return polaroidPool(mo).map((item, i) => {
+    return polaroidPool(mo, MAX_JITTER).map((item, i) => {
       const [count, code] = mo.days[item.d];
       const ar = POL_AR[Math.floor(rnd() * POL_AR.length)];
-      const photoW = 50 + rnd() * 26;                    // 照片宽 50–76
-      const photoH = photoW / ar;
-      const w = photoW + 8, h = photoH + 17;             // 相纸：左右 4、上 4、下 13
+      const photoW = 50 + rnd() * 26;
+      const w = photoW + 8, h = photoW / ar + 17;
       let rot = (rnd() * 2 - 1) * 13;
-      if (Math.abs(rot) < 3) rot = (rot >= 0 ? 1 : -1) * (3 + rnd() * 3.5);   // 别都撞在 ±3°
+      if (Math.abs(rot) < 3) rot = (rot >= 0 ? 1 : -1) * (3 + rnd() * 3.5);
       const cell = cells[i % cells.length];
       const cx = ((cell % POL_COLS) + 0.5) * cw;
       const cy = (Math.floor(cell / POL_COLS) + 0.5) * ch;
-      // 按「旋转后的包围盒」夹在板内：斜着的角不会被板边裁掉
-      const rad = rot * Math.PI / 180;
-      const aabbW = w * Math.abs(Math.cos(rad)) + h * Math.abs(Math.sin(rad));
-      const aabbH = w * Math.abs(Math.sin(rad)) + h * Math.abs(Math.cos(rad));
-      const padX = (aabbW - w) / 2, padY = (aabbH - h) / 2;
-      const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), Math.max(lo, hi));
+      const { padX, padY, aabbW, aabbH } = aabbPad(w, h, rot);
       const x = clamp(cx + (rnd() * 2 - 1) * cw * 0.26 - w / 2, POL_INSET + padX, BOARD_W - POL_INSET - aabbW + padX);
       const y = clamp(cy + (rnd() * 2 - 1) * ch * 0.26 - h / 2, POL_INSET + padY, BOARD_H - POL_INSET - aabbH + padY);
-      return { d: item.d, v: item.v, count, code, x, y, w, h, rot, ar };
+      return { d: item.d, v: item.v, count, code, x, y, w, h, rot, ar, z: i + 1, kind: 'polaroid', clip: null };
     });
   }
+
+  /* 目标：有主有次的密铺钉板。4 列错列，列距 < 相纸宽，板高随行数变。 */
+  function pinPolaroids(mo) {
+    const rnd = seededRng('pin-' + mo.y + '-' + mo.m);
+    const pool = polaroidPool(mo, PIN.maxPolaroids);
+    const n = pool.length;
+    if (!n) return { items: [], height: BOARD_H };
+
+    const cols = n <= 4 ? Math.min(n, 3) : n <= 8 ? 3 : 4;
+    const rows = Math.ceil(n / cols);
+    const colPitch = cols <= 3 ? PIN.columnPitch3 : PIN.columnPitch4;
+    const rowPitch = PIN.rowPitch;
+    const inset = PIN.inset;
+    const lastRowCount = n - (rows - 1) * cols;
+    const lastRowShift = (cols - lastRowCount) * colPitch / 2;
+    const firstCX = (BOARD_W - (cols - 1) * colPitch) / 2;
+    const firstDropsLower = rnd() < 0.5;
+    const phases = Array.from({ length: cols }, (_, c) => {
+      const drops = (c % 2 === 0) === firstDropsLower;
+      return (drops ? PIN.stagger * (0.7 + rnd() * 0.3) : rnd() * PIN.stagger * 0.35) * rowPitch;
+    });
+
+    const items = pool.map((item, i) => {
+      const [count, code] = mo.days[item.d];
+      let row = Math.floor(i / cols);
+      let col = i % cols;
+      if (n >= 4 && cols >= 3 && i < 2) {
+        col = i === 0 ? 1 : 0;
+        row = 0;
+      }
+      const photoW = PIN.minPhotoWidth + rnd() * PIN.photoWidthSpan;
+      const ar = PIN_AR[Math.floor(rnd() * PIN_AR.length)];
+      const w = photoW + 10;
+      const h = photoW / ar + 21;
+      let rot = (rnd() * 2 - 1) * PIN.maxRotation;
+      if (PIN.maxRotation >= 3 && Math.abs(rot) < 3) rot = (rot >= 0 ? 1 : -1) * (3 + rnd() * 3.5);
+      const clip = rnd() > 0.12 ? {
+        color: CLIP_COLORS[Math.floor(rnd() * CLIP_COLORS.length)],
+        x: (rnd() * 2 - 1) * 10,
+        rot: (rnd() * 2 - 1) * 14
+      } : null;
+      const shift = row === rows - 1 ? lastRowShift : 0;
+      const cx = firstCX + col * colPitch + shift + (rnd() * 2 - 1) * PIN.itemJitter;
+      const cy = row * rowPitch + phases[col] + h / 2 + (rnd() * 2 - 1) * PIN.itemJitter;
+      const z = row * 2 + rnd();
+      return { d: item.d, v: item.v, count, code, cx, cy, w, h, rot, ar, z, clip };
+    });
+
+    let minY = Infinity, maxY = -Infinity;
+    for (const p of items) {
+      const { padX, padY } = aabbPad(p.w, p.h, p.rot);
+      p.cx = clamp(p.cx, inset + p.w / 2 + padX - PIN.edgeHang, BOARD_W - inset - p.w / 2 - padX + PIN.edgeHang);
+      const clipTop = p.clip ? p.cy - p.h / 2 - 10 : p.cy - p.h / 2 - padY;
+      minY = Math.min(minY, p.cy - p.h / 2 - padY, clipTop);
+      maxY = Math.max(maxY, p.cy + p.h / 2 + padY);
+    }
+    const offsetY = inset - minY;
+    const height = Math.max(maxY - minY + inset * 2, 280);
+    return {
+      height,
+      items: items.map(p => ({
+        ...p,
+        x: p.cx - p.w / 2,
+        y: p.cy + offsetY - p.h / 2
+      }))
+    };
+  }
+
   function boardBlock(mo) {
-    const board = el('div', 'board');
-    const list = polaroids(mo);
-    list.forEach((p, i) => {
+    const pin = state.board === 'pin';
+    const packed = pin ? pinPolaroids(mo) : { items: jitterPolaroids(mo), height: BOARD_H };
+    const board = el('div', 'board' + (pin ? ' pin' : ''));
+    board.style.aspectRatio = BOARD_W + ' / ' + Math.round(packed.height);
+    packed.items.forEach((p, i) => {
       const btn = el('button', 'pol');
-      btn.style.left = p.x.toFixed(1) + 'px';
-      btn.style.top = p.y.toFixed(1) + 'px';
-      btn.style.width = p.w.toFixed(1) + 'px';
-      btn.style.zIndex = String(i + 1);                  // 最近的压在最上面
+      btn.style.left = (p.x / BOARD_W * 100).toFixed(2) + '%';
+      btn.style.top = (p.y / packed.height * 100).toFixed(2) + '%';
+      btn.style.width = (p.w / BOARD_W * 100).toFixed(2) + '%';
+      btn.style.zIndex = String(Math.round((p.z ?? i) * 10) + 1);
       btn.style.setProperty('--rot', p.rot.toFixed(1) + 'deg');
+      btn.style.setProperty('--hang', (0.78 + ((p.d * 17 + (p.v || 0) * 9) % 11) / 40).toFixed(3));
       btn.style.setProperty('--i', animIndex++);
       btn.setAttribute('aria-label', '整理 ' + mo.y + ' 年 · 从 ' + mo.m + '月' + p.d + '日 这张开始 · 这天 ' + p.count + ' 张');
+      if (p.clip) {
+        const clip = el('i', 'pol-clip');
+        clip.style.setProperty('--clip', p.clip.color);
+        clip.style.setProperty('--clip-x', p.clip.x.toFixed(1) + 'px');
+        clip.style.setProperty('--clip-rot', p.clip.rot.toFixed(1) + 'deg');
+        btn.append(clip);
+      }
       const photo = el('span', 'pol-photo');
       photo.style.aspectRatio = String(p.ar);
       if (state.scenario === 'loading') {
@@ -578,7 +746,7 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     });
     const wrap = el('div');
     wrap.append(board);
-    wrap.append(el('p', 'board-hint', '挂了 ' + list.length + ' 张 · 共 <span class="num">' + mo.pending + '</span> 张'));
+    wrap.append(el('p', 'board-hint', '挂了 ' + packed.items.length + ' 张 · 共 <span class="num">' + mo.pending + '</span> 张'));
     return wrap;
   }
 
@@ -682,6 +850,108 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     toastTimer = setTimeout(() => box.hidden = true, 2400);
   }
 
+  /* ---------- 相纸墙构图：抖动网格 / 密铺钉板 ---------- */
+  document.querySelectorAll('.board-opt').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.board-opt').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+    state.board = btn.dataset.board;
+    state.mode = 'wall';
+    renderWall({ anim: true });
+    toast(boardToast());
+  }));
+  $('show-hits').addEventListener('change', () => {
+    wall.dataset.hits = $('show-hits').checked ? '1' : '0';
+  });
+
+  /* ---------- 钉板密度：滑条即时刷新，满意后复制 JSON ---------- */
+  const PIN_STORAGE = 'photo-wall-pin-params';
+  function pinDump() {
+    const out = {};
+    for (const field of PIN_FIELDS) {
+      const v = PIN[field.key];
+      out[field.key] = field.step < 1 ? Number(v.toFixed(2)) : v;
+    }
+    return JSON.stringify(out, null, 2);
+  }
+  function refreshPinDump() {
+    $('pin-dump').textContent = pinDump();
+  }
+  function applyPinField(key, raw) {
+    const field = PIN_FIELDS.find(f => f.key === key);
+    const n = Number(raw);
+    PIN[key] = field && field.step < 1 ? n : Math.round(n);
+  }
+  function renderPinTuner(syncSliders) {
+    const box = $('pin-tuner');
+    if (syncSliders) {
+      box.replaceChildren();
+      for (const field of PIN_FIELDS) {
+        const row = el('label', 'pin-row');
+        row.append(el('span', '', field.label));
+        const out = el('output', '');
+        out.dataset.key = field.key;
+        out.textContent = field.step < 1 ? PIN[field.key].toFixed(2) : PIN[field.key];
+        row.append(out);
+        row.append(el('small', '', field.hint));
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.min = field.min;
+        input.max = field.max;
+        input.step = field.step;
+        input.value = PIN[field.key];
+        input.dataset.key = field.key;
+        input.addEventListener('input', () => {
+          applyPinField(field.key, input.value);
+          out.textContent = field.step < 1 ? PIN[field.key].toFixed(2) : PIN[field.key];
+          refreshPinDump();
+          try { localStorage.setItem(PIN_STORAGE, pinDump()); } catch (_) {}
+          state.board = 'pin';
+          state.mode = 'wall';
+          document.querySelectorAll('.board-opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.board === 'pin')));
+          renderWall();
+        });
+        row.append(input);
+        box.append(row);
+      }
+    } else {
+      box.querySelectorAll('output, input').forEach(node => {
+        const key = node.dataset.key;
+        const field = PIN_FIELDS.find(f => f.key === key);
+        if (!field) return;
+        if (node.tagName === 'OUTPUT') node.textContent = field.step < 1 ? PIN[key].toFixed(2) : PIN[key];
+        else node.value = PIN[key];
+      });
+    }
+    refreshPinDump();
+  }
+  try {
+    const saved = JSON.parse(localStorage.getItem(PIN_STORAGE) || 'null');
+    if (saved && typeof saved === 'object') {
+      for (const field of PIN_FIELDS) {
+        if (typeof saved[field.key] === 'number' && Number.isFinite(saved[field.key])) applyPinField(field.key, saved[field.key]);
+      }
+    }
+  } catch (_) {}
+  renderPinTuner(true);
+  $('pin-copy').addEventListener('click', async () => {
+    const text = pinDump();
+    try {
+      await navigator.clipboard.writeText(text);
+      toast('参数已复制，发给我就行');
+    } catch (_) {
+      toast('复制失败，请手动选下面 JSON');
+    }
+  });
+  $('pin-reset').addEventListener('click', () => {
+    Object.assign(PIN, PIN_DEFAULTS);
+    try { localStorage.removeItem(PIN_STORAGE); } catch (_) {}
+    renderPinTuner(false);
+    state.board = 'pin';
+    state.mode = 'wall';
+    document.querySelectorAll('.board-opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.board === 'pin')));
+    renderWall();
+    toast('已恢复默认密度');
+  });
+
   /* ---------- 卡片风格：素 / 可爱 ---------- */
   document.querySelectorAll('.style-opt').forEach(btn => btn.addEventListener('click', () => {
     document.querySelectorAll('.style-opt').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
@@ -731,8 +1001,85 @@ button:focus-visible{outline:3px solid #f3b14c;outline-offset:3px}
     return n;
   }
 
+  /* ---------- 悬挂微晃：倾斜跟随 + 轻摇惯性 ---------- */
+  const hang = { gx: 0, gy: 0, ix: 0, iy: 0, hasOrient: false, sensors: false };
+  const hangState = new WeakMap();
+
+  function onOrient(e) {
+    hang.hasOrient = true;
+    hang.gx = Math.max(-1, Math.min(1, (e.gamma || 0) / 18));
+    hang.gy = Math.max(-1, Math.min(1, ((e.beta || 90) - 90) / 18));
+  }
+  function onMotion(e) {
+    const a = e.acceleration;
+    if (!a) return;
+    const mag = Math.hypot(a.x || 0, a.y || 0, a.z || 0);
+    if (mag < 1.1) return;
+    hang.ix = Math.max(-1.3, Math.min(1.3, hang.ix + Math.max(-1, Math.min(1, (a.x || 0) / 6))));
+    hang.iy = Math.max(-1.3, Math.min(1.3, hang.iy + Math.max(-1, Math.min(1, (a.y || 0) / 8))));
+  }
+  async function bindSensors() {
+    if (hang.sensors || reduceMotion) return;
+    try {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        const status = await DeviceOrientationEvent.requestPermission();
+        if (status !== 'granted') return;
+      }
+      window.addEventListener('deviceorientation', onOrient);
+      window.addEventListener('devicemotion', onMotion);
+      hang.sensors = true;
+    } catch (_) { /* 桌面浏览器没有传感器，用指针划过即可 */ }
+  }
+  function nudgeHang() {
+    hang.ix = (Math.random() > 0.5 ? 1 : -1) * 0.95;
+    hang.iy = (Math.random() - 0.5) * 0.35;
+    setTimeout(() => { hang.ix *= -0.55; hang.iy *= -0.4; }, 150);
+    setTimeout(() => { hang.ix *= -0.4; }, 300);
+  }
+  function tickHang() {
+    hang.ix *= 0.88;
+    hang.iy *= 0.88;
+    if (!reduceMotion) {
+      document.querySelectorAll('.board .pol').forEach(el => {
+        const k = parseFloat(el.style.getPropertyValue('--hang')) || 1;
+        const tx = (hang.gx * 4.2 + hang.ix * 9) * k;
+        const ty = (hang.gy * 1.6 + hang.iy * 3.5) * k;
+        const tr = (hang.gx * 2.1 + hang.ix * 4.2) * k;
+        let s = hangState.get(el);
+        if (!s) { s = { x: 0, y: 0, r: 0, vx: 0, vy: 0, vr: 0 }; hangState.set(el, s); }
+        s.vx = (s.vx + (tx - s.x) * 0.14) * 0.78;
+        s.vy = (s.vy + (ty - s.y) * 0.14) * 0.78;
+        s.vr = (s.vr + (tr - s.r) * 0.12) * 0.8;
+        s.x += s.vx; s.y += s.vy; s.r += s.vr;
+        el.style.setProperty('--swing-x', s.x.toFixed(2) + 'px');
+        el.style.setProperty('--swing-y', s.y.toFixed(2) + 'px');
+        el.style.setProperty('--swing-rot', s.r.toFixed(2) + 'deg');
+      });
+    }
+    requestAnimationFrame(tickHang);
+  }
+
+  const phone = document.querySelector('.phone');
+  phone.addEventListener('pointermove', e => {
+    if (hang.hasOrient) return;
+    const box = phone.getBoundingClientRect();
+    hang.gx = ((e.clientX - box.left) / box.width - 0.5) * 2;
+    hang.gy = ((e.clientY - box.top) / box.height - 0.5) * 2;
+  });
+  phone.addEventListener('pointerleave', () => {
+    if (!hang.hasOrient) { hang.gx = 0; hang.gy = 0; }
+  });
+  phone.addEventListener('pointerdown', bindSensors, { once: true });
+  $('demo-wobble').addEventListener('click', () => {
+    bindSensors();
+    if (reduceMotion) { toast('系统开了减少动态效果，相纸保持静止'); return; }
+    nudgeHang();
+    toast('相纸轻轻晃了一下（手机上倾斜 / 轻摇也可）');
+  });
+
   renderWall({ anim: true });
   syncChrome();
+  tickHang();
 })();
 </script>
 </body>

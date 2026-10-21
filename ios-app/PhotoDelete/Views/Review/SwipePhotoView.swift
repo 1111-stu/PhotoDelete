@@ -31,8 +31,10 @@ struct SwipePhotoView: View {
     let randomReviewScope: PhotoRandomReviewScope?
     let selectedHistoricalToday: Bool
     let explicitReviewScope: ExplicitAssetReviewScope?
-    /// 照片墙点天进月：首帧定位到该日未整理照片（忽略本源进度恢复）。
+    /// 照片墙点天进月：没有指定封面 ID 时，落到该日未整理照片（忽略本源进度恢复）。
     let reviewStartFromDay: Date?
+    /// 照片墙 / 日历点到的那张封面；优先于 `reviewStartFromDay`。
+    let reviewStartFromAssetID: String?
 
     @StateObject private var session = PhotoReviewSession()
     @State private var showingPendingDeletion = false
@@ -82,7 +84,8 @@ struct SwipePhotoView: View {
         randomReviewScope: PhotoRandomReviewScope? = nil,
         selectedHistoricalToday: Bool = false,
         explicitReviewScope: ExplicitAssetReviewScope? = nil,
-        reviewStartFromDay: Date? = nil
+        reviewStartFromDay: Date? = nil,
+        reviewStartFromAssetID: String? = nil
     ) {
         self.selectedCategory = selectedCategory
         self.selectedTimeGroup = selectedTimeGroup
@@ -95,6 +98,7 @@ struct SwipePhotoView: View {
         self.selectedHistoricalToday = selectedHistoricalToday
         self.explicitReviewScope = explicitReviewScope
         self.reviewStartFromDay = reviewStartFromDay
+        self.reviewStartFromAssetID = reviewStartFromAssetID
     }
 
     private var currentRealPhoto: PHAsset? {
@@ -1022,9 +1026,12 @@ struct SwipePhotoView: View {
             usesPersistedReviewedState: explicitReviewScope?.usesPersistedReviewedState(hasAlbumContext: isAlbumMode)
                 ?? (!isAlbumMode && !isRandomMemoriesMode),
             preservesSessionReviewedState: didInitializeSession,
-            savedAssetIdentifier: reviewStartFromDay == nil ? restoredSessionProgressAssetID : nil,
+            savedAssetIdentifier: (reviewStartFromDay == nil && reviewStartFromAssetID == nil)
+                ? restoredSessionProgressAssetID
+                : nil,
             prefersFirstUnreviewedBeforeSavedProgress: shouldPrioritizeNewPhotosBeforeSavedProgress,
             startFromDay: didInitializeSession ? nil : reviewStartFromDay,
+            startFromAssetID: didInitializeSession ? nil : reviewStartFromAssetID,
             paginates: shouldPageSessionPhotos
         )
         preloadUpcomingImages(from: session.currentIndex)

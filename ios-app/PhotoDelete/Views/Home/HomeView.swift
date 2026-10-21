@@ -18,8 +18,8 @@ enum SwipeViewDestination: Hashable {
     case historicalToday
     case location(String)
     case period(AdvancedTimeScope, Date)
-    /// 照片墙进月整理：`monthDate` 定月份，`startFromDay` 非空时从该日起滑。
-    case wallMonth(Date, startFromDay: Date?)
+    /// 照片墙进月整理：`monthDate` 定月份；`startFromAssetID` 优先落到墙上那张封面，没有再按 `startFromDay`。
+    case wallMonth(Date, startFromDay: Date?, startFromAssetID: String?)
     case pendingPhotoWall
     case cleanup(AdvancedCleanupKind)
     case trashBin
@@ -46,8 +46,8 @@ enum SwipeViewDestination: Hashable {
             return lhsGroupID == rhsGroupID
         case (.period(let lhsScope, let lhsDate), .period(let rhsScope, let rhsDate)):
             return lhsScope == rhsScope && lhsDate == rhsDate
-        case (.wallMonth(let lhsMonth, let lhsStart), .wallMonth(let rhsMonth, let rhsStart)):
-            return lhsMonth == rhsMonth && lhsStart == rhsStart
+        case (.wallMonth(let lhsMonth, let lhsStart, let lhsAsset), .wallMonth(let rhsMonth, let rhsStart, let rhsAsset)):
+            return lhsMonth == rhsMonth && lhsStart == rhsStart && lhsAsset == rhsAsset
         case (.pendingPhotoWall, .pendingPhotoWall):
             return true
         case (.cleanup(let lhsKind), .cleanup(let rhsKind)):
@@ -89,10 +89,11 @@ enum SwipeViewDestination: Hashable {
             hasher.combine("period")
             hasher.combine(scope)
             hasher.combine(date)
-        case .wallMonth(let monthDate, let startFromDay):
+        case .wallMonth(let monthDate, let startFromDay, let startFromAssetID):
             hasher.combine("wallMonth")
             hasher.combine(monthDate)
             hasher.combine(startFromDay)
+            hasher.combine(startFromAssetID)
         case .pendingPhotoWall:
             hasher.combine("pendingPhotoWall")
         case .cleanup(let kind):

@@ -2,11 +2,20 @@
 //  PolaroidBoardLayout.swift
 //  PhotoDelete
 //
-//  相纸墙确定性撒布（与 designs/photo-wall-prototype.html 同种子算法）。
+//  相纸墙密铺钉板：全部拍立得白边，尺寸只微差，4 列错列压边。
+//  逐张的尺寸 / 倾斜 / 夹子按「月 + 日 + variant」定种子，整理掉一天后其余相纸只换位、不变样。
 //
 
 import CoreGraphics
 import Foundation
+
+struct PolaroidClip: Equatable {
+    let colorIndex: Int
+    /// 相对相纸顶边中点的水平偏移（设计单位）。
+    let offsetX: CGFloat
+    /// 叠加在相纸倾斜之上的额外倾斜。
+    let rotationDegrees: CGFloat
+}
 
 struct PolaroidBoardItem: Identifiable, Equatable {
     let id: String
@@ -14,106 +23,249 @@ struct PolaroidBoardItem: Identifiable, Equatable {
     let variant: Int
     let coverAssetID: String?
     let remainingCount: Int
+    /// 未旋转相纸框的左上角（设计单位）。
     let x: CGFloat
     let y: CGFloat
     let width: CGFloat
     let height: CGFloat
     let rotationDegrees: CGFloat
     let photoAspectRatio: CGFloat
+    let zIndex: Double
+    let clip: PolaroidClip?
+    /// 悬挂晃动的相对刚度（约 0.78...1.05）。
+    let hang: CGFloat
+}
+
+struct PolaroidBoard: Equatable {
+    /// 阅读顺序（新 → 旧）；绘制层级看 `zIndex`。
+    let items: [PolaroidBoardItem]
+    /// 设计单位；宽恒为 `PolaroidBoardLayout.boardWidth`。
+    let height: CGFloat
 }
 
 enum PolaroidBoardLayout {
-    static let maxPolaroids = 15
+    static let maxPolaroids = 16
     static let boardWidth: CGFloat = 358
-    static let boardHeight: CGFloat = 310
-    static let inset: CGFloat = 5
-    static let columns = 5
-    static let rows = 3
-    private static let aspectRatios: [CGFloat] = [0.75, 0.8, 1, 1, 1.33, 1.5]
+    static let inset: CGFloat = 10
+    static let frameSide: CGFloat = 5
+    static let frameTop: CGFloat = 5
+    static let frameBottom: CGFloat = 16
+    static let rowPitch: CGFloat = 72
+    static let columnPitch3: CGFloat = 88
+    static let columnPitch4: CGFloat = 78
+    static let clipWidth: CGFloat = 9
+    static let clipHeight: CGFloat = 20
+    /// 夹子露出相纸顶边的高度。
+    static let clipRise: CGFloat = 9
+    static let clipColorCount = 6
+    /// 剩这么多张以上的天，才在空位里补挂同日另一张。
+    static let alternateMinimumRemaining = 6
+    static let photoAspectRatios: [CGFloat] = [0.8, 0.85, 1, 1, 1.15, 1.25]
 
-    /// `days`：按日倒序（新→旧）的待整理日格。
+    private static let minPhotoWidth: CGFloat = 55
+    private static let photoWidthSpan: CGFloat = 10
+    private static let maxRotation: CGFloat = 12
+    private static let minRotation: CGFloat = 3
+    private static let itemJitter: CGFloat = 9
+    /// 相邻列高低差（相对行距）。
+    private static let stagger: CGFloat = 0.32
+    /// 包围盒可以探出 `inset` 多少。
+    private static let edgeHang: CGFloat = 8
+    private static let clipJitter: CGFloat = 10
+    private static let clipMaxRotation: CGFloat = 14
+
+    /// `days`：当月有待整理照片的日格，顺序不限。
     static func layout(
         year: Int,
         month: Int,
         days: [PendingPhotoWallDayCell]
-    ) -> [PolaroidBoardItem] {
+    ) -> PolaroidBoard {
         let pool = polaroidPool(from: days)
-        guard !pool.isEmpty else { return [] }
+        guard !pool.isEmpty else { return PolaroidBoard(items: [], height: 0) }
 
-        var rng = SeededRNG(seedKey: "board-\(year)-\(month)")
-        let cellWidth = boardWidth / CGFloat(columns)
-        let cellHeight = boardHeight / CGFloat(rows)
-        var cells = Array(0..<(columns * rows))
-        for i in stride(from: cells.count - 1, through: 1, by: -1) {
-            let j = Int(rng.next() * Double(i + 1))
-            cells.swapAt(i, j)
+        let grid = gridShape(for: pool.count)
+        let pitch = columnPitch(for: grid.columns)
+        let phases = columnPhases(count: grid.columns, year: year, month: month)
+        let firstCenterX = (boardWidth - CGFloat(grid.columns - 1) * pitch) / 2
+        let lastRowCount = pool.count - (grid.rows - 1) * grid.columns
+        let lastRowShift = CGFloat(grid.columns - lastRowCount) * pitch / 2
+
+        var polaroids = pool.enumerated().map { index, entry in
+            var item = makePolaroid(entry, year: year, month: month)
+            let row = index / grid.columns
+            let column = index % grid.columns
+            let shift = row == grid.rows - 1 ? lastRowShift : 0
+            item.center = CGPoint(
+                x: firstCenterX + CGFloat(column) * pitch + shift + item.jitter.x,
+                y: CGFloat(row) * rowPitch + phases[column] + item.height / 2 + item.jitter.y
+            )
+            item.zIndex = Double(row) * 2 + item.zJitter
+            return item
         }
 
-        return pool.enumerated().map { index, entry in
-            let aspect = aspectRatios[Int(rng.next() * Double(aspectRatios.count)) % aspectRatios.count]
-            let photoW = 50 + CGFloat(rng.next()) * 26
-            let photoH = photoW / aspect
-            let width = photoW + 8
-            let height = photoH + 17
-            var rot = CGFloat(rng.next() * 2 - 1) * 13
-            if abs(rot) < 3 {
-                rot = (rot >= 0 ? 1 : -1) * (3 + CGFloat(rng.next()) * 3.5)
-            }
-
-            let cell = cells[index % cells.count]
-            let cx = (CGFloat(cell % columns) + 0.5) * cellWidth
-            let cy = (CGFloat(cell / columns) + 0.5) * cellHeight
-            let rad = rot * .pi / 180
-            let aabbW = width * abs(cos(rad)) + height * abs(sin(rad))
-            let aabbH = width * abs(sin(rad)) + height * abs(cos(rad))
-            let padX = (aabbW - width) / 2
-            let padY = (aabbH - height) / 2
-            let x = clamp(
-                cx + CGFloat(rng.next() * 2 - 1) * cellWidth * 0.26 - width / 2,
-                inset + padX,
-                boardWidth - inset - aabbW + padX
+        var minY = CGFloat.greatestFiniteMagnitude
+        var maxY = -CGFloat.greatestFiniteMagnitude
+        for index in polaroids.indices {
+            let item = polaroids[index]
+            let half = rotatedHalfExtent(of: item)
+            polaroids[index].center.x = clamp(
+                item.center.x,
+                inset + half.width - edgeHang,
+                boardWidth - inset - half.width + edgeHang
             )
-            let y = clamp(
-                cy + CGFloat(rng.next() * 2 - 1) * cellHeight * 0.26 - height / 2,
-                inset + padY,
-                boardHeight - inset - aabbH + padY
-            )
+            minY = min(minY, item.center.y - half.height, clipTop(of: polaroids[index]))
+            maxY = max(maxY, item.center.y + half.height)
+        }
 
-            return PolaroidBoardItem(
-                id: "\(year)-\(month)-\(entry.day.dayOfMonth)-\(entry.variant)",
-                dayOfMonth: entry.day.dayOfMonth,
-                variant: entry.variant,
-                coverAssetID: entry.day.coverAssetID,
-                remainingCount: entry.day.remainingCount,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                rotationDegrees: rot,
-                photoAspectRatio: aspect
+        let offsetY = inset - minY
+        let items = polaroids.map { item in
+            PolaroidBoardItem(
+                id: "\(year)-\(month)-\(item.entry.day.dayOfMonth)-\(item.entry.variant)",
+                dayOfMonth: item.entry.day.dayOfMonth,
+                variant: item.entry.variant,
+                coverAssetID: item.entry.assetID,
+                remainingCount: item.entry.day.remainingCount,
+                x: item.center.x - item.width / 2,
+                y: item.center.y + offsetY - item.height / 2,
+                width: item.width,
+                height: item.height,
+                rotationDegrees: item.rotationDegrees,
+                photoAspectRatio: item.photoAspectRatio,
+                zIndex: item.zIndex,
+                clip: item.clip,
+                hang: item.hang
             )
         }
+        return PolaroidBoard(items: items, height: maxY - minY + inset * 2)
+    }
+
+    /// ≤4 张最多 3 列；5–8 张 3 列；更多 4 列。
+    static func gridShape(for count: Int) -> (rows: Int, columns: Int) {
+        guard count > 0 else { return (0, 0) }
+        let columns: Int
+        if count <= 4 {
+            columns = min(count, 3)
+        } else if count <= 8 {
+            columns = 3
+        } else {
+            columns = 4
+        }
+        let rows = (count + columns - 1) / columns
+        return (rows, columns)
+    }
+
+    static func columnPitch(for columns: Int) -> CGFloat {
+        columns <= 3 ? columnPitch3 : columnPitch4
     }
 
     private struct PoolEntry {
         let day: PendingPhotoWallDayCell
+        let assetID: String?
         let variant: Int
     }
 
-    /// 最近的天各一张；不够 15 时，剩余多的天再补一张（variant=1）。
+    private struct Polaroid {
+        let entry: PoolEntry
+        let width: CGFloat
+        let height: CGFloat
+        let photoAspectRatio: CGFloat
+        let rotationDegrees: CGFloat
+        let jitter: CGPoint
+        let zJitter: Double
+        let clip: PolaroidClip?
+        let hang: CGFloat
+        var center: CGPoint = .zero
+        var zIndex: Double = 0
+    }
+
+    /// 最近的天各一张；不够时，剩得多的天再挂同日另一张（variant=1），同天两张相邻。
     private static func polaroidPool(from days: [PendingPhotoWallDayCell]) -> [PoolEntry] {
-        let sorted = days.sorted { $0.date > $1.date }
-        var pool = sorted.map { PoolEntry(day: $0, variant: 0) }
-        for day in sorted {
-            if pool.count >= maxPolaroids { break }
-            if day.remainingCount >= 20 {
-                pool.append(PoolEntry(day: day, variant: 1))
-            }
+        let newestFirst = days.sorted { $0.date > $1.date }
+        let primaries = newestFirst.prefix(maxPolaroids).map {
+            PoolEntry(day: $0, assetID: $0.coverAssetID, variant: 0)
         }
-        if pool.count > maxPolaroids {
-            pool = Array(pool.prefix(maxPolaroids))
+        let openSlots = maxPolaroids - primaries.count
+        guard openSlots > 0 else { return primaries }
+
+        let alternates = newestFirst
+            .filter { $0.alternateCoverAssetID != nil && $0.remainingCount >= alternateMinimumRemaining }
+            .sorted { ($0.remainingCount, $0.date) > ($1.remainingCount, $1.date) }
+            .prefix(openSlots)
+            .map { PoolEntry(day: $0, assetID: $0.alternateCoverAssetID, variant: 1) }
+
+        return (primaries + alternates).sorted {
+            ($0.day.date, -$0.variant) > ($1.day.date, -$1.variant)
         }
-        return pool
+    }
+
+    /// 相邻两列一高一低，避免顶边连成一条线。
+    private static func columnPhases(count: Int, year: Int, month: Int) -> [CGFloat] {
+        var rng = SeededRNG(seedKey: "columns-\(year)-\(month)")
+        let firstDropsLower = rng.next() < 0.5
+        return (0..<count).map { column in
+            let dropsLower = (column % 2 == 0) == firstDropsLower
+            let fraction = dropsLower
+                ? stagger * (0.7 + CGFloat(rng.next()) * 0.3)
+                : CGFloat(rng.next()) * stagger * 0.35
+            return fraction * rowPitch
+        }
+    }
+
+    private static func makePolaroid(_ entry: PoolEntry, year: Int, month: Int) -> Polaroid {
+        var rng = SeededRNG(seedKey: "polaroid-\(year)-\(month)-\(entry.day.dayOfMonth)-\(entry.variant)")
+        let photoWidth = minPhotoWidth + CGFloat(rng.next()) * photoWidthSpan
+        let aspect = photoAspectRatios[Int(rng.next() * Double(photoAspectRatios.count)) % photoAspectRatios.count]
+        let width = photoWidth + frameSide * 2
+        let height = photoWidth / aspect + frameTop + frameBottom
+
+        var rotation = CGFloat(rng.next() * 2 - 1) * maxRotation
+        if abs(rotation) < minRotation {
+            rotation = (rotation >= 0 ? 1 : -1) * (minRotation + CGFloat(rng.next()) * 3.5)
+        }
+        let jitter = CGPoint(
+            x: CGFloat(rng.next() * 2 - 1) * itemJitter,
+            y: CGFloat(rng.next() * 2 - 1) * itemJitter
+        )
+        let clip: PolaroidClip? = rng.next() > 0.12
+            ? PolaroidClip(
+                colorIndex: Int(rng.next() * Double(clipColorCount)) % clipColorCount,
+                offsetX: CGFloat(rng.next() * 2 - 1) * clipJitter,
+                rotationDegrees: CGFloat(rng.next() * 2 - 1) * clipMaxRotation
+            )
+            : nil
+        let hang = 0.78 + CGFloat((entry.day.dayOfMonth * 17 + entry.variant * 9) % 11) / 40
+
+        return Polaroid(
+            entry: entry,
+            width: width,
+            height: height,
+            photoAspectRatio: aspect,
+            rotationDegrees: rotation,
+            jitter: jitter,
+            zJitter: rng.next() * 0.8,
+            clip: clip,
+            hang: hang
+        )
+    }
+
+    private static func rotatedHalfExtent(of item: Polaroid) -> CGSize {
+        let radians = item.rotationDegrees * .pi / 180
+        let cosine = abs(cos(radians))
+        let sine = abs(sin(radians))
+        return CGSize(
+            width: (item.width * cosine + item.height * sine) / 2,
+            height: (item.width * sine + item.height * cosine) / 2
+        )
+    }
+
+    /// 夹子露在相纸上方，旋转后可能比相纸包围盒更高。
+    private static func clipTop(of item: Polaroid) -> CGFloat {
+        guard item.clip != nil else {
+            return item.center.y - item.height / 2
+        }
+        let radians = item.rotationDegrees * .pi / 180
+        let localY = -item.height / 2 - clipRise
+        return item.center.y + (item.clip?.offsetX ?? 0) * sin(radians) + localY * cos(radians)
     }
 
     private static func clamp(_ value: CGFloat, _ lo: CGFloat, _ hi: CGFloat) -> CGFloat {
@@ -121,7 +273,7 @@ enum PolaroidBoardLayout {
     }
 }
 
-/// FNV-1a + LCG，与原型 `seededRng` 同构（32-bit 无符号）。
+/// FNV-1a + LCG（32-bit 无符号）。
 private struct SeededRNG {
     private var state: UInt32
 

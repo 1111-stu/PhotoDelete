@@ -11,7 +11,10 @@ import Photos
 struct PendingPhotoWallDayCell: Identifiable, Equatable, Hashable {
     let date: Date
     let remainingCount: Int
+    /// 当天最新的非截屏；整天只有截屏才用截屏。
     let coverAssetID: String?
+    /// 当天最旧的另一张非截屏，相纸墙补位用；和封面隔得远，少撞连拍。
+    var alternateCoverAssetID: String? = nil
 
     var id: String {
         let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
@@ -61,9 +64,31 @@ struct PendingPhotoWallSnapshot: Equatable {
 }
 
 enum PendingPhotoWallBuilder {
-    private struct DayBucket {
-        var remainingCount = 0
-        var coverAssetID: String?
+    struct DayBucket {
+        private(set) var remainingCount = 0
+        private var firstAssetID: String?
+        private var newestPhotoID: String?
+        private var oldestPhotoID: String?
+
+        /// 按 newest-first 顺序喂入同一天的待整理资产。
+        mutating func add(assetID: String, isScreenshot: Bool) {
+            remainingCount += 1
+            if firstAssetID == nil {
+                firstAssetID = assetID
+            }
+            guard !isScreenshot else { return }
+            if newestPhotoID == nil {
+                newestPhotoID = assetID
+            }
+            oldestPhotoID = assetID
+        }
+
+        var coverAssetID: String? { newestPhotoID ?? firstAssetID }
+
+        var alternateCoverAssetID: String? {
+            guard let oldestPhotoID, oldestPhotoID != newestPhotoID else { return nil }
+            return oldestPhotoID
+        }
     }
 
     /// 与 period summary 一致：reviewed / 收集箱 / 收藏候选 / 系统收藏 都算已整理。
@@ -94,7 +119,7 @@ enum PendingPhotoWallBuilder {
         var yearsWithLibraryPhotos = Set<Int>()
         var libraryPending = 0
 
-        // newest-first：先扫到的同日资产作为封面。
+        // newest-first：同日最新的非截屏做封面，见 `DayBucket`。
         // 年份列表含「库里有照片的年份」（含已清空），不只剩待整理的年。
         for asset in photos {
             guard let creationDate = asset.creationDate else { continue }
@@ -113,10 +138,10 @@ enum PendingPhotoWallBuilder {
             pendingByYear[year, default: 0] += 1
 
             var bucket = dayBuckets[dayStart] ?? DayBucket()
-            bucket.remainingCount += 1
-            if bucket.coverAssetID == nil {
-                bucket.coverAssetID = asset.localIdentifier
-            }
+            bucket.add(
+                assetID: asset.localIdentifier,
+                isScreenshot: asset.mediaSubtypes.contains(.photoScreenshot)
+            )
             dayBuckets[dayStart] = bucket
         }
 
@@ -145,7 +170,8 @@ enum PendingPhotoWallBuilder {
             entry.days[day] = PendingPhotoWallDayCell(
                 date: dayStart,
                 remainingCount: bucket.remainingCount,
-                coverAssetID: bucket.coverAssetID
+                coverAssetID: bucket.coverAssetID,
+                alternateCoverAssetID: bucket.alternateCoverAssetID
             )
             monthBuckets[monthStart] = entry
         }

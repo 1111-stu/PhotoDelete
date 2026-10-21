@@ -316,45 +316,82 @@ struct PendingPhotoWallDayCellView: View {
 struct PendingPhotoWallPolaroidBoard: View {
     let month: PendingPhotoWallMonth
     let photoLibraryManager: PhotoLibraryManager
-    let onSelectDay: (PendingPhotoWallDayCell) -> Void
+    let onSelectPhoto: (PendingPhotoWallDayCell, String?) -> Void
 
-    /// 仅视口内的月才算布局 / 拉缩略图，避免切到相纸墙时整年一起解码。
+    /// 排布是纯计算，先摆出空白相纸定住板高；缩略图等这块板进视口再拉，避免切到相纸墙时整年一起解码。
     @State private var isActivated = false
-    @State private var items: [PolaroidBoardItem] = []
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ObservedObject private var motion = PolaroidBoardMotion.shared
+
+    private var board: PolaroidBoard {
+        PolaroidBoardLayout.layout(
+            year: month.year,
+            month: month.month,
+            days: Array(month.daysWithPhotos.values)
+        )
+    }
 
     var body: some View {
+        let board = board
         VStack(spacing: 9) {
             GeometryReader { proxy in
                 let scale = proxy.size.width / PolaroidBoardLayout.boardWidth
                 ZStack(alignment: .topLeading) {
                     boardBackground
 
-                    if isActivated {
-                        ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                            polaroid(item, loadsImage: true)
-                                .frame(width: item.width * scale, height: item.height * scale)
-                                .rotationEffect(.degrees(Double(item.rotationDegrees)))
-                                .position(
-                                    x: (item.x + item.width / 2) * scale,
-                                    y: (item.y + item.height / 2) * scale
+                    ForEach(board.items) { item in
+                        polaroid(item, scale: scale)
+                            .frame(width: item.width * scale, height: item.height * scale)
+                            .overlay(alignment: .top) {
+                                if let clip = item.clip {
+                                    PendingPhotoWallBoardClip(colorIndex: clip.colorIndex)
+                                        .frame(
+                                            width: PolaroidBoardLayout.clipWidth * scale,
+                                            height: PolaroidBoardLayout.clipHeight * scale
+                                        )
+                                        .rotationEffect(.degrees(Double(clip.rotationDegrees)))
+                                        .offset(
+                                            x: clip.offsetX * scale,
+                                            y: -PolaroidBoardLayout.clipRise * scale
+                                        )
+                                        .allowsHitTesting(false)
+                                }
+                            }
+                            .offset(
+                                x: reduceMotion ? 0 : motion.swingX(hang: item.hang) * scale,
+                                y: reduceMotion ? 0 : motion.swingY(hang: item.hang) * scale
+                            )
+                            .rotationEffect(
+                                .degrees(
+                                    Double(item.rotationDegrees)
+                                        + (reduceMotion ? 0 : Double(motion.swingRotation(hang: item.hang)))
                                 )
-                                .zIndex(Double(index + 1))
-                        }
+                            )
+                            .position(
+                                x: (item.x + item.width / 2) * scale,
+                                y: (item.y + item.height / 2) * scale
+                            )
+                            .zIndex(item.zIndex + 1)
                     }
                 }
             }
-            .aspectRatio(PolaroidBoardLayout.boardWidth / PolaroidBoardLayout.boardHeight, contentMode: .fit)
-            .onAppear(perform: activateIfNeeded)
-            .onChange(of: month.id) {
-                isActivated = false
-                items = []
-                activateIfNeeded()
+            .aspectRatio(PolaroidBoardLayout.boardWidth / max(board.height, 1), contentMode: .fit)
+            .onAppear {
+                isActivated = true
+                if !reduceMotion {
+                    motion.retain()
+                }
+            }
+            .onDisappear {
+                if !reduceMotion {
+                    motion.release()
+                }
             }
 
             Text(
                 String(
                     format: L10n.string("Showing %lld of %lld photos"),
-                    Int64(isActivated ? items.count : min(month.daysWithPhotos.count, PolaroidBoardLayout.maxPolaroids)),
+                    Int64(board.items.count),
                     Int64(month.remainingCount)
                 )
             )
@@ -370,8 +407,8 @@ struct PendingPhotoWallPolaroidBoard: View {
             .fill(
                 LinearGradient(
                     colors: [
-                        Color(red: 0.102, green: 0.102, blue: 0.125),
-                        Color(red: 0.078, green: 0.078, blue: 0.094)
+                        Color(red: 0.110, green: 0.110, blue: 0.133),
+                        Color(red: 0.071, green: 0.071, blue: 0.086)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -384,40 +421,31 @@ struct PendingPhotoWallPolaroidBoard: View {
             .shadow(color: Color.black.opacity(0.48), radius: 14, y: 10)
     }
 
-    private func activateIfNeeded() {
-        guard !isActivated else { return }
-        items = PolaroidBoardLayout.layout(
-            year: month.year,
-            month: month.month,
-            days: Array(month.daysWithPhotos.values)
-        )
-        isActivated = true
-    }
-
-    private func polaroid(_ item: PolaroidBoardItem, loadsImage: Bool) -> some View {
-        let paper = Color(red: 242 / 255, green: 237 / 255, blue: 228 / 255)
-        return Button {
+    private func polaroid(_ item: PolaroidBoardItem, scale: CGFloat) -> some View {
+        Button {
             if let cell = month.daysWithPhotos[item.dayOfMonth] {
-                onSelectDay(cell)
+                onSelectPhoto(cell, item.coverAssetID)
             }
         } label: {
             VStack(spacing: 0) {
                 PendingPhotoWallThumbnail(
-                    assetID: loadsImage ? item.coverAssetID : nil,
+                    assetID: isActivated ? item.coverAssetID : nil,
                     photoLibraryManager: photoLibraryManager,
                     cornerRadius: 2
                 )
                 .aspectRatio(item.photoAspectRatio, contentMode: .fit)
-                .padding(.horizontal, 4)
-                .padding(.top, 4)
+                .padding(.horizontal, PolaroidBoardLayout.frameSide * scale)
+                .padding(.top, PolaroidBoardLayout.frameTop * scale)
                 Spacer(minLength: 0)
             }
-            .padding(.bottom, 13)
+            .padding(.bottom, PolaroidBoardLayout.frameBottom * scale)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
-                RoundedRectangle(cornerRadius: 3.5, style: .continuous)
-                    .fill(paper)
-                    .shadow(color: Color.black.opacity(0.45), radius: 6, y: 4)
+                // 贴边一层让压边处有清楚的分界，环境一层把相纸托离板面。
+                RoundedRectangle(cornerRadius: 2.5, style: .continuous)
+                    .fill(Theme.boardPaper)
+                    .shadow(color: Color.black.opacity(0.42), radius: 1.2 * scale, y: 0.8 * scale)
+                    .shadow(color: Color.black.opacity(0.38), radius: 6 * scale, y: 4 * scale)
             )
         }
         .buttonStyle(.plain)
@@ -428,6 +456,35 @@ struct PendingPhotoWallPolaroidBoard: View {
                 PhotoDeleteCountFormat.plain(item.remainingCount)
             )
         )
+    }
+}
+
+/// 正面看的小木夹：上下两片夹口 + 弹簧缝 + 顶部受光。
+private struct PendingPhotoWallBoardClip: View {
+    let colorIndex: Int
+
+    var body: some View {
+        let palette = Theme.boardClipPalette
+        let shape = RoundedRectangle(cornerRadius: 1.4, style: .continuous)
+        shape
+            .fill(palette[colorIndex % palette.count])
+            .overlay {
+                LinearGradient(
+                    colors: [Color.white.opacity(0.42), Color.white.opacity(0)],
+                    startPoint: .top,
+                    endPoint: .center
+                )
+                .clipShape(shape)
+            }
+            .overlay {
+                GeometryReader { proxy in
+                    Rectangle()
+                        .fill(Color.black.opacity(0.24))
+                        .frame(height: max(proxy.size.height * 0.05, 0.6))
+                        .offset(y: proxy.size.height * 0.42)
+                }
+            }
+            .shadow(color: Color.black.opacity(0.4), radius: 0.8, y: 0.8)
     }
 }
 

@@ -64,7 +64,11 @@ struct PendingPhotoWallView: View {
                                     displayModeByMonthID[month.id] = next
                                 },
                                 onOrganizeMonth: {
-                                    router.push(SwipeViewDestination.wallMonth(month.monthStart, startFromDay: nil))
+                                    router.push(SwipeViewDestination.wallMonth(
+                                        month.monthStart,
+                                        startFromDay: nil,
+                                        startFromAssetID: nil
+                                    ))
                                 }
                             ) {
                                 monthContent(month, mode: mode)
@@ -247,15 +251,23 @@ struct PendingPhotoWallView: View {
                 today: Date(),
                 photoLibraryManager: dataManager.photoLibraryManager,
                 onSelectDay: { cell in
-                    router.push(SwipeViewDestination.wallMonth(cell.date, startFromDay: cell.date))
+                    router.push(SwipeViewDestination.wallMonth(
+                        cell.date,
+                        startFromDay: cell.date,
+                        startFromAssetID: cell.coverAssetID
+                    ))
                 }
             )
         case .polaroid:
             PendingPhotoWallPolaroidBoard(
                 month: month,
                 photoLibraryManager: dataManager.photoLibraryManager,
-                onSelectDay: { cell in
-                    router.push(SwipeViewDestination.wallMonth(cell.date, startFromDay: cell.date))
+                onSelectPhoto: { cell, assetID in
+                    router.push(SwipeViewDestination.wallMonth(
+                        cell.date,
+                        startFromDay: cell.date,
+                        startFromAssetID: assetID
+                    ))
                 }
             )
         }

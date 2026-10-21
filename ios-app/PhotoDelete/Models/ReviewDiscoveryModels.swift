@@ -527,8 +527,13 @@ enum PhotoReviewSessionPaginator {
         assetIdentifiers: [String],
         reviewedAssetIdentifiers: Set<String>,
         savedAssetIdentifier: String?,
-        prefersFirstUnreviewedBeforeSavedProgress: Bool = false
+        prefersFirstUnreviewedBeforeSavedProgress: Bool = false,
+        startFromAssetID: String? = nil
     ) -> Int {
+        if let startFromAssetID,
+           let assetIndex = assetIdentifiers.firstIndex(of: startFromAssetID) {
+            return assetIndex
+        }
         guard !assetIdentifiers.isEmpty else { return 0 }
 
         let firstUnreviewedIndex = assetIdentifiers.firstIndex { assetID in
@@ -553,16 +558,21 @@ enum PhotoReviewSessionPaginator {
         return trailingUnreviewedIndex ?? firstUnreviewedIndex ?? restoredIndex
     }
 
-    /// 照片墙「从某天起」：在 newest-first 队列里定位该日首张未整理；没有则落回该日之前（更旧）的首张未整理。
+    /// 照片墙点进整理：优先落到墙上那张 `startFromAssetID`；没有再按天找该日首张未整理。
     static func initialTargetIndex(
         assets: [PHAsset],
         reviewedAssetIdentifiers: Set<String>,
         savedAssetIdentifier: String?,
         prefersFirstUnreviewedBeforeSavedProgress: Bool = false,
         startFromDay: Date?,
+        startFromAssetID: String? = nil,
         calendar: Calendar = .current
     ) -> Int {
         let identifiers = assets.map(\.localIdentifier)
+        if let startFromAssetID,
+           let assetIndex = identifiers.firstIndex(of: startFromAssetID) {
+            return assetIndex
+        }
         guard let startFromDay else {
             return initialTargetIndex(
                 assetIdentifiers: identifiers,

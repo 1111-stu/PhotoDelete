@@ -23,6 +23,7 @@ final class PhotoReviewSession: ObservableObject {
         savedAssetIdentifier: String?,
         prefersFirstUnreviewedBeforeSavedProgress: Bool,
         startFromDay: Date? = nil,
+        startFromAssetID: String? = nil,
         paginates: Bool
     ) -> Bool {
         self.paginates = paginates
@@ -40,7 +41,8 @@ final class PhotoReviewSession: ObservableObject {
                 reviewedAssetIdentifiers: persistedIDs,
                 savedAssetIdentifier: savedAssetIdentifier,
                 prefersFirstUnreviewedBeforeSavedProgress: prefersFirstUnreviewedBeforeSavedProgress,
-                startFromDay: startFromDay
+                startFromDay: startFromDay,
+                startFromAssetID: startFromAssetID
             )
         let initialCount = paginates
             ? PhotoReviewSessionPaginator.initialLoadedCount(totalCount: fullPhotos.count)

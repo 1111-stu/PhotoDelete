@@ -76,6 +76,20 @@ enum Theme {
     static let dropSlotLineWidth: CGFloat = 2.5
     static let dropSlotDash: [CGFloat] = [11, 9]
 
+    // MARK: - Color · Photo board
+
+    /// 相纸白边：接近纯白，在近黑板面上读作「冲印出来的相纸」。
+    static let boardPaper = Color(red: 0.98, green: 0.98, blue: 0.97)
+    /// 相纸墙小木夹：只用于相纸墙这类实物道具；刻意避开琥珀 / 珊瑚语义色。
+    static let boardClipPalette: [Color] = [
+        Color(red: 0.93, green: 0.84, blue: 0.36), // 柠檬黄
+        Color(red: 0.62, green: 0.53, blue: 0.86), // 薰衣草紫
+        Color(red: 0.47, green: 0.74, blue: 0.40), // 草绿
+        Color(red: 0.38, green: 0.64, blue: 0.90), // 天蓝
+        Color(red: 0.88, green: 0.42, blue: 0.58), // 玫红
+        Color(red: 0.80, green: 0.64, blue: 0.46)  // 原木
+    ]
+
     // MARK: - Space（4pt 网格，spaceN = N×4）
 
     static let space2: CGFloat = 8
