@@ -34,19 +34,19 @@
   .page-head{position:relative;z-index:1;max-width:1780px;margin:0 auto;padding:54px 40px 4px}
   .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);
     display:flex;align-items:center;gap:12px;font-weight:600}
-  .eyebrow:before{content:"";width:28px;height:1px;background:var(--amber);opacity:.85}
+  .eyebrow:before{content:"";width:28px;height:1px;background:var(--ink3);opacity:.85}
   .page-head h1{font-size:42px;font-weight:700;letter-spacing:-.035em;margin:14px 0 0}
-  .page-head h1 span{color:var(--amber);font-weight:300}
+  .page-head h1 span{color:var(--ink2);font-weight:300}
   .lede{color:#8E959C;font-size:14px;line-height:1.85;max-width:900px;margin-top:12px}
   .lede b{color:#F4F4F6;font-weight:600}
   .legend{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
   .legend span{display:flex;align-items:center;gap:8px;border-radius:999px;padding:8px 13px;
     background:#121216;border:1px solid rgba(255,255,255,.06);font-size:11.5px;color:#9AA1A8}
-  .legend i{width:19px;height:19px;border-radius:7px;background:rgba(243,177,76,.15);color:var(--amber);
+  .legend i{width:19px;height:19px;border-radius:7px;background:rgba(255,255,255,.10);color:var(--ink);
     font-style:normal;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
   .head-actions{display:flex;align-items:center;gap:14px;margin-top:20px}
   .replay{height:42px;border-radius:999px;border:none;cursor:pointer;padding:0 22px;
-    background:linear-gradient(135deg,var(--amber-lt),var(--amber-dk));color:var(--on-amber);
+    background:var(--ink);color:var(--bg);
     font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.02em}
   .replay:active{transform:scale(.97)}
   .head-note{font-size:11.5px;color:#6F767D}
@@ -59,8 +59,8 @@
   .variant{flex:0 0 390px}
   .vcap{margin:0 4px 14px;min-height:104px}
   .vcap .tag{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;letter-spacing:.14em;
-    text-transform:uppercase;color:var(--amber);font-weight:700}
-  .vcap .tag i{width:18px;height:18px;border-radius:6px;background:rgba(243,177,76,.15);
+    text-transform:uppercase;color:var(--ink2);font-weight:700}
+  .vcap .tag i{width:18px;height:18px;border-radius:6px;background:rgba(255,255,255,.10);
     display:flex;align-items:center;justify-content:center;font-style:normal;font-size:10px}
   .vcap h3{font-size:18px;font-weight:700;letter-spacing:-.02em;margin:8px 0 0}
   .vcap p{font-size:12px;line-height:1.65;color:#8A9198;margin-top:6px}
@@ -126,7 +126,7 @@
   /* ---- 分区标题 ---- */
   .glabel{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:17px 6px 8px}
   .glabel b{font-size:14px;font-weight:700;letter-spacing:.01em;white-space:nowrap}
-  .glabel span{font-size:12.5px;color:var(--amber);font-weight:600;white-space:nowrap}
+  .glabel span{font-size:12.5px;color:var(--ink2);font-weight:600;white-space:nowrap}
   .glabel span.muted{color:var(--ink3);font-weight:500}
   .chev{width:12px;height:12px;color:var(--ink3);flex-shrink:0}
 
@@ -201,9 +201,9 @@
   .tab .tico{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center}
   .tab svg{width:23px;height:23px}
   .tab span{font-size:11px;font-weight:500}
-  .tab.on .tico{background:linear-gradient(135deg,var(--amber-lt),var(--amber-dk))}
-  .tab.on svg{width:24px;height:24px;color:var(--on-amber)}
-  .tab.on span{color:var(--amber);font-weight:700}
+  .tab.on .tico{background:rgba(255,255,255,.10)}
+  .tab.on svg{width:24px;height:24px;color:var(--ink)}
+  .tab.on span{color:var(--ink);font-weight:700}
   .tab.off{color:var(--ink3)}
   .home-indicator{position:absolute;z-index:31;bottom:9px;left:50%;transform:translateX(-50%);
     width:128px;height:4px;border-radius:999px;background:rgba(255,255,255,.26)}

@@ -489,12 +489,12 @@ enum AdvancedCleanupKind: String, CaseIterable, Identifiable {
 
     var tint: Color {
         switch self {
-        case .similarPhotos: return Theme.secondaryAccent
+        case .similarPhotos: return Theme.secondaryText
         case .largeFiles: return Theme.warning
-        case .imageCompression: return Theme.accent
+        case .imageCompression: return Theme.secondaryText
         case .videoCompression: return Theme.positive
-        case .videos: return Theme.iconTint(for: "video")
-        case .screenRecordings: return Theme.iconTint(for: "video")
+        case .videos: return Theme.secondaryText
+        case .screenRecordings: return Theme.secondaryText
         }
     }
 }

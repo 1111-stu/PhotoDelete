@@ -33,9 +33,12 @@ enum Theme {
     static let cardStroke = Color.white.opacity(0.09)
     static let hairline = Color.white.opacity(0.075)
     static let floatingShadow = Color.black.opacity(0.30)
-    /// 整理页照片框的石墨深灰承托色，不覆盖照片本身，只填充留白和加载态。
-    static let reviewPhotoSurface = Color(red: 0.070, green: 0.075, blue: 0.086)
+    /// 整理页照片框的渐变承托色，不覆盖照片本身，只填充留白和加载态。
+    /// 左上偏亮的石墨灰 → 右下几乎沉入画布，#1E2024 → #0C0D11。
+    static let reviewPhotoSurfaceTop = Color(red: 0.118, green: 0.125, blue: 0.141)
+    static let reviewPhotoSurfaceBottom = Color(red: 0.047, green: 0.051, blue: 0.067)
     static let reviewPhotoStroke = Color.white.opacity(0.12)
+    static let reviewPhotoStrokeFade = Color.white.opacity(0.01)
 
     // MARK: - Color · Text
 
@@ -43,15 +46,16 @@ enum Theme {
     static let secondaryText = Color.white.opacity(0.62)
     static let tertiaryText = Color.white.opacity(0.42)
 
-    // MARK: - Color · Action（琥珀）
+    // MARK: - Color · Action（单色）
+    // 功能层不再使用琥珀；白色承担主操作与选中态。
+    // 琥珀/珊瑚只保留在首页两张入口卡的品牌渐变里（见 Home gradient cards）。
 
-    static let accent = Color(red: 0.953, green: 0.694, blue: 0.298)
-    static let accentPressed = Color(red: 0.788, green: 0.541, blue: 0.196)
-    /// 琥珀填充上的墨色字。
-    static let onAccent = Color(red: 0.04, green: 0.035, blue: 0.03)
-    static let accentSoftFill = accent.opacity(0.14)
-    static let accentSoftStroke = accent.opacity(0.22)
-    static let secondaryAccent = Color(red: 1.00, green: 0.78, blue: 0.48)
+    static let accent = Color.white.opacity(0.96)
+    static let accentPressed = Color(white: 0.82)
+    /// 白色填充上的墨色字。
+    static let onAccent = Color(red: 0.031, green: 0.031, blue: 0.039)
+    static let accentSoftFill = Color.white.opacity(0.10)
+    static let accentSoftStroke = Color.white.opacity(0.22)
 
     // MARK: - Color · Status
 
@@ -188,8 +192,8 @@ enum Theme {
     static let uiBackground = UIColor(red: 0.031, green: 0.031, blue: 0.039, alpha: 1)
     static let uiSurface = UIColor(red: 0.086, green: 0.086, blue: 0.102, alpha: 1)
     static let uiHairline = UIColor(white: 1, alpha: 0.075)
-    static let uiAccent = UIColor(red: 0.953, green: 0.694, blue: 0.298, alpha: 1)
-    static let uiOnAccent = UIColor(red: 0.04, green: 0.035, blue: 0.03, alpha: 1)
+    static let uiAccent = UIColor(white: 1, alpha: 0.96)
+    static let uiOnAccent = UIColor(red: 0.031, green: 0.031, blue: 0.039, alpha: 1)
     static let uiDanger = UIColor(red: 1.00, green: 0.46, blue: 0.38, alpha: 1)
     static let uiFavorite = UIColor(red: 1.00, green: 0.64, blue: 0.72, alpha: 1)
     static let uiSuccess = UIColor(red: 0.72, green: 0.86, blue: 0.52, alpha: 1)
@@ -202,8 +206,8 @@ enum Theme {
         switch key {
         case "delete", "trash": return destructive
         case "favorite", "heart": return favorite
-        case "video", "livephoto": return secondaryAccent
-        default: return accent
+        case "video", "livephoto": return secondaryText
+        default: return primaryText
         }
     }
 }

@@ -613,7 +613,7 @@ struct SettingToggleRow: View {
                     .multilineTextAlignment(.leading)
             }
         }
-        .tint(SettingsChrome.accent)
+        .tint(Theme.positive)
         .padding(.horizontal, 16)
         .padding(.vertical, 16)
         .frame(minHeight: SettingsChrome.rowMinHeight)

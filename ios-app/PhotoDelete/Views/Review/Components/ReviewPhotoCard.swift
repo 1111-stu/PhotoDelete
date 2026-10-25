@@ -65,6 +65,26 @@ private struct PhotoAlbumMembershipBadge: View {
 }
 
 
+/// 整理页照片框的承托面：对角渐变 + 顶亮底暗的微光描边。
+private struct ReviewPhotoSurfaceBackground: View {
+    var cornerRadius: CGFloat = Theme.radiusMd
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .fill(
+                LinearGradient(
+                    colors: [
+                        Theme.reviewPhotoSurfaceTop,
+                        Theme.reviewPhotoSurfaceBottom
+                    ],
+                    // 实测参考图：水平变化约为垂直的 0.54 倍，右上 ≈35%、左下 ≈65%。
+                    startPoint: UnitPoint(x: 0, y: 0),
+                    endPoint: UnitPoint(x: 0.64, y: 1.19)
+                )
+            )
+    }
+}
+
 struct RealPhotoCard: View {
     let asset: PHAsset
     let photoLibraryManager: PhotoLibraryManager
@@ -126,8 +146,7 @@ struct RealPhotoCard: View {
                 )
             } else if shouldShowLivePhotoPlayback, let livePhoto {
                 ZStack {
-                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                        .fill(Theme.reviewPhotoSurface)
+                    ReviewPhotoSurfaceBackground()
 
                     LivePhotoPreviewRepresentable(
                         livePhoto: livePhoto,
@@ -153,8 +172,7 @@ struct RealPhotoCard: View {
                 )
             } else if let image = image {
                 ZStack {
-                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                        .fill(Theme.reviewPhotoSurface)
+                    ReviewPhotoSurfaceBackground()
 
                     Image(uiImage: image)
                         .resizable()
@@ -177,10 +195,8 @@ struct RealPhotoCard: View {
                         alignment: .bottom
                     )
             } else {
-                Rectangle()
-                    .fill(Theme.reviewPhotoSurface)
+                ReviewPhotoSurfaceBackground()
                     .frame(width: displaySize.width, height: displaySize.height)
-                    .cornerRadius(Theme.radiusMd)
                     .overlay(
                         VStack(spacing: 10) {
                             if isLoading || isDownloadingFromCloud {
@@ -205,7 +221,17 @@ struct RealPhotoCard: View {
         }
         .overlay {
             RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                .stroke(Theme.reviewPhotoStroke, lineWidth: Theme.stroke)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Theme.reviewPhotoStroke,
+                            Theme.reviewPhotoStrokeFade
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: Theme.stroke
+                )
         }
         .frame(width: displaySize.width, height: displaySize.height)
         .overlay(alignment: .topTrailing) {

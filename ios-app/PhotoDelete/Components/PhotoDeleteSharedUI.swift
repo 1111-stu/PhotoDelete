@@ -176,7 +176,7 @@ struct PhotoDeleteSectionHeader: View {
             if let trailing {
                 Text(trailing)
                     .font(.system(size: 12.5, weight: .semibold))
-                    .foregroundColor(Theme.accent)
+                    .foregroundColor(Theme.secondaryText)
                     .lineLimit(1)
             }
         }
