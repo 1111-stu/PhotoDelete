@@ -204,6 +204,8 @@ struct PhotoDeleteListRow: View {
                         .scaledToFit()
                         .frame(width: 36, height: 36)
                         .shadow(color: Color.black.opacity(0.2), radius: 2, y: 1)
+                        // 48pt 图标槽让标题与时间卡的标题列对齐（18 + 48 + 14 = 80）。
+                        .frame(width: 48, height: 36)
                 } else if let icon {
                     Image(systemName: icon)
                         .font(.system(size: 17, weight: .regular))

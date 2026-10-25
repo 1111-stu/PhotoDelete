@@ -661,7 +661,7 @@ struct HomeView: View {
                 }
                 insetHairline
                 PhotoDeleteListRow(
-                    iconImage: "CleanupScreenshotIcon",
+                    iconImage: "CleanupStackedPhotosIcon",
                     title: L10n.string("Screenshots"),
                     accessibilityIdentifier: "home-cleanup-screenshots"
                 ) {
