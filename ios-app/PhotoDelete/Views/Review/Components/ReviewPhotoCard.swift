@@ -91,8 +91,8 @@ private struct ReviewPhotoSurfaceBackground: View {
     }
 }
 
-/// 参考图渐变上可见的 145° 细斜纹：约 22pt 间隔的极淡光带，轻模糊成柔边。
-/// 用固定哈希决定每条光带的强度，保证同一条照片每次渲染完全一致。
+/// 参考图渐变上隐约可见的 145° 斜纹：约 36pt 间隔的宽柔光带。
+/// 强度由固定哈希决定，保证同一条照片每次渲染完全一致。
 private struct ReviewPhotoSurfaceTexture: View {
     var body: some View {
         Canvas { context, size in
@@ -102,7 +102,7 @@ private struct ReviewPhotoSurfaceTexture: View {
             let along = CGVector(dx: cos(angle), dy: sin(angle))
             let across = CGVector(dx: -sin(angle), dy: cos(angle))
             let span = abs(size.width * across.dx) + abs(size.height * across.dy)
-            let period: CGFloat = 22
+            let period: CGFloat = 36
             let lineLength = span * 1.6
             let center = CGPoint(x: size.width / 2, y: size.height / 2)
 
@@ -111,7 +111,7 @@ private struct ReviewPhotoSurfaceTexture: View {
             while offset <= span / 2 {
                 let hash = UInt64(bitPattern: Int64(index)) &* 0x9E37_79B9_7F4A_7C15
                 let strength = CGFloat((hash >> 40) % 1_000) / 1_000
-                let opacity = 0.006 + strength * 0.008
+                let opacity = 0.003 + strength * 0.005
 
                 var path = Path()
                 path.move(to: CGPoint(
@@ -122,13 +122,13 @@ private struct ReviewPhotoSurfaceTexture: View {
                     x: center.x + across.dx * offset + along.dx * lineLength / 2,
                     y: center.y + across.dy * offset + along.dy * lineLength / 2
                 ))
-                context.stroke(path, with: .color(.white.opacity(opacity)), lineWidth: 6)
+                context.stroke(path, with: .color(.white.opacity(opacity)), lineWidth: 10)
 
                 offset += period
                 index += 1
             }
         }
-        .blur(radius: 3)
+        .blur(radius: 5)
         .allowsHitTesting(false)
     }
 }
@@ -267,6 +267,8 @@ struct RealPhotoCard: View {
                     .frame(width: displaySize.width, height: displaySize.height)
             }
         }
+        // 照片、视频、实况照片都统一裁到卡片圆角轮廓，避免直角顶出描边。
+        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                 .stroke(
