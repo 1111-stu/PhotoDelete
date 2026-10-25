@@ -412,64 +412,62 @@ struct HomeView: View {
         .photoDeleteCard()
     }
 
-    // MARK: - 首屏双卡（珊瑚=待整理 / 琥珀=随机整理，对齐原型）
+    // MARK: - 首屏双卡（照片墙 = 浏览入口 / 随机整理 = 主行动）
 
     private var duoRow: some View {
-        HStack(spacing: 12) {
-            pendingReviewCard
-            randomReviewFanCard
+        GeometryReader { proxy in
+            let contentWidth = max(proxy.size.width - 12, 0)
+
+            HStack(spacing: 12) {
+                photoWallEntryCard
+                    .frame(width: contentWidth * 0.4)
+
+                randomReviewHeroCard
+                    .frame(width: contentWidth * 0.6)
+            }
         }
         .frame(height: 158)
     }
 
-    private var pendingReviewCard: some View {
-        let stats = libraryStats
-        let total = stats.totalAssets
-        let reviewed = min(stats.reviewedAssets, total)
-        let pending = max(total - reviewed, 0)
-        let progress = total > 0 ? Double(reviewed) / Double(total) : 0
-        
+    private var photoWallEntryCard: some View {
+        let total = libraryStats.totalAssets
+
         return Button {
-            // 先进待整理照片墙；卡上数字仍是全库待整理，墙上再选月/日起滑。
+            // 先进待整理照片墙；墙上再选月/日起滑。
             router.push(SwipeViewDestination.pendingPhotoWall)
         } label: {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(L10n.string("To review"))
-                    .font(.system(size: 16.5, weight: .bold))
-
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    RollingNumberText(target: pending)
-                        .font(.system(size: 31, weight: .bold))
-                    Text(L10n.string("photos"))
-                        .font(.system(size: 14, weight: .semibold))
-                        .opacity(0.72)
-                }
-                .padding(.top, 10)
-
-                Spacer(minLength: 0)
-
+            ZStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("Est. reclaimable"))
-                        .font(.system(size: 11, weight: .regular))
-                        .opacity(0.72)
-                    Text(librarySizeText)
-                        .font(.system(size: 18, weight: .bold))
-                }
+                    Text(L10n.string("Photo Wall"))
+                        .font(.system(size: 16.5, weight: .bold))
+                        .foregroundColor(Theme.primaryText)
 
-                CoralProgressBar(progress: progress, ink: Theme.coralInk)
-                    .padding(.top, 10)
+                    Text("\(PhotoDeleteCountFormat.plain(total)) \(L10n.string("photos"))")
+                        .font(.system(size: 11.5, weight: .medium))
+                    .foregroundColor(Theme.secondaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.9)
+
+                    Spacer(minLength: 0)
+                }
+                .padding(EdgeInsets(top: 14, leading: 14, bottom: 0, trailing: 14))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+                Image("PhotoWallIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 124)
+                    .padding(.bottom, 6)
+                    .shadow(color: Color.black.opacity(0.28), radius: 6, y: 3)
+                    .accessibilityHidden(true)
             }
-            .padding(EdgeInsets(top: 14, leading: 16, bottom: 12, trailing: 16))
-            .foregroundColor(Theme.coralInk)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [Theme.coralGradientTop, Theme.coralGradientBottom],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                    .fill(Theme.surface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                            .stroke(Theme.cardStroke, lineWidth: Theme.stroke)
                     )
             )
             .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
@@ -479,41 +477,50 @@ struct HomeView: View {
         .accessibilityIdentifier("home-pending-review")
     }
 
-    private var randomReviewFanCard: some View {
+    private var randomReviewHeroCard: some View {
         Button {
             router.push(SwipeViewDestination.random(.memories))
         } label: {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(L10n.string("Random Review"))
-                    .font(.system(size: 16.5, weight: .bold))
-                Text(randomReviewDetail)
-                    .font(.system(size: 12, weight: .medium))
-                    .opacity(0.72)
-                Spacer(minLength: 0)
-            }
-            .padding(EdgeInsets(top: 15, leading: 15, bottom: 0, trailing: 15))
-            .foregroundColor(Theme.amberInk)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [Theme.amberGradientTop, Theme.amberGradientBottom],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-            )
-            .overlay(alignment: .bottom) {
-                RandomFanDecoration()
-                    .offset(y: -52)
+            ZStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L10n.string("Random Review"))
+                        .font(.system(size: 16.5, weight: .bold))
+                        .foregroundColor(Theme.primaryText)
+
+                    Text(randomReviewDetail)
+                        .font(.system(size: 11.5, weight: .medium))
+                        .foregroundColor(Theme.secondaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.9)
+
+                    Spacer(minLength: 0)
+                }
+                .padding(EdgeInsets(top: 14, leading: 16, bottom: 0, trailing: 16))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+                Image("RandomFanHeroIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 176, height: 92)
+                    .padding(.bottom, 3)
+                    .shadow(color: Color.black.opacity(0.3), radius: 7, y: 3)
                     .accessibilityHidden(true)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                    .fill(Theme.elevatedSurface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                            .stroke(Theme.cardStroke, lineWidth: Theme.stroke)
+                    )
+            )
             .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityLabel(L10n.string("Random Review"))
+        .accessibilityValue(randomReviewDetail)
         .accessibilityIdentifier("home-random-review")
     }
 
@@ -759,15 +766,6 @@ struct HomeView: View {
         dataManager.makeSettingsStatsSummary()
     }
 
-    private var librarySizeText: String {
-        let summaries = dataManager.periodSummariesByScope[.year] ?? []
-        let totalMB = summaries.reduce(0) { $0 + $1.estimatedSizeMB }
-        if totalMB <= 0 && (dataManager.isLoadingPeriodSummaries || !dataManager.photoLibraryManager.hasLoadedPhotoLibrary) {
-            return L10n.string("Reading")
-        }
-        return CleanupStatsFormatter.space(totalMB)
-    }
-
     /// 专项清理头部合计（相似 + 视频与录屏；录屏是视频子集，取两者较大值避免重复计数）。
     private var cleanupReclaimableSizeText: String {
         let similarMB = cleanupQueue(for: .similarPhotos)?.estimatedSpaceMB ?? 0
@@ -782,7 +780,7 @@ struct HomeView: View {
 
     private var randomReviewDetail: String {
         let count = PhotoRandomReviewBatchSize.normalized(randomReviewBatchSizeValue).rawValue
-        return String(format: L10n.string("Up to %@"), PhotoDeleteCountFormat.plain(count))
+        return String(format: L10n.string("Up to %lld photos per round"), Int64(count))
     }
 
     private func countText(_ count: Int?) -> String {
@@ -850,126 +848,6 @@ private struct RollingNumberText: View {
                 try? await Task.sleep(nanoseconds: 16_000_000)
             }
         }
-    }
-}
-
-/// 珊瑚卡进度条：7pt 胶囊，深棕填充 + 18% 深棕轨道，出现时生长到目标进度。
-private struct CoralProgressBar: View {
-    let progress: Double
-    let ink: Color
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var shown = false
-
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
-                Capsule(style: .continuous)
-                    .fill(ink.opacity(0.18))
-                Capsule(style: .continuous)
-                    .fill(ink)
-                    .frame(width: geometry.size.width * (shown ? min(max(progress, 0), 1) : 0))
-            }
-        }
-        .frame(height: 7)
-        .onAppear {
-            guard !reduceMotion else {
-                shown = true
-                return
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.26) {
-                withAnimation(.easeOut(duration: 0.95)) {
-                    shown = true
-                }
-            }
-        }
-    }
-}
-
-/// 扇形牌的三张静态渐变占位（森林 / 城市冷蓝 / 落日）。
-/// 故意保留的装饰例外色，勿统一进 Theme。
-private enum HomeFanArt {
-    static let gradients: [LinearGradient] = [
-        LinearGradient(
-            colors: [
-                Color(red: 0.70, green: 0.79, blue: 0.72),
-                Color(red: 0.37, green: 0.55, blue: 0.45),
-                Color(red: 0.17, green: 0.32, blue: 0.26)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        ),
-        LinearGradient(
-            colors: [
-                Color(red: 0.11, green: 0.17, blue: 0.33),
-                Color(red: 0.14, green: 0.22, blue: 0.43),
-                Color(red: 0.16, green: 0.24, blue: 0.44)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        ),
-        LinearGradient(
-            colors: [
-                Color(red: 1.00, green: 0.75, blue: 0.54),
-                Color(red: 0.96, green: 0.52, blue: 0.44),
-                Color(red: 0.29, green: 0.25, blue: 0.47)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    ]
-}
-
-/// 扇形牌轮（纯装饰）：进场时把牌一张张摊开，之后静止。几何与原型一致（R=104、±24°）。
-private struct RandomFanDecoration: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var dealt = false
-
-    private static let radius: CGFloat = 104
-    private static let spread: CGFloat = 24
-
-    var body: some View {
-        ZStack {
-            ForEach(0..<3, id: \.self) { index in
-                fanCard(index: index)
-            }
-        }
-        .frame(width: 0, height: 0)
-        .onAppear {
-            if reduceMotion {
-                dealt = true
-            } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    dealt = true
-                }
-            }
-        }
-    }
-
-    private func fanCard(index: Int) -> some View {
-        let i = CGFloat(index)
-        let restAngle = (i - 1) * Self.spread
-        let radians = restAngle * .pi / 180
-        let restX = Self.radius * sin(radians)
-        let restY = Self.radius * (1 - cos(radians))
-
-        // 9pt：46×62 微缩媒体牌 chrome，低于 radiusSm 以保持扇形比例
-        return RoundedRectangle(cornerRadius: 9, style: .continuous)
-            .fill(HomeFanArt.gradients[index % HomeFanArt.gradients.count])
-            .frame(width: 46, height: 62)
-            .overlay(
-                RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .stroke(Color.white.opacity(0.62), lineWidth: 2)
-            )
-            .shadow(color: .black.opacity(0.28), radius: 8, y: 3)
-            .rotationEffect(.degrees(dealt ? restAngle : 0))
-            .offset(x: dealt ? restX : 0, y: dealt ? restY : 0)
-            .scaleEffect(dealt ? 1 : 0.82)
-            .opacity(dealt ? 1 : (index == 0 ? 1 : 0))
-            .animation(
-                reduceMotion ? nil : .easeOut(duration: 0.62).delay(Double(index) * 0.09),
-                value: dealt
-            )
     }
 }
 

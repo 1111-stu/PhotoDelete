@@ -111,7 +111,7 @@ private struct ReviewPhotoSurfaceTexture: View {
             while offset <= span / 2 {
                 let hash = UInt64(bitPattern: Int64(index)) &* 0x9E37_79B9_7F4A_7C15
                 let strength = CGFloat((hash >> 40) % 1_000) / 1_000
-                let opacity = 0.003 + strength * 0.005
+                let opacity = 0.0015 + strength * 0.003
 
                 var path = Path()
                 path.move(to: CGPoint(
@@ -122,13 +122,13 @@ private struct ReviewPhotoSurfaceTexture: View {
                     x: center.x + across.dx * offset + along.dx * lineLength / 2,
                     y: center.y + across.dy * offset + along.dy * lineLength / 2
                 ))
-                context.stroke(path, with: .color(.white.opacity(opacity)), lineWidth: 10)
+                context.stroke(path, with: .color(.white.opacity(opacity)), lineWidth: 5)
 
                 offset += period
                 index += 1
             }
         }
-        .blur(radius: 5)
+        .blur(radius: 7)
         .allowsHitTesting(false)
     }
 }

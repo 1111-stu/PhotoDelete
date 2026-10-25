@@ -394,7 +394,7 @@ The provided reference screens add useful composition patterns:
 - Review photo frame (`RealPhotoCard`): diagonal `reviewPhotoSurfaceTop → reviewPhotoSurfaceBottom` fill (steeper than 45°, horizontal change ≈0.54× vertical) with a 1pt white 12% → 1% gradient stroke; no shadow. It is a photo frame surface, not decorative chrome.
 - Review photo frame sits inside a `space5` (20pt) side inset on both edges; the pager stride stays one full page wide, so adjacent cards keep a 40pt gap while swiping.
 - All card content (photo, video, Live Photo, loading state) is clipped to the same `radiusMd` rounded frame as the fill and stroke; never clip photo content to a plain rectangle.
-- The frame gradient carries a deterministic 145° hairline texture: broad 10pt light bands every 36pt at white 0.3–0.8%, blurred 5pt. It is texture, not a second gradient; it must stay barely perceptible and static.
+- The frame gradient carries a deterministic 145° hairline texture: 5pt light bands every 36pt at white 0.15–0.45%, blurred 7pt. It is texture, not a second gradient; it must stay barely perceptible and static.
 
 ### 6.3 Section header
 
