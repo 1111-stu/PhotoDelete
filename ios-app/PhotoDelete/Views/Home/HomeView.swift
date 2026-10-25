@@ -641,8 +641,9 @@ struct HomeView: View {
 
             VStack(spacing: 0) {
                 PhotoDeleteListRow(
-                    iconImage: "CleanupStackedPhotosIcon",
-                    iconImageSize: 40,
+                    iconImage: "CleanupScreenshotsIcon",
+                    iconImageSize: 42,
+                    titleFont: .system(size: 16.5, weight: .semibold),
                     title: L10n.string("Screenshots"),
                     accessibilityIdentifier: "home-cleanup-screenshots"
                 ) {
@@ -652,6 +653,7 @@ struct HomeView: View {
                 PhotoDeleteListRow(
                     iconImage: "CleanupSimilarIcon",
                     iconImageSize: 42,
+                    titleFont: .system(size: 16.5, weight: .semibold),
                     title: L10n.string("Similar"),
                     value: cleanupQueue(for: .similarPhotos)?.formattedSpace,
                     accessibilityIdentifier: "home-cleanup-similar"
@@ -661,7 +663,8 @@ struct HomeView: View {
                 insetHairline(inset: 16)
                 PhotoDeleteListRow(
                     iconImage: "CleanupVideoIcon",
-                    iconImageSize: 33,
+                    iconImageSize: 38,
+                    titleFont: .system(size: 16.5, weight: .semibold),
                     title: L10n.string("Videos & Screen Recordings"),
                     value: videosAndScreenRecordingsQueueValue,
                     accessibilityIdentifier: "home-cleanup-videos"
@@ -671,7 +674,8 @@ struct HomeView: View {
                 insetHairline(inset: 16)
                 PhotoDeleteListRow(
                     iconImage: "CleanupLivePhotoIcon",
-                    iconImageSize: 33,
+                    iconImageSize: 38,
+                    titleFont: .system(size: 16.5, weight: .semibold),
                     title: L10n.string("Live Photos"),
                     accessibilityIdentifier: "home-cleanup-live-photos"
                 ) {

@@ -131,12 +131,14 @@ Decorative colors only appear on physical-object metaphors inside content areas 
 
 ### 2.8 Illustration assets
 
-The period and cleanup illustrations are **approved raster assets**, not color tokens:
+The period and cleanup illustrations are **approved raster assets**, not color tokens. The current set is a black-and-white stone-sculpture family:
 
-- Period: red/green/purple calendars (week/month/year).
-- Cleanup: stacked photos, photos+broom, red video camera, green camera.
+- Period: calendar + clock (week), grid calendar (month), sundial (year).
+- Cleanup: ornate frame (screenshots), twin busts (similar/duplicates), film camera (video/screen recordings), stone camera (live photos).
+- The dice is reserved for the random-review card; the broom is a spare/section-level asset until it has a row.
 - They are decorative, not status indicators. Do not recolor, tint, or use them to encode success/error.
 - Keep transparent PNGs; never bake a white background into the asset.
+- The set carries a baked dark contact halo. It is part of the material look and must stay consistent across icons; do not add a second tile background behind it.
 - The top-right collection/trash entry intentionally keeps the system line icon (`archivebox`) per product decision. Do not replace it with an illustration.
 
 ### 2.9 Color rules
@@ -389,6 +391,8 @@ The provided reference screens add useful composition patterns:
 - Floating surfaces (tray, toast, tab bar) may use translucency + hairline + `floatingShadow`.
 - Media cards can use a gradient or a photo; utility cards stay neutral.
 - Review photo frame (`RealPhotoCard`): diagonal `reviewPhotoSurfaceTop → reviewPhotoSurfaceBottom` fill (steeper than 45°, horizontal change ≈0.54× vertical) with a 1pt white 12% → 1% gradient stroke; no shadow. It is a photo frame surface, not decorative chrome.
+- Review photo frame sits inside a `space5` (20pt) side inset on both edges; the pager stride stays one full page wide, so adjacent cards keep a 40pt gap while swiping.
+- The frame gradient carries a deterministic 145° hairline texture: soft 5pt light bands every 13pt at white 1.0–2.4%, blurred 2.4pt. It is texture, not a second gradient; keep it low-contrast and static.
 
 ### 6.3 Section header
 
@@ -446,10 +450,10 @@ The provided reference screens add useful composition patterns:
 
 - User-provided PNG; transparent; no tile background.
 - Optical size by visual weight, not one mechanical size:
-  - 相似与重复: **42pt**
-  - 截图 (stacked photos): **40pt**
-  - 录屏与视频: **33pt**
-  - 实况照片: **33pt**
+  - 相似与重复 (twin busts): **42pt**
+  - 截图 (ornate frame): **42pt**
+  - 录屏与视频 (film camera): **38pt**
+  - 实况照片 (stone camera): **38pt**
 - Shadow: black 20%, radius 2, y 1.
 - Icon center 40pt aligns with period-card illustrations; title x 80pt aligns with period-card titles.
 
@@ -959,12 +963,13 @@ Use these to prevent regressions:
 3. **Period card split interaction:** card body enters the current period; right zone (选日期 / 选月份 / 选年份) opens the period sheet.
 4. **Period sheet lists other periods only**; the first “本期全部” row was removed. Empty state is “暂无其他周期”.
 5. **Special cleanup order:** 截图 → 相似与重复 → 录屏与视频 → 实况照片.
-6. **Cleanup icons are optically sized** (42 / 40 / 33 / 33) inside a transparent 48pt slot; no tile background.
+6. **Cleanup icons are optically sized** (42 / 42 / 38 / 38) inside a transparent 48pt slot; no tile background.
 7. **Shared optical axes:** icon center 40, title column 80; period cards and cleanup rows use the same grid.
 8. **Hairline inset 16** in the cleanup card; 62pt row height.
-9. **User-provided 3D icons** replaced all prototype illustrations; do not reintroduce the earlier CocoMaterial SVGs.
+9. **User-provided stone-sculpture icons** replaced the earlier colorful calendars/cleanup set; do not reintroduce the CocoMaterial SVGs or the bright 3D clay icons.
 10. **Header collection/trash icon stays the system `archivebox` line icon**; this is a deliberate exception to the illustration language.
 11. **Functional amber removed (2026-10-25):** the action layer is monochrome white; amber/coral remain only in the two home entry cards. Switches use `Theme.positive` green; section trailing and tab selection are neutral. Do not reintroduce amber CTAs, tabs, toggles, or section totals.
+12. **Stone icon set (2026-10-25):** period icons are calendar+clock / grid calendar / sundial; cleanup icons are frame / twin busts / film camera / stone camera. Optical sizes are 42 / 42 / 38 / 38. The dice is reserved for the random card; the broom is a spare asset.
 
 ---
 
@@ -1000,4 +1005,4 @@ What not to copy:
 | Radii | 12 / 16 / 24 / 32; capsules 999 |
 | Motion | press 0.14s; state 0.16–0.24s; count 0.9s; fan 0.62s; sheet ≈0.34s |
 | Home axes | icon center 40; title column 80; period card 80 high; cleanup row 62 high |
-| Optical sizes | similar 42; screenshots 40; video 33; live 33 |
+| Optical sizes | similar 42; screenshots 42; video 38; live 38 |

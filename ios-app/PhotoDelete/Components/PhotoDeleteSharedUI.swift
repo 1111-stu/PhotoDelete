@@ -191,6 +191,8 @@ struct PhotoDeleteListRow: View {
     var iconImage: String? = nil
     /// 图标的光学尺寸：同一组图标按视觉重量分别给 33–42，而不是一律 36。
     var iconImageSize: CGFloat = 36
+    /// 首页专项清理行与时间卡共用 16.5 字号；标准行保持 15/600。
+    var titleFont: Font = .system(size: 15, weight: .semibold)
     let title: String
     var subtitle: String? = nil
     var value: String? = nil
@@ -222,7 +224,7 @@ struct PhotoDeleteListRow: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(titleFont)
                         .foregroundColor(Theme.primaryText)
 
                     if let subtitle {

@@ -1122,7 +1122,8 @@ struct SwipePhotoView: View {
     }
 
     private func photoCardSize(in containerSize: CGSize) -> CGSize {
-        let availableWidth = max(containerSize.width, 180)
+        // 两侧留出页面边距；翻页步长仍是整页宽，卡片之间因此有可见间隔。
+        let availableWidth = max(containerSize.width - Theme.space5 * 2, 180)
         let availableHeight = max(containerSize.height - 132, 220)
         let maxSize = PhotoDeleteAdaptiveLayout.reviewPhotoCardMaxSize(
             in: containerSize,

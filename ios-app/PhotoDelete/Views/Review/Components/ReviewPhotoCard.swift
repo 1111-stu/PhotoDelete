@@ -65,7 +65,7 @@ private struct PhotoAlbumMembershipBadge: View {
 }
 
 
-/// 整理页照片框的承托面：对角渐变 + 顶亮底暗的微光描边。
+/// 整理页照片框的承托面：对角渐变 + 参考图上的细斜纹。
 private struct ReviewPhotoSurfaceBackground: View {
     var cornerRadius: CGFloat = Theme.radiusMd
 
@@ -82,6 +82,54 @@ private struct ReviewPhotoSurfaceBackground: View {
                     endPoint: UnitPoint(x: 0.64, y: 1.19)
                 )
             )
+            .overlay {
+                ReviewPhotoSurfaceTexture()
+                    .clipShape(
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    )
+            }
+    }
+}
+
+/// 参考图渐变上可见的 145° 细斜纹：约 13pt 间隔的极淡光带，轻模糊成柔边。
+/// 用固定哈希决定每条光带的强度，保证同一条照片每次渲染完全一致。
+private struct ReviewPhotoSurfaceTexture: View {
+    var body: some View {
+        Canvas { context, size in
+            guard size.width > 0, size.height > 0 else { return }
+
+            let angle = CGFloat(145) * .pi / 180
+            let along = CGVector(dx: cos(angle), dy: sin(angle))
+            let across = CGVector(dx: -sin(angle), dy: cos(angle))
+            let span = abs(size.width * across.dx) + abs(size.height * across.dy)
+            let period: CGFloat = 13
+            let lineLength = span * 1.6
+            let center = CGPoint(x: size.width / 2, y: size.height / 2)
+
+            var offset = -span / 2
+            var index = 0
+            while offset <= span / 2 {
+                let hash = UInt64(bitPattern: Int64(index)) &* 0x9E37_79B9_7F4A_7C15
+                let strength = CGFloat((hash >> 40) % 1_000) / 1_000
+                let opacity = 0.010 + strength * 0.014
+
+                var path = Path()
+                path.move(to: CGPoint(
+                    x: center.x + across.dx * offset - along.dx * lineLength / 2,
+                    y: center.y + across.dy * offset - along.dy * lineLength / 2
+                ))
+                path.addLine(to: CGPoint(
+                    x: center.x + across.dx * offset + along.dx * lineLength / 2,
+                    y: center.y + across.dy * offset + along.dy * lineLength / 2
+                ))
+                context.stroke(path, with: .color(.white.opacity(opacity)), lineWidth: 5)
+
+                offset += period
+                index += 1
+            }
+        }
+        .blur(radius: 2.4)
+        .allowsHitTesting(false)
     }
 }
 
