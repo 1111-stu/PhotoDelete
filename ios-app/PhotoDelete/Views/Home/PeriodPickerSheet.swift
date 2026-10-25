@@ -6,20 +6,13 @@
 import SwiftUI
 import Photos
 
-/// 周期选择弹窗（点首页 band 段弹出）：
-/// 首行「本期全部」（数字琥珀），下面是更细周期——本周→每天 / 本月→过往月份 / 本年→过往年份。
-/// 选任意一行 → 进入对应周期的整理。行结构与文案对齐 designs/home-prototype.html。
+/// 周期选择弹窗（点首页卡右区弹出）：
+/// 只列同粒度的其他周期——本周→本周每天 / 本月→过往月份 / 本年→过往年份。
+/// 「本期全部」由卡片主体直接承载，这里不再重复。选任意一行 → 进入对应周期的整理。
 struct PeriodPickerSheet: View {
     @ObservedObject var dataManager: DataManager
     let scope: AdvancedTimeScope
     let onSelect: (AdvancedTimeScope, Date) -> Void
-
-    private var allSummary: PhotoPeriodSummary {
-        TimePeriodBrowser.currentSummary(
-            for: scope,
-            in: dataManager.periodSummariesByScope[scope] ?? []
-        )
-    }
 
     private var detailSummaries: [PhotoPeriodSummary] {
         TimePeriodBrowser.detailSummaries(
@@ -41,11 +34,19 @@ struct PeriodPickerSheet: View {
 
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        pickerRow(allSummary, title: TimePeriodBrowser.allRowTitle(for: scope), isPrimary: true)
-                        rowHairline
-                        ForEach(detailSummaries) { summary in
-                            pickerRow(summary, title: TimeOrganizeFormatter.title(for: summary), isPrimary: false)
-                            rowHairline
+                        if detailSummaries.isEmpty {
+                            Text(L10n.string("No other periods"))
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundColor(Theme.secondaryText)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 32)
+                        } else {
+                            ForEach(Array(detailSummaries.enumerated()), id: \.element.id) { index, summary in
+                                pickerRow(summary, title: TimeOrganizeFormatter.title(for: summary))
+                                if index < detailSummaries.count - 1 {
+                                    rowHairline
+                                }
+                            }
                         }
                     }
                     .padding(.bottom, 16)
@@ -65,22 +66,9 @@ struct PeriodPickerSheet: View {
 
     // MARK: - 行
 
-    /// 数字样式：「本期全部」用珊瑚粉渐变高亮（与「待整理」卡同一组色），明细行白字。
-    private func numberStyle(isPrimary: Bool) -> AnyShapeStyle {
-        guard isPrimary else { return AnyShapeStyle(Theme.primaryText) }
-                return AnyShapeStyle(
-            LinearGradient(
-                colors: [Theme.coralGradientTop, Theme.coralGradientBottom],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
-    }
-
     private func pickerRow(
         _ summary: PhotoPeriodSummary,
-        title: String,
-        isPrimary: Bool
+        title: String
     ) -> some View {
         Button {
             onSelect(summary.scope, summary.intervalStart)
@@ -106,7 +94,7 @@ struct PeriodPickerSheet: View {
                     Text(PhotoDeleteCountFormat.plain(summary.remainingCount))
                         .font(.system(size: 20, weight: .bold))
                         .monospacedDigit()
-                        .foregroundStyle(numberStyle(isPrimary: isPrimary))
+                        .foregroundColor(Theme.primaryText)
 
                     Text(L10n.string("To review"))
                         .font(.system(size: 11.5, weight: .regular))

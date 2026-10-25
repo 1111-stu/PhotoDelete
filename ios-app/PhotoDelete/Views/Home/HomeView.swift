@@ -324,7 +324,7 @@ struct HomeView: View {
     private var availableLibraryDashboard: some View {
         VStack(spacing: 22) {
             duoRow
-            periodBandSection
+            periodCardsSection
             specialCleanupSection
             // 工具（图片/视频压缩）暂不展示；`toolSection` 保留便于恢复。
         }
@@ -519,81 +519,117 @@ struct HomeView: View {
 
     // 旧首屏三卡（库概览 / 随机整理 / 往年今日）已由上方 duoRow 双卡替代。
 
-    // MARK: - 按时间段开始（三段 band，对齐原型）
+    // MARK: - 按时间段开始（三张独立卡：主体进本期 / 右区选周期）
 
-    private var periodBandSection: some View {
-        VStack(alignment: .leading, spacing: 9) {
+    private var periodCardsSection: some View {
+        VStack(alignment: .leading, spacing: Theme.space3) {
             PhotoDeleteSectionHeader(title: L10n.string("By time period"))
 
-            HStack(spacing: 0) {
-                periodBandSegment(
-                    scope: .week,
-                    title: L10n.string("This week"),
-                    identifier: "home-period-week",
-                    rollDelay: 0.22
-                )
-                bandDivider
-                periodBandSegment(
-                    scope: .month,
-                    title: L10n.string("This Month"),
-                    identifier: "home-period-month",
-                    rollDelay: 0.30
-                )
-                bandDivider
-                periodBandSegment(
-                    scope: .year,
-                    title: L10n.string("This year"),
-                    identifier: "home-period-year",
-                    rollDelay: 0.38
-                )
-            }
-            .photoDeleteCard(radius: Theme.radiusLg)
+            periodCard(
+                scope: .week,
+                title: L10n.string("This week"),
+                moreTitle: L10n.string("Choose date"),
+                illustrationName: "PeriodWeekIcon",
+                identifier: "home-period-week",
+                rollDelay: 0.22
+            )
+            periodCard(
+                scope: .month,
+                title: L10n.string("This Month"),
+                moreTitle: L10n.string("Choose month"),
+                illustrationName: "PeriodMonthIcon",
+                identifier: "home-period-month",
+                rollDelay: 0.30
+            )
+            periodCard(
+                scope: .year,
+                title: L10n.string("This year"),
+                moreTitle: L10n.string("Choose year"),
+                illustrationName: "PeriodYearIcon",
+                identifier: "home-period-year",
+                rollDelay: 0.38
+            )
         }
     }
 
-    private var bandDivider: some View {
-        Rectangle()
-            .fill(Theme.hairline)
-            .frame(width: 1)
-            .padding(.vertical, 13)
-    }
-
-    private func periodBandSegment(
+    private func periodCard(
         scope: AdvancedTimeScope,
         title: String,
+        moreTitle: String,
+        illustrationName: String,
         identifier: String,
         rollDelay: Double
     ) -> some View {
         let summary = currentPeriodSummary(for: scope)
 
-        return Button {
-            // 先弹周期选择（本期全部 + 更细周期），选行后再进整理。
-            periodPickerScope = scope
-        } label: {
-            VStack(spacing: 3) {
-                HStack(spacing: 3) {
-                    Text(title)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 8, weight: .semibold))
+        return HStack(spacing: 0) {
+            // 主体：直接进入本期整理，不再先弹周期列表。
+            Button {
+                router.push(SwipeViewDestination.period(scope, summary.intervalStart))
+            } label: {
+                HStack(spacing: 12) {
+                    PeriodCardIllustration(name: illustrationName)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(title)
+                            .font(.system(size: 16.5, weight: .bold))
+                            .foregroundColor(Theme.primaryText)
+
+                        Text(String(
+                            format: L10n.string("%@ items · %@"),
+                            PhotoDeleteCountFormat.plain(summary.assetCount),
+                            summary.formattedEstimatedSize
+                        ))
+                        .font(.system(size: 11.5, weight: .regular))
+                        .foregroundColor(Theme.secondaryText)
+                        .lineLimit(1)
+                    }
+
+                    Spacer(minLength: 8)
+
+                    VStack(alignment: .trailing, spacing: 1) {
+                        RollingNumberText(target: summary.remainingCount, delay: rollDelay)
+                            .font(.system(size: 26, weight: .bold))
+                            .foregroundColor(Theme.primaryText)
+
+                        Text(L10n.string("To review"))
+                            .font(.system(size: 10.5, weight: .regular))
+                            .foregroundColor(Theme.tertiaryText)
+                    }
                 }
-                .font(.system(size: 11.5, weight: .medium))
-                .foregroundColor(Theme.secondaryText)
-
-                RollingNumberText(target: summary.remainingCount, delay: rollDelay)
-                    .font(.system(size: 23, weight: .bold))
-                    .foregroundColor(Theme.primaryText)
-
-                Text(String(format: L10n.string("Reclaimable %@"), summary.formattedEstimatedSize))
-                    .font(.system(size: 10.5, weight: .regular))
-                    .foregroundColor(Theme.secondaryText)
+                .padding(.horizontal, Theme.space3)
+                .padding(.vertical, Theme.space3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 8)
-            .frame(maxWidth: .infinity)
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(identifier)
+
+            Rectangle()
+                .fill(Theme.hairline)
+                .frame(width: 1)
+
+            // 右区：独立热区，只负责切换同粒度周期。
+            Button {
+                periodPickerScope = scope
+            } label: {
+                HStack(spacing: 4) {
+                    Text(moreTitle)
+                        .font(.system(size: 13.5, weight: .semibold))
+                        .foregroundColor(Theme.secondaryText)
+                        .lineLimit(1)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(Theme.tertiaryText)
+                }
+                .padding(.horizontal, Theme.space3)
+                .frame(maxHeight: .infinity)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("\(identifier)-more")
         }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(identifier)
+        .photoDeleteCard(radius: Theme.radiusLg)
     }
 
     // MARK: - 专项清理（行式列表，值用中性灰）
@@ -607,7 +643,7 @@ struct HomeView: View {
 
             VStack(spacing: 0) {
                 PhotoDeleteListRow(
-                    icon: "rectangle.on.rectangle",
+                    iconImage: "CleanupSimilarIcon",
                     title: L10n.string("Similar"),
                     value: cleanupQueue(for: .similarPhotos)?.formattedSpace,
                     accessibilityIdentifier: "home-cleanup-similar"
@@ -616,16 +652,16 @@ struct HomeView: View {
                 }
                 insetHairline
                 PhotoDeleteListRow(
-                    icon: "video",
-                    title: L10n.string("Videos"),
-                    value: cleanupQueue(for: .videos)?.formattedSpace,
+                    iconImage: "CleanupVideoIcon",
+                    title: L10n.string("Videos & Screen Recordings"),
+                    value: videosAndScreenRecordingsQueueValue,
                     accessibilityIdentifier: "home-cleanup-videos"
                 ) {
                     router.push(SwipeViewDestination.assetBrowser(.videos))
                 }
                 insetHairline
                 PhotoDeleteListRow(
-                    icon: "iphone",
+                    iconImage: "CleanupScreenshotIcon",
                     title: L10n.string("Screenshots"),
                     accessibilityIdentifier: "home-cleanup-screenshots"
                 ) {
@@ -633,20 +669,11 @@ struct HomeView: View {
                 }
                 insetHairline
                 PhotoDeleteListRow(
-                    icon: "livephoto",
+                    iconImage: "CleanupLivePhotoIcon",
                     title: L10n.string("Live Photos"),
                     accessibilityIdentifier: "home-cleanup-live-photos"
                 ) {
                     router.push(SwipeViewDestination.assetBrowser(.livePhotos))
-                }
-                insetHairline
-                PhotoDeleteListRow(
-                    icon: "record.circle",
-                    title: L10n.string("Screen Recordings"),
-                    value: screenRecordingsQueueValue,
-                    accessibilityIdentifier: "home-cleanup-screen-recordings"
-                ) {
-                    router.push(SwipeViewDestination.assetBrowser(.screenRecordings))
                 }
             }
             .photoDeleteCard(radius: Theme.radiusLg)
@@ -705,10 +732,13 @@ struct HomeView: View {
         dataManager.advancedCleanupQueues.first { $0.kind == kind }
     }
 
-    /// 没有录屏时留空，避免像视频行那样显示 "0.0 MB"。
-    private var screenRecordingsQueueValue: String? {
-        guard let queue = cleanupQueue(for: .screenRecordings), queue.assetCount > 0 else { return nil }
-        return queue.formattedSpace
+    /// 录屏是视频的子集：两个队列取较大值，避免重复计数；录像大小未读到时用录屏估算兜底。
+    private var videosAndScreenRecordingsQueueValue: String? {
+        let videosMB = cleanupQueue(for: .videos)?.estimatedSpaceMB ?? 0
+        let recordingsMB = cleanupQueue(for: .screenRecordings)?.estimatedSpaceMB ?? 0
+        let totalMB = max(videosMB, recordingsMB)
+        guard totalMB > 0 else { return nil }
+        return CleanupStatsFormatter.space(totalMB)
     }
 
     private var libraryStats: AdvancedLibraryStats {
@@ -724,12 +754,12 @@ struct HomeView: View {
         return CleanupStatsFormatter.space(totalMB)
     }
 
-    /// 专项清理头部合计（相似 + 视频 + 录屏；视频/截图的估算数据待补齐，当前可能显示 0）。
+    /// 专项清理头部合计（相似 + 视频与录屏；录屏是视频子集，取两者较大值避免重复计数）。
     private var cleanupReclaimableSizeText: String {
-        let kinds: [AdvancedCleanupKind] = [.similarPhotos, .videos, .screenRecordings]
-        let reclaimMB = kinds.reduce(0.0) { total, kind in
-            total + (cleanupQueue(for: kind)?.estimatedSpaceMB ?? 0)
-        }
+        let similarMB = cleanupQueue(for: .similarPhotos)?.estimatedSpaceMB ?? 0
+        let videosMB = cleanupQueue(for: .videos)?.estimatedSpaceMB ?? 0
+        let recordingsMB = cleanupQueue(for: .screenRecordings)?.estimatedSpaceMB ?? 0
+        let reclaimMB = similarMB + max(videosMB, recordingsMB)
         if reclaimMB <= 0 && dataManager.isLoadingAdvancedCleanupQueues {
             return L10n.string("Reading")
         }
@@ -749,6 +779,20 @@ struct HomeView: View {
 }
 
 // MARK: - 首页组件（对齐 home-prototype.html）
+
+/// 周期卡插画：用户提供的 3D 小图标，切图去底后使用。
+private struct PeriodCardIllustration: View {
+    let name: String
+
+    var body: some View {
+        Image(name)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 56, height: 56)
+            .shadow(color: Color.black.opacity(0.22), radius: 3, y: 2)
+            .accessibilityHidden(true)
+    }
+}
 
 /// 数字滚动：从 0 以 easeOut 滚到目标值（一律无千分位），支持错峰 delay。
 private struct RollingNumberText: View {

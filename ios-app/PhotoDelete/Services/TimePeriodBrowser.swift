@@ -89,16 +89,6 @@ enum TimePeriodBrowser {
         }
     }
 
-    /// 弹窗首行「本期全部」的标题。
-    static func allRowTitle(for scope: AdvancedTimeScope) -> String {
-        switch scope {
-        case .week: return L10n.string("All of this week")
-        case .month: return L10n.string("All of this month")
-        case .year: return L10n.string("All of this year")
-        case .day: return L10n.string("All of today")
-        }
-    }
-
     /// 弹窗行的副标题：共 X 项 · Y（对齐设计稿；数字不带千分位）。
     static func rowSubtitle(for summary: PhotoPeriodSummary) -> String {
         String(

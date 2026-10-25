@@ -187,6 +187,8 @@ struct PhotoDeleteSectionHeader: View {
 /// 列表行（style.md §4.4）：32 icon tile + 15/600 标题 + 次级值 + chevron。
 struct PhotoDeleteListRow: View {
     var icon: String? = nil
+    /// 彩色插画图标（切图 PNG）。提供时优先于 `icon`，且不套灰色图标砖。
+    var iconImage: String? = nil
     let title: String
     var subtitle: String? = nil
     var value: String? = nil
@@ -195,8 +197,14 @@ struct PhotoDeleteListRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: icon == nil ? 12 : 14) {
-                if let icon {
+            HStack(spacing: (icon == nil && iconImage == nil) ? 12 : 14) {
+                if let iconImage {
+                    Image(iconImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 36, height: 36)
+                        .shadow(color: Color.black.opacity(0.2), radius: 2, y: 1)
+                } else if let icon {
                     Image(systemName: icon)
                         .font(.system(size: 17, weight: .regular))
                         .foregroundColor(Theme.secondaryText)
