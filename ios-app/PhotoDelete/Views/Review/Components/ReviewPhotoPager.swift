@@ -15,6 +15,7 @@ struct ReviewPhotoPager<Content: View>: View {
     let pageStride: CGFloat
     let canDelete: Bool
     let isVideoPlaying: Bool
+    let isEnabled: Bool
     let onBrowse: (Int) -> Void
     /// 已在本轮最后一张仍向「下一张」滑时回调（触发本轮结算）。
     let onBrowsePastEnd: () -> Void
@@ -58,6 +59,9 @@ struct ReviewPhotoPager<Content: View>: View {
         .coordinateSpace(name: ReviewSwipeMotion.coordinateSpace)
         .simultaneousGesture(gesture)
         .onChange(of: currentID) { _ in cancelSettlement() }
+        .onChange(of: isEnabled) { _, enabled in
+            if !enabled { cancelSettlement() }
+        }
         .onDisappear { cancelSettlement() }
     }
 
@@ -84,7 +88,7 @@ struct ReviewPhotoPager<Content: View>: View {
             coordinateSpace: .named(ReviewSwipeMotion.coordinateSpace)
         )
         .onChanged { value in
-            guard !isSettling, !isScrubberGesture(value) else { return }
+            guard isEnabled, !isSettling, !isScrubberGesture(value) else { return }
             let locked = axis ?? ReviewSwipeGesture.dragAxis(for: value.translation)
             let translation = ReviewSwipeGesture.constrainedTranslation(value.translation, to: locked)
             var transaction = Transaction(animation: nil)
@@ -100,7 +104,7 @@ struct ReviewPhotoPager<Content: View>: View {
             }
         }
         .onEnded { value in
-            guard !isSettling, !isScrubberGesture(value) else { return }
+            guard isEnabled, !isSettling, !isScrubberGesture(value) else { return }
             let locked = axis ?? ReviewSwipeGesture.dragAxis(for: value.translation)
             axis = nil
             preparedCommit = false

@@ -90,6 +90,52 @@ enum Theme {
         Color(red: 0.80, green: 0.64, blue: 0.46)  // 原木
     ]
 
+    // MARK: - Color · Review album tray
+
+    /// 整理页相册托盘的插画文件夹配色：只表达「这是一个相册」，不表达状态或操作。
+    struct AlbumFolderPalette {
+        let light: Color
+        let dark: Color
+        let ink: Color
+    }
+
+    /// 按 album.id 的稳定 hash 取色，顺序与 `designs/review-album-tray-prototype.html` 对齐。
+    static let albumFolderPalettes: [AlbumFolderPalette] = [
+        AlbumFolderPalette(
+            light: Color(red: 0.498, green: 0.784, blue: 0.980), // #7FC8FA
+            dark: Color(red: 0.294, green: 0.588, blue: 0.902),  // #4B96E6
+            ink: Color(red: 0.047, green: 0.208, blue: 0.341)    // #0C3557
+        ),
+        AlbumFolderPalette(
+            light: Color(red: 1.000, green: 0.651, blue: 0.580), // #FFA694
+            dark: Color(red: 0.937, green: 0.435, blue: 0.369),  // #EF6F5E
+            ink: Color(red: 0.341, green: 0.102, blue: 0.063)    // #571A10
+        ),
+        AlbumFolderPalette(
+            light: Color(red: 0.604, green: 0.875, blue: 0.690), // #9ADFB0
+            dark: Color(red: 0.329, green: 0.722, blue: 0.471),  // #54B878
+            ink: Color(red: 0.067, green: 0.216, blue: 0.122)    // #11371F
+        ),
+        AlbumFolderPalette(
+            light: Color(red: 1.000, green: 0.843, blue: 0.529), // #FFD787
+            dark: Color(red: 0.918, green: 0.671, blue: 0.220),  // #EAAB38
+            ink: Color(red: 0.290, green: 0.188, blue: 0.020)    // #4A3005
+        ),
+        AlbumFolderPalette(
+            light: Color(red: 0.969, green: 0.753, blue: 0.655), // #F7C0A7
+            dark: Color(red: 0.894, green: 0.529, blue: 0.420),  // #E4876B
+            ink: Color(red: 0.306, green: 0.137, blue: 0.078)    // #4E2314
+        ),
+        AlbumFolderPalette(
+            light: Color(red: 0.773, green: 0.722, blue: 0.961), // #C5B8F5
+            dark: Color(red: 0.549, green: 0.478, blue: 0.855),  // #8C7ADA
+            ink: Color(red: 0.165, green: 0.125, blue: 0.322)    // #2A2052
+        )
+    ]
+
+    /// 相册托盘外遮罩：只压暗，不阻断 Toast。
+    static let trayScrim = Color.black.opacity(0.06)
+
     // MARK: - Space（4pt 网格，spaceN = N×4）
 
     static let space2: CGFloat = 8
@@ -116,6 +162,8 @@ enum Theme {
     static let radiusSm: CGFloat = 12
     static let radiusMd: CGFloat = 16
     static let radiusLg: CGFloat = 24
+    /// 整理页浮动相册托盘；内容专用，勿用于普通卡片。
+    static let radiusXl: CGFloat = 32
     static let stroke: CGFloat = 1
 
     // MARK: - Text size（CGFloat）

@@ -16,6 +16,7 @@ struct SwipePhotoView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.displayScale) private var displayScale
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(AppConstants.reviewVideoAutoPlayKey) private var reviewVideoAutoPlay = true
     @AppStorage(AppConstants.reviewLivePhotoAutoPlayKey) private var reviewLivePhotoAutoPlay = false
     @AppStorage(AppConstants.reviewVideoMutedKey) private var defaultReviewVideoMuted = true
@@ -58,12 +59,10 @@ struct SwipePhotoView: View {
     @State private var isPreparingShare = false
     @State private var showingShareCardSheet = false
     @State private var pendingSharePayload: PhotoSharePayload?
-    @State private var showsAlbumFilingSheet = false
-    @State private var albumFilingSheetSelection: Set<String> = []
-    @State private var albumFilingSheetAsset: PHAsset?
-    @State private var pendingAlbumSuccessToastTitle: String?
-    /// 「完成并继续」已触发写入、sheet 正在关闭：成功 Toast 仍走 pending，避免异步回调连弹多次。
-    @State private var isCommittingAlbumFiling = false
+    @State private var showsAlbumTray = false
+    @State private var albumTrayAsset: PHAsset?
+    @State private var filingAlbumID: String?
+    @State private var needsSourceRefreshAfterAlbumTray = false
     /// 相册导轨正在被拖动/惯性滚动：切换照片不加动画，预加载推迟到停手。
     @State private var isStripScrubbing = false
 
@@ -202,8 +201,15 @@ struct SwipePhotoView: View {
     private func canPerformPhotoAction(_ action: SwipeGestureAction) -> Bool {
         currentRealPhoto != nil &&
             !showCompletionMessage &&
+            !showsAlbumTray &&
             !isCurrentPhotoBeingFiled &&
             actions.canStartAction(action)
+    }
+
+    /// 托盘打开时，写入目标固定为打开那一刻的照片，避免后台刷新把写入目标换掉。
+    private var isAlbumTrayFiling: Bool {
+        guard let asset = albumTrayAsset else { return false }
+        return isAssetBeingFiledToAlbum(asset)
     }
 
     private var pendingDeleteCount: Int { dataManager.deleteCandidates.count }
@@ -229,7 +235,7 @@ struct SwipePhotoView: View {
                                 navigationHeader
                                 photoArea
                                     .overlay(alignment: .top) {
-                                        if let feedbackToast {
+                                        if let feedbackToast, !showsAlbumTray {
                                             PhotoDeleteToastView(toast: feedbackToast) {
                                                 handleUndoAction()
 
@@ -247,15 +253,63 @@ struct SwipePhotoView: View {
                             landscapeSidebar
                                 .frame(width: sidebarWidth, height: geometry.size.height)
                         }
+                        .accessibilityHidden(showsAlbumTray)
                     } else {
                         VStack(spacing: 0) {
                             navigationHeader
                             photoArea
                             bottomControls
                         }
+                        .accessibilityHidden(showsAlbumTray)
                     }
 
-                    if !usesSidebar, let feedbackToast {
+                    if showsAlbumTray {
+                        Theme.trayScrim
+                            .ignoresSafeArea()
+                            .contentShape(Rectangle())
+                            .onTapGesture { closeAlbumTray() }
+                            .accessibilityHidden(true)
+                            .transition(.opacity)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            if let feedbackToast {
+                                PhotoDeleteToastView(toast: feedbackToast) {
+                                    handleUndoAction()
+                                }
+                                .frame(maxWidth: 280, alignment: .leading)
+                                .allowsHitTesting(feedbackToast.showsUndo)
+                            }
+
+                            ReviewAlbumTray(
+                                albums: dataManager.getUserAlbumsSortedByCustomOrder(),
+                                isLoading: dataManager.isLoadingAlbums,
+                                isFiling: isAlbumTrayFiling,
+                                filingAlbumID: filingAlbumID,
+                                onSelect: fileCurrentTrayPhoto(to:),
+                                onClose: closeAlbumTray
+                            )
+                        }
+                        .frame(
+                            maxWidth: ReviewAlbumTrayLayout.maxWidth,
+                            alignment: .leading
+                        )
+                        .padding(.leading, ReviewAlbumTrayLayout.sideMargin)
+                        .padding(
+                            .trailing,
+                            usesSidebar
+                                ? sidebarWidth + ReviewAlbumTrayLayout.sideMargin
+                                : ReviewAlbumTrayLayout.sideMargin
+                        )
+                        .padding(.bottom, ReviewAlbumTrayLayout.bottomMargin)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .transition(
+                            reduceMotion
+                                ? .opacity
+                                : .move(edge: .bottom).combined(with: .opacity)
+                        )
+                    }
+
+                    if !usesSidebar, !showsAlbumTray, let feedbackToast {
                         PhotoDeleteToastView(toast: feedbackToast) {
                             handleUndoAction()
 
@@ -278,23 +332,6 @@ struct SwipePhotoView: View {
             if let asset = currentRealPhoto {
                 PhotoDetailSheet(asset: asset, dataManager: dataManager)
             }
-        }
-        .sheet(isPresented: $showsAlbumFilingSheet, onDismiss: {
-            if let title = pendingAlbumSuccessToastTitle {
-                showAlbumFilingSuccessToast(albumTitle: title)
-            }
-            albumFilingSheetSelection.removeAll()
-            albumFilingSheetAsset = nil
-            pendingAlbumSuccessToastTitle = nil
-            isCommittingAlbumFiling = false
-        }) {
-            ReviewAlbumFilingSheet(
-                albums: dataManager.getUserAlbumsSortedByCustomOrder(),
-                selectedAlbumIDs: albumFilingSheetSelection,
-                onToggle: toggleAlbumFilingFromSheet(_:),
-                onContinue: finishAlbumFilingSheet
-            )
-            .environmentObject(dataManager)
         }
         .sheet(isPresented: $showingShareCardSheet, onDismiss: presentPendingSharePayloadIfNeeded) {
             if let asset = currentRealPhoto {
@@ -351,6 +388,9 @@ struct SwipePhotoView: View {
         }
         .onChange(of: albumStateRefreshToken) { _ in
             refreshSelectedAlbumState()
+        }
+        .onChange(of: isAlbumTrayFiling) { _, isFiling in
+            if !isFiling { filingAlbumID = nil }
         }
         .onChange(of: dataManager.photoLibraryManager.isLoading) { _ in
             initializeSessionIfNeeded()
@@ -455,6 +495,8 @@ struct SwipePhotoView: View {
                         }
 
                     }
+                    .scaleEffect(showsAlbumTray && !reduceMotion ? 0.97 : 1)
+                    .animation(.easeOut(duration: 0.22), value: showsAlbumTray)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if shouldShowInitialPreparingState {
                     centeredPhotoAreaPlaceholder(in: geometry, bottomReserve: placeholderBottomReserve) {
@@ -558,6 +600,7 @@ struct SwipePhotoView: View {
                 pageStride: containerSize.width,
                 canDelete: canPerformPhotoAction(.delete),
                 isVideoPlaying: shouldPlayVideo(for: asset),
+                isEnabled: !showsAlbumTray,
                 onBrowse: { step in
                     guard let index = horizontalNeighborIndex(step: step) else { return }
                     session.currentIndex = index
@@ -566,7 +609,7 @@ struct SwipePhotoView: View {
                 },
                 onBrowsePastEnd: presentRoundSummary,
                 onDelete: handleDeleteAction,
-                onFile: openAlbumFilingSheet
+                onFile: openAlbumTray
             ) { photo, isCurrent in
                 reviewPhotoCard(asset: photo, cardSize: cardSize, isCurrent: isCurrent)
             }
@@ -623,7 +666,7 @@ struct SwipePhotoView: View {
 
             }
             .accessibilityAction(named: Text(L10n.string("Add to Album"))) {
-                openAlbumFilingSheet()
+                openAlbumTray()
             }
             .accessibilityAction(named: Text(isCurrentPhotoFavorited ? L10n.string("Unfavorite") : L10n.string("Add to favorites"))) {
                 handleFavoriteAction()
@@ -720,6 +763,7 @@ struct SwipePhotoView: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 8)
+        .disabled(showsAlbumTray)
         // 不垫底色遮罩：下滑的卡片直接滑到玻璃条后面，由玻璃虚化（去掉"切割感"）。
     }
 
@@ -916,6 +960,11 @@ struct SwipePhotoView: View {
         let previousAlbumInfo = activeAlbumInfo
         currentAlbumInfo = latestAlbumInfo
 
+        if showsAlbumTray {
+            needsSourceRefreshAfterAlbumTray = true
+            return true
+        }
+
         guard didInitializeSession,
               previousAlbumInfo?.id == latestAlbumInfo.id,
               previousAlbumInfo?.title != latestAlbumInfo.title ||
@@ -977,6 +1026,10 @@ struct SwipePhotoView: View {
     }
 
     private func refreshSessionForSourceChangeIfNeeded(force: Bool = false) {
+        if showsAlbumTray {
+            needsSourceRefreshAfterAlbumTray = true
+            return
+        }
         guard didInitializeSession else {
             if refreshSelectedAlbumState() {
                 initializeSessionIfNeeded()
@@ -1350,21 +1403,17 @@ struct SwipePhotoView: View {
             }
             showFeedback(message, icon: icon, style: toastStyle, showsUndo: showsUndo, duration: duration)
         case let .restorePosition(asset, preferredIndex, refreshSource):
+            if showsAlbumTray {
+                needsSourceRefreshAfterAlbumTray = needsSourceRefreshAfterAlbumTray || refreshSource
+                return
+            }
             if refreshSource { refreshSessionForSourceChangeIfNeeded(force: true) }
             restorePhotoPosition(asset, preferredIndex: preferredIndex)
         case let .albumSuccess(title):
-            if showsAlbumFilingSheet || isCommittingAlbumFiling {
-                pendingAlbumSuccessToastTitle = title
-            } else {
-                showAlbumFilingSuccessToast(albumTitle: title)
-            }
-        case let .albumFilingSelectionChange(albumID, isSelected):
-            guard showsAlbumFilingSheet else { return }
-            if isSelected {
-                albumFilingSheetSelection.insert(albumID)
-            } else {
-                albumFilingSheetSelection.remove(albumID)
-            }
+            showAlbumFilingSuccessToast(albumTitle: title)
+        case .albumFilingSelectionChange:
+            // 托盘是一击即写入，没有多选状态需要回滚。
+            break
         case let .haptic(haptic):
             switch haptic {
             case .light: HapticManager.impact(.light)
@@ -1375,63 +1424,50 @@ struct SwipePhotoView: View {
         }
     }
 
-    private func openAlbumFilingSheet() {
-        guard let asset = currentRealPhoto, !showCompletionMessage else { return }
-        albumFilingSheetAsset = asset
-        albumFilingSheetSelection.removeAll()
-        isCommittingAlbumFiling = false
-        pendingAlbumSuccessToastTitle = nil
+    private func openAlbumTray() {
+        guard let asset = currentRealPhoto, !showCompletionMessage, !showsAlbumTray else { return }
+        if asset.mediaType == .video {
+            stopInlineVideoPlayback(rememberManualStopFor: asset)
+        }
+        albumTrayAsset = asset
+        filingAlbumID = nil
+        needsSourceRefreshAfterAlbumTray = false
         dataManager.loadAlbumsIfNeeded()
-        showsAlbumFilingSheet = true
+        withAnimation(
+            reduceMotion
+                ? ReviewAlbumTrayLayout.reduceMotionAnimation
+                : ReviewAlbumTrayLayout.presentationAnimation
+        ) {
+            showsAlbumTray = true
+        }
     }
 
-    private func toggleAlbumFilingFromSheet(_ albumInfo: AlbumInfo) {
-        if albumFilingSheetSelection.contains(albumInfo.id) {
-            albumFilingSheetSelection.remove(albumInfo.id)
-        } else {
-            albumFilingSheetSelection.insert(albumInfo.id)
+    private func closeAlbumTray() {
+        guard showsAlbumTray else { return }
+        withAnimation(
+            reduceMotion
+                ? ReviewAlbumTrayLayout.reduceMotionAnimation
+                : ReviewAlbumTrayLayout.presentationAnimation
+        ) {
+            showsAlbumTray = false
         }
-        HapticManager.impact(.light)
+        albumTrayAsset = nil
+        filingAlbumID = nil
+        if needsSourceRefreshAfterAlbumTray {
+            needsSourceRefreshAfterAlbumTray = false
+            refreshSessionForSourceChangeIfNeeded(force: true)
+        }
     }
 
-    private func finishAlbumFilingSheet() {
-        guard let asset = albumFilingSheetAsset else {
-            showsAlbumFilingSheet = false
-            return
+    private func fileCurrentTrayPhoto(to album: AlbumInfo) {
+        guard showsAlbumTray,
+              let asset = albumTrayAsset,
+              !isAlbumTrayFiling else { return }
+
+        if actions.fileToAlbum(asset, albumInfo: album, dataManager: dataManager, session: session) {
+            filingAlbumID = album.id
         }
-
-        let selectedIDs = albumFilingSheetSelection
-        guard !selectedIDs.isEmpty else {
-            showsAlbumFilingSheet = false
-            return
-        }
-
-        let albumsToFile = dataManager.getUserAlbumsSortedByCustomOrder().filter { selectedIDs.contains($0.id) }
-        guard !albumsToFile.isEmpty else {
-            showsAlbumFilingSheet = false
-            return
-        }
-
-        isCommittingAlbumFiling = true
-        pendingAlbumSuccessToastTitle = albumsToFile.last?.title
-
-        var didStartFiling = false
-        for album in albumsToFile {
-            if actions.fileToAlbum(asset, albumInfo: album, dataManager: dataManager, session: session) {
-                didStartFiling = true
-            }
-        }
-
-        if !didStartFiling {
-            pendingAlbumSuccessToastTitle = nil
-            isCommittingAlbumFiling = false
-        }
-
-        let shouldAdvance = didStartFiling &&
-            currentRealPhoto?.localIdentifier == asset.localIdentifier
-        showsAlbumFilingSheet = false
-        guard shouldAdvance else { return }
-        moveToNextPhoto()
+        // 刻意不调用 moveToNextPhoto()：托盘保持打开，当前照片不前进。
     }
 
     private func selectAlbumStripPhoto(at index: Int) {
@@ -1455,7 +1491,8 @@ struct SwipePhotoView: View {
             String(format: L10n.string("Added to %@"), albumTitle),
             icon: "checkmark.circle.fill",
             style: .positive,
-            duration: 1.6
+            showsUndo: true,
+            duration: 4.5
         )
     }
 

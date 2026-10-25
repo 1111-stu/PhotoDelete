@@ -59,8 +59,9 @@ PhotoDelete 使用**黑白中性的暗色设计系统**。近黑画布、黑灰�
 | --- | --- | --- |
 | `boardPaper` | `#FAFAF7` | 相纸墙相纸白边 |
 | `boardClipPalette` | `#EDD65C` `#9E87DB` `#78BD66` `#61A3E6` `#E06B94` `#CCA375` | 相纸墙小木夹；按相纸种子取色 |
+| `albumFolderPalettes` | 蓝 / 珊瑚 / 绿 / 琥珀 / 桃 / 淡紫 | 整理页相册托盘的插画文件夹；按 `album.id` 稳定取色；仅装饰，不表达状态 |
 
-装饰色只出现在相纸墙这类「照片内容区」里的实物道具上，不表达状态或操作，不能用于按钮、图标、文字。不要往琥珀、珊瑚靠。
+装饰色只出现在相纸墙、相册托盘这类「照片内容区」里的实物道具上，不表达状态或操作，不能用于按钮、图标、文字。不要往琥珀、珊瑚靠。
 
 RGB tokens in `Theme.swift` are the source of truth; hex values above are rounded documentation equivalents.
 
@@ -132,6 +133,19 @@ Common fixed sizes are separate from spacing: `sizeTap=44`, `sizeIcon=32`, `size
 - Header chrome uses iOS 26 regular glass where available and an `elevatedSurface` fallback on earlier versions.
 - Custom header icon color is limited to a documented semantic state or the registered coral favorite shortcut.
 
+### Review album tray
+
+整理页下滑加入相册使用一张浮起的横向托盘，不是 sheet：
+
+- 托盘离屏幕左右/下各 16pt，`radiusXl` 32，`surface` + hairline + floating shadow
+- 顶部 28pt 呼吸带只放一行微提示「点按相册进入」；不加大标题
+- 关闭按钮视觉 24pt、点击热区 44pt，半压托盘右上沿
+- 相册卡为 82pt 插画文件夹：彩色背板 + 圆角页签、3 层露出的照片、前袋渐变 / 柔和反光；左下角是照片图标 + 张数，名称在卡下方
+- 横向 rail 间距 12pt、左右内边距 18pt；两端用约 12pt 的 mask 渐隐
+- 加号只在按压时出现，不做常驻角标、不做 hover；写入中整排禁用
+- 点按相册立即加入当前照片，**不自动下一张**；托盘保持打开，可继续加入其他相册
+- 不提供「新建相册」，不提供「所有相册」第二层 sheet / 搜索
+
 ### Navigation and sheets
 
 The root `NavigationStack` contains the `TabView`; pushed pages cover the tab bar structurally. Reuse `MainTabRouter` and `photoDeletePushedToolbar` instead of nesting navigation stacks. Sheets use the existing neutral surface and system presentation behavior; accent color is reserved for actionable or selected states.
@@ -174,10 +188,13 @@ Use continuous rounded rectangles and the shared radius ladder:
 | `radiusSm` | 12 | Icon tile, compact thumbnail |
 | `radiusMd` | 16 | Input, button, compact row card |
 | `radiusLg` | 24 | Standard large card |
+| `radiusXl` | 32 | 整理页浮动相册托盘（内容专用） |
 
 Circles and capsules follow their semantic shapes. A small number of content-specific masks may use a different radius when the image format requires it; do not introduce a new general-purpose radius for a single view.
 
 已登记的内容专用例外：整理页相册导轨的胶片缩略图为固定 2:3 竖幅卡片、当前生效格变正方形，用 4pt 圆角 / 3pt 间距（对齐 iOS 原生「照片」查看器底部胶片条），常量见 `ios-app/PhotoDelete/Views/Review/Components/ReviewPhotoStrip.swift` 的 `ReviewPhotoStripLayout`。
+
+另一个已登记例外是整理页相册托盘的插画文件夹：外层 20pt、前袋 12pt、照片边 6pt，统一放在 `ReviewAlbumTrayLayout`，只服务这张 82pt 的插画，不外溢到普通卡片。
 
 ## Opacity & Transparency
 
@@ -195,6 +212,7 @@ Reuse opacity tokens instead of creating near-duplicate gray values.
 | White 34% | Reorder slot stroke / selected outline |
 | Ink 18% | Accent-card progress track |
 | Black 30% | Base floating shadow |
+| Black 6% | 整理页相册托盘外遮罩 |
 
 Transparency is for hierarchy, glass chrome, overlays, and disabled states. Do not make important text translucent or build a stack of multiple translucent surfaces to simulate elevation.
 
