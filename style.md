@@ -199,13 +199,14 @@ Avoid 300/800/900 in native UI. Do not synthesize bold. If a screen needs more h
 | Entry card number | 31 / 700 | -0.04em | Pending count |
 | Entry card label | 11 / 400 | 0 | “预计可释放” |
 | Entry card size | 18 / 700 | -0.02em | “7.8 GB” |
-| Period card title | 16.5 / 700 | -0.015em | 本周 / 本月 / 本年 |
+| Period card title | 16 / 700 | -0.015em | 本周 / 本月 / 本年; one line, min scale 0.9 |
 | Period card meta | 11.5 / 400 | 0 | “共 33 项 · 55.8 MB” |
 | Period card count | 26 / 700 | -0.035em | Remaining count |
 | Period count label | 10.5 / 400 | 0 | “待整理” |
-| Period action | 13.5 / 600 | 0 | “选日期 / 选月份 / 选年份” |
+| Period action | 13.5 / 600 | 0 | Fixed visual label “更多 / More”; accessibility uses Choose date/month/year |
 | Period action chevron | 9 / 700 | 0 | Right-zone chevron |
-| List row title | 15 / 600 | 0 | Cleanup / settings rows |
+| List row title | 15 / 600 | 0 | Standard list / settings rows |
+| Home cleanup title | 16 / 600 | -0.01em | Matches period-card title size; slightly lighter than 16 / 700 |
 | List row subtitle | 11.5 / 400 | 0 | Supporting metadata |
 | List row value | 15 / 600 | 0 | Secondary value (“5.8 MB”) |
 | Sheet title | 17 / 700 | 0 | “按周整理 / 按月整理 / 按年整理” |
@@ -408,7 +409,7 @@ The provided reference screens add useful composition patterns:
 **Anatomy**
 
 ```
-[ illustration 56 ]  title / 共 X 项 · Y        count / 待整理   │  选日期 ›
+[ illustration 56 ]  title / 共 X 项 · Y        count / 待整理   │  更多 ›
                      ───────────────────────── main hit area ──┼─ right hit area ─
 ```
 
@@ -419,15 +420,15 @@ The provided reference screens add useful composition patterns:
 - Horizontal grid: 12pt leading + 56pt illustration + 12pt gap to title; title at 80pt; icon center at 40pt.
 - Main hit area: illustration, title/meta, count; opens the current period directly.
 - Divider: 1pt `hairline`, full height, between main and right zones.
-- Right hit area: 13.5 / 600 secondary label + 9 / 700 tertiary chevron; 12pt horizontal padding; opens `PeriodPickerSheet`.
+- Right hit area: fixed visual label 更多 / More (13.5 / 600 secondary) + 9 / 700 tertiary chevron; 12pt horizontal padding; opens `PeriodPickerSheet`. The fixed label keeps all three right columns the same width and leaves room for English titles; accessibility labels stay specific (Choose date/month/year).
 
 **Content**
 
-- Title: 本周 / 本月 / 本年 (16.5 / 700).
-- Meta: `共 X 项 · Y` (11.5 / 400 secondary).
+- Title: 本周 / 本月 / 本年 (16 / 700, one line, min scale 0.9).
+- Meta: `共 X 项 · Y` (11.5 / 400 secondary, one line, min scale 0.9).
 - Count: remaining items (26 / 700, monospaced).
 - Count label: 待整理 (10.5 / 400 tertiary).
-- Right label: 选日期 / 选月份 / 选年份 (13.5 / 600 secondary).
+- Right label: 更多 / More (13.5 / 600 secondary). Accessibility label is specific to the scope.
 - Illustration: 56pt user-provided PNG, no tile; shadow black 22%, radius 3, y 2.
 
 **Behavior**
@@ -459,7 +460,7 @@ The provided reference screens add useful composition patterns:
 
 **Text**
 
-- Title 15 / 600 primary.
+- Title 16 / 600 primary, one line, min scale 0.9. Same size as the period-card title (16 / 700); the lighter weight keeps the list a step below the cards while preserving one shared title size.
 - Subtitle 11.5 / 400 secondary (optional slot; the native home currently uses title + value only, while the HTML prototype demonstrates supporting subtitles).
 - Value 15 / 600 secondary (when known).
 - Chevron 12 / 600 tertiary.
@@ -823,7 +824,7 @@ PhotoDeleteListRow(
 
 - Transparent 48pt slot; no tile background.
 - Leading 16, gap 16, title at 80; vertical 7; row height 62.
-- Optical sizes: similar 42, screenshots 40, video 33, live 33.
+- Optical sizes: similar 42, screenshots 42, video 38, live 38.
 - Shadow black 20%, radius 2, y 1.
 - Hairline inset 16.
 
@@ -844,8 +845,8 @@ PhotoDeleteListRow(
       <small>待整理</small>
     </span>
   </button>
-  <button class="pmore">
-    <span>选日期</span>
+  <button class="pmore" aria-label="Choose date">
+    <span>更多</span>
     <svg class="chev"><use href="#i-chev"/></svg>
   </button>
 </div>
@@ -888,7 +889,7 @@ The HTML prototype uses Archivo for Latin display and PingFang for Chinese; the 
 ## 13. Accessibility
 
 - Tap targets: minimum 44pt. Period card right zone, rows, and header circles must all meet this.
-- Split hit areas must have distinct accessibility labels/identifiers; the main area describes “进入本周”, the right area “选日期/选月份/选年份”.
+- Split hit areas must have distinct accessibility labels/identifiers; the visible right label is 更多 / More, while its accessibility label stays specific (Choose date/month/year).
 - Decorative illustrations are `accessibilityHidden(true)`. The row title/value carry meaning.
 - Dynamic counts must be read as a single phrase; avoid reading visually separated “0” and “待整理” as unrelated elements when a combined label is clearer.
 - Do not rely on color alone for state. Selected/error/destructive states also use text, icon, shape, or position.
@@ -906,7 +907,8 @@ The HTML prototype uses Archivo for Latin display and PingFang for Chinese; the 
 - Counts use `PhotoDeleteCountFormat.plain`: no grouping separators.
 - Sizes use `CleanupStatsFormatter.space`: consistent unit spacing (`7.8 GB`, `55.8 MB`).
 - Period meta format: `共 X 项 · Y` (`%@ items · %@` key).
-- Period actions: 选日期 / 选月份 / 选年份 (`Choose date/month/year`); keep them distinct and short.
+- Period actions use one fixed visual label: 更多 / More. Keep `Choose date/month/year` as the accessibility labels, not the visible copy.
+- English cleanup row label is `Videos & Recordings` (not `Videos & Screen Recordings`) so it stays on one line at 16pt; Chinese remains 录屏与视频.
 - Count labels: 待整理 (`To review`); deletion counts are separate (`destructive`).
 - Dates: locale-aware; short years in compact rows; full range in sheets/preview.
 - Do not hard-code “周/月/年” into formatters; use the scope titles and locale formatters.
@@ -960,7 +962,7 @@ Use these to prevent regressions:
 
 1. **Videos + screen recordings merged** into one home entry (`录屏与视频`); screen recordings are a subset of videos, so size values use the larger queue value to avoid double counting.
 2. **Period section is three independent cards**, 本周 / 本月 / 本年; no “按时间段开始” header.
-3. **Period card split interaction:** card body enters the current period; right zone (选日期 / 选月份 / 选年份) opens the period sheet.
+3. **Period card split interaction:** card body enters the current period; right zone (visible 更多 / More, accessibility Choose date/month/year) opens the period sheet.
 4. **Period sheet lists other periods only**; the first “本期全部” row was removed. Empty state is “暂无其他周期”.
 5. **Special cleanup order:** 截图 → 相似与重复 → 录屏与视频 → 实况照片.
 6. **Cleanup icons are optically sized** (42 / 42 / 38 / 38) inside a transparent 48pt slot; no tile background.
@@ -970,6 +972,7 @@ Use these to prevent regressions:
 10. **Header collection/trash icon stays the system `archivebox` line icon**; this is a deliberate exception to the illustration language.
 11. **Functional amber removed (2026-10-25):** the action layer is monochrome white; amber/coral remain only in the two home entry cards. Switches use `Theme.positive` green; section trailing and tab selection are neutral. Do not reintroduce amber CTAs, tabs, toggles, or section totals.
 12. **Stone icon set (2026-10-25):** period icons are calendar+clock / grid calendar / sundial; cleanup icons are frame / twin busts / film camera / stone camera. Optical sizes are 42 / 42 / 38 / 38. The dice is reserved for the random card; the broom is a spare asset.
+13. **Title density + fixed More (2026-10-25):** period titles and home cleanup titles share 16pt; the period right zone uses a fixed 更多 / More label so all three card columns align and English titles stay on one line. Row titles use one line with 0.9 minimum scale.
 
 ---
 

@@ -526,7 +526,8 @@ struct HomeView: View {
             periodCard(
                 scope: .week,
                 title: L10n.string("This week"),
-                moreTitle: L10n.string("Choose date"),
+                moreTitle: L10n.string("More"),
+                moreAccessibilityLabel: L10n.string("Choose date"),
                 illustrationName: "PeriodWeekIcon",
                 identifier: "home-period-week",
                 rollDelay: 0.22
@@ -534,7 +535,8 @@ struct HomeView: View {
             periodCard(
                 scope: .month,
                 title: L10n.string("This Month"),
-                moreTitle: L10n.string("Choose month"),
+                moreTitle: L10n.string("More"),
+                moreAccessibilityLabel: L10n.string("Choose month"),
                 illustrationName: "PeriodMonthIcon",
                 identifier: "home-period-month",
                 rollDelay: 0.30
@@ -542,7 +544,8 @@ struct HomeView: View {
             periodCard(
                 scope: .year,
                 title: L10n.string("This year"),
-                moreTitle: L10n.string("Choose year"),
+                moreTitle: L10n.string("More"),
+                moreAccessibilityLabel: L10n.string("Choose year"),
                 illustrationName: "PeriodYearIcon",
                 identifier: "home-period-year",
                 rollDelay: 0.38
@@ -554,6 +557,7 @@ struct HomeView: View {
         scope: AdvancedTimeScope,
         title: String,
         moreTitle: String,
+        moreAccessibilityLabel: String,
         illustrationName: String,
         identifier: String,
         rollDelay: Double
@@ -570,8 +574,10 @@ struct HomeView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(title)
-                            .font(.system(size: 16.5, weight: .bold))
+                            .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Theme.primaryText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.9)
 
                         Text(String(
                             format: L10n.string("%@ items · %@"),
@@ -581,6 +587,7 @@ struct HomeView: View {
                         .font(.system(size: 11.5, weight: .regular))
                         .foregroundColor(Theme.secondaryText)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.9)
                     }
 
                     Spacer(minLength: 8)
@@ -625,6 +632,7 @@ struct HomeView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(moreAccessibilityLabel)
             .accessibilityIdentifier("\(identifier)-more")
         }
         .photoDeleteCard(radius: Theme.radiusLg)
@@ -643,7 +651,7 @@ struct HomeView: View {
                 PhotoDeleteListRow(
                     iconImage: "CleanupScreenshotsIcon",
                     iconImageSize: 42,
-                    titleFont: .system(size: 16.5, weight: .semibold),
+                    titleFont: .system(size: 16, weight: .semibold),
                     title: L10n.string("Screenshots"),
                     accessibilityIdentifier: "home-cleanup-screenshots"
                 ) {
@@ -653,7 +661,7 @@ struct HomeView: View {
                 PhotoDeleteListRow(
                     iconImage: "CleanupSimilarIcon",
                     iconImageSize: 42,
-                    titleFont: .system(size: 16.5, weight: .semibold),
+                    titleFont: .system(size: 16, weight: .semibold),
                     title: L10n.string("Similar"),
                     value: cleanupQueue(for: .similarPhotos)?.formattedSpace,
                     accessibilityIdentifier: "home-cleanup-similar"
@@ -664,7 +672,7 @@ struct HomeView: View {
                 PhotoDeleteListRow(
                     iconImage: "CleanupVideoIcon",
                     iconImageSize: 38,
-                    titleFont: .system(size: 16.5, weight: .semibold),
+                    titleFont: .system(size: 16, weight: .semibold),
                     title: L10n.string("Videos & Screen Recordings"),
                     value: videosAndScreenRecordingsQueueValue,
                     accessibilityIdentifier: "home-cleanup-videos"
@@ -675,7 +683,7 @@ struct HomeView: View {
                 PhotoDeleteListRow(
                     iconImage: "CleanupLivePhotoIcon",
                     iconImageSize: 38,
-                    titleFont: .system(size: 16.5, weight: .semibold),
+                    titleFont: .system(size: 16, weight: .semibold),
                     title: L10n.string("Live Photos"),
                     accessibilityIdentifier: "home-cleanup-live-photos"
                 ) {

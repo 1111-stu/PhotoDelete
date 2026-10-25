@@ -26924,12 +26924,29 @@
       }
     },
     "More" : {
-      "extractionState" : "stale",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المزيد"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "More"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "もっと"
           }
         },
         "zh-Hans" : {
@@ -49451,7 +49468,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Month"
+            "value" : "This month"
           }
         },
         "ja" : {
@@ -53519,7 +53536,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Videos & Screen Recordings"
+            "value" : "Videos & Recordings"
           }
         },
         "ja" : {

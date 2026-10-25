@@ -226,6 +226,8 @@ struct PhotoDeleteListRow: View {
                     Text(title)
                         .font(titleFont)
                         .foregroundColor(Theme.primaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.9)
 
                     if let subtitle {
                         Text(subtitle)
