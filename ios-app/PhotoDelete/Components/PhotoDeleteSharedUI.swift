@@ -189,6 +189,8 @@ struct PhotoDeleteListRow: View {
     var icon: String? = nil
     /// 彩色插画图标（切图 PNG）。提供时优先于 `icon`，且不套灰色图标砖。
     var iconImage: String? = nil
+    /// 图标的光学尺寸：同一组图标按视觉重量分别给 33–42，而不是一律 36。
+    var iconImageSize: CGFloat = 36
     let title: String
     var subtitle: String? = nil
     var value: String? = nil
@@ -197,15 +199,16 @@ struct PhotoDeleteListRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: (icon == nil && iconImage == nil) ? 12 : 14) {
+            HStack(spacing: iconImage != nil ? 16 : (icon == nil ? 12 : 14)) {
                 if let iconImage {
                     Image(iconImage)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 36, height: 36)
+                        .frame(width: iconImageSize, height: iconImageSize)
                         .shadow(color: Color.black.opacity(0.2), radius: 2, y: 1)
-                        // 48pt 图标槽让标题与时间卡的标题列对齐（18 + 48 + 14 = 80）。
-                        .frame(width: 48, height: 36)
+                        // 透明的 48pt 槽位：中心落在 40、标题落在 80，行高保持 62。
+                        // 不再加底色，和时间卡的插画保持同一种“无容器”语言。
+                        .frame(width: 48, height: 48)
                 } else if let icon {
                     Image(systemName: icon)
                         .font(.system(size: 17, weight: .regular))
@@ -241,8 +244,9 @@ struct PhotoDeleteListRow: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(Theme.tertiaryText)
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 13)
+            .padding(.leading, iconImage == nil ? 18 : 16)
+            .padding(.trailing, 18)
+            .padding(.vertical, iconImage == nil ? 13 : 7)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }

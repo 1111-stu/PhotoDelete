@@ -9769,6 +9769,7 @@
       }
     },
     "By time period" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

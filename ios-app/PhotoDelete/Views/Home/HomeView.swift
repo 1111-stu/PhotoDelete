@@ -642,32 +642,36 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 PhotoDeleteListRow(
                     iconImage: "CleanupStackedPhotosIcon",
+                    iconImageSize: 40,
                     title: L10n.string("Screenshots"),
                     accessibilityIdentifier: "home-cleanup-screenshots"
                 ) {
                     router.push(SwipeViewDestination.assetBrowser(.screenshots))
                 }
-                insetHairline
+                insetHairline(inset: 16)
                 PhotoDeleteListRow(
                     iconImage: "CleanupSimilarIcon",
+                    iconImageSize: 42,
                     title: L10n.string("Similar"),
                     value: cleanupQueue(for: .similarPhotos)?.formattedSpace,
                     accessibilityIdentifier: "home-cleanup-similar"
                 ) {
                     router.push(SwipeViewDestination.cleanup(.similarPhotos))
                 }
-                insetHairline
+                insetHairline(inset: 16)
                 PhotoDeleteListRow(
                     iconImage: "CleanupVideoIcon",
+                    iconImageSize: 33,
                     title: L10n.string("Videos & Screen Recordings"),
                     value: videosAndScreenRecordingsQueueValue,
                     accessibilityIdentifier: "home-cleanup-videos"
                 ) {
                     router.push(SwipeViewDestination.assetBrowser(.videos))
                 }
-                insetHairline
+                insetHairline(inset: 16)
                 PhotoDeleteListRow(
                     iconImage: "CleanupLivePhotoIcon",
+                    iconImageSize: 33,
                     title: L10n.string("Live Photos"),
                     accessibilityIdentifier: "home-cleanup-live-photos"
                 ) {
@@ -678,11 +682,11 @@ struct HomeView: View {
         }
     }
 
-    private var insetHairline: some View {
+    private func insetHairline(inset: CGFloat = 18) -> some View {
         Rectangle()
             .fill(Theme.hairline)
             .frame(height: 1)
-            .padding(.horizontal, 18)
+            .padding(.horizontal, inset)
     }
 
     private var toolSection: some View {
@@ -699,7 +703,7 @@ struct HomeView: View {
                     ) {
                         router.push(SwipeViewDestination.cleanup(.imageCompression))
                     }
-                    insetHairline
+                    insetHairline()
                 }
 
                 PhotoDeleteListRow(
