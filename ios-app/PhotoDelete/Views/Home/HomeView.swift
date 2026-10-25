@@ -523,8 +523,6 @@ struct HomeView: View {
 
     private var periodCardsSection: some View {
         VStack(alignment: .leading, spacing: Theme.space3) {
-            PhotoDeleteSectionHeader(title: L10n.string("By time period"))
-
             periodCard(
                 scope: .week,
                 title: L10n.string("This week"),
@@ -643,6 +641,14 @@ struct HomeView: View {
 
             VStack(spacing: 0) {
                 PhotoDeleteListRow(
+                    iconImage: "CleanupStackedPhotosIcon",
+                    title: L10n.string("Screenshots"),
+                    accessibilityIdentifier: "home-cleanup-screenshots"
+                ) {
+                    router.push(SwipeViewDestination.assetBrowser(.screenshots))
+                }
+                insetHairline
+                PhotoDeleteListRow(
                     iconImage: "CleanupSimilarIcon",
                     title: L10n.string("Similar"),
                     value: cleanupQueue(for: .similarPhotos)?.formattedSpace,
@@ -658,14 +664,6 @@ struct HomeView: View {
                     accessibilityIdentifier: "home-cleanup-videos"
                 ) {
                     router.push(SwipeViewDestination.assetBrowser(.videos))
-                }
-                insetHairline
-                PhotoDeleteListRow(
-                    iconImage: "CleanupStackedPhotosIcon",
-                    title: L10n.string("Screenshots"),
-                    accessibilityIdentifier: "home-cleanup-screenshots"
-                ) {
-                    router.push(SwipeViewDestination.assetBrowser(.screenshots))
                 }
                 insetHairline
                 PhotoDeleteListRow(
