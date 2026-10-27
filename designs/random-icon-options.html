@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>随机整理 · 图标候选</title>
+<style>
+  @font-face{font-family:Archivo;font-weight:500;src:url('fonts/Archivo-500.woff2')}
+  @font-face{font-family:Archivo;font-weight:600;src:url('fonts/Archivo-600.woff2')}
+  @font-face{font-family:Archivo;font-weight:700;src:url('fonts/Archivo-700.woff2')}
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#07070A; --card:#16161A; --card2:#1E1E24;
+    --ink:#fff; --ink2:rgba(255,255,255,.62); --ink3:rgba(255,255,255,.42);
+    --stroke:rgba(255,255,255,.09);
+  }
+  body{background:var(--bg);color:#F4F4F6;font-family:"Archivo",-apple-system,"PingFang SC",sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100vh}
+  .num{font-variant-numeric:tabular-nums;font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif}
+  .page{max-width:860px;margin:0 auto;padding:54px 32px 80px}
+  .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);font-weight:600;
+    display:flex;align-items:center;gap:12px}
+  .eyebrow:before{content:"";width:28px;height:1px;background:var(--ink3);opacity:.85}
+  h1{font-size:38px;font-weight:700;letter-spacing:-.035em;margin:14px 0 0}
+  h1 span{color:var(--ink2);font-weight:300}
+  .lede{color:#8E959C;font-size:13.5px;line-height:1.8;max-width:620px;margin-top:12px}
+  .options{display:flex;flex-direction:column;gap:26px;margin-top:38px}
+  .option{width:390px}
+  .label{display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink2);font-weight:700;margin-bottom:8px}
+  .label i{width:18px;height:18px;border-radius:6px;background:rgba(255,255,255,.10);
+    display:flex;align-items:center;justify-content:center;font-style:normal;font-size:10px}
+  .note{font-size:12px;color:#8A9198;line-height:1.5;margin:0 0 10px 26px}
+  .action-row{display:flex;align-items:center;gap:16px;width:100%;height:64px;
+    padding:0 16px 0 14px;border-radius:18px;background:var(--card2);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 22px rgba(0,0,0,.32)}
+  .icon{width:50px;height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .icon img{width:50px;height:50px;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
+  .icon.glyph{border-radius:12px;background:rgba(255,255,255,.06)}
+  .icon.glyph svg{width:21px;height:21px;color:rgba(255,255,255,.86)}
+  .copy{flex:1;min-width:0}
+  .copy b{display:block;font-size:16px;font-weight:700;letter-spacing:-.015em;color:var(--ink)}
+  .copy small{display:block;font-size:11.5px;color:var(--ink2);margin-top:2px}
+  .arrow{width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;color:rgba(255,255,255,.82)}
+  .arrow svg{width:19px;height:19px}
+  .no-icon .copy{padding-left:2px}
+</style></head><body>
+<main class="page">
+  <div class="eyebrow">PhotoDelete · Random Review · Icon Study</div>
+  <h1>随机整理，<span>左侧图标候选</span></h1>
+  <p class="lede">全部按动作行的 50pt 实际大小渲染。重点看两件事：50pt 下谁最清楚，以及谁还能读出“随机/一批照片”，而不是又一个分类。</p>
+  <div class="options">
+    <section class="option">
+      <div class="label"><i>0</i>Current · Stack</div>
+      <p class="note">当前采用：三张照片扇形 + 深色石板贴纸，像一叠照片。</p>
+      <div class="action-row"><span class="icon"><img src="illustrations/random-stack.png" alt=""></span><span class="copy"><b>随机整理</b><small>21 张 · 三分钟看完</small></span><span class="arrow"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+    </section>
+    <section class="option">
+      <div class="label"><i>A</i>Clip batch</div>
+      <p class="note">夹子夹住三张照片：像“挑出来的一批”，行动感更强，剪影也更好认。</p>
+      <div class="action-row"><span class="icon"><img src="illustrations/random-clip.png" alt=""></span><span class="copy"><b>随机整理</b><small>21 张 · 三分钟看完</small></span><span class="arrow"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+    </section>
+    <section class="option">
+      <div class="label"><i>B</i>Pile</div>
+      <p class="note">更紧凑的三张叠放，中间一张在前；比当前扇形更团、更清楚。</p>
+      <div class="action-row"><span class="icon"><img src="illustrations/random-pile.png" alt=""></span><span class="copy"><b>随机整理</b><small>21 张 · 三分钟看完</small></span><span class="arrow"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+    </section>
+    <section class="option">
+      <div class="label"><i>C</i>Dice</div>
+      <p class="note">语义最直接，但更像工具；hero 那边已经否过一次骰子。</p>
+      <div class="action-row"><span class="icon"><img src="illustrations/random.png" alt=""></span><span class="copy"><b>随机整理</b><small>21 张 · 三分钟看完</small></span><span class="arrow"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+    </section>
+    <section class="option">
+      <div class="label"><i>D</i>Shuffle</div>
+      <p class="note">界面语义最清楚、最省细节，但脱离石膏插图家族。</p>
+      <div class="action-row"><span class="icon glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7h2.7l9.6 10h3.7"/><path d="M3.5 17h2.7l9.6-10h3.7"/><path d="M17.5 4l3 3-3 3"/><path d="M17.5 14l3 3-3 3"/></svg></span><span class="copy"><b>随机整理</b><small>21 张 · 三分钟看完</small></span><span class="arrow"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+    </section>
+    <section class="option no-icon">
+      <div class="label"><i>E</i>No icon</div>
+      <p class="note">最安静，靠标题和箭头就够了；但少了一个品牌记忆点。</p>
+      <div class="action-row"><span class="copy"><b>随机整理</b><small>21 张 · 三分钟看完</small></span><span class="arrow"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+    </section>
+  </div>
+</main>
+</body></html>

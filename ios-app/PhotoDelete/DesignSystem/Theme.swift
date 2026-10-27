@@ -39,6 +39,9 @@ enum Theme {
     static let reviewPhotoSurfaceBottom = Color(red: 0.047, green: 0.051, blue: 0.067)
     static let reviewPhotoStroke = Color.white.opacity(0.12)
     static let reviewPhotoStrokeFade = Color.white.opacity(0.01)
+    /// 首页「随机整理」动作行：比 surface 更深的凹槽面，让白字读起来更实。
+    static let homeActionSurface = Color(red: 0.067, green: 0.071, blue: 0.090)
+    static let homeActionStroke = Color.white.opacity(0.17)
 
     // MARK: - Color · Text
 

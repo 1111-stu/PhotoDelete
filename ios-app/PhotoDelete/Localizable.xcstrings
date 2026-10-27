@@ -246,6 +246,16 @@
         }
       }
     },
+    "%@ %@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@, %3$@"
+          }
+        }
+      }
+    },
     "%@ %lld photos" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9764,6 +9774,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "按月"
+          }
+        }
+      }
+    },
+    "By time" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By time"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按时间段"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按時間段"
           }
         }
       }
@@ -34839,6 +34871,7 @@
       }
     },
     "photos" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35020,6 +35053,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "照片不會上傳"
+          }
+        }
+      }
+    },
+    "photos label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "photos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "张照片"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "張照片"
           }
         }
       }
@@ -44268,6 +44323,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "開始整理照片"
+          }
+        }
+      }
+    },
+    "Start Review" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Review"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始回顾"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始回顧"
           }
         }
       }

@@ -15,7 +15,7 @@ PhotoDelete is a local-first photo cleanup app. The interface is built around on
 
 - **Near-black canvas, layered neutrals.** The home uses `backgroundTop → background`; the review canvas uses pure black so photos are the only focus.
 - **Heavy, rounded geometry.** Large continuous corner radii, thick type, generous inner padding, and floating chrome. Avoid thin iOS-settings-style hairline-only screens.
-- **Monochrome functional layer; brand color by exception.** White-opacity text and white action states on charcoal. Coral and amber are reserved for the two home entry cards; functional chrome, selection, CTAs, and switches are neutral.
+- **Monochrome functional layer; photos carry color.** White-opacity text and white action states on charcoal. The home is photo-led and monochrome; coral/amber entry gradients are retired from the home. Functional chrome, selection, CTAs, and switches are neutral.
 - **Two content registers.**
   1. **Media cards** (time periods, entry cards): large illustrations, no icon container, more air, 80pt rows.
   2. **Utility lists** (special cleanup, settings): smaller icons, optical sizing, compact 62pt rows, hairlines between items.
@@ -24,7 +24,7 @@ PhotoDelete is a local-first photo cleanup app. The interface is built around on
 
 ### 1.2 Design principles
 
-1. **Black and white are the theme.** Functional emphasis is white/neutral; coral and amber are brand moments, not action colors.
+1. **Black and white are the theme.** Functional emphasis is white/neutral. The home has no large brand-color surfaces; color comes from the photos themselves.
 2. **Weight before decoration.** Hierarchy comes from size, weight, spacing, and radius before color.
 3. **One container per group.** Use hairlines inside a card; do not stack equally prominent cards inside cards.
 4. **Photos and illustrations lead.** Keep labels, chrome, and dividers subordinate.
@@ -68,6 +68,8 @@ Use `PhotoDeleteScreenBackground()` for root pages. Do not paint arbitrary black
 | `hairline` | White 7.5% | Inset separators inside cards |
 | `floatingShadow` | Black 30% | Floating chrome/panel shadow |
 | `reviewPhotoStroke` | White 12% → 1% | Review photo frame outline; fades toward bottom-trailing |
+| `homeActionSurface` | `#111217` | Home “随机整理” action row; darker than surface so white type reads solid |
+| `homeActionStroke` | White 17% | Home action row outline |
 
 ### 2.3 Text
 
@@ -104,7 +106,7 @@ Use white as the active/selected color. Do not reintroduce amber for CTAs, tabs,
 
 Status colors are never used as general decoration, and destructive actions are never disguised as the white primary action. `warning` remains a semantic yellow (large files); it is not a brand accent.
 
-### 2.6 Home entry gradients (registered exception)
+### 2.6 Home entry gradients (legacy; retired from the home)
 
 | Token | Value | Usage |
 | --- | --- | --- |
@@ -115,7 +117,7 @@ Status colors are never used as general decoration, and destructive actions are 
 | `amberGradientBottom` | `#F09A22` | “随机整理” card bottom |
 | `amberInk` | `#1A1206` | Ink on amber |
 
-These two paired cards are the only routine large-area accent surfaces. Each card owns its gradient and ink; do not cross-use coral inside amber or vice versa.
+These tokens are kept for older prototypes only. The current home uses a single photo hero + monochrome action row; do not reintroduce coral/amber cards on the home.
 
 ### 2.7 Decorative-only colors
 
@@ -326,7 +328,7 @@ For rows outside the home cleanup exception:
 - Header-to-content gap: 9–12pt.
 - Group/card gap: 12pt.
 - Major section gap on home: 22pt.
-- Do not add a section header to the time cards. The three period cards are self-explanatory and directly follow the entry pair; this is a product decision from 2026-10-25. The “专项清理” header remains.
+- The time section now carries a “按时间段” header using the same `PhotoDeleteSectionHeader` (14 / 700) as “专项清理”; this is the 2026-10-25 decision after the hero became a single photo card. Header-to-content 9pt; period cards gap 12pt.
 
 ---
 
@@ -480,13 +482,15 @@ The provided reference screens add useful composition patterns:
 - 18pt horizontal, 13pt vertical; hairline inset 18pt.
 - Optional illustrated variant (`iconImage`) uses a transparent 48pt slot and optical size; do not fill the slot.
 
-### 6.7 Entry cards (home)
+### 6.7 Home hero & random action (2026-10-25)
 
-- Pair height 158pt; 12pt gap; 24pt radius.
-- Coral “待整理”: 16.5 / 700 title; 31 / 700 count; 11 / 400 label; 18 / 700 size; 11 / 400 ink labels; 7pt progress bar with ink 18% track and ink fill.
-- Amber “随机整理”: 16.5 / 700 title; 12 / 500 subtitle; fan of three 46×62 prints, 2pt white border, 9pt radius, staggered 0.62s reveal; fan sits 52pt above the bottom.
-- Ink colors are `coralInk` / `amberInk`; do not use white text on these gradients.
-- The pair is the only routine large-area accent surface.
+- **Photo wall hero:** one full-bleed user photo, 240pt high, 24pt continuous radius. Bottom scrim from clear to black 93%. The whole card opens the photo wall.
+- Overlay: count 32 / 700 white + “张照片” 11.5 / 500 white 72%; month 11 / 500 white 62%; “开始回顾” CTA 12 / 700 in a white capsule, 36pt high, 14pt horizontal padding. The CTA is visual; do not nest a button.
+- **Random action row:** 64pt high, 18pt radius, `homeActionSurface` + `homeActionStroke`; 50pt stone pile icon (`RandomPileIcon`, keep its slate backing); title 16 / 700 primary; subtitle 11.5 / 400 secondary; right `arrow.right` 19 / 500. Opens random review.
+- The hero uses one real photo; no multi-photo preview, no stats panel, no stone illustrations as the hero.
+- Hero photo selection: the latest `mediaType == .image` asset that is not a screenshot; videos, recordings, and screenshots are excluded. The month label follows the selected photo; the count remains the library total. The card opens the photo wall.
+- Section “按时间段” uses `PhotoDeleteSectionHeader`; the period cards keep their existing 16 / 700 titles and 26 / 700 counts.
+- No coral/amber on the home; the only white fills are the hero CTA (and the count badge is retired).
 
 ### 6.8 Header chrome & badges
 

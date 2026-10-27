@@ -5,7 +5,9 @@
 //  Created by PhotoDelete Team on 11/7/25.
 //
 
+import Photos
 import SwiftUI
+import UIKit
 
 enum SwipeViewDestination: Hashable {
     case category(PhotoCategory)
@@ -323,7 +325,7 @@ struct HomeView: View {
 
     private var availableLibraryDashboard: some View {
         VStack(spacing: 22) {
-            duoRow
+            heroOverview
             periodCardsSection
             specialCleanupSection
             // 工具（图片/视频压缩）暂不展示；`toolSection` 保留便于恢复。
@@ -412,151 +414,179 @@ struct HomeView: View {
         .photoDeleteCard()
     }
 
-    // MARK: - 首屏双卡（照片墙 = 浏览入口 / 随机整理 = 主行动）
+    // MARK: - 首屏（照片墙 = 一张照片；随机整理 = 动作行）
 
-    private var duoRow: some View {
-        GeometryReader { proxy in
-            let contentWidth = max(proxy.size.width - 12, 0)
-
-            HStack(spacing: 12) {
-                photoWallEntryCard
-                    .frame(width: contentWidth * 0.4)
-
-                randomReviewHeroCard
-                    .frame(width: contentWidth * 0.6)
-            }
+    private var heroOverview: some View {
+        VStack(spacing: 12) {
+            photoWallHeroCard
+            randomReviewActionRow
         }
-        .frame(height: 158)
     }
 
-    private var photoWallEntryCard: some View {
+    /// 照片墙入口：整张卡就是一张真实照片，信息压在底部。
+    private var photoWallHeroCard: some View {
         let total = libraryStats.totalAssets
+        let asset = heroPhotoAsset
+        let monthText = heroMonthText(for: asset)
 
         return Button {
             // 先进待整理照片墙；墙上再选月/日起滑。
             router.push(SwipeViewDestination.pendingPhotoWall)
         } label: {
-            ZStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("Photo Wall"))
-                        .font(.system(size: 16.5, weight: .bold))
-                        .foregroundColor(Theme.primaryText)
-
-                    Text("\(PhotoDeleteCountFormat.plain(total)) \(L10n.string("photos"))")
-                        .font(.system(size: 11.5, weight: .medium))
-                    .foregroundColor(Theme.secondaryText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.9)
-
-                    Spacer(minLength: 0)
-                }
-                .padding(EdgeInsets(top: 14, leading: 14, bottom: 0, trailing: 14))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-
-                Image("PhotoWallIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 124)
-                    .padding(.bottom, 6)
-                    .shadow(color: Color.black.opacity(0.28), radius: 6, y: 3)
-                    .accessibilityHidden(true)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
-                    .fill(Theme.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
-                            .stroke(Theme.cardStroke, lineWidth: Theme.stroke)
+            HomeHeroPhoto(asset: asset, manager: dataManager.photoLibraryManager)
+                .frame(maxWidth: .infinity)
+                .frame(height: 240)
+                .overlay {
+                    LinearGradient(
+                        stops: [
+                            .init(color: .black.opacity(0.10), location: 0),
+                            .init(color: .clear, location: 0.34),
+                            .init(color: .black.opacity(0.55), location: 0.68),
+                            .init(color: .black.opacity(0.93), location: 1)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
                     )
-            )
-            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
+                    .allowsHitTesting(false)
+                }
+                .overlay(alignment: .bottom) {
+                    HStack(alignment: .bottom, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                Text(PhotoDeleteCountFormat.plain(total))
+                                    .font(.system(size: 32, weight: .bold))
+                                    .monospacedDigit()
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+
+                                Text(L10n.string("photos label"))
+                                    .font(.system(size: 11.5, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.72))
+                                    .lineLimit(1)
+                            }
+
+                            Text(monthText)
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.white.opacity(0.62))
+                        }
+
+                        Spacer(minLength: 8)
+
+                        HStack(spacing: 7) {
+                            Text(L10n.string("Start Review"))
+                                .font(.system(size: 12, weight: .bold))
+
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 12, weight: .bold))
+                        }
+                        .foregroundColor(Theme.onAccent)
+                        .padding(.horizontal, 14)
+                        .frame(height: 36)
+                        .background(Capsule(style: .continuous).fill(Theme.accent))
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 14)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                        .stroke(Color.white.opacity(0.12), lineWidth: Theme.stroke)
+                )
+                .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L10n.string("Photo Wall"))
+        .accessibilityValue("\(PhotoDeleteCountFormat.plain(total)) \(L10n.string("photos label")), \(monthText)")
         .accessibilityIdentifier("home-pending-review")
     }
 
-    private var randomReviewHeroCard: some View {
+    /// 随机整理入口：动作行，不是第四个浏览卡。
+    private var randomReviewActionRow: some View {
         Button {
             router.push(SwipeViewDestination.random(.memories))
         } label: {
-            ZStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 16) {
+                Image("RandomPileIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 50, height: 50)
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 2) {
                     Text(L10n.string("Random Review"))
-                        .font(.system(size: 16.5, weight: .bold))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(Theme.primaryText)
+                        .lineLimit(1)
 
                     Text(randomReviewDetail)
-                        .font(.system(size: 11.5, weight: .medium))
+                        .font(.system(size: 11.5, weight: .regular))
                         .foregroundColor(Theme.secondaryText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.9)
-
-                    Spacer(minLength: 0)
                 }
-                .padding(EdgeInsets(top: 14, leading: 16, bottom: 0, trailing: 16))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
-                Image("RandomFanHeroIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 176, height: 92)
-                    .padding(.bottom, 3)
-                    .shadow(color: Color.black.opacity(0.3), radius: 7, y: 3)
-                    .accessibilityHidden(true)
+                Spacer(minLength: 8)
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 19, weight: .medium))
+                    .foregroundColor(Theme.primaryText.opacity(0.9))
+                    .frame(width: 44, height: 44)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.leading, 14)
+            .padding(.trailing, 16)
+            .frame(height: 70)
             .background(
-                RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
-                    .fill(Theme.elevatedSurface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
-                            .stroke(Theme.cardStroke, lineWidth: Theme.stroke)
-                    )
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Theme.homeActionSurface)
             )
-            .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(Theme.homeActionStroke, lineWidth: Theme.stroke)
+            )
+            .shadow(color: Color.black.opacity(0.36), radius: 11, y: 6)
         }
-        .buttonStyle(.plain)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .buttonStyle(HomeRandomActionButtonStyle())
         .accessibilityLabel(L10n.string("Random Review"))
         .accessibilityValue(randomReviewDetail)
         .accessibilityIdentifier("home-random-review")
     }
 
-    // 旧首屏三卡（库概览 / 随机整理 / 往年今日）已由上方 duoRow 双卡替代。
-
     // MARK: - 按时间段开始（三张独立卡：主体进本期 / 右区选周期）
 
     private var periodCardsSection: some View {
-        VStack(alignment: .leading, spacing: Theme.space3) {
-            periodCard(
-                scope: .week,
-                title: L10n.string("This week"),
-                moreTitle: L10n.string("More"),
-                moreAccessibilityLabel: L10n.string("Choose date"),
-                illustrationName: "PeriodWeekIcon",
-                identifier: "home-period-week",
-                rollDelay: 0.22
-            )
-            periodCard(
-                scope: .month,
-                title: L10n.string("This Month"),
-                moreTitle: L10n.string("More"),
-                moreAccessibilityLabel: L10n.string("Choose month"),
-                illustrationName: "PeriodMonthIcon",
-                identifier: "home-period-month",
-                rollDelay: 0.30
-            )
-            periodCard(
-                scope: .year,
-                title: L10n.string("This year"),
-                moreTitle: L10n.string("More"),
-                moreAccessibilityLabel: L10n.string("Choose year"),
-                illustrationName: "PeriodYearIcon",
-                identifier: "home-period-year",
-                rollDelay: 0.38
-            )
+        VStack(alignment: .leading, spacing: 9) {
+            PhotoDeleteSectionHeader(title: L10n.string("By time"))
+
+            VStack(spacing: Theme.space3) {
+                periodCard(
+                    scope: .week,
+                    title: L10n.string("This week"),
+                    moreTitle: L10n.string("More"),
+                    moreAccessibilityLabel: L10n.string("Choose date"),
+                    illustrationName: "PeriodWeekIcon",
+                    identifier: "home-period-week",
+                    rollDelay: 0.22
+                )
+                periodCard(
+                    scope: .month,
+                    title: L10n.string("This Month"),
+                    moreTitle: L10n.string("More"),
+                    moreAccessibilityLabel: L10n.string("Choose month"),
+                    illustrationName: "PeriodMonthIcon",
+                    identifier: "home-period-month",
+                    rollDelay: 0.30
+                )
+                periodCard(
+                    scope: .year,
+                    title: L10n.string("This year"),
+                    moreTitle: L10n.string("More"),
+                    moreAccessibilityLabel: L10n.string("Choose year"),
+                    illustrationName: "PeriodYearIcon",
+                    identifier: "home-period-year",
+                    rollDelay: 0.38
+                )
+            }
         }
     }
 
@@ -783,6 +813,19 @@ struct HomeView: View {
         return String(format: L10n.string("Up to %lld photos per round"), Int64(count))
     }
 
+    /// 首页主卡只取最新的一张照片：排除视频/录屏和截图。
+    /// 月份跟随这张照片；数量仍是全库总数。
+    private var heroPhotoAsset: PHAsset? {
+        let manager = dataManager.photoLibraryManager
+        return manager.allPhotos.first {
+            $0.mediaType == .image && !$0.isHidden && !manager.isScreenshot($0)
+        }
+    }
+
+    private func heroMonthText(for asset: PHAsset?) -> String {
+        (asset?.creationDate ?? Date()).formatted(.dateTime.year().month())
+    }
+
     private func countText(_ count: Int?) -> String {
         guard let count else { return L10n.string("Reading") }
         return PhotoDeleteCountFormat.plain(count)
@@ -791,6 +834,70 @@ struct HomeView: View {
 }
 
 // MARK: - 首页组件（对齐 home-prototype.html）
+
+/// 首页照片墙主卡：只加载一张最近照片，失败时退回石墨渐变。
+private struct HomeHeroPhoto: View {
+    let asset: PHAsset?
+    let manager: PhotoLibraryManager
+    @State private var image: UIImage?
+    @State private var requestID: PHImageRequestID?
+
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: [Theme.elevatedSurface, Theme.background],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else if asset == nil {
+                Image("PhotoWallIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 140)
+                    .opacity(0.92)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
+        .onAppear(perform: load)
+        .onDisappear(perform: cancel)
+        .onChange(of: asset?.localIdentifier) { _, _ in load() }
+    }
+
+    private func load() {
+        cancel()
+        image = nil
+        guard let asset else { return }
+
+        requestID = manager.loadFastThumbnail(
+            for: asset,
+            size: CGSize(width: 1_200, height: 900)
+        ) { loaded in
+            guard let loaded else { return }
+            self.image = loaded
+            self.requestID = nil
+        }
+    }
+
+    private func cancel() {
+        manager.cancelImageRequest(requestID)
+        requestID = nil
+    }
+}
+
+/// 动作行按压反馈：只跟随按压状态，没有常驻动效。
+private struct HomeRandomActionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .brightness(configuration.isPressed ? 0.04 : 0)
+            .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
+    }
+}
 
 /// 周期卡插画：用户提供的 3D 小图标，切图去底后使用。
 private struct PeriodCardIllustration: View {
