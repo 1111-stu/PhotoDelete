@@ -506,11 +506,11 @@ struct HomeView: View {
         Button {
             router.push(SwipeViewDestination.random(.memories))
         } label: {
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Image("RandomPileIcon")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 50, height: 50)
+                    .frame(width: 56, height: 56)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -533,13 +533,18 @@ struct HomeView: View {
                     .foregroundColor(Theme.primaryText.opacity(0.9))
                     .frame(width: 44, height: 44)
             }
-            .padding(.leading, 14)
+            .padding(.leading, 12)
             .padding(.trailing, 16)
             .frame(height: 70)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Theme.homeActionSurface)
-            )
+            .background {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(Theme.homeActionSurface)
+
+                    HomeActionSheen()
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                }
+            }
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(Theme.homeActionStroke, lineWidth: Theme.stroke)
@@ -887,6 +892,51 @@ private struct HomeHeroPhoto: View {
     private func cancel() {
         manager.cancelImageRequest(requestID)
         requestID = nil
+    }
+}
+
+/// 首页随机整理行的常驻扫光（产品指定，非按压触发）：
+/// 7 秒一轮，前 3 秒扫过，其余留白，低透明度白光，避免持续闪烁。
+private struct HomeActionSheen: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        Group {
+            if reduceMotion {
+                Color.clear
+            } else {
+                TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { context in
+                    GeometryReader { proxy in
+                        let cycle: TimeInterval = 7
+                        let sweepPortion: Double = 0.42
+                        let normalized = context.date
+                            .timeIntervalSinceReferenceDate
+                            .truncatingRemainder(dividingBy: cycle) / cycle
+                        let progress = min(normalized / sweepPortion, 1)
+                        let bandWidth = max(proxy.size.width * 0.62, 190)
+                        let x = -bandWidth + (proxy.size.width + bandWidth * 2) * progress
+
+                        LinearGradient(
+                            stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .white.opacity(0.04), location: 0.22),
+                                .init(color: .white.opacity(0.13), location: 0.50),
+                                .init(color: .white.opacity(0.04), location: 0.78),
+                                .init(color: .clear, location: 1)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        .frame(width: bandWidth, height: proxy.size.height * 1.8)
+                        .rotationEffect(.degrees(14))
+                        .offset(x: x, y: -proxy.size.height * 0.4)
+                        .blur(radius: 9)
+                    }
+                }
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 

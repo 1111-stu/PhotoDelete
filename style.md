@@ -29,7 +29,7 @@ PhotoDelete is a local-first photo cleanup app. The interface is built around on
 3. **One container per group.** Use hairlines inside a card; do not stack equally prominent cards inside cards.
 4. **Photos and illustrations lead.** Keep labels, chrome, and dividers subordinate.
 5. **Optical alignment beats mechanical alignment.** Align icon centers and title columns across sections; size each illustration by perceived ink mass, not by a single box.
-6. **Static is static.** No ambient motion, parallax, floating loops, or scroll-triggered reveals. Motion explains a state change or direct manipulation.
+6. **Static is static.** No ambient motion, parallax, floating loops, or scroll-triggered reveals. Motion explains a state change or direct manipulation. Registered exception (2026-10-25): the home Random Review action row’s slow, low-contrast sheen.
 7. **Native where it matters.** Use system sheets, switches, blur, and safe-area behavior; custom chrome only where it adds identity.
 
 ### 1.3 Reference set (2026-10-25)
@@ -486,7 +486,7 @@ The provided reference screens add useful composition patterns:
 
 - **Photo wall hero:** one full-bleed user photo, 240pt high, 24pt continuous radius. Bottom scrim from clear to black 93%. The whole card opens the photo wall.
 - Overlay: count 32 / 700 white + “张照片” 11.5 / 500 white 72%; month 11 / 500 white 62%; “开始回顾” CTA 12 / 700 in a white capsule, 36pt high, 14pt horizontal padding. The CTA is visual; do not nest a button.
-- **Random action row:** 64pt high, 18pt radius, `homeActionSurface` + `homeActionStroke`; 50pt stone pile icon (`RandomPileIcon`, keep its slate backing); title 16 / 700 primary; subtitle 11.5 / 400 secondary; right `arrow.right` 19 / 500. Opens random review.
+- **Random action row:** 70pt high, 18pt radius, `homeActionSurface` + `homeActionStroke`; 56pt stone pile icon (`RandomPileIcon`, keep its slate backing); leading 12 + icon 56 + gap 12 keeps the 16 / 700 title on the 80pt optical axis; subtitle 11.5 / 400 secondary; right `arrow.right` 19 / 500. Opens random review. The row has a slow ambient sheen (registered exception above), disabled under Reduce Motion.
 - The hero uses one real photo; no multi-photo preview, no stats panel, no stone illustrations as the hero.
 - Hero photo selection: the latest `mediaType == .image` asset that is not a screenshot; videos, recordings, and screenshots are excluded. The month label follows the selected photo; the count remains the library total. The card opens the photo wall.
 - Section “按时间段” uses `PhotoDeleteSectionHeader`; the period cards keep their existing 16 / 700 titles and 26 / 700 counts.
@@ -577,6 +577,7 @@ Rules:
 ### 8.1 Principles
 
 - **Static is static.** No ambient floating, parallax, ripple, or scroll-triggered reveals.
+- **Registered exception (2026-10-25):** the home Random Review action row carries a slow ambient sheen (7s loop; ~3s sweep, ~4s rest; white 4–13%; 30fps; clipped to the row; disabled under Reduce Motion). Do not generalize it to other rows or cards.
 - Motion explains a state change, a gesture result, or a direct manipulation.
 - Keep durations short; respect Reduce Motion.
 - Prefer opacity/transform/background; avoid animating layout where a crossfade is clearer.
@@ -593,6 +594,7 @@ Rules:
 | Fan reveal | ≈0.62s easeOut, staggered once (0 / 90 / 180ms) |
 | Sheet presentation | System spring; prototype reference ≈0.34s cubic-bezier(.22,.9,.28,1) |
 | Toast | 0.22s opacity + 0.30s transform |
+| Random Review sheen | 7s loop: ~3s sweep, ~4s rest; 30fps; disabled for Reduce Motion |
 
 ### 8.3 Reduce Motion
 
