@@ -12434,6 +12434,7 @@
       }
     },
     "Collection bin" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -12468,6 +12469,7 @@
       }
     },
     "Collection bin total" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -29431,6 +29433,7 @@
       }
     },
     "No Photos Pending Deletion" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -35011,10 +35014,28 @@
     },
     "Photos appear here after you swipe up to add them to the deletion queue." : {
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تظهر الصور هنا بعد السحب لأعلى لإضافتها إلى قائمة الحذف."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos erscheinen hier, nachdem du sie nach oben wischst und zur Löschwarteschlange hinzufügst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Photos appear here after you swipe up to add them to the deletion queue."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上にスワイプして削除キューに追加すると、ここに表示されます。"
           }
         },
         "zh-Hans" : {
@@ -40241,6 +40262,7 @@
       }
     },
     "Retry" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -46584,6 +46606,7 @@
       }
     },
     "Swipe up to place photos here for confirmation." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -50874,10 +50897,28 @@
     },
     "Trash" : {
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سلة المهملات"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Papierkorb"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trash"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゴミ箱"
           }
         },
         "zh-Hans" : {
@@ -50896,10 +50937,28 @@
     },
     "Trash Is Empty" : {
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سلة المهملات فارغة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Papierkorb ist leer"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trash Is Empty"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゴミ箱は空です"
           }
         },
         "zh-Hans" : {
@@ -50916,12 +50975,70 @@
         }
       }
     },
+    "Trash total" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إجمالي سلة المهملات"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Papierkorb gesamt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trash total"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゴミ箱の合計"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "垃圾桶共计"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "垃圾桶共計"
+          }
+        }
+      }
+    },
     "Trash, %lld photos pending deletion" : {
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سلة المهملات، %lld صور قيد الحذف"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Papierkorb, %lld Fotos zum Löschen vorgemerkt"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trash, %lld photos pending deletion"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゴミ箱、削除予定 %lld 枚"
           }
         },
         "zh-Hans" : {

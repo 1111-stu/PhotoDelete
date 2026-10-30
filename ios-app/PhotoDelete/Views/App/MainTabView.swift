@@ -350,7 +350,7 @@ private enum PhotoDeleteMainTab: CaseIterable, Identifiable, Hashable {
     var systemImage: String {
         switch self {
         case .organize:
-            return "sparkles"
+            return "checkmark.rectangle.stack"
         case .albums:
             return "photo.on.rectangle"
         case .advanced:

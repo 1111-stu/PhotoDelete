@@ -14,11 +14,11 @@ struct PendingDeletionView: View {
 
     var body: some View {
         DeletionQueueScreen(
-            title: L10n.string("To delete"),
+            title: L10n.string("Trash"),
             assets: assets,
             selectedIDs: $selectedIDs,
-            emptyTitle: L10n.string("No Photos Pending Deletion"),
-            emptyMessage: L10n.string("Swipe up to place photos here for confirmation."),
+            emptyTitle: L10n.string("Trash Is Empty"),
+            emptyMessage: L10n.string("Photos appear here after you swipe up to add them to the deletion queue."),
             onRemove: { asset in
                 dataManager.removeFromDeleteCandidates(asset)
                 selectedIDs.remove(asset.localIdentifier)
@@ -134,19 +134,28 @@ private struct DeletionQueueScreen: View {
                 .scrollIndicators(.hidden)
             }
         }
-        .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        // 返回/关闭固定在左，页面名靠右，避免左侧控件 + 居中标题的失衡。
         .photoDeletePushedToolbar {
-            if showsModalClose {
-                if #available(iOS 26.0, *) {
+            if #available(iOS 26.0, *) {
+                if showsModalClose {
                     ToolbarItem(placement: .topBarLeading) {
                         modalCloseButton
                     }
                     .sharedBackgroundVisibility(.hidden)
-                } else {
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    titleLabel
+                }
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                if showsModalClose {
                     ToolbarItem(placement: .topBarLeading) {
                         modalCloseButton
                     }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    titleLabel
                 }
             }
         }
@@ -155,6 +164,16 @@ private struct DeletionQueueScreen: View {
             dualActionFooter
                 .modifier(CleanupReviewFooterStyle())
         }
+    }
+
+    /// 页面名放在导航栏右侧；左侧只保留返回/关闭，形成左右分区。
+    private var titleLabel: some View {
+        Text(title)
+            .font(.system(size: 17, weight: .bold))
+            .foregroundColor(Theme.primaryText)
+            .lineLimit(1)
+            .minimumScaleFactor(0.82)
+            .accessibilityAddTraits(.isHeader)
     }
 
     private var modalCloseButton: some View {

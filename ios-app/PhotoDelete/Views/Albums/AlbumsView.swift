@@ -1513,7 +1513,7 @@ private struct AlbumNameDialog: View {
         }
         .padding(.horizontal, 22)
         .padding(.top, 24)
-        .padding(.bottom, 20)
+        .padding(.bottom, 24)
         .background(
             RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                 .fill(Theme.surface)

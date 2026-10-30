@@ -203,7 +203,7 @@ struct PendingPhotoWallView: View {
         let binCount = dataManager.deleteCandidates.count
         return PhotoDeleteCircleIconButton(
             systemName: "archivebox",
-            accessibilityLabel: L10n.string("Collection bin")
+            accessibilityLabel: L10n.string("Trash")
         ) {
             dismissYearMenuIfNeeded()
             router.push(.trashBin)

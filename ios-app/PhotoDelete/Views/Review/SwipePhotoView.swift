@@ -343,6 +343,10 @@ struct SwipePhotoView: View {
                     }
                 }
             }
+
+            if showCompletionMessage {
+                completionOverlay
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showingPhotoDetails) {
@@ -506,11 +510,6 @@ struct SwipePhotoView: View {
                 } else if let realPhoto = currentRealPhoto {
                     ZStack {
                         cardPhotoArea(asset: realPhoto, in: geometry.size)
-
-                        if showCompletionMessage {
-                            completionOverlay
-                        }
-
                     }
                     .scaleEffect(showsAlbumTray && !reduceMotion ? 0.97 : 1)
                     .animation(.easeOut(duration: 0.22), value: showsAlbumTray)
@@ -757,8 +756,6 @@ struct SwipePhotoView: View {
 
     private var completionOverlay: some View {
         ReviewCompletionOverlay(
-            sourceTitle: source.title(dataManager: dataManager, activeAlbumInfo: activeAlbumInfo),
-            itemCount: totalPhotosCount,
             sessionDeleteCount: actions.deleteActionCount,
             sessionFavoriteCount: actions.favoriteActionCount,
             collectionBinCount: pendingDeleteCount,

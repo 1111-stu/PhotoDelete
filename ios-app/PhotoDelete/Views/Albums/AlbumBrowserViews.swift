@@ -570,6 +570,17 @@ struct AlbumPhotoBrowserView: View {
             }
         }
         .background(PhotoDeleteScreenBackground())
+        // iOS 26 的 partial detent sheet 是悬浮玻璃卡片，四边不贴屏幕；
+        // 滤镜页打开时给浏览页盖一层暗幕，免得底部缝隙里透出亮照片（看起来像漏光）。
+        .overlay {
+            if showsFilters {
+                Color.black.opacity(0.8)
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.22), value: showsFilters)
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
         .photoDeletePushedToolbar {
@@ -728,7 +739,8 @@ struct AlbumBrowserFilterSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        // 固定半屏高度：内容三页都放得下，不需要往上拖成大页。
+        .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }
 

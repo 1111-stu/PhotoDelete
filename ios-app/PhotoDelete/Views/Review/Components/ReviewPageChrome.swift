@@ -33,7 +33,7 @@ struct ReviewNavigationHeader: View {
 
             PhotoDeleteCircleIconButton(
                 systemName: "archivebox",
-                accessibilityLabel: L10n.string("Collection bin"),
+                accessibilityLabel: L10n.string("Trash"),
                 accessibilityIdentifier: "review-trash-button",
                 isEnabled: canDelete,
                 action: onDelete
@@ -66,11 +66,9 @@ struct ReviewNavigationHeader: View {
     }
 }
 
-/// 本轮结算：汇报本次待删 / 本次收藏 / 收集箱共计。
+/// 本轮结算：汇报本次待删 / 本次收藏 / 垃圾桶共计。
 /// 「完成」离开整理；点遮罩关闭弹窗并留在本轮（误触可回）。
 struct ReviewCompletionOverlay: View {
-    let sourceTitle: String
-    let itemCount: Int
     let sessionDeleteCount: Int
     let sessionFavoriteCount: Int
     let collectionBinCount: Int
@@ -79,35 +77,20 @@ struct ReviewCompletionOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.72)
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture(perform: onDismiss)
-                .accessibilityLabel(L10n.string("Close"))
-                .accessibilityAddTraits(.isButton)
-                .accessibilityAction(named: Text(L10n.string("Close"))) {
-                    onDismiss()
-                }
+            ZStack {
+                Rectangle().fill(.ultraThinMaterial)
+                Color.black.opacity(0.42)
+            }
+            .ignoresSafeArea()
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onDismiss)
+            .accessibilityLabel(L10n.string("Close"))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction(named: Text(L10n.string("Close"))) {
+                onDismiss()
+            }
 
             VStack(alignment: .leading, spacing: 22) {
-                HStack(alignment: .center, spacing: 10) {
-                    Text(sourceTitle)
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Theme.secondaryText)
-                        .lineLimit(1)
-                    Spacer(minLength: 8)
-                    Text(String(format: L10n.string("%lld items"), Int64(itemCount)))
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Theme.secondaryText)
-                        .monospacedDigit()
-                    PhotoDeleteCircleIconButton(
-                        systemName: "xmark",
-                        accessibilityLabel: L10n.string("Close"),
-                        accessibilityIdentifier: "review-completion-close",
-                        action: onDismiss
-                    )
-                }
-
                 VStack(spacing: 16) {
                     completionStatRow(
                         tint: Theme.destructive,
@@ -121,7 +104,7 @@ struct ReviewCompletionOverlay: View {
                     )
                     completionStatRow(
                         tint: Theme.accent,
-                        title: L10n.string("Collection bin total"),
+                        title: L10n.string("Trash total"),
                         value: collectionBinCount
                     )
                 }
@@ -132,7 +115,9 @@ struct ReviewCompletionOverlay: View {
                 .photoDeletePrimaryButton()
                 .accessibilityIdentifier("review-completion-primary-button")
             }
-            .padding(22)
+            .padding(.horizontal, 22)
+            .padding(.top, 46)
+            .padding(.bottom, 22)
             .background {
                 RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                     .fill(Theme.elevatedSurface)
@@ -142,9 +127,24 @@ struct ReviewCompletionOverlay: View {
                     }
             }
             .shadow(color: Theme.floatingShadow, radius: 18, y: 10)
-            .padding(.horizontal, Theme.space5)
             // 挡住点击穿透到遮罩，避免点卡片也关闭。
             .contentShape(Rectangle())
+            .overlay(alignment: .topTrailing) {
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundStyle(Theme.primaryText)
+                        .frame(width: 32, height: 32)
+                        .background(Circle().fill(Color.white.opacity(0.18)))
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 10)
+                .padding(.trailing, 10)
+                .accessibilityLabel(Text(L10n.string("Close")))
+                .accessibilityIdentifier("review-completion-close")
+            }
+            .padding(.horizontal, Theme.space5)
+            .frame(maxWidth: 400)
         }
         .transition(.opacity)
     }
