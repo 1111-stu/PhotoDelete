@@ -1526,9 +1526,9 @@ private struct AlbumNameDialog: View {
         .overlay(alignment: .topTrailing) {
             Button(action: onCancel) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Theme.secondaryText)
-                    .frame(width: 44, height: 44)
+                    .frame(width: 24, height: 24)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
