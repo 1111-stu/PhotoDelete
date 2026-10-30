@@ -1526,13 +1526,14 @@ private struct AlbumNameDialog: View {
         .overlay(alignment: .topTrailing) {
             Button(action: onCancel) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Theme.secondaryText)
-                    .frame(width: 24, height: 24)
-                    .contentShape(Rectangle())
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(Theme.primaryText)
+                    .frame(width: 32, height: 32)
             }
-            .buttonStyle(.plain)
+            .modifier(PhotoDeleteGlassCircleChrome())
             .disabled(isBusy)
+            .padding(.top, 10)
+            .padding(.trailing, 10)
             .accessibilityLabel(Text(L10n.string("Cancel")))
         }
     }

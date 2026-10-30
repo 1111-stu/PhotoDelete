@@ -9,7 +9,6 @@ struct CleanupAssetBrowserView: View {
     @ScaledMetric(relativeTo: .caption2) private var metadataSize = 11
     @StateObject private var model: AssetBrowserModel
     @State private var showsFilters = false
-    @State private var preview: CleanupPreviewItem?
     let category: AssetCategoryID
     private let defaultQuery: AssetQuery
 
@@ -63,9 +62,6 @@ struct CleanupAssetBrowserView: View {
         .safeAreaInset(edge: .bottom) { organizeButton }
         .sheet(isPresented: $showsFilters) {
             CleanupAssetFilterSheet(query: $model.query, defaultQuery: defaultQuery, summary: model.result?.summary)
-        }
-        .fullScreenCover(item: $preview, onDismiss: { model.refresh() }) { item in
-            AssetReadOnlyPreviewView(asset: item.asset, photoLibraryManager: dataManager.photoLibraryManager)
         }
         .onAppear { model.start(dataManager: dataManager) }
         .onDisappear { model.stop() }
@@ -148,7 +144,7 @@ struct CleanupAssetBrowserView: View {
                                 CleanupAssetCard(asset: asset, metadata: metadata,
                                                  isPendingDeletion: dataManager.deleteCandidates.contains { $0.localIdentifier == id },
                                                  photoLibraryManager: dataManager.photoLibraryManager) {
-                                    preview = CleanupPreviewItem(asset: asset)
+                                    startOrganize(from: asset)
                                 }
                                 .onAppear { model.setVisibleAssetIDs(visibleIDs.union([id])); visibleIDs.insert(id) }
                                 .onDisappear { visibleIDs.remove(id); model.setVisibleAssetIDs(visibleIDs) }
@@ -206,6 +202,24 @@ struct CleanupAssetBrowserView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, Theme.space8)
         .photoDeleteCard()
+    }
+
+    /// 点中哪张就从哪张开始：队列按当前列表顺序取到结尾，已整理的照片不再排队，
+    /// 但点中的那张始终作为起点（用户明确点了它）。
+    private func startOrganize(from asset: PHAsset) {
+        guard let result = model.result,
+              let index = result.assetIDs.firstIndex(of: asset.localIdentifier) else { return }
+
+        let ids = result.assetIDs[index...].filter { id in
+            id == asset.localIdentifier || result.metadataByID[id]?.isReviewed == false
+        }
+        guard !ids.isEmpty else { return }
+
+        HapticManager.impact(.light)
+        router.pushExplicitReview(
+            scope: ExplicitAssetReviewScope(orderedAssetIDs: ids),
+            category: category.photoCategory
+        )
     }
 
     private var organizeButton: some View {
@@ -351,11 +365,6 @@ extension AssetQuerySizeState {
         case .unavailable: return L10n.string("Unknown size")
         }
     }
-}
-
-private struct CleanupPreviewItem: Identifiable {
-    let asset: PHAsset
-    var id: String { asset.localIdentifier }
 }
 
 private struct CleanupBrowserScrollActivity: ViewModifier {

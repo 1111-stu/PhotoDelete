@@ -348,6 +348,7 @@
       }
     },
     "%@ and %lld albums" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -947,6 +948,7 @@
       }
     },
     "%lld albums" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -9428,6 +9430,7 @@
       }
     },
     "Browsing Order" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -9635,6 +9638,7 @@
       }
     },
     "By default, OnePhoto follows your iPhone language. You can also pin a display language here." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12146,6 +12150,7 @@
       }
     },
     "Clear search" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -18052,6 +18057,7 @@
       }
     },
     "Display Language" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -20890,6 +20896,7 @@
       }
     },
     "Gestures & Playback" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -22115,6 +22122,7 @@
       }
     },
     "In Albums" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22137,6 +22145,7 @@
       }
     },
     "In Albums: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24786,6 +24795,7 @@
       }
     },
     "Live auto" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -24826,6 +24836,7 @@
       }
     },
     "Live manual" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -26410,6 +26421,7 @@
       }
     },
     "Match the iPhone preferred language automatically" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -29175,6 +29187,7 @@
       }
     },
     "No matching languages" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -34710,6 +34723,7 @@
       }
     },
     "Photo Order" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -35730,6 +35744,7 @@
       }
     },
     "Play videos and Live Photos muted" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -35811,6 +35826,7 @@
       }
     },
     "Playback" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -41536,6 +41552,7 @@
       }
     },
     "Search by language name, region, or code" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -41576,6 +41593,7 @@
       }
     },
     "Search languages" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -53317,6 +53335,7 @@
       }
     },
     "Video auto" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -53519,6 +53538,7 @@
       }
     },
     "Video manual" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -55208,6 +55228,7 @@
       }
     },
     "When on, each review session starts muted. You can turn sound on temporarily in the review screen." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

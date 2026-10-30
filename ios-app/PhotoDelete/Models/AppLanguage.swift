@@ -61,7 +61,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     ]
 
     static var appLanguages: [AppLanguage] {
-        [.ar, .de, .en, .ja, .zhHans, .zhHant]
+        [.de, .en, .ja, .zhHans, .zhHant]
     }
 
     static var current: AppLanguage {
@@ -102,28 +102,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         default:
             return nativeName
         }
-    }
-
-    var detail: String {
-        switch self {
-        case .system:
-            return L10n.string("Match the iPhone preferred language automatically")
-        default:
-            return englishName
-        }
-    }
-
-    var searchTokens: [String] {
-        [
-            rawValue,
-            baseLanguageCode,
-            nativeName,
-            englishName,
-            locale.localizedString(forIdentifier: rawValue),
-            Locale.autoupdatingCurrent.localizedString(forIdentifier: rawValue)
-        ]
-        .compactMap { $0 }
-        .removingDuplicates()
     }
 
     var isRightToLeft: Bool {

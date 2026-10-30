@@ -734,10 +734,8 @@ private struct AppPromotionRow: View {
 
 // MARK: - 语言设置
 private struct LanguageSettingsView: View {
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(AppConstants.appLanguageKey) private var selectedLanguageID = AppLanguage.system.rawValue
-    @State private var searchText = ""
 
     var body: some View {
         NavigationStack {
@@ -747,21 +745,10 @@ private struct LanguageSettingsView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            PhotoDeleteSectionHeader(title: L10n.string("Display Language"))
-
-                            Text(L10n.string("By default, OnePhoto follows your iPhone language. You can also pin a display language here."))
-                                .font(.body)
-                                .foregroundStyle(SettingsChrome.muted)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-
-                        searchField
-
                         languageList
                     }
                     .padding(.horizontal, SettingsChrome.pageInset)
-                    .padding(.top, 16)
+                    .padding(.top, Theme.space2)
                     .padding(.bottom, Theme.space6)
                     .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
@@ -770,15 +757,8 @@ private struct LanguageSettingsView: View {
             .navigationTitle(L10n.string("Language"))
             .navigationBarTitleDisplayMode(.inline)
             .settingsNavigationChrome()
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("Done")) {
-                        dismiss()
-                    }
-                    .foregroundStyle(SettingsChrome.accent)
-                }
-            }
         }
+        .presentationDetents([.medium])
     }
 
     private var selectedLanguage: AppLanguage {
@@ -792,84 +772,20 @@ private struct LanguageSettingsView: View {
     }
 
     private var visibleLanguages: [AppLanguage] {
-        let trimmedQuery = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedQuery.isEmpty else {
-            return [AppLanguage.system] + sortedLanguages
-        }
-
-        return [AppLanguage.system]
-            .filter { matches($0, query: trimmedQuery) }
-            + sortedLanguages.filter { matches($0, query: trimmedQuery) }
+        [AppLanguage.system] + sortedLanguages
     }
 
-    private var searchField: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "magnifyingglass")
-                .font(.body.weight(.semibold))
-                .foregroundStyle(SettingsChrome.muted)
-
-            TextField(
-                "",
-                text: $searchText,
-                prompt: Text(L10n.string("Search languages")).foregroundColor(SettingsChrome.muted)
-            )
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled()
-            .font(.body)
-            .foregroundStyle(SettingsChrome.ink)
-            .submitLabel(.search)
-            .accessibilityLabel(Text(L10n.string("Search languages")))
-
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                    HapticManager.impact(.light)
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(SettingsChrome.muted)
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text(L10n.string("Clear search")))
-            }
-        }
-        .padding(.horizontal, 16)
-        .frame(minHeight: 44)
-        .background(
-            RoundedRectangle(cornerRadius: SettingsChrome.cardRadius, style: .continuous)
-                .fill(SettingsChrome.surface)
-        )
-        .accessibilityHint(Text(L10n.string("Search by language name, region, or code")))
-    }
-
-    @ViewBuilder
     private var languageList: some View {
-        if visibleLanguages.isEmpty {
-            VStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(SettingsChrome.muted)
+        VStack(spacing: 0) {
+            ForEach(visibleLanguages) { language in
+                languageRow(language)
 
-                Text(L10n.string("No matching languages"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(SettingsChrome.muted)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 28)
-            .settingsGroupedCard()
-        } else {
-            VStack(spacing: 0) {
-                ForEach(visibleLanguages) { language in
-                    languageRow(language)
-
-                    if language != visibleLanguages.last {
-                        SettingsHairline()
-                    }
+                if language != visibleLanguages.last {
+                    SettingsHairline()
                 }
             }
-            .settingsGroupedCard()
         }
+        .settingsGroupedCard()
     }
 
     private func languageRow(_ language: AppLanguage) -> some View {
@@ -878,17 +794,10 @@ private struct LanguageSettingsView: View {
             HapticManager.impact(.light)
         } label: {
             HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(language.title)
-                        .settingsRowTitle()
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-
-                    Text(language.detail)
-                        .settingsRowValue()
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.85)
-                }
+                Text(language.title)
+                    .settingsRowTitle()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
                 Spacer(minLength: 8)
 
@@ -910,15 +819,8 @@ private struct LanguageSettingsView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(language.title))
-        .accessibilityHint(Text(language.detail))
         .accessibilityAddTraits(selectedLanguage == language ? .isSelected : [])
         .accessibilityValue(Text(selectedLanguage == language ? L10n.string("Selected") : L10n.string("Not Set")))
-    }
-
-    private func matches(_ language: AppLanguage, query: String) -> Bool {
-        language.searchTokens.contains { token in
-            token.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
-        }
     }
 }
 

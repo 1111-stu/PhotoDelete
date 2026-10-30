@@ -239,6 +239,7 @@ Rules:
 ### 3.5 Truncation & localization
 
 - Titles, values, and right-zone labels use `lineLimit(1)`.
+- Registered exception (2026-10-30): Photo Details sheet values allow up to 2 lines, right-aligned and tail-truncated.
 - Allow localized right-zone labels to grow the column; do not assume Chinese 3-character widths.
 - Do not hard-code date formats; use locale-aware formatters (`AppDateFormatter`, `TimeOrganizeFormatter`).
 - When a localized string can be long, allow the main title/subtitle to shrink or truncate before breaking the grid.
@@ -522,6 +523,7 @@ The provided reference screens add useful composition patterns:
 - `.presentationDetents([.medium])`, drag indicator visible.
 - Title 17 / 700; rows: 52pt thumbnail, 17 / 600 title, 13 / 400 subtitle, 20 / 700 count, 11.5 / 400 meta, chevrons; hairlines between rows.
 - Empty state: “No other periods” / “暂无其他周期”, centered, 14 / 400 secondary.
+- **Photo Details sheet:** top photo preview (16pt radius, hairline stroke, 160–320pt height by aspect), then two-column metadata rows. Label 15 / 600 primary on the left; value 13 / 400 secondary on the right, max 2 lines, tail-truncated. Four rows only: Captured / Position / File Size / Resolution — no album row (2026-10-30 decision).
 
 ### 6.12 Floating tab bar
 
