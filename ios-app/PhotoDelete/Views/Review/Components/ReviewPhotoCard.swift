@@ -44,27 +44,6 @@ struct ReviewPhotoDetailLine: View {
     }
 }
 
-private struct PhotoAlbumMembershipBadge: View {
-    let titles: [String]
-
-    private var displayText: String {
-        if titles.count == 1 { return titles[0] }
-        return String(format: L10n.string("%@ and %lld albums"), titles[0], Int64(titles.count))
-    }
-
-    var body: some View {
-        Label(displayText, systemImage: "rectangle.stack.fill")
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundColor(.white)
-            .lineLimit(1)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(Color.black.opacity(0.62), in: Capsule(style: .continuous))
-            .accessibilityLabel(L10n.string("In Albums: \(displayText)"))
-    }
-}
-
-
 /// 整理页照片框的承托面：对角渐变 + 参考图上的细斜纹。
 private struct ReviewPhotoSurfaceBackground: View {
     var cornerRadius: CGFloat = Theme.radiusMd
@@ -144,7 +123,6 @@ struct RealPhotoCard: View {
     let videoMuted: Bool
     let memoryCaption: PhotoMemoryCaption
     let metadataSummary: PhotoAssetMetadataSummary
-    let albumTitles: [String]
     let displaySize: CGSize
     let targetSize: CGSize
     @State private var isScrubbingVideo = false
@@ -284,14 +262,6 @@ struct RealPhotoCard: View {
                 )
         }
         .frame(width: displaySize.width, height: displaySize.height)
-        .overlay(alignment: .topTrailing) {
-            if !albumTitles.isEmpty {
-                PhotoAlbumMembershipBadge(titles: albumTitles)
-                    .padding(.top, 52)
-                    .padding(.trailing, 12)
-                    .allowsHitTesting(false)
-            }
-        }
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier("review-photo-card")
         .accessibilityLabel(L10n.string("Current Photo"))

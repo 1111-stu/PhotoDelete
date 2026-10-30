@@ -655,7 +655,6 @@ struct SwipePhotoView: View {
                 videoMuted: reviewVideoMuted,
                 memoryCaption: memoryCaption(for: asset),
                 metadataSummary: metadataSummary(for: asset),
-                albumTitles: dataManager.albumTitles(for: asset),
                 displaySize: cardSize,
                 targetSize: imageTargetSize(for: cardSize),
                 playbackControlsRevealToken: inlineVideoControlsRevealToken,
