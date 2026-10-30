@@ -1397,7 +1397,6 @@ struct AlbumInfoRow: View, Equatable {
 /// 居中对话框：遮罩 + 圆角卡 + 单字段输入。创建与编辑共用壳子，避免整页表单。
 private struct AlbumNameDialog: View {
     let title: String
-    let iconSystemName: String
     let placeholder: String
     let primaryTitle: String
     let busyTitle: String
@@ -1447,7 +1446,7 @@ private struct AlbumNameDialog: View {
     }
 
     private var dialogCard: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 18) {
             ZStack(alignment: .topTrailing) {
                 Text(title)
                     .font(.title3.weight(.semibold))
@@ -1464,39 +1463,29 @@ private struct AlbumNameDialog: View {
                 .disabled(isBusy)
             }
 
-            Image(systemName: iconSystemName)
-                .font(.system(size: 36, weight: .medium))
-                .foregroundStyle(Theme.accent)
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text(L10n.string("Album Name"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Theme.primaryText)
-
-                TextField(placeholder, text: $albumName)
-                    .font(.body)
-                    .foregroundStyle(Theme.primaryText)
-                    .textInputAutocapitalization(.words)
-                    .autocorrectionDisabled()
-                    .focused($isNameFocused)
-                    .submitLabel(.done)
-                    .onSubmit {
-                        guard canSubmit else { return }
-                        onPrimary()
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                            .fill(Theme.elevatedSurface)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                                    .stroke(Theme.hairline, lineWidth: Theme.stroke)
-                            )
-                    )
-                    .disabled(isBusy)
-            }
+            TextField(placeholder, text: $albumName)
+                .font(.body)
+                .foregroundStyle(Theme.primaryText)
+                .textInputAutocapitalization(.words)
+                .autocorrectionDisabled()
+                .focused($isNameFocused)
+                .submitLabel(.done)
+                .onSubmit {
+                    guard canSubmit else { return }
+                    onPrimary()
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                        .fill(Theme.elevatedSurface)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                                .stroke(Theme.hairline, lineWidth: Theme.stroke)
+                        )
+                )
+                .disabled(isBusy)
+                .accessibilityLabel(Text(L10n.string("Album Name")))
 
             if let errorMessage {
                 Text(errorMessage)
@@ -1530,7 +1519,7 @@ private struct AlbumNameDialog: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 18)
+        .padding(.top, 20)
         .padding(.bottom, 18)
         .background(
             RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
@@ -1555,7 +1544,6 @@ struct CreateAlbumView: View {
     var body: some View {
         AlbumNameDialog(
             title: L10n.string("Create New Album"),
-            iconSystemName: "plus.rectangle.on.folder",
             placeholder: L10n.string("Enter album name"),
             primaryTitle: L10n.string("Create Album"),
             busyTitle: L10n.string("Creating..."),
@@ -1601,7 +1589,6 @@ struct EditAlbumView: View {
     var body: some View {
         AlbumNameDialog(
             title: L10n.string("Edit Album"),
-            iconSystemName: "pencil.circle",
             placeholder: L10n.string("Enter album name"),
             primaryTitle: L10n.string("Save Changes"),
             busyTitle: L10n.string("Updating..."),
