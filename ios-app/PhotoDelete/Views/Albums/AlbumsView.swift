@@ -1432,8 +1432,8 @@ private struct AlbumNameDialog: View {
                 Spacer(minLength: 24)
 
                 dialogCard
-                    .padding(.horizontal, 28)
-                    .frame(maxWidth: 360)
+                    .padding(.horizontal, 20)
+                    .frame(maxWidth: 400)
 
                 Spacer(minLength: 24)
             }
@@ -1446,25 +1446,16 @@ private struct AlbumNameDialog: View {
     }
 
     private var dialogCard: some View {
-        VStack(spacing: 18) {
-            ZStack(alignment: .topTrailing) {
-                Text(title)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(Theme.primaryText)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 36)
-
-                PhotoDeleteCircleIconButton(
-                    systemName: "xmark",
-                    accessibilityLabel: L10n.string("Cancel"),
-                    action: onCancel
-                )
-                .disabled(isBusy)
-            }
+        VStack(spacing: 20) {
+            Text(title)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(Theme.primaryText)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 32)
 
             TextField(placeholder, text: $albumName)
-                .font(.body)
+                .font(.system(size: 16))
                 .foregroundStyle(Theme.primaryText)
                 .textInputAutocapitalization(.words)
                 .autocorrectionDisabled()
@@ -1475,7 +1466,7 @@ private struct AlbumNameDialog: View {
                     onPrimary()
                 }
                 .padding(.horizontal, 14)
-                .padding(.vertical, 12)
+                .padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                         .fill(Theme.elevatedSurface)
@@ -1497,6 +1488,7 @@ private struct AlbumNameDialog: View {
             HStack(spacing: 12) {
                 Button(action: onCancel) {
                     Text(L10n.string("Cancel"))
+                        .font(.system(size: 16, weight: .semibold))
                 }
                 .photoDeleteSecondaryButton()
                 .disabled(isBusy)
@@ -1512,15 +1504,16 @@ private struct AlbumNameDialog: View {
 
                         Text(isBusy ? busyTitle : primaryTitle)
                     }
+                    .font(.system(size: 16, weight: .semibold))
                 }
                 .photoDeletePrimaryButton()
                 .disabled(!canSubmit)
                 .frame(maxWidth: .infinity)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 20)
-        .padding(.bottom, 18)
+        .padding(.horizontal, 22)
+        .padding(.top, 24)
+        .padding(.bottom, 20)
         .background(
             RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
                 .fill(Theme.surface)
@@ -1530,6 +1523,18 @@ private struct AlbumNameDialog: View {
                 )
                 .shadow(color: Theme.floatingShadow.opacity(0.35), radius: 24, y: 12)
         )
+        .overlay(alignment: .topTrailing) {
+            Button(action: onCancel) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Theme.secondaryText)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(isBusy)
+            .accessibilityLabel(Text(L10n.string("Cancel")))
+        }
     }
 }
 
