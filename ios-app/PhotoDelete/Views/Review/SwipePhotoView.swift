@@ -49,6 +49,7 @@ struct SwipePhotoView: View {
     @State private var preloadedAssets: [PHAsset] = []
     @State private var sessionProgressSaveWorkItem: DispatchWorkItem?
     @State private var manuallyStoppedVideoAssetID: String?
+    @State private var manuallyStartedVideoAssetID: String?
     @State private var currentAlbumInfo: AlbumInfo?
     @State private var sessionVideoMuted = true
     @State private var showingPhotoDetails = false
@@ -183,15 +184,31 @@ struct SwipePhotoView: View {
     }
 
     private func shouldPlayVideo(for asset: PHAsset) -> Bool {
-        guard asset.mediaType == .video else { return false }
+        guard canInlinePlayVideo(asset) else { return false }
         if manuallyStoppedVideoAssetID == asset.localIdentifier {
             return false
         }
-        return reviewVideoAutoPlay &&
+        if manuallyStartedVideoAssetID == asset.localIdentifier {
+            return true
+        }
+        return reviewVideoAutoPlay
+    }
+
+    /// 视频是否具备内联播放条件（与「自动播放」偏好无关）。
+    private func canInlinePlayVideo(_ asset: PHAsset) -> Bool {
+        asset.mediaType == .video &&
             !isAssetQueuedForDelete(asset) &&
             !isAssetQueuedForFavorite(asset) &&
             !isAssetBeingFiledToAlbum(asset) &&
             !isAssetFiledToAlbum(asset)
+    }
+
+    /// 关闭自动播放时，点卡片手动起播；再点一次用于唤出进度条。
+    private func startInlineVideoPlayback(for asset: PHAsset) {
+        guard canInlinePlayVideo(asset) else { return }
+        manuallyStoppedVideoAssetID = nil
+        manuallyStartedVideoAssetID = asset.localIdentifier
+        HapticManager.impact(.light)
     }
 
     private var canPerformPhotoAction: Bool {
@@ -658,8 +675,12 @@ struct SwipePhotoView: View {
                 }
             }
             .contentShape(Rectangle())
-            .photoDeleteSimultaneousTapGesture(enabled: isCurrent && isInlineVideoPlaying) {
-                revealInlineVideoPlaybackControls()
+            .photoDeleteSimultaneousTapGesture(enabled: isCurrent && (isInlineVideoPlaying || canInlinePlayVideo(asset))) {
+                if isInlineVideoPlaying {
+                    revealInlineVideoPlaybackControls()
+                } else {
+                    startInlineVideoPlayback(for: asset)
+                }
             }
             .accessibilityAction(named: Text(L10n.string("Mark to delete"))) {
                 handleDeleteAction()
@@ -729,6 +750,7 @@ struct SwipePhotoView: View {
     }
 
     private func stopInlineVideoPlayback(rememberManualStopFor asset: PHAsset? = nil) {
+        manuallyStartedVideoAssetID = nil
         if let asset, asset.mediaType == .video {
             manuallyStoppedVideoAssetID = asset.localIdentifier
         }

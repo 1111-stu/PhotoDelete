@@ -77,11 +77,11 @@ struct SettingsView: View {
     @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(AppConstants.hasCompletedOnboardingKey) private var hasCompletedOnboarding = false
-    @AppStorage(AppConstants.hapticsEnabledKey) private var hapticsEnabled = true
     @AppStorage(AppConstants.appLanguageKey) private var appLanguageValue = AppLanguage.system.rawValue
     @AppStorage(AppConstants.reviewVideoAutoPlayKey) private var reviewVideoAutoPlay = true
     @AppStorage(AppConstants.reviewLivePhotoAutoPlayKey) private var reviewLivePhotoAutoPlay = false
-    @AppStorage(AppConstants.reviewSortOrderKey) private var reviewSortOrderValue = PhotoReviewSortOrder.newestFirst.rawValue
+    @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
+    @AppStorage(AppConstants.randomReviewHideFiledPhotosKey) private var randomReviewHideFiledPhotos = true
     @State private var activeSheet: SettingsSheet?
     @State private var showingClearLocalDataConfirmation = false
     @State private var settingsToast: PhotoDeleteToast?
@@ -99,6 +99,9 @@ struct SettingsView: View {
 
                     // 偏好设置
                     preferencesSection
+
+                    // 随机浏览
+                    randomBrowseSection
 
                     // 数据与权限
                     dataPermissionsSection
@@ -140,8 +143,6 @@ struct SettingsView: View {
             #endif
             case .privacy:
                 PrivacyInfoView()
-            case .gestureSettings:
-                GestureSettingsView()
             case .languageSettings:
                 LanguageSettingsView()
             }
@@ -249,20 +250,6 @@ struct SettingsView: View {
 
             VStack(spacing: 0) {
                 SettingRow(
-                    title: L10n.string("Gestures & Playback"),
-                    subtitle: gestureSettingsSubtitle,
-                    action: {
-                        activeSheet = .gestureSettings
-                    }
-                )
-
-                SettingsHairline()
-
-                ReviewSortOrderSettingRow(selectedValue: $reviewSortOrderValue)
-
-                SettingsHairline()
-
-                SettingRow(
                     title: L10n.string("Language"),
                     subtitle: selectedLanguage.title,
                     action: {
@@ -273,9 +260,37 @@ struct SettingsView: View {
                 SettingsHairline()
 
                 SettingToggleRow(
-                    title: L10n.string("Haptic Feedback"),
-                    subtitle: L10n.string("Light feedback while swiping, undoing, and sorting"),
-                    isOn: $hapticsEnabled
+                    title: L10n.string("Auto-play videos"),
+                    subtitle: L10n.string("Only the current video plays. Playback stops when you switch photos."),
+                    isOn: $reviewVideoAutoPlay
+                )
+
+                SettingsHairline()
+
+                SettingToggleRow(
+                    title: L10n.string("Auto-play Live Photos"),
+                    subtitle: L10n.string("Plays once when you open the current photo. You can also control it from the top-right button."),
+                    isOn: $reviewLivePhotoAutoPlay
+                )
+            }
+            .settingsGroupedCard()
+        }
+    }
+
+    // MARK: - 随机浏览
+    private var randomBrowseSection: some View {
+        VStack(spacing: 16) {
+            PhotoDeleteSectionHeader(title: L10n.string("Random Browse"))
+
+            VStack(spacing: 0) {
+                RandomReviewBatchSizeSettingRow(selectedValue: $randomReviewBatchSizeValue)
+
+                SettingsHairline()
+
+                SettingToggleRow(
+                    title: L10n.string("Hide filed photos"),
+                    subtitle: L10n.string("Photos already added to your albums are hidden by default"),
+                    isOn: $randomReviewHideFiledPhotos
                 )
             }
             .settingsGroupedCard()
@@ -382,12 +397,6 @@ struct SettingsView: View {
             return L10n.string("\(compactPhotoCount(pendingCount)) pending")
         }
         return L10n.string("No Records")
-    }
-
-    private var gestureSettingsSubtitle: String {
-        let videoPlayback = reviewVideoAutoPlay ? L10n.string("Video auto") : L10n.string("Video manual")
-        let livePhotoPlayback = reviewLivePhotoAutoPlay ? L10n.string("Live auto") : L10n.string("Live manual")
-        return "\(videoPlayback) · \(livePhotoPlayback)"
     }
 
     private var usesChineseCompactText: Bool {
@@ -502,14 +511,12 @@ struct SettingsView: View {
 private enum SettingsSheet: Identifiable {
     case mail
     case privacy
-    case gestureSettings
     case languageSettings
 
     var id: String {
         switch self {
         case .mail: return "mail"
         case .privacy: return "privacy"
-        case .gestureSettings: return "gestureSettings"
         case .languageSettings: return "languageSettings"
         }
     }
@@ -621,57 +628,6 @@ struct SettingToggleRow: View {
     }
 }
 
-struct ReviewSortOrderSettingRow: View {
-    @Binding var selectedValue: String
-
-    private var selectedOrder: PhotoReviewSortOrder {
-        PhotoReviewSortOrder.normalized(selectedValue)
-    }
-
-    var body: some View {
-        Menu {
-            ForEach(PhotoReviewSortOrder.allCases) { order in
-                Button {
-                    selectedValue = order.rawValue
-                } label: {
-                    Label(
-                        order.title,
-                        systemImage: order == selectedOrder ? "checkmark" : order.icon
-                    )
-                }
-            }
-        } label: {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("Photo Order"))
-                        .settingsRowTitle()
-                        .multilineTextAlignment(.leading)
-
-                    Text(selectedOrder.title)
-                        .settingsRowValue()
-                        .lineLimit(1)
-                }
-
-                Spacer(minLength: 12)
-
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(SettingsChrome.muted)
-                    .accessibilityHidden(true)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-            .frame(minHeight: SettingsChrome.rowMinHeight)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(L10n.string("Photo Order")))
-        .accessibilityValue(Text(selectedOrder.title))
-    }
-}
-
 struct RandomReviewBatchSizeSettingRow: View {
     @Binding var selectedValue: Int
 
@@ -773,119 +729,6 @@ private struct AppPromotionRow: View {
         .accessibilityLabel(Text(title))
         .accessibilityValue(Text(subtitle))
         .accessibilityIdentifier(accessibilityIdentifier)
-    }
-}
-
-// MARK: - 手势设置
-struct GestureSettingsView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @AppStorage(AppConstants.reviewVideoAutoPlayKey) private var reviewVideoAutoPlay = true
-    @AppStorage(AppConstants.reviewLivePhotoAutoPlayKey) private var reviewLivePhotoAutoPlay = false
-    @AppStorage(AppConstants.reviewVideoMutedKey) private var reviewVideoMuted = true
-    @AppStorage(AppConstants.reviewSortOrderKey) private var reviewSortOrderValue = PhotoReviewSortOrder.newestFirst.rawValue
-    @AppStorage(AppConstants.hapticsEnabledKey) private var hapticsEnabled = true
-    @AppStorage(AppConstants.randomReviewHideFiledPhotosKey) private var randomReviewHideFiledPhotos = true
-    @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
-
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                SettingsChrome.canvas
-                    .ignoresSafeArea()
-
-                ScrollView {
-                    VStack(spacing: SettingsChrome.sectionSpacing) {
-                        reviewSortOrderSection
-                        randomReviewSection
-                        mediaPlaybackSection
-                    }
-                    .padding(.horizontal, SettingsChrome.pageInset)
-                    .padding(.top, 16)
-                    .padding(.bottom, Theme.space6)
-                    .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .navigationTitle(L10n.string("Gestures & Playback"))
-            .navigationBarTitleDisplayMode(.inline)
-            .settingsNavigationChrome()
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("Done")) {
-                        dismiss()
-                    }
-                    .foregroundStyle(SettingsChrome.accent)
-                }
-            }
-        }
-    }
-
-    private var reviewSortOrderSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            PhotoDeleteSectionHeader(title: L10n.string("Browsing Order"))
-
-            ReviewSortOrderSettingRow(selectedValue: $reviewSortOrderValue)
-                .settingsGroupedCard()
-        }
-    }
-
-    private var randomReviewSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            PhotoDeleteSectionHeader(title: L10n.string("Random Browse"))
-
-            VStack(spacing: 0) {
-                RandomReviewBatchSizeSettingRow(selectedValue: $randomReviewBatchSizeValue)
-
-                SettingsHairline()
-
-                SettingToggleRow(
-                    title: L10n.string("Hide filed photos"),
-                    subtitle: L10n.string("Photos already added to your albums are hidden by default"),
-                    isOn: $randomReviewHideFiledPhotos
-                )
-            }
-            .settingsGroupedCard()
-        }
-    }
-
-    private var mediaPlaybackSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            PhotoDeleteSectionHeader(title: L10n.string("Playback"))
-
-            VStack(spacing: 0) {
-                SettingToggleRow(
-                    title: L10n.string("Auto-play videos"),
-                    subtitle: L10n.string("Only the current video plays. Playback stops when you switch photos."),
-                    isOn: $reviewVideoAutoPlay
-                )
-
-                SettingsHairline()
-
-                SettingToggleRow(
-                    title: L10n.string("Auto-play Live Photos"),
-                    subtitle: L10n.string("Plays once when you open the current photo. You can also control it from the top-right button."),
-                    isOn: $reviewLivePhotoAutoPlay
-                )
-
-                SettingsHairline()
-
-                SettingToggleRow(
-                    title: L10n.string("Play videos and Live Photos muted"),
-                    subtitle: L10n.string("When on, each review session starts muted. You can turn sound on temporarily in the review screen."),
-                    isOn: $reviewVideoMuted
-                )
-
-                SettingsHairline()
-
-                SettingToggleRow(
-                    title: L10n.string("Haptic Feedback"),
-                    subtitle: L10n.string("Light feedback while swiping, undoing, and sorting"),
-                    isOn: $hapticsEnabled
-                )
-            }
-            .settingsGroupedCard()
-        }
     }
 }
 

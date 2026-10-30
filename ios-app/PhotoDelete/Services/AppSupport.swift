@@ -43,7 +43,6 @@ enum AppConstants {
         L10n.string("OnePhoto")
     }
     static let landscapeBreakpoint: CGFloat = 700
-    static let hapticsEnabledKey = "photoDeleteHapticsEnabled"
     static let hasCompletedOnboardingKey = "hasCompletedPhotoDeleteOnboarding"
     static let reviewedAssetIDsKey = "photoDeleteReviewedAssetIDs"
     static let recentOrganizedPhotosKey = "photoDeleteRecentOrganizedPhotosV1"
@@ -108,25 +107,21 @@ enum HapticManager {
 
     /// 滚轮 / 导轨逐格划过时的「咔哒」；连续触发前先 prepare 以压低首帧延迟。
     static func prepareSelection() {
-        guard isEnabled else { return }
         selectionFeedback.prepare()
         softFeedback.prepare()
     }
 
     static func selection() {
-        guard isEnabled else { return }
         selectionFeedback.selectionChanged()
         selectionFeedback.prepare()
     }
 
     /// 轻柔的落定感，用于吸附停稳等收尾时刻。
     static func softImpact(intensity: CGFloat) {
-        guard isEnabled else { return }
         softFeedback.impactOccurred(intensity: intensity)
     }
 
     static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
-        guard isEnabled else { return }
         switch style {
         case .medium: mediumFeedback.impactOccurred()
         case .light: lightFeedback.impactOccurred()
@@ -136,15 +131,8 @@ enum HapticManager {
     }
 
     static func notify(_ type: UINotificationFeedbackGenerator.FeedbackType) {
-        guard isEnabled else { return }
         notificationFeedback.notificationOccurred(type)
     }
 
-    private static var isEnabled: Bool {
-        if UserDefaults.standard.object(forKey: AppConstants.hapticsEnabledKey) == nil {
-            return true
-        }
-        return UserDefaults.standard.bool(forKey: AppConstants.hapticsEnabledKey)
-    }
 }
 
