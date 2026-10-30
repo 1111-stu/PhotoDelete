@@ -279,10 +279,6 @@ struct AlbumsView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     scrollOffsetReader
 
-                    Text(albumHeaderSubtitle)
-                        .font(.subheadline)
-                        .foregroundStyle(Theme.secondaryText)
-
                     albumSearchRow
 
                     if isLoadingAlbums {
@@ -578,20 +574,6 @@ struct AlbumsView: View {
 
     private var emptyMessage: String {
         searchText.isEmpty ? L10n.string("Tap the plus button in the top right to create a new album.") : L10n.string("Try another keyword.")
-    }
-
-    private var displayedAlbumCount: Int {
-        dataManager.getUserAlbums().count
-    }
-
-    private var albumHeaderSubtitle: String {
-        if isLoadingPhotoLibraryForAlbums {
-            return L10n.string("Initializing Photo Library")
-        }
-        if dataManager.isLoadingAlbums && displayedAlbumCount == 0 {
-            return L10n.string("Updating Album List")
-        }
-        return L10n.string("\(displayedAlbumCount) albums")
     }
 
     // MARK: - 计算属性

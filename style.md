@@ -364,8 +364,8 @@ Do not “fix” the size difference between 56pt period illustrations and 33–
 
 - Period selection uses a system sheet at `.medium` detent, with a drag indicator.
 - Content: title 17 / 700 at top 24 / bottom 4; rows with 52pt thumbnail, 17 / 600 title, 13 / 400 subtitle, 20 / 700 count, 11.5 / 400 “待整理”; hairlines between rows.
-- The sheet lists **other** periods only. The current period is entered from the period card body; do not duplicate “本周全部 / 本月全部 / 今年全部” in the sheet.
-- Empty sheet state: “No other periods” / “暂无其他周期”, centered, 14 / 400 secondary, 32pt vertical padding.
+- The sheet’s first row is the **current period** (本周 / 本月 / 本年), followed by the finer/other periods (本周内每天 / 过往月份 / 过往年份). The current period is still reachable from the card body; the sheet mirrors it for discoverability (2026-10-30 decision).
+- Empty detail state: “No other periods” / “暂无其他周期” below the current period row, centered, 14 / 400 secondary, 32pt vertical padding.
 - Sheets use system corner/presentation behavior; prototype sheet radius (26) is a visual reference, not a native token.
 
 ### 5.5 Reference patterns for future screens

@@ -7,12 +7,28 @@ import SwiftUI
 import Photos
 
 /// 周期选择弹窗（点首页卡右区弹出）：
-/// 只列同粒度的其他周期——本周→本周每天 / 本月→过往月份 / 本年→过往年份。
-/// 「本期全部」由卡片主体直接承载，这里不再重复。选任意一行 → 进入对应周期的整理。
+/// 顶部是「本期」（本周 / 本月 / 本年），下面是同粒度的更细/其他周期——
+/// 本周→本周每天 / 本月→过往月份 / 本年→过往年份。选任意一行 → 进入对应周期的整理。
 struct PeriodPickerSheet: View {
     @ObservedObject var dataManager: DataManager
     let scope: AdvancedTimeScope
     let onSelect: (AdvancedTimeScope, Date) -> Void
+
+    private var currentSummary: PhotoPeriodSummary {
+        TimePeriodBrowser.currentSummary(
+            for: scope,
+            in: dataManager.periodSummariesByScope[scope] ?? []
+        )
+    }
+
+    private var currentPeriodTitle: String {
+        switch scope {
+        case .week: return L10n.string("This week")
+        case .month: return L10n.string("This Month")
+        case .year: return L10n.string("This year")
+        case .day: return TimeOrganizeFormatter.title(for: currentSummary)
+        }
+    }
 
     private var detailSummaries: [PhotoPeriodSummary] {
         TimePeriodBrowser.detailSummaries(
@@ -34,13 +50,17 @@ struct PeriodPickerSheet: View {
 
                 ScrollView {
                     LazyVStack(spacing: 0) {
+                        pickerRow(currentSummary, title: currentPeriodTitle)
+
                         if detailSummaries.isEmpty {
+                            rowHairline
                             Text(L10n.string("No other periods"))
                                 .font(.system(size: 14, weight: .regular))
                                 .foregroundColor(Theme.secondaryText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 32)
                         } else {
+                            rowHairline
                             ForEach(Array(detailSummaries.enumerated()), id: \.element.id) { index, summary in
                                 pickerRow(summary, title: TimeOrganizeFormatter.title(for: summary))
                                 if index < detailSummaries.count - 1 {
@@ -58,9 +78,11 @@ struct PeriodPickerSheet: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
         .onAppear {
-            if let detailScope = TimePeriodBrowser.detailScope(for: scope) {
-                dataManager.refreshPhotoPeriodSummaries(for: [detailScope])
+            var scopes: [AdvancedTimeScope] = [scope]
+            if let detailScope = TimePeriodBrowser.detailScope(for: scope), detailScope != scope {
+                scopes.append(detailScope)
             }
+            dataManager.refreshPhotoPeriodSummaries(for: scopes)
         }
     }
 
