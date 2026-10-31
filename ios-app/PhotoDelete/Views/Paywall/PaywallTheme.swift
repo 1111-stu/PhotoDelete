@@ -103,13 +103,13 @@ enum PaywallDS {
 
         // MARK: 虹彩（设置页 Pro 入口材质）
 
-        /// 中低饱和的虹彩五色，只服务 `ProEntryBanner` 的玻璃珠、2pt 描边和外圈光晕。
-        /// 靠低透明度和模糊出“材质”，不要提高饱和度去做 RGB 灯带。
+        /// 中低饱和的暖虹彩色，只服务 `ProEntryBanner` 的玻璃珠、2pt 描边和外圈光晕。
+        /// 暖色（粉/蜜桃/珊瑚）配薄荷做冷色阴影，比粉→紫→绿更像抛光珍珠；
+        /// 不要提高饱和度去做 RGB 灯带。
         static let iridescentPink = SwiftUI.Color(red: 242 / 255, green: 169 / 255, blue: 198 / 255)
         static let iridescentPeach = SwiftUI.Color(red: 244 / 255, green: 210 / 255, blue: 188 / 255)
+        static let iridescentCoral = SwiftUI.Color(red: 239 / 255, green: 158 / 255, blue: 144 / 255)
         static let iridescentMint = SwiftUI.Color(red: 147 / 255, green: 217 / 255, blue: 195 / 255)
-        static let iridescentPeriwinkle = SwiftUI.Color(red: 169 / 255, green: 187 / 255, blue: 242 / 255)
-        static let iridescentLavender = SwiftUI.Color(red: 203 / 255, green: 172 / 255, blue: 232 / 255)
 
         // MARK: CTA
 
@@ -154,18 +154,17 @@ enum PaywallDS {
     // MARK: - Gradient
 
     enum Gradient {
-        /// 设置页 Pro 入口的虹彩环：粉 → 蜜桃 → 薄荷 → 长春花 → 薰衣草 → 粉。
-        /// 各站透明度故意不等（0.9 / 0.5 / 0.9 …），让环上出现“受光”和“背光”段，
+        /// 设置页 Pro 入口的虹彩环：粉 → 蜜桃 → 薄荷 → 珊瑚 → 粉。
+        /// 各站透明度故意不等（0.95 / 0.5 / 0.9 …），让环上出现“受光”和“背光”段，
         /// 读起来像抛光金属边，而不是一圈均匀的 RGB 灯带。
         /// 描边、外圈光晕和玻璃珠共用同一组色相，保证整张卡像同一种材质。
         static var iridescent: AngularGradient {
             AngularGradient(
                 stops: [
                     .init(color: PaywallDS.Color.iridescentPink.opacity(0.95), location: 0.00),
-                    .init(color: PaywallDS.Color.iridescentPeach.opacity(0.50), location: 0.17),
-                    .init(color: PaywallDS.Color.iridescentMint.opacity(0.90), location: 0.36),
-                    .init(color: PaywallDS.Color.iridescentPeriwinkle.opacity(0.48), location: 0.58),
-                    .init(color: PaywallDS.Color.iridescentLavender.opacity(0.92), location: 0.78),
+                    .init(color: PaywallDS.Color.iridescentPeach.opacity(0.50), location: 0.20),
+                    .init(color: PaywallDS.Color.iridescentMint.opacity(0.90), location: 0.42),
+                    .init(color: PaywallDS.Color.iridescentCoral.opacity(0.88), location: 0.68),
                     .init(color: PaywallDS.Color.iridescentPink.opacity(0.95), location: 1.00)
                 ],
                 center: .center,

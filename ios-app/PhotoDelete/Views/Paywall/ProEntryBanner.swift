@@ -24,7 +24,9 @@ struct ProEntryBanner: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let cardRadius: CGFloat = 28
-    private let orbSize: CGFloat = 44
+    private let orbSize: CGFloat = 56
+    /// 入口是设置页的 hero，不是一条行：给足高度，让材质和留白成立。
+    private let preferredHeight: CGFloat = 120
 
     private var isPro: Bool {
         subscriptionType != nil
@@ -35,15 +37,15 @@ struct ProEntryBanner: View {
             HStack(spacing: 14) {
                 orb
 
-                VStack(alignment: .leading, spacing: 5) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(title)
-                        .font(.system(size: 17, weight: .bold))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(Theme.primaryText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.82)
 
                     Text(subtitle)
-                        .font(.system(size: 12.5, weight: .regular))
+                        .font(.system(size: 13, weight: .regular))
                         .foregroundStyle(Theme.secondaryText)
                         .lineLimit(2)
                         .minimumScaleFactor(0.78)
@@ -53,12 +55,13 @@ struct ProEntryBanner: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Theme.secondaryText)
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 20)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 22)
+            .padding(.leading, 20)
+            .padding(.trailing, 18)
+            .frame(maxWidth: .infinity, minHeight: preferredHeight, alignment: .leading)
             .background(cardMaterial)
             .contentShape(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
         }
@@ -119,8 +122,8 @@ private extension ProEntryBanner {
                 .fill(
                     LinearGradient(
                         colors: [
+                            PaywallDS.Color.iridescentPeach,
                             PaywallDS.Color.iridescentPink,
-                            PaywallDS.Color.iridescentLavender,
                             PaywallDS.Color.iridescentMint
                         ],
                         startPoint: .topLeading,

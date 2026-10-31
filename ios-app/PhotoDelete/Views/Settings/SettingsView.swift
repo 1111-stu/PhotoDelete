@@ -121,7 +121,7 @@ struct SettingsView: View {
                         .frame(height: 100)
                 }
                 .padding(.horizontal, SettingsChrome.pageInset)
-                .padding(.top, Theme.space2)
+                .padding(.top, Theme.space3)
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
