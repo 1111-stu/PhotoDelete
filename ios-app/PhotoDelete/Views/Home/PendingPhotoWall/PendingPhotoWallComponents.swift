@@ -93,10 +93,12 @@ struct PendingPhotoWallMonthSection<Content: View>: View {
                 Text(title)
                     .font(.system(size: 26, weight: .bold))
                     .foregroundColor(Theme.primaryText)
-
-                Spacer(minLength: 8)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
                 PendingPhotoWallModeSegment(mode: displayMode, onSelect: onSelectMode)
+
+                Spacer(minLength: 8)
 
                 Button(action: onOrganizeMonth) {
                     HStack(spacing: 6) {
@@ -174,7 +176,8 @@ struct PendingPhotoWallModeSegment: View {
 struct PendingPhotoWallCalendarGrid: View {
     let month: PendingPhotoWallMonth
     let today: Date
-    let photoLibraryManager: PhotoLibraryManager
+    let thumbnails: PendingPhotoWallThumbnailPipeline
+    let thumbnailTargetSize: CGSize
     let onSelectDay: (PendingPhotoWallDayCell) -> Void
 
     private let calendar = Calendar.current
@@ -202,7 +205,8 @@ struct PendingPhotoWallCalendarGrid: View {
                 ForEach(0..<leadingBlankCount, id: \.self) { _ in
                     PendingPhotoWallDayCellView(
                         kind: .blank(isToday: false),
-                        photoLibraryManager: photoLibraryManager,
+                        thumbnails: thumbnails,
+                        thumbnailTargetSize: thumbnailTargetSize,
                         onTap: {}
                     )
                 }
@@ -212,13 +216,15 @@ struct PendingPhotoWallCalendarGrid: View {
                     if let cell = month.daysWithPhotos[day] {
                         PendingPhotoWallDayCellView(
                             kind: .photo(cell: cell, isToday: isToday, dayOfMonth: day),
-                            photoLibraryManager: photoLibraryManager,
+                            thumbnails: thumbnails,
+                            thumbnailTargetSize: thumbnailTargetSize,
                             onTap: { onSelectDay(cell) }
                         )
                     } else {
                         PendingPhotoWallDayCellView(
                             kind: .blank(isToday: isToday),
-                            photoLibraryManager: photoLibraryManager,
+                            thumbnails: thumbnails,
+                            thumbnailTargetSize: thumbnailTargetSize,
                             onTap: {}
                         )
                     }
@@ -249,7 +255,8 @@ enum PendingPhotoWallDayCellKind: Equatable {
 
 struct PendingPhotoWallDayCellView: View {
     let kind: PendingPhotoWallDayCellKind
-    let photoLibraryManager: PhotoLibraryManager
+    let thumbnails: PendingPhotoWallThumbnailPipeline
+    let thumbnailTargetSize: CGSize
     let onTap: () -> Void
 
     private let paper = Color(red: 242 / 255, green: 237 / 255, blue: 228 / 255)
@@ -295,7 +302,8 @@ struct PendingPhotoWallDayCellView: View {
 
             PendingPhotoWallThumbnail(
                 assetID: cell.coverAssetID,
-                photoLibraryManager: photoLibraryManager,
+                thumbnails: thumbnails,
+                targetSize: thumbnailTargetSize,
                 cornerRadius: 8
             )
             .padding(2)
@@ -315,7 +323,7 @@ struct PendingPhotoWallDayCellView: View {
 
 struct PendingPhotoWallPolaroidBoard: View {
     let month: PendingPhotoWallMonth
-    let photoLibraryManager: PhotoLibraryManager
+    let thumbnails: PendingPhotoWallThumbnailPipeline
     let onSelectPhoto: (PendingPhotoWallDayCell, String?) -> Void
 
     /// 排布是纯计算，先摆出空白相纸定住板高；缩略图等这块板进视口再拉，避免切到相纸墙时整年一起解码。
@@ -430,8 +438,9 @@ struct PendingPhotoWallPolaroidBoard: View {
             VStack(spacing: 0) {
                 PendingPhotoWallThumbnail(
                     assetID: isActivated ? item.coverAssetID : nil,
-                    photoLibraryManager: photoLibraryManager,
-                    cornerRadius: 2
+                    thumbnails: thumbnails,
+                    cornerRadius: 2,
+                    quality: .sharp
                 )
                 .aspectRatio(item.photoAspectRatio, contentMode: .fit)
                 .padding(.horizontal, PolaroidBoardLayout.frameSide * scale)
@@ -490,89 +499,119 @@ private struct PendingPhotoWallBoardClip: View {
 
 // MARK: - Thumbnail
 
+/// 日历格统一的缩略图目标尺寸：只由视口宽度决定，预取和单格请求共用同一份缓存。
+enum PendingPhotoWallThumbnailMetrics {
+    private static let columnCount: CGFloat = 7
+    private static let columnSpacing: CGFloat = 9
+    private static let horizontalPadding: CGFloat = 16
+    private static let cardAspectRatio: CGFloat = 100.0 / 118.0
+
+    static func calendarTargetSize(for containerWidth: CGFloat) -> CGSize {
+        let contentWidth = max(containerWidth - horizontalPadding * 2, 1)
+        let cellWidth = (contentWidth - columnSpacing * (columnCount - 1)) / columnCount
+        let cellHeight = cellWidth / cardAspectRatio
+        let side = max(cellWidth, cellHeight) * UIScreen.main.scale
+        let pixels = max(side.rounded(.up), 1)
+        return CGSize(width: pixels, height: pixels)
+    }
+}
+
 struct PendingPhotoWallThumbnail: View {
     let assetID: String?
-    let photoLibraryManager: PhotoLibraryManager
+    let thumbnails: PendingPhotoWallThumbnailPipeline
+    /// 日历格传入统一像素尺寸；相纸板按自身宽度计算。
+    var targetSize: CGSize? = nil
     var cornerRadius: CGFloat = 8
+    var quality: PendingPhotoWallThumbnailQuality = .fast
 
     @State private var image: UIImage?
     @State private var requestID: PHImageRequestID?
     @State private var loadGeneration = 0
-    @State private var shimmerPhase: CGFloat = -1
 
     var body: some View {
         GeometryReader { proxy in
+            let targetSize = resolvedTargetSize(for: proxy.size)
             ZStack {
                 Color(red: 0.886, green: 0.859, blue: 0.812)
 
                 if let image {
                     Image(uiImage: image)
                         .resizable()
-                        .interpolation(.high)
+                        .interpolation(quality == .sharp ? .high : .medium)
                         .scaledToFill()
                         .frame(width: proxy.size.width, height: proxy.size.height)
                 } else {
-                    shimmer
+                    placeholder
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .clipped()
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-            .task(id: "\(assetID ?? "")-\(Int(proxy.size.width.rounded()))") {
-                load(side: max(proxy.size.width, proxy.size.height))
+            .task(id: taskID(targetSize: targetSize)) {
+                await load(targetSize: targetSize)
             }
         }
         .onDisappear { cancel() }
     }
 
-    private var shimmer: some View {
+    /// 静态占位。墙面保持静止，不为每格挂常驻 shimmer 动画。
+    private var placeholder: some View {
         LinearGradient(
             colors: [
                 Color.black.opacity(0.02),
                 Color.black.opacity(0.08),
                 Color.black.opacity(0.02)
             ],
-            startPoint: UnitPoint(x: shimmerPhase, y: 0.5),
-            endPoint: UnitPoint(x: shimmerPhase + 0.45, y: 0.5)
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
         )
-        .onAppear {
-            withAnimation(.linear(duration: 1.7).repeatForever(autoreverses: false)) {
-                shimmerPhase = 1.3
-            }
+    }
+
+    private func taskID(targetSize: CGSize) -> String {
+        "\(assetID ?? "")-\(quality.cacheToken)-\(Int(targetSize.width))x\(Int(targetSize.height))"
+    }
+
+    private func resolvedTargetSize(for size: CGSize) -> CGSize {
+        if let targetSize, targetSize.width > 1, targetSize.height > 1 {
+            return targetSize
         }
+        let side = max(max(size.width, size.height) * UIScreen.main.scale, 1)
+        return CGSize(width: side.rounded(.up), height: side.rounded(.up))
     }
 
     @MainActor
-    private func load(side: CGFloat) {
+    private func load(targetSize: CGSize) async {
         cancel()
-        guard let assetID, side > 1 else {
+        guard let assetID, targetSize.width > 1, targetSize.height > 1 else {
             image = nil
             return
         }
-        let assets = PHAsset.fetchAssets(withLocalIdentifiers: [assetID], options: nil)
-        guard let asset = assets.firstObject else {
-            image = nil
+        if let cached = thumbnails.cachedImage(
+            for: assetID,
+            targetSize: targetSize,
+            quality: quality
+        ) {
+            image = cached
             return
         }
+        // 快速滚动时一闪而过的格子不必发请求；停留超过一帧再加载。
+        try? await Task.sleep(for: .milliseconds(80))
+        guard !Task.isCancelled else { return }
+
         loadGeneration += 1
         let generation = loadGeneration
-        let scale = UIScreen.main.scale
-        let pixels = side * scale
-        let target = CGSize(width: pixels, height: pixels)
-        requestID = photoLibraryManager.loadAlbumCoverThumbnail(for: asset, size: target) { loaded in
+        requestID = thumbnails.load(
+            assetID: assetID,
+            targetSize: targetSize,
+            quality: quality
+        ) { loaded in
             guard generation == loadGeneration else { return }
-            if let loaded {
-                withAnimation(.easeOut(duration: 0.28)) {
-                    image = loaded
-                }
-            }
+            image = loaded
         }
     }
 
     private func cancel() {
-        if let requestID {
-            photoLibraryManager.cancelImageRequest(requestID)
-        }
+        thumbnails.cancel(requestID)
         requestID = nil
     }
 }

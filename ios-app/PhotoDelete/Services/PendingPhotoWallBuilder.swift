@@ -192,6 +192,57 @@ enum PendingPhotoWallBuilder {
             totalPendingInLibrary: libraryPending
         )
     }
+
+    /// 墙面缩略图索引：`orderedCoverIDs` 用于按显示顺序预取，`assetIDs` 含相纸板补位图。
+    static func thumbnailPlan(for snapshot: PendingPhotoWallSnapshot) -> PendingPhotoWallThumbnailPlan {
+        var orderedCoverIDs: [String] = []
+        var seenCoverIDs = Set<String>()
+        var assetIDs = Set<String>()
+
+        for month in snapshot.months {
+            let days = month.daysWithPhotos.values.sorted { $0.date > $1.date }
+            for day in days {
+                if let cover = day.coverAssetID {
+                    assetIDs.insert(cover)
+                    if seenCoverIDs.insert(cover).inserted {
+                        orderedCoverIDs.append(cover)
+                    }
+                }
+                if let alternate = day.alternateCoverAssetID {
+                    assetIDs.insert(alternate)
+                }
+            }
+        }
+
+        return PendingPhotoWallThumbnailPlan(
+            orderedCoverIDs: orderedCoverIDs,
+            assetIDs: assetIDs
+        )
+    }
+
+    /// 从全库资产中只取墙面需要的对象，构建 ID → PHAsset 索引，供缩略图管线直接使用。
+    static func thumbnailAssets(
+        in photos: [PHAsset],
+        matching assetIDs: Set<String>
+    ) -> [String: PHAsset] {
+        guard !assetIDs.isEmpty else { return [:] }
+
+        var assetsByID: [String: PHAsset] = [:]
+        assetsByID.reserveCapacity(assetIDs.count)
+        for photo in photos {
+            let identifier = photo.localIdentifier
+            guard assetIDs.contains(identifier) else { continue }
+            assetsByID[identifier] = photo
+        }
+        return assetsByID
+    }
+}
+
+struct PendingPhotoWallThumbnailPlan: Equatable {
+    /// 按墙面显示顺序（月新→旧、日新→旧）的封面，用于预取。
+    let orderedCoverIDs: [String]
+    /// 墙面可能显示的所有缩略图（含相纸板补位图）。
+    let assetIDs: Set<String>
 }
 
 enum PendingPhotoWallDisplayMode: String, CaseIterable, Identifiable {

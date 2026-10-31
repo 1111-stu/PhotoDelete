@@ -3760,4 +3760,25 @@ struct PhotoDeleteTests {
         #expect(snapshot.selectedYear == 2024 || snapshot.years.isEmpty)
     }
 
+    @Test func pendingPhotoWallThumbnailPlanOrdersCoversAndIncludesAlternates() async throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let days = polaroidBoardDays(1...3)
+        let month = PendingPhotoWallMonth(
+            monthStart: calendar.date(from: DateComponents(year: 2026, month: 10, day: 1))!,
+            remainingCount: 24,
+            daysWithPhotos: Dictionary(uniqueKeysWithValues: days.map { ($0.dayOfMonth, $0) })
+        )
+        let snapshot = PendingPhotoWallSnapshot(
+            years: [PendingPhotoWallYearOption(year: 2026, remainingCount: 24)],
+            months: [month],
+            selectedYear: 2026,
+            totalPendingInLibrary: 24
+        )
+
+        let plan = PendingPhotoWallBuilder.thumbnailPlan(for: snapshot)
+
+        #expect(plan.orderedCoverIDs == ["cover-3", "cover-2", "cover-1"])
+        #expect(plan.assetIDs == Set(["cover-1", "cover-2", "cover-3", "alt-1", "alt-2", "alt-3"]))
+    }
+
 }

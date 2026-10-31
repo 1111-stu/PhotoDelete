@@ -21,6 +21,9 @@ struct PendingPhotoWallView: View {
     )
     /// 按月显示方式：默认日历；只有用户点过的月才会进相纸墙，互不影响。
     @State private var displayModeByMonthID: [String: PendingPhotoWallDisplayMode] = [:]
+    @StateObject private var thumbnails = PendingPhotoWallThumbnailPipeline()
+    @State private var thumbnailTargetSize: CGSize = .zero
+    @State private var prefetchCoverIDs: [String] = []
     @State private var isYearMenuExpanded = false
     @State private var showingRecentOrganized = false
     @State private var rebuildGeneration = 0
@@ -80,11 +83,18 @@ struct PendingPhotoWallView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 96)
             }
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 8).onChanged { _ in
-                    dismissYearMenuIfNeeded()
-                }
-            )
+            .onGeometryChange(for: CGFloat.self) { proxy in
+                proxy.size.width
+            } action: { width in
+                updateThumbnailTarget(width: width)
+            }
+            .onScrollPhaseChange { _, phase in
+                guard phase == .interacting else { return }
+                dismissYearMenuIfNeeded()
+            }
+            .onDisappear {
+                thumbnails.stopPrefetch()
+            }
 
             if isYearMenuExpanded {
                 // 点空白收起年份菜单（不挡顶栏工具条）。
@@ -249,7 +259,8 @@ struct PendingPhotoWallView: View {
             PendingPhotoWallCalendarGrid(
                 month: month,
                 today: Date(),
-                photoLibraryManager: dataManager.photoLibraryManager,
+                thumbnails: thumbnails,
+                thumbnailTargetSize: thumbnailTargetSize,
                 onSelectDay: { cell in
                     router.push(SwipeViewDestination.wallMonth(
                         cell.date,
@@ -261,7 +272,7 @@ struct PendingPhotoWallView: View {
         case .polaroid:
             PendingPhotoWallPolaroidBoard(
                 month: month,
-                photoLibraryManager: dataManager.photoLibraryManager,
+                thumbnails: thumbnails,
                 onSelectPhoto: { cell, assetID in
                     router.push(SwipeViewDestination.wallMonth(
                         cell.date,
@@ -308,12 +319,36 @@ struct PendingPhotoWallView: View {
                 favoriteCandidateIDs: favoriteIDs,
                 selectedYear: preferredYear
             )
+            let plan = PendingPhotoWallBuilder.thumbnailPlan(for: built)
+            let thumbnailAssets = PendingPhotoWallBuilder.thumbnailAssets(
+                in: photos,
+                matching: plan.assetIDs
+            )
             await MainActor.run {
                 guard generation == rebuildGeneration else { return }
                 snapshot = built
                 selectedYear = built.selectedYear
+                prefetchCoverIDs = plan.orderedCoverIDs
+                thumbnails.updateAssets(thumbnailAssets)
+                refreshThumbnailPrefetch()
             }
         }
+    }
+
+    /// 日历格宽度只由视口宽度决定；统一成像素尺寸，预取和单格请求才能命中同一份缓存。
+    private func updateThumbnailTarget(width: CGFloat) {
+        let targetSize = PendingPhotoWallThumbnailMetrics.calendarTargetSize(for: width)
+        guard targetSize != thumbnailTargetSize else { return }
+        thumbnailTargetSize = targetSize
+        refreshThumbnailPrefetch()
+    }
+
+    private func refreshThumbnailPrefetch() {
+        guard thumbnailTargetSize.width > 1 else { return }
+        thumbnails.prefetch(
+            assetIDs: prefetchCoverIDs,
+            targetSize: thumbnailTargetSize
+        )
     }
 }
 
