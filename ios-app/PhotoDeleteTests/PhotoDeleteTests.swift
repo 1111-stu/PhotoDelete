@@ -2332,6 +2332,47 @@ struct PhotoDeleteTests {
         #expect(nextIndex == 80)
     }
 
+    @Test func nextUnreviewedPhotoSkipsPhotosAlreadyQueuedForDeletion() async throws {
+        let ids = ["keep-a", "trashed", "keep-b", "trashed-too"]
+        let queuedIndices: Set<Int> = [1, 3]
+
+        let nextIndex = PhotoReviewSessionDecisionPolicy.nextUnreviewedIndex(
+            assetIdentifiers: ids,
+            reviewedAssetIdentifiers: [],
+            after: 0,
+            isExcluded: { queuedIndices.contains($0) }
+        )
+
+        #expect(nextIndex == 2)
+    }
+
+    @Test func nextUnreviewedPhotoTreatsReviewedAndQueuedExclusionsTogether() async throws {
+        let ids = (0..<6).map { "photo-\($0)" }
+        let reviewed: Set<String> = ["photo-1"]
+        let queuedIndices: Set<Int> = [2, 3]
+
+        let nextIndex = PhotoReviewSessionDecisionPolicy.nextUnreviewedIndex(
+            assetIdentifiers: ids,
+            reviewedAssetIdentifiers: reviewed,
+            after: 0,
+            isExcluded: { queuedIndices.contains($0) }
+        )
+
+        #expect(nextIndex == 4)
+    }
+
+    @Test func nextUnreviewedPhotoReturnsNilWhenOnlyQueuedPhotosRemain() async throws {
+        let ids = ["photo-0", "photo-1", "photo-2"]
+        let queuedIndices: Set<Int> = [1, 2]
+
+        #expect(PhotoReviewSessionDecisionPolicy.nextUnreviewedIndex(
+            assetIdentifiers: ids,
+            reviewedAssetIdentifiers: [],
+            after: 0,
+            isExcluded: { queuedIndices.contains($0) }
+        ) == nil)
+    }
+
     @Test func pendingFavoriteMutationBlocksAnotherReviewAction() async throws {
         #expect(PhotoReviewMutationPolicy.canStartAction(
             isUndoInProgress: false,

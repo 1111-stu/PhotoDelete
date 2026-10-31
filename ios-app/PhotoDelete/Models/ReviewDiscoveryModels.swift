@@ -645,24 +645,27 @@ enum PhotoReviewSessionDecisionPolicy {
     static func firstUnreviewedIndex(
         assetIdentifiers: [String],
         reviewedAssetIdentifiers: Set<String>,
-        startingAt startIndex: Int
+        startingAt startIndex: Int,
+        isExcluded: (Int) -> Bool = { _ in false }
     ) -> Int? {
         let clampedStart = max(startIndex, 0)
         guard clampedStart < assetIdentifiers.count else { return nil }
-        return assetIdentifiers[clampedStart...].firstIndex { identifier in
-            !reviewedAssetIdentifiers.contains(identifier)
+        return (clampedStart..<assetIdentifiers.count).first { index in
+            !reviewedAssetIdentifiers.contains(assetIdentifiers[index]) && !isExcluded(index)
         }
     }
 
     static func nextUnreviewedIndex(
         assetIdentifiers: [String],
         reviewedAssetIdentifiers: Set<String>,
-        after currentIndex: Int
+        after currentIndex: Int,
+        isExcluded: (Int) -> Bool = { _ in false }
     ) -> Int? {
         firstUnreviewedIndex(
             assetIdentifiers: assetIdentifiers,
             reviewedAssetIdentifiers: reviewedAssetIdentifiers,
-            startingAt: currentIndex + 1
+            startingAt: currentIndex + 1,
+            isExcluded: isExcluded
         )
     }
 }

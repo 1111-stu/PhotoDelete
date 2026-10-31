@@ -79,11 +79,15 @@ final class PhotoReviewSession: ObservableObject {
     }
 
     /// Searches the full source; the caller can expand the loaded page before showing it.
-    func nextUnreviewedIndex(after index: Int) -> Int? {
+    func nextUnreviewedIndex(
+        after index: Int,
+        isExcluded: (Int) -> Bool = { _ in false }
+    ) -> Int? {
         PhotoReviewSessionDecisionPolicy.nextUnreviewedIndex(
             assetIdentifiers: assetIdentifiers,
             reviewedAssetIdentifiers: reviewedIDs,
-            after: index
+            after: index,
+            isExcluded: isExcluded
         )
     }
 

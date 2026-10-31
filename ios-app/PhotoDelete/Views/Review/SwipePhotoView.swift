@@ -715,12 +715,14 @@ struct SwipePhotoView: View {
         return pages
     }
 
+    /// 相册整理和随机整理：已加入待删除的照片不再参与自动/手动翻页。
+    private var skipsQueuedDeletesDuringBrowse: Bool {
+        randomReviewScope != nil || isAlbumMode
+    }
+
     private func horizontalNeighborIndex(step: Int) -> Int? {
-        // 相册整理和随机整理一样：已加入待删除的照片不再参与左右翻页，
-        // 避免用户滑回去又看到「已加入待删除」。
-        let excludesQueuedDeletes = randomReviewScope != nil || isAlbumMode
         let isExcluded: (Int) -> Bool = { index in
-            excludesQueuedDeletes && isAssetQueuedForDelete(session.photos[index])
+            skipsQueuedDeletesDuringBrowse && isAssetQueuedForDelete(session.photos[index])
         }
         if step < 0 {
             return PhotoRandomReviewNavigationPolicy.previousIndex(
@@ -1288,7 +1290,16 @@ struct SwipePhotoView: View {
         guard !session.photos.isEmpty else { return }
 
         stopInlineVideoPlayback()
-        if let newIndex = session.nextUnreviewedIndex(after: session.currentIndex) {
+        // 自动「下一张」也要跳过已加入待删除的存量项（不只是本轮刚加的）：
+        // 相册模式不读持久化的已整理状态，垃圾桶里的旧照片不在 reviewedIDs 里。
+        let queuedIdentifiers: Set<String> = skipsQueuedDeletesDuringBrowse
+            ? Set(dataManager.deleteCandidates.map(\.localIdentifier))
+            : []
+        let isExcluded: (Int) -> Bool = { index in
+            guard session.assetIdentifiers.indices.contains(index) else { return false }
+            return queuedIdentifiers.contains(session.assetIdentifiers[index])
+        }
+        if let newIndex = session.nextUnreviewedIndex(after: session.currentIndex, isExcluded: isExcluded) {
             while newIndex >= session.photos.count,
                   session.expand(for: session.photos.count, force: true) { }
 
