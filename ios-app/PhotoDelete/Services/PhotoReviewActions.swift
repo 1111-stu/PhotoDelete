@@ -23,8 +23,7 @@ enum PhotoReviewActionEvent {
         message: String,
         icon: String,
         style: PhotoReviewActionFeedbackStyle,
-        showsUndo: Bool,
-        duration: TimeInterval
+        showsUndo: Bool
     )
     case restorePosition(asset: PHAsset, preferredIndex: Int, refreshSource: Bool)
     case albumSuccess(title: String)
@@ -175,8 +174,7 @@ final class PhotoReviewActions: ObservableObject {
             message: L10n.string("Removed from deletion"),
             icon: "xmark.circle.fill",
             style: .neutral,
-            showsUndo: false,
-            duration: 3
+            showsUndo: false
         ))
         events.send(.restorePosition(asset: asset, preferredIndex: index, refreshSource: false))
         return true
@@ -235,8 +233,7 @@ final class PhotoReviewActions: ObservableObject {
                     message: targetStatus ? L10n.string("Added to Favorites") : L10n.string("Removed from favorites"),
                     icon: targetStatus ? "heart.fill" : "heart.slash",
                     style: .favorite,
-                    showsUndo: true,
-                    duration: 3
+                    showsUndo: true
                 ))
             } else {
                 self.events.send(.haptic(.error))
@@ -246,8 +243,7 @@ final class PhotoReviewActions: ObservableObject {
                         : L10n.string("Couldn’t remove from favorites. Try again."),
                     icon: "exclamationmark.triangle",
                     style: .warning,
-                    showsUndo: false,
-                    duration: 3
+                    showsUndo: false
                 ))
             }
 
@@ -288,8 +284,7 @@ final class PhotoReviewActions: ObservableObject {
                 message: L10n.string("Could not add to this album"),
                 icon: "exclamationmark.triangle",
                 style: .warning,
-                showsUndo: false,
-                duration: 3
+                showsUndo: false
             ))
             return false
         }
@@ -434,8 +429,7 @@ final class PhotoReviewActions: ObservableObject {
                         message: L10n.string("Could not add to the album. Try again."),
                         icon: "exclamationmark.triangle",
                         style: .warning,
-                        showsUndo: false,
-                        duration: 3
+                        showsUndo: false
                     ))
                     self.events.send(.albumFilingSelectionChange(albumID: currentAlbum.id, isSelected: false))
                     self.events.send(.restorePosition(asset: asset, preferredIndex: originalIndex, refreshSource: false))
@@ -462,8 +456,7 @@ final class PhotoReviewActions: ObservableObject {
                 message: L10n.string("Could not remove from the album. Try again."),
                 icon: "exclamationmark.triangle",
                 style: .warning,
-                showsUndo: false,
-                duration: 3
+                showsUndo: false
             ))
             return false
         }
@@ -542,8 +535,7 @@ final class PhotoReviewActions: ObservableObject {
                 message: L10n.string("Nothing to undo"),
                 icon: "arrow.uturn.backward",
                 style: .neutral,
-                showsUndo: false,
-                duration: 3
+                showsUndo: false
             ))
             return
         }
@@ -565,8 +557,7 @@ final class PhotoReviewActions: ObservableObject {
                 message: L10n.string("Undid the last action"),
                 icon: "arrow.uturn.backward",
                 style: .positive,
-                showsUndo: false,
-                duration: 3
+                showsUndo: false
             ))
             events.send(.restorePosition(asset: asset, preferredIndex: originalIndex, refreshSource: false))
 
@@ -581,8 +572,7 @@ final class PhotoReviewActions: ObservableObject {
                         message: L10n.string("Undid the last action"),
                         icon: "arrow.uturn.backward",
                         style: .positive,
-                        showsUndo: false,
-                        duration: 3
+                        showsUndo: false
                     ))
                     self.events.send(.restorePosition(
                         asset: asset,
@@ -597,8 +587,7 @@ final class PhotoReviewActions: ObservableObject {
                         message: L10n.string("Couldn’t undo. Try again."),
                         icon: "exclamationmark.triangle",
                         style: .warning,
-                        showsUndo: false,
-                        duration: 3
+                        showsUndo: false
                     ))
                 }
             }
@@ -691,8 +680,7 @@ final class PhotoReviewActions: ObservableObject {
                 message: L10n.string("Undid the last action"),
                 icon: "arrow.uturn.backward",
                 style: .positive,
-                showsUndo: false,
-                duration: 3
+                showsUndo: false
             ))
             events.send(.restorePosition(asset: asset, preferredIndex: preferredIndex, refreshSource: refreshSource))
         } else {
@@ -704,8 +692,7 @@ final class PhotoReviewActions: ObservableObject {
                 message: L10n.string("Could not remove from the album. Try again."),
                 icon: "exclamationmark.triangle",
                 style: .warning,
-                showsUndo: false,
-                duration: 3
+                showsUndo: false
             ))
         }
     }
@@ -783,8 +770,7 @@ final class PhotoReviewActions: ObservableObject {
                 message: L10n.string("Could not remove from the album. Try again."),
                 icon: "exclamationmark.triangle",
                 style: .warning,
-                showsUndo: false,
-                duration: 3
+                showsUndo: false
             ))
             events.send(.albumFilingSelectionChange(albumID: albumID, isSelected: true))
         }

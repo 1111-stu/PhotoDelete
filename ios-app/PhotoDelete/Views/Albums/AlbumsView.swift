@@ -118,11 +118,7 @@ struct AlbumsView: View {
             .background {
                 PhotoDeleteScreenBackground()
             }
-            .overlay {
-                if let albumToast {
-                    albumToastView(albumToast)
-                }
-            }
+            .photoDeleteToast($albumToast, placement: .bottom(inset: Theme.space24))
             .sheet(isPresented: $showsDisplayStyle) {
                 AlbumDisplayStyleSheet(style: displayStyleBinding)
             }
@@ -176,13 +172,16 @@ struct AlbumsView: View {
     }
 
     private var rootContent: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            albumsTitleBar
-
-            if !dataManager.photoLibraryManager.hasPhotoLibraryAccess {
-                authorizationSection
-            } else {
+        Group {
+            if dataManager.photoLibraryManager.hasPhotoLibraryAccess {
+                // 标题在滚动区内（见 albumBrowser），整页跟随滚动。
                 albumBrowser
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    albumsTitleBar
+                        .padding(.horizontal, Theme.space5)
+                    authorizationSection
+                }
             }
         }
     }
@@ -201,7 +200,6 @@ struct AlbumsView: View {
                 displayStyleEntryButton
             }
         }
-        .padding(.horizontal, Theme.space5)
         .padding(.top, 10)
         .padding(.bottom, 6)
     }
@@ -277,7 +275,13 @@ struct AlbumsView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    scrollOffsetReader
+                    // 标题放进滚动区，整页一起向上滚（对齐首页）。
+                    // scrollOffsetReader 仍贴在内容最顶端：拖拽排序用它的 minY
+                    // 换算滚动偏移，不能让标题高度把基准点往下推。
+                    ZStack(alignment: .topLeading) {
+                        scrollOffsetReader
+                        albumsTitleBar
+                    }
 
                     albumSearchRow
 
@@ -1097,27 +1101,7 @@ struct AlbumsView: View {
     }
 
     private func showAlbumToast(_ message: String, icon: String, style: PhotoDeleteToastStyle) {
-        let toast = PhotoDeleteToast(message: message, icon: icon, style: style)
-        withAnimation(.spring(response: 0.28, dampingFraction: 0.88)) {
-            albumToast = toast
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
-            guard albumToast?.id == toast.id else { return }
-            withAnimation(.easeOut(duration: 0.18)) {
-                albumToast = nil
-            }
-        }
-    }
-
-    private func albumToastView(_ toast: PhotoDeleteToast) -> some View {
-        VStack {
-            Spacer()
-            PhotoDeleteToastView(toast: toast)
-                .padding(.bottom, 96)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-        }
-        .allowsHitTesting(false)
+        albumToast = PhotoDeleteToast(message: message, icon: icon, style: style)
     }
 }
 

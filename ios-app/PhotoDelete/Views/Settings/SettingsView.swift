@@ -94,7 +94,9 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: SettingsChrome.sectionSpacing) {
                     if AppConstants.advancedPaywallEnabled {
-                        supporterBanner
+                        ProEntryBanner(subscriptionType: subscriptionManager.currentSubscriptionType) {
+                            router.pushPaywall()
+                        }
                     }
 
                     // 偏好设置
@@ -123,11 +125,8 @@ struct SettingsView: View {
                 .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
-
-            if let settingsToast {
-                settingsToastView(settingsToast)
-            }
         }
+        .photoDeleteToast($settingsToast, placement: .bottom(inset: Theme.space24))
         .navigationTitle(L10n.string("Settings"))
         .navigationBarTitleDisplayMode(.large)
         .settingsNavigationChrome()
@@ -146,62 +145,6 @@ struct SettingsView: View {
             case .languageSettings:
                 LanguageSettingsView()
             }
-        }
-    }
-
-    private var supporterBanner: some View {
-        Button {
-            router.pushPaywall()
-        } label: {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(supporterRowTitle)
-                        .settingsRowTitle()
-                        .multilineTextAlignment(.leading)
-                    Text(supporterRowSubtitle)
-                        .settingsRowValue()
-                        .multilineTextAlignment(.leading)
-                }
-
-                Spacer(minLength: 8)
-
-                Image(systemName: "chevron.right")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(SettingsChrome.muted)
-                    .accessibilityHidden(true)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-            .frame(minHeight: SettingsChrome.rowMinHeight)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .settingsGroupedCard()
-        .accessibilityHint(Text(L10n.string("View purchase info and feature differences")))
-    }
-
-    private var supporterRowTitle: String {
-        switch subscriptionManager.currentSubscriptionType {
-        case .quarterly:
-            return L10n.string("Quarterly Pro Active")
-        case .yearly:
-            return L10n.string("Annual Pro Active")
-        case .lifetime:
-            return L10n.string("Lifetime Pro Unlocked")
-        case nil:
-            return L10n.string("Unlock Advanced Features")
-        }
-    }
-
-    private var supporterRowSubtitle: String {
-        switch subscriptionManager.currentSubscriptionType {
-        case .quarterly, .yearly:
-            return L10n.string("View subscription status and plan features")
-        case .lifetime:
-            return L10n.string("View purchase info and feature differences")
-        case nil:
-            return L10n.string("Choose a quarterly or annual subscription, or a one-time Lifetime Pro purchase.")
         }
     }
 
@@ -363,15 +306,6 @@ struct SettingsView: View {
         AppLanguage(rawValue: appLanguageValue) ?? .system
     }
 
-    private func settingsToastView(_ toast: PhotoDeleteToast) -> some View {
-        VStack {
-            Spacer()
-            PhotoDeleteToastView(toast: toast)
-                .padding(.bottom, Theme.space24)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-        }
-    }
-
     private var photoAccessSubtitle: String {
         switch dataManager.photoLibraryManager.authorizationStatus {
         case .authorized:
@@ -494,17 +428,7 @@ struct SettingsView: View {
     }
 
     private func showSettingsToast(_ message: String, icon: String, style: PhotoDeleteToastStyle) {
-        let toast = PhotoDeleteToast(message: message, icon: icon, style: style)
-        withAnimation(.spring(response: 0.28, dampingFraction: 0.88)) {
-            settingsToast = toast
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            guard settingsToast?.id == toast.id else { return }
-            withAnimation(.easeOut(duration: 0.18)) {
-                settingsToast = nil
-            }
-        }
+        settingsToast = PhotoDeleteToast(message: message, icon: icon, style: style)
     }
 }
 

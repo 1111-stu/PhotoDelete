@@ -258,10 +258,10 @@ struct SwipePhotoView: View {
 
                                             }
                                             .frame(maxWidth: 420)
-                                            .padding(.horizontal, 24)
-                                            .padding(.top, 16)
+                                            .padding(.horizontal, Theme.space6)
+                                            .padding(.top, Theme.space4)
                                             .allowsHitTesting(feedbackToast.showsUndo)
-                                            .transition(.move(edge: .top).combined(with: .opacity))
+                                            .transition(PhotoDeleteToastTiming.transition(reduceMotion: reduceMotion, edge: .top))
                                         }
                                     }
                             }
@@ -339,7 +339,7 @@ struct SwipePhotoView: View {
                             maxHeight: .infinity,
                             alignment: .top
                         )
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .transition(PhotoDeleteToastTiming.transition(reduceMotion: reduceMotion, edge: .top))
                     }
                 }
             }
@@ -348,6 +348,7 @@ struct SwipePhotoView: View {
                 completionOverlay
             }
         }
+        .photoDeleteToastAutoDismiss($feedbackToast)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showingPhotoDetails) {
             if let asset = currentRealPhoto {
@@ -1438,7 +1439,7 @@ struct SwipePhotoView: View {
 
     private func handleActionEvent(_ event: PhotoReviewActionEvent) {
         switch event {
-        case let .feedback(message, icon, style, showsUndo, duration):
+        case let .feedback(message, icon, style, showsUndo):
             let toastStyle: PhotoDeleteToastStyle
             switch style {
             case .neutral: toastStyle = .neutral
@@ -1447,7 +1448,7 @@ struct SwipePhotoView: View {
             case .favorite: toastStyle = .favorite
             case .warning: toastStyle = .warning
             }
-            showFeedback(message, icon: icon, style: toastStyle, showsUndo: showsUndo, duration: duration)
+            showFeedback(message, icon: icon, style: toastStyle, showsUndo: showsUndo)
         case let .restorePosition(asset, preferredIndex, refreshSource):
             if showsAlbumTray {
                 needsSourceRefreshAfterAlbumTray = needsSourceRefreshAfterAlbumTray || refreshSource
@@ -1537,8 +1538,7 @@ struct SwipePhotoView: View {
             String(format: L10n.string("Added to %@"), albumTitle),
             icon: "checkmark.circle.fill",
             style: .positive,
-            showsUndo: true,
-            duration: 4.5
+            showsUndo: true
         )
     }
 
@@ -1547,19 +1547,17 @@ struct SwipePhotoView: View {
         icon: String,
         style: PhotoDeleteToastStyle,
         showsUndo: Bool = false,
-        duration: TimeInterval = 3.0
+        duration: TimeInterval? = nil
     ) {
-        let toast = PhotoDeleteToast(message: message, icon: icon, style: style, showsUndo: showsUndo)
-        withAnimation(.easeOut(duration: 0.18)) {
+        let toast = PhotoDeleteToast(
+            message: message,
+            icon: icon,
+            style: style,
+            showsUndo: showsUndo,
+            duration: duration
+        )
+        withAnimation(reduceMotion ? PhotoDeleteToastTiming.reducedEnter : PhotoDeleteToastTiming.enter) {
             feedbackToast = toast
-        }
-
-        let visibleDuration = showsUndo ? max(duration, 4.5) : duration
-        DispatchQueue.main.asyncAfter(deadline: .now() + visibleDuration) {
-            guard feedbackToast?.id == toast.id else { return }
-            withAnimation(.easeOut(duration: 0.18)) {
-                feedbackToast = nil
-            }
         }
     }
 

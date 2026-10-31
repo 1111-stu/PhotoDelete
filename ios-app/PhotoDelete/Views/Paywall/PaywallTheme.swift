@@ -101,6 +101,16 @@ enum PaywallDS {
             dark: (255 / 255, 232 / 255, 126 / 255)
         )
 
+        // MARK: 虹彩（设置页 Pro 入口材质）
+
+        /// 中低饱和的虹彩五色，只服务 `ProEntryBanner` 的玻璃珠、2pt 描边和外圈光晕。
+        /// 靠低透明度和模糊出“材质”，不要提高饱和度去做 RGB 灯带。
+        static let iridescentPink = SwiftUI.Color(red: 242 / 255, green: 169 / 255, blue: 198 / 255)
+        static let iridescentPeach = SwiftUI.Color(red: 244 / 255, green: 210 / 255, blue: 188 / 255)
+        static let iridescentMint = SwiftUI.Color(red: 147 / 255, green: 217 / 255, blue: 195 / 255)
+        static let iridescentPeriwinkle = SwiftUI.Color(red: 169 / 255, green: 187 / 255, blue: 242 / 255)
+        static let iridescentLavender = SwiftUI.Color(red: 203 / 255, green: 172 / 255, blue: 232 / 255)
+
         // MARK: CTA
 
         /// 深色下反色为白底墨字
@@ -144,6 +154,25 @@ enum PaywallDS {
     // MARK: - Gradient
 
     enum Gradient {
+        /// 设置页 Pro 入口的虹彩环：粉 → 蜜桃 → 薄荷 → 长春花 → 薰衣草 → 粉。
+        /// 各站透明度故意不等（0.9 / 0.5 / 0.9 …），让环上出现“受光”和“背光”段，
+        /// 读起来像抛光金属边，而不是一圈均匀的 RGB 灯带。
+        /// 描边、外圈光晕和玻璃珠共用同一组色相，保证整张卡像同一种材质。
+        static var iridescent: AngularGradient {
+            AngularGradient(
+                stops: [
+                    .init(color: PaywallDS.Color.iridescentPink.opacity(0.95), location: 0.00),
+                    .init(color: PaywallDS.Color.iridescentPeach.opacity(0.50), location: 0.17),
+                    .init(color: PaywallDS.Color.iridescentMint.opacity(0.90), location: 0.36),
+                    .init(color: PaywallDS.Color.iridescentPeriwinkle.opacity(0.48), location: 0.58),
+                    .init(color: PaywallDS.Color.iridescentLavender.opacity(0.92), location: 0.78),
+                    .init(color: PaywallDS.Color.iridescentPink.opacity(0.95), location: 1.00)
+                ],
+                center: .center,
+                angle: .degrees(-35)
+            )
+        }
+
         /// 选中套餐卡描边与 radio 指示器共用：樱花粉 → 奶油蜜桃 → 薄荷。
         /// 中间站必须走暖色区——粉→薄荷直插会穿过低饱和灰色区，过渡带发灰。
         static var selectedCardBorder: LinearGradient {

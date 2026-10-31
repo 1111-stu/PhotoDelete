@@ -2,8 +2,8 @@
 //  PhotoDeleteFilterToolbarButton.swift
 //  PhotoDelete
 //
-//  导航栏扁筛选按钮：line.3.horizontal.decrease，外壳走统一 PhotoDeleteCircleIconButton。
-//  图标始终白色；非默认筛选时在圆钮底部显示白点，用形状而不是颜色表达 active。
+//  导航栏筛选按钮：line.3.horizontal.decrease，48pt 圆钮规格。
+//  默认：液态玻璃圆 + 白图标；筛选非默认：玻璃圆内叠加浅色填充 + 描边（accentSoftFill / accentSoftStroke）。
 //  放进 ToolbarItem 时，iOS 26+ 请加 .sharedBackgroundVisibility(.hidden)，
 //  避免系统玻璃圆再套一层。
 //
@@ -20,17 +20,10 @@ struct PhotoDeleteFilterToolbarButton: View {
             systemName: "line.3.horizontal.decrease",
             accessibilityLabel: L10n.string("Filter and sort"),
             accessibilityIdentifier: accessibilityIdentifier,
-            iconColor: Theme.primaryText,
+            isSelected: isActive,
             action: action
         )
-        .overlay(alignment: .bottom) {
-            if isActive {
-                Circle()
-                    .fill(Theme.primaryText)
-                    .frame(width: 4, height: 4)
-                    .padding(.bottom, 7)
-                    .accessibilityHidden(true)
-            }
-        }
+        .accessibilityValue(isActive ? L10n.string("Filters applied") : "")
+        .animation(.easeOut(duration: 0.18), value: isActive)
     }
 }

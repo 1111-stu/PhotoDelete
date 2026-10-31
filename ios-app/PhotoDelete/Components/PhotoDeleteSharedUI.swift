@@ -481,8 +481,11 @@ struct PhotoDeleteToast: Identifiable {
     let id = UUID()
     let message: String
     let icon: String
+    /// 语义标记：便于调用方表达意图，不参与配色（功能层保持单色）。
     let style: PhotoDeleteToastStyle
     var showsUndo: Bool = false
+    /// 极短反馈（如静音、到头提示）可覆盖默认停留时长。
+    var duration: TimeInterval? = nil
 }
 
 enum PhotoDeleteToastStyle {
@@ -491,14 +494,55 @@ enum PhotoDeleteToastStyle {
     case destructive
     case favorite
     case warning
+}
 
-    var color: Color {
+enum PhotoDeleteToastTiming {
+    static let standard: TimeInterval = 2.4
+    static let undoable: TimeInterval = 4.5
+    static let enter: Animation = .easeOut(duration: 0.30)
+    /// Reduce Motion 下只保留淡入淡出。
+    static let reducedEnter: Animation = .easeOut(duration: 0.18)
+    private static let fade: Animation = .easeOut(duration: 0.22)
+    private static let transform: Animation = .easeOut(duration: 0.30)
+
+    static func visibleDuration(for toast: PhotoDeleteToast) -> TimeInterval {
+        toast.duration ?? (toast.showsUndo ? undoable : standard)
+    }
+
+    /// style.md §8.2：0.22s 透明度 + 0.30s 位移；Reduce Motion 只保留透明度。
+    static func transition(reduceMotion: Bool, edge: Edge) -> AnyTransition {
+        guard !reduceMotion else {
+            return .opacity.animation(reducedEnter)
+        }
+        return .opacity.animation(fade)
+            .combined(with: .move(edge: edge).animation(transform))
+    }
+}
+
+enum PhotoDeleteToastPlacement {
+    case top(inset: CGFloat)
+    case bottom(inset: CGFloat)
+
+    fileprivate var alignment: Alignment {
         switch self {
-        case .neutral: return Theme.accent
-        case .positive: return Theme.positive
-        case .destructive: return Theme.destructive
-        case .favorite: return Theme.favorite
-        case .warning: return Theme.warning
+        case .top: return .top
+        case .bottom: return .bottom
+        }
+    }
+
+    fileprivate var edge: Edge {
+        switch self {
+        case .top: return .top
+        case .bottom: return .bottom
+        }
+    }
+
+    fileprivate var padding: EdgeInsets {
+        switch self {
+        case let .top(inset):
+            return EdgeInsets(top: inset, leading: Theme.space5, bottom: 0, trailing: Theme.space5)
+        case let .bottom(inset):
+            return EdgeInsets(top: 0, leading: Theme.space5, bottom: inset, trailing: Theme.space5)
         }
     }
 }
@@ -507,16 +551,12 @@ struct PhotoDeleteToastView: View {
     let toast: PhotoDeleteToast
     var onUndo: (() -> Void)?
 
-    private var toastColor: Color {
-        toast.style.color
-    }
-
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: toast.icon)
                 .font(.system(size: Theme.textSizeSm, weight: .semibold))
-                .foregroundColor(toastColor)
-                .frame(width: 22)
+                .foregroundColor(Theme.primaryText)
+                .frame(width: 20)
 
             Text(toast.message)
                 .font(.system(size: Theme.textSizeSm, weight: .semibold))
@@ -531,7 +571,7 @@ struct PhotoDeleteToastView: View {
 
                 Button(L10n.string("Undo"), action: onUndo)
                     .font(.system(size: Theme.textSizeSm, weight: .semibold))
-                    .foregroundColor(Theme.accent)
+                    .foregroundColor(Theme.primaryText)
                     .buttonStyle(.plain)
             }
         }
@@ -542,10 +582,54 @@ struct PhotoDeleteToastView: View {
                 .fill(Theme.elevatedSurface.opacity(0.94))
                 .overlay(
                     Capsule(style: .continuous)
-                        .stroke(toastColor.opacity(0.34), lineWidth: 1)
+                        .stroke(Theme.hairline, lineWidth: Theme.stroke)
                 )
         )
         .shadow(color: Theme.floatingShadow, radius: 10, x: 0, y: 5)
+        // Undo 必须是独立可达元素；纯信息 Toast 合并成一条朗读。
+        .accessibilityElement(children: toast.showsUndo && onUndo != nil ? .contain : .combine)
+    }
+}
+
+private struct PhotoDeleteToastPresenter: ViewModifier {
+    @Binding var toast: PhotoDeleteToast?
+    let placement: PhotoDeleteToastPlacement
+    let maxWidth: CGFloat
+    let onUndo: (() -> Void)?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(alignment: placement.alignment) {
+                if let toast {
+                    PhotoDeleteToastView(toast: toast, onUndo: onUndo)
+                        .frame(maxWidth: maxWidth)
+                        .padding(placement.padding)
+                        .allowsHitTesting(toast.showsUndo && onUndo != nil)
+                        .transition(PhotoDeleteToastTiming.transition(reduceMotion: reduceMotion, edge: placement.edge))
+                }
+            }
+            .animation(
+                reduceMotion ? PhotoDeleteToastTiming.reducedEnter : PhotoDeleteToastTiming.enter,
+                value: toast?.id
+            )
+            .photoDeleteToastAutoDismiss($toast)
+    }
+}
+
+private struct PhotoDeleteToastAutoDismiss: ViewModifier {
+    @Binding var toast: PhotoDeleteToast?
+
+    func body(content: Content) -> some View {
+        content.task(id: toast?.id) {
+            guard let toast else { return }
+            let duration = PhotoDeleteToastTiming.visibleDuration(for: toast)
+            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+            guard !Task.isCancelled else { return }
+            withAnimation(PhotoDeleteToastTiming.enter) {
+                self.toast = nil
+            }
+        }
     }
 }
 
@@ -582,6 +666,28 @@ struct PhotoAuthorizationCard: View {
 }
 
 extension View {
+    /// 统一 Toast：位置、入场/退场动画、停留时长、Reduce Motion 与点击穿透。
+    func photoDeleteToast(
+        _ toast: Binding<PhotoDeleteToast?>,
+        placement: PhotoDeleteToastPlacement,
+        maxWidth: CGFloat = 420,
+        onUndo: (() -> Void)? = nil
+    ) -> some View {
+        modifier(
+            PhotoDeleteToastPresenter(
+                toast: toast,
+                placement: placement,
+                maxWidth: maxWidth,
+                onUndo: onUndo
+            )
+        )
+    }
+
+    /// 仅统一自动消失；用于托盘等需要自定义 Toast 位置的场景。
+    func photoDeleteToastAutoDismiss(_ toast: Binding<PhotoDeleteToast?>) -> some View {
+        modifier(PhotoDeleteToastAutoDismiss(toast: toast))
+    }
+
     func photoDeleteCard(radius: CGFloat = Theme.radiusLg) -> some View {
         modifier(PhotoDeleteCardBackground(radius: radius))
     }
