@@ -827,6 +827,16 @@
         }
       }
     },
+    "%@. %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@. %2$@"
+          }
+        }
+      }
+    },
     "%@/%@" : {
       "localizations" : {
         "ar" : {
@@ -7391,6 +7401,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "離線樂器調音器，提供形象化指引、節拍器與常用和弦。"
+          }
+        }
+      }
+    },
+    "Analyzing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyzing"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在分析"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在分析"
           }
         }
       }

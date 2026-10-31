@@ -54,6 +54,16 @@ struct AssetQueryTests {
         #expect(result.summary.unknownSizeCount == 2)
     }
 
+    @Test func largestFirstUsesEstimatesWhileExactSizesArePending() {
+        let assets: [AssetQueryMetadata] = [
+            .init(id: "pending-large", creationDate: date(2026, 1, 1), estimatedSizeMB: 30),
+            .init(id: "known", creationDate: date(2026, 1, 2), size: .knownMB(10)),
+            .init(id: "pending-small", creationDate: date(2026, 1, 3), estimatedSizeMB: 5)
+        ]
+        let result = AssetQueryEngine.execute(query: query(), assets: assets)
+        #expect(result.assetIDs == ["pending-large", "known", "pending-small"])
+    }
+
     @Test func estimatedSizesCoverPendingAssetsUntilExactSizesSettle() {
         let assets: [AssetQueryMetadata] = [
             .init(id: "pending", creationDate: nil, size: .pending, estimatedSizeMB: 12),

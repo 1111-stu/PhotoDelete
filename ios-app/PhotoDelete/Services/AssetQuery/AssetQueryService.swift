@@ -240,13 +240,15 @@ private final class AssetQuerySubscription {
                 if Date().timeIntervalSince(lastPublish) >= 0.4 {
                     guard let updated = await self.calculate(), !Task.isCancelled,
                           self.generation == currentGeneration else { return }
-                    self.publish(updated, preserveOrder: self.interactionActive)
+                    // Size-only updates must never reshuffle the grid; keep the
+                    // first-frame order and replace size labels in place.
+                    self.publish(updated, preserveOrder: true)
                     lastPublish = Date()
                 }
             }
             guard let updated = await self.calculate(), !Task.isCancelled,
                   self.generation == currentGeneration else { return }
-            self.publish(updated, preserveOrder: self.interactionActive)
+            self.publish(updated, preserveOrder: true)
         }
     }
 
@@ -257,7 +259,7 @@ private final class AssetQuerySubscription {
         settlementTask = Task { [weak self] in
             guard let self, let result = await self.calculate(), !Task.isCancelled,
                   self.generation == currentGeneration else { return }
-            self.publish(result, preserveOrder: self.interactionActive)
+            self.publish(result, preserveOrder: true)
         }
     }
 

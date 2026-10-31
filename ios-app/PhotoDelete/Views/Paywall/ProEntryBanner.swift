@@ -8,7 +8,7 @@
 //  - Attention：唯一焦点是材质边缘的虹彩，不再同时放纹章、徽章、胶囊抢注意力。
 //  - Meaning：只出现一次身份词（OnePhoto Pro）；权益只留一行。
 //  - Contrast：行动暗示只留一个箭头，卡片本身是唯一的点击面。
-//  - Emotion：只有一种动效——一道慢速镜面扫光；已解锁时连这道光也收起。
+//  - Emotion：材质本身就是情绪；卡片保持静止（2026-11-01 移除扫光，实测太抢）。
 //
 //  材质语言沿用 PaywallDS（樱粉系虹彩），但卡片主体仍是 Theme 的暖中性面：
 //  设置页只借边缘的一圈彩光，不整页换成付费页的冷调画布。
@@ -20,8 +20,6 @@ struct ProEntryBanner: View {
 
     let subscriptionType: SubscriptionManager.SubscriptionType?
     let action: () -> Void
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let cardRadius: CGFloat = 28
     private let orbSize: CGFloat = 56
@@ -98,9 +96,6 @@ private extension ProEntryBanner {
                 .opacity(isPro ? 0.10 : 0.30)
                 .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
 
-            specularSweep
-                .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
-
             // 未解锁＝虹彩边，是“邀请”；已解锁＝回归安静的白发丝边，是“状态”。
             RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
                 .strokeBorder(rimStyle, lineWidth: isPro ? 1 : 2)
@@ -114,7 +109,7 @@ private extension ProEntryBanner {
     }
 
     /// 一颗虹彩玻璃珠：把“彩色材质”集中在一点，替代皇冠 + PRO 徽章两种身份暗示。
-    /// 用三色线性渐变做球体底色（锥形渐变在 44pt 里会在圆心显出扇形缝），
+    /// 用三色线性渐变做球体底色（锥形渐变在 56pt 里会在圆心显出扇形缝），
     /// 再叠左上高光和右下压暗，读起来才像玻璃珠而不是色轮。
     var orb: some View {
         ZStack {
@@ -173,46 +168,6 @@ private extension ProEntryBanner {
         .frame(width: orbSize, height: orbSize)
         .shadow(color: PaywallDS.Color.iridescentPink.opacity(0.28), radius: 14, y: 3)
         .accessibilityHidden(true)
-    }
-}
-
-// MARK: - Specular sweep
-
-private extension ProEntryBanner {
-
-    /// 9 秒循环里扫过约 3.8 秒，其余时间静止。
-    /// 已解锁（isPro）时完全收起：扫光是“邀请购买”的语汇，不是常驻装饰。
-    @ViewBuilder
-    var specularSweep: some View {
-        if !isPro && !reduceMotion {
-            TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { context in
-                GeometryReader { proxy in
-                    let size = proxy.size
-                    let cycle: Double = 9
-                    let phase = context.date.timeIntervalSinceReferenceDate
-                        .truncatingRemainder(dividingBy: cycle) / cycle
-                    let sweep = min(phase / 0.42, 1)
-                    let bandWidth = size.width * 0.55
-
-                    LinearGradient(
-                        stops: [
-                            .init(color: .white.opacity(0), location: 0),
-                            .init(color: .white.opacity(0.10), location: 0.5),
-                            .init(color: .white.opacity(0), location: 1)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .frame(width: bandWidth, height: size.height * 2)
-                    .rotationEffect(.degrees(18))
-                    .offset(
-                        x: -bandWidth + sweep * (size.width + bandWidth),
-                        y: -size.height * 0.5
-                    )
-                }
-            }
-            .allowsHitTesting(false)
-        }
     }
 }
 

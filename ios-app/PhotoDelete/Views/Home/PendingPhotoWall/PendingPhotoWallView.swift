@@ -11,6 +11,7 @@ struct PendingPhotoWallView: View {
     @EnvironmentObject private var dataManager: DataManager
     @EnvironmentObject private var router: MainTabRouter
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
     @State private var snapshot = PendingPhotoWallSnapshot(
@@ -27,6 +28,8 @@ struct PendingPhotoWallView: View {
     @State private var isYearMenuExpanded = false
     @State private var showingRecentOrganized = false
     @State private var rebuildGeneration = 0
+    /// 首屏月份只做一次错峰入场，后续滚动 / 重建不再重复。
+    @State private var hasEnteredWall = false
 
     private var yearPillLabel: String {
         AppDateFormatter.string(
@@ -57,14 +60,19 @@ struct PendingPhotoWallView: View {
                             onViewHistory: { showingRecentOrganized = true }
                         )
                     } else {
-                        ForEach(snapshot.months) { month in
+                        ForEach(Array(snapshot.months.enumerated()), id: \.element.id) { index, month in
                             let mode = displayMode(for: month)
+                            let isEntered = hasEnteredWall || index >= 3
+
                             PendingPhotoWallMonthSection(
                                 title: monthTitle(for: month),
                                 remainingCount: month.remainingCount,
                                 displayMode: mode,
                                 onSelectMode: { next in
-                                    displayModeByMonthID[month.id] = next
+                                    guard next != mode else { return }
+                                    withAnimation(modeSwitchAnimation) {
+                                        displayModeByMonthID[month.id] = next
+                                    }
                                 },
                                 onOrganizeMonth: {
                                     router.push(SwipeViewDestination.wallMonth(
@@ -76,6 +84,15 @@ struct PendingPhotoWallView: View {
                             ) {
                                 monthContent(month, mode: mode)
                             }
+                            .opacity(isEntered ? 1 : 0)
+                            .offset(y: reduceMotion || isEntered ? 0 : 10)
+                            .animation(
+                                reduceMotion
+                                    ? .easeOut(duration: 0.18)
+                                    : .spring(response: 0.45, dampingFraction: 0.9)
+                                        .delay(Double(index) * 0.035),
+                                value: hasEnteredWall
+                            )
                         }
                     }
                 }
@@ -129,6 +146,10 @@ struct PendingPhotoWallView: View {
         }
         .onAppear {
             rebuildSnapshot(preferredYear: selectedYear)
+        }
+        .onChange(of: snapshot.months.isEmpty) { _, isEmpty in
+            guard !isEmpty, !hasEnteredWall else { return }
+            hasEnteredWall = true
         }
         .onChange(of: dataManager.cleanupStatsRevision) {
             rebuildSnapshot(preferredYear: selectedYear)
@@ -249,39 +270,55 @@ struct PendingPhotoWallView: View {
         displayModeByMonthID[month.id] ?? .calendar
     }
 
+    /// 与筛选页的分段选择保持一致：同一套轻弹性，Reduce Motion 时退化成淡入淡出。
+    private var modeSwitchAnimation: Animation {
+        reduceMotion
+            ? .easeInOut(duration: 0.18)
+            : .spring(response: 0.28, dampingFraction: 0.86)
+    }
+
     @ViewBuilder
     private func monthContent(
         _ month: PendingPhotoWallMonth,
         mode: PendingPhotoWallDisplayMode
     ) -> some View {
-        switch mode {
-        case .calendar:
-            PendingPhotoWallCalendarGrid(
-                month: month,
-                today: Date(),
-                thumbnails: thumbnails,
-                thumbnailTargetSize: thumbnailTargetSize,
-                onSelectDay: { cell in
-                    router.push(SwipeViewDestination.wallMonth(
-                        cell.date,
-                        startFromDay: cell.date,
-                        startFromAssetID: cell.coverAssetID
-                    ))
-                }
-            )
-        case .polaroid:
-            PendingPhotoWallPolaroidBoard(
-                month: month,
-                thumbnails: thumbnails,
-                onSelectPhoto: { cell, assetID in
-                    router.push(SwipeViewDestination.wallMonth(
-                        cell.date,
-                        startFromDay: cell.date,
-                        startFromAssetID: assetID
-                    ))
-                }
-            )
+        Group {
+            switch mode {
+            case .calendar:
+                PendingPhotoWallCalendarGrid(
+                    month: month,
+                    today: Date(),
+                    thumbnails: thumbnails,
+                    thumbnailTargetSize: thumbnailTargetSize,
+                    onSelectDay: { cell in
+                        router.push(SwipeViewDestination.wallMonth(
+                            cell.date,
+                            startFromDay: cell.date,
+                            startFromAssetID: cell.coverAssetID
+                        ))
+                    }
+                )
+            case .polaroid:
+                PendingPhotoWallPolaroidBoard(
+                    month: month,
+                    thumbnails: thumbnails,
+                    onSelectPhoto: { cell, assetID in
+                        router.push(SwipeViewDestination.wallMonth(
+                            cell.date,
+                            startFromDay: cell.date,
+                            startFromAssetID: assetID
+                        ))
+                    }
+                )
+            }
         }
+        .id(mode)
+        // 从月份标题下方展开/收起，避免内容像整块闪换。
+        .transition(
+            reduceMotion
+                ? .opacity
+                : .opacity.combined(with: .scale(scale: 0.985, anchor: .top))
+        )
     }
 
     private var shouldShowPreparing: Bool {

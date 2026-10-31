@@ -131,7 +131,7 @@ enum AssetQueryEngine {
 
     private static func precedes(_ lhs: AssetQueryMetadata, _ rhs: AssetQueryMetadata, sort: AssetSort) -> Bool {
         if sort == .largestFirst {
-            switch (lhs.size.knownSizeMB, rhs.size.knownSizeMB) {
+            switch (sortableSizeMB(lhs), sortableSizeMB(rhs)) {
             case let (left?, right?) where left != right: return left > right
             case (_?, nil): return true
             case (nil, _?): return false
@@ -145,5 +145,13 @@ enum AssetQueryEngine {
         case (nil, _?): return false
         default: return lhs.id < rhs.id
         }
+    }
+
+    /// Exact sizes win; metadata estimates keep the first frame ordered by
+    /// approximate size instead of falling back to creation date.
+    private static func sortableSizeMB(_ asset: AssetQueryMetadata) -> Double? {
+        if let knownSizeMB = asset.size.knownSizeMB { return knownSizeMB }
+        guard asset.estimatedSizeMB.isFinite, asset.estimatedSizeMB > 0 else { return nil }
+        return asset.estimatedSizeMB
     }
 }

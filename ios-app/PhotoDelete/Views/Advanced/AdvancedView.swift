@@ -1321,10 +1321,7 @@ private struct AdvancedAssetListView: View {
                     }
 
                     if isLoadingAssets && assets.isEmpty {
-                        AdvancedLoadingState(
-                            title: L10n.string("Preparing cleanup options"),
-                            subtitle: L10n.string("Photos and videos you can review will appear shortly.")
-                        )
+                        AdvancedLoadingState(title: L10n.string("Preparing cleanup options"))
                     } else if assets.isEmpty {
                         AdvancedEmptyState(
                             icon: mode.icon,
@@ -1883,6 +1880,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                         .frame(height: 24)
                 }
                 .padding(24)
+                .animation(.easeOut(duration: 0.22), value: isLoading)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -1949,12 +1947,11 @@ private struct AdvancedSimilarPhotoGroupsView: View {
     @ViewBuilder
     private var similarGroupsContent: some View {
         if isLoading {
-            AdvancedLoadingState(
-                title: L10n.string("Analyzing similar images"),
-                subtitle: L10n.string("Photos and videos you can review will appear shortly.")
-            )
+            AdvancedSimilarGroupsLoadingSkeleton()
+                .transition(.opacity)
         } else {
             similarGroupsLoadedContent(snapshot: makeGroupSnapshot())
+                .transition(.opacity)
         }
     }
 
@@ -3427,28 +3424,99 @@ struct AdvancedEmptyState: View {
 
 struct AdvancedLoadingState: View {
     let title: String
-    let subtitle: String
 
     var body: some View {
         VStack(spacing: 14) {
+            Text(title)
+                .font(.system(size: 16.5, weight: .semibold))
+                .foregroundColor(Theme.primaryText)
+                .multilineTextAlignment(.center)
+
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
-
-            VStack(spacing: 5) {
-                Text(title)
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(Theme.primaryText)
-
-                Text(subtitle)
-                    .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(Theme.secondaryText)
-                    .multilineTextAlignment(.center)
-            }
+                .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
+                .frame(width: 132)
+                .clipShape(Capsule(style: .continuous))
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 42)
+        .padding(.vertical, 28)
         .photoDeleteCard()
         .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+    }
+}
+
+/// 相似照片结果加载中的骨架：先把摘要卡和分组卡的形状摆出来，避免整屏只剩一个转圈。
+struct AdvancedSimilarGroupsLoadingSkeleton: View {
+    @State private var showsSkeletons = false
+
+    var body: some View {
+        VStack(spacing: 14) {
+            AdvancedLoadingState(title: L10n.string("Analyzing"))
+
+            if showsSkeletons {
+                ForEach(0..<2, id: \.self) { index in
+                    AdvancedSimilarGroupSkeletonCard(
+                        titleWidth: index == 0 ? 132 : 104,
+                        subtitleWidth: index == 0 ? 92 : 76
+                    )
+                }
+                .transition(.opacity)
+            }
+        }
+        .accessibilityElement(children: .contain)
+        // 分析很快时不要闪一下骨架；超过约 0.3 秒才把结果形状铺出来。
+        .task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.2)) {
+                showsSkeletons = true
+            }
+        }
+    }
+}
+
+private struct AdvancedSimilarGroupSkeletonCard: View {
+    let titleWidth: CGFloat
+    let subtitleWidth: CGFloat
+
+    private static let thumbnailSize: CGFloat = 74
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 10) {
+                VStack(alignment: .leading, spacing: 6) {
+                    skeletonBar(width: titleWidth, height: 15)
+                    skeletonBar(width: subtitleWidth, height: 10)
+                }
+
+                Spacer(minLength: 8)
+
+                Capsule(style: .continuous)
+                    .fill(Color.white.opacity(0.06))
+                    .frame(width: 92, height: 34)
+            }
+
+            HStack(spacing: 8) {
+                ForEach(0..<3, id: \.self) { _ in
+                    RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                        .fill(Color.white.opacity(0.055))
+                        .frame(width: Self.thumbnailSize, height: Self.thumbnailSize)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous)
+                                .stroke(Color.white.opacity(0.05), lineWidth: Theme.stroke)
+                        )
+                }
+            }
+        }
+        .padding(14)
+        .photoDeleteCard()
+        .accessibilityHidden(true)
+    }
+
+    private func skeletonBar(width: CGFloat, height: CGFloat) -> some View {
+        Capsule(style: .continuous)
+            .fill(Color.white.opacity(0.07))
+            .frame(width: width, height: height)
     }
 }
 

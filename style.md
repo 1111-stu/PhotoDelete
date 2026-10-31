@@ -29,7 +29,7 @@ PhotoDelete is a local-first photo cleanup app. The interface is built around on
 3. **One container per group.** Use hairlines inside a card; do not stack equally prominent cards inside cards.
 4. **Photos and illustrations lead.** Keep labels, chrome, and dividers subordinate.
 5. **Optical alignment beats mechanical alignment.** Align icon centers and title columns across sections; size each illustration by perceived ink mass, not by a single box.
-6. **Static is static.** No ambient motion, parallax, floating loops, or scroll-triggered reveals. Motion explains a state change or direct manipulation. Registered exceptions: the home Random Review action row’s slow, low-contrast sheen (2026-10-25), and the settings Pro entry’s specular sweep (2026-10-31; conversion-only — it stops once the user is Pro).
+6. **Static is static.** No ambient motion, parallax, floating loops, or scroll-triggered reveals. Motion explains a state change or direct manipulation. Registered exception: the home Random Review action row’s slow, low-contrast sheen (2026-10-25). The settings Pro entry tried a specular sweep on 2026-10-31 and removed it on 2026-11-01 — it competed with the material; do not reintroduce it.
 7. **Native where it matters.** Use system sheets, switches, blur, and safe-area behavior; custom chrome only where it adds identity.
 
 ### 1.3 Reference set (2026-10-25)
@@ -536,6 +536,7 @@ The provided reference screens add useful composition patterns:
 
 - Use the same card surface and 24pt radius.
 - Scanning: glyph + 22 / 600 “Reading Photos” + 15 / 400 secondary explanation; progress uses the white action color.
+- **Card-list loading (`AdvancedLoadingState`, 2026-11-01):** one centered 16.5 / 600 label (“正在分析 / Analyzing”) over one short linear indeterminate bar in the white action color, inside a standard card — no illustration, no supporting paragraph, no bare spinner. When the wait resolves into cards (similar photos, cleanup lists), follow it with **static** skeleton cards that reuse the real card geometry and 74pt thumbnail rhythm. Skeletons do not shimmer; the progress bar is the only motion.
 - Empty: `ContentUnavailableView` on iOS 17+, with a secondary-style action button.
 - Do not use colorful illustrations as empty-state decoration unless the content itself is illustrative; keep error/empty states neutral.
 
@@ -548,7 +549,7 @@ The provided reference screens add useful composition patterns:
 - Toggles: soft green tint (`Theme.positive`); row labels remain primary. Toggle rows are title-only unless the subtitle carries information the title cannot.
 - Use `SettingRow(value:)` for a trailing value and `subtitle:` only for a second line that cannot move right (for example an email address).
 - A Pro/feature card may use a glass pill CTA and a larger 24–28pt radius; keep it to one prominent card per screen.
-- **Settings Pro entry (`ProEntryBanner`, 2026-10-31):** one 28pt hero card at the top of settings, **120pt min height**, 22pt vertical / 20pt leading / 18pt trailing padding, `surface` fill; page top padding is 12pt (not the old 8). The material is the only art: an iridescent `PaywallDS.Gradient.iridescent` edge (2pt crisp stroke + 8pt blurred outer halo + a 6pt inner refraction, all low-contrast and clipped), plus a **56pt** iridescent glass orb with a top-left specular and a darkened lower rim (peach → rose → mint). The palette is deliberately warm — rose / peach / coral with mint as the cool shadow; no lavender or periwinkle (2026-10-31 revision after the purple read as off-brand). The edge runs pink → peach → mint → coral → pink with uneven alpha so one arc catches light. Content is deliberately minimal: title **18 / 700** (the only place "Pro" appears), one benefit line **13 / 400** secondary up to 2 lines, and a plain 14 / 600 `chevron.right` in secondary text. No chip, no crown, no filled CTA pill — the whole card is the only hit target. Active Pro: the orb carries a checkmark, the iridescent edge collapses to a 1pt white 14% hairline with a faint halo, the sweep stops, and the title/subtitle switch to the plan name and status. Reduce Motion: no sweep, identical composition.
+- **Settings Pro entry (`ProEntryBanner`, 2026-10-31):** one 28pt hero card at the top of settings, **120pt min height**, 22pt vertical / 20pt leading / 18pt trailing padding, `surface` fill; page top padding is 12pt (not the old 8). The material is the only art: an iridescent `PaywallDS.Gradient.iridescent` edge (2pt crisp stroke + 8pt blurred outer halo + a 6pt inner refraction, all low-contrast and clipped), plus a **56pt** iridescent glass orb with a top-left specular and a darkened lower rim (peach → rose → mint). The palette is deliberately warm — rose / peach / coral with mint as the cool shadow; no lavender or periwinkle (2026-10-31 revision after the purple read as off-brand). The edge runs pink → peach → mint → coral → pink with uneven alpha so one arc catches light. Content is deliberately minimal: title **18 / 700** (the only place "Pro" appears), one benefit line **13 / 400** secondary up to 2 lines, and a plain 14 / 600 `chevron.right` in secondary text. No chip, no crown, no filled CTA pill — the whole card is the only hit target. Active Pro: the orb carries a checkmark, the iridescent edge collapses to a 1pt white 14% hairline with a faint halo, and the title/subtitle switch to the plan name and status. The card is static in both states (no sweep, no breathing); the material is the only motion language.
 - Do not use the reference's green switches or its display font.
 
 ### 6.15 Toast
@@ -592,7 +593,6 @@ Rules:
 
 - **Static is static.** No ambient floating, parallax, ripple, or scroll-triggered reveals.
 - **Registered exception (2026-10-25):** the home Random Review action row carries a slow ambient sheen (7s loop; ~3s sweep, ~4s rest; white 4–13%; 30fps; clipped to the row; disabled under Reduce Motion). Do not generalize it to other rows or cards.
-- **Registered exception (2026-10-31):** the settings Pro entry card carries one specular sweep (9s loop; ~3.8s sweep, rest otherwise; white 10%; 30fps; clipped to the 28pt card). It is a conversion cue only: it disappears when the user is Pro and under Reduce Motion. Do not add a second animation to the same card.
 - Motion explains a state change, a gesture result, or a direct manipulation.
 - Keep durations short; respect Reduce Motion.
 - Prefer opacity/transform/background; avoid animating layout where a crossfade is clearer.
@@ -610,7 +610,6 @@ Rules:
 | Sheet presentation | System spring; prototype reference ≈0.34s cubic-bezier(.22,.9,.28,1) |
 | Toast | 0.22s opacity + 0.30s transform; Reduce Motion = opacity only |
 | Random Review sheen | 7s loop: ~3s sweep, ~4s rest; 30fps; disabled for Reduce Motion |
-| Pro entry specular sweep | 9s loop: ~3.8s sweep, rest; 30fps; Pro users and Reduce Motion see a static rim |
 
 ### 8.3 Reduce Motion
 
@@ -997,7 +996,7 @@ Use these to prevent regressions:
 11. **Functional amber removed (2026-10-25):** the action layer is monochrome white; amber/coral remain only in the two home entry cards. Switches use `Theme.positive` green; section trailing and tab selection are neutral. Do not reintroduce amber CTAs, tabs, toggles, or section totals.
 12. **Stone icon set (2026-10-25):** period icons are calendar+clock / grid calendar / sundial; cleanup icons are frame / twin busts / film camera / stone camera. Optical sizes are 42 / 42 / 38 / 38. The dice is reserved for the random card; the broom is a spare asset.
 13. **Title density + fixed More (2026-10-25):** period titles and home cleanup titles share 16pt; the period right zone uses a fixed 更多 / More label so all three card columns align and English titles stay on one line. Row titles use one line with 0.9 minimum scale.
-14. **Settings Pro entry (2026-10-31):** subtraction pass after the first version was too busy. "Pro" now appears once (title only): the `PRO` chip, crown seal, and white `View Pro` capsule were removed. The art is the material — a 28pt card with an iridescent edge (crisp stroke + outer halo + inner refraction), an iridescent glass orb, a plain chevron, and the compact `Timeline · Compression · Similar photos` line. A second pass raised the card to a 120pt hero (orb 56, title 18, subtitle 13) because the first 84–96pt version still read as a wide row rather than a banner. Active Pro collapses the edge to a white hairline, turns the orb into a check, and stops the specular sweep.
+14. **Settings Pro entry (2026-10-31):** subtraction pass after the first version was too busy. "Pro" now appears once (title only): the `PRO` chip, crown seal, and white `View Pro` capsule were removed. The art is the material — a 28pt card with an iridescent edge (crisp stroke + outer halo + inner refraction), an iridescent glass orb, a plain chevron, and the compact `Timeline · Compression · Similar photos` line. A second pass raised the card to a 120pt hero (orb 56, title 18, subtitle 13) because the first 84–96pt version still read as a wide row rather than a banner. Active Pro collapses the edge to a white hairline and turns the orb into a check. A specular sweep was tried on 2026-10-31 and removed on 2026-11-01: on a card this large it competed with the iridescent material instead of adding life. The card stays static.
 
 ---
 

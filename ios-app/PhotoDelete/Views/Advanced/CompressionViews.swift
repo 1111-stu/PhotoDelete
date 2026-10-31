@@ -220,10 +220,7 @@ struct AdvancedImageCompressionView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.space5) {
                 if isLoadingAssets && assets.isEmpty {
-                    AdvancedLoadingState(
-                        title: L10n.string("Preparing cleanup options"),
-                        subtitle: L10n.string("Photos and videos you can review will appear shortly.")
-                    )
+                    AdvancedLoadingState(title: L10n.string("Preparing cleanup options"))
                     .padding(.top, Theme.space8)
                 } else if assets.isEmpty {
                     AdvancedEmptyState(
@@ -635,10 +632,7 @@ struct AdvancedVideoCompressionView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.space5) {
                 if isLoadingAssets && assets.isEmpty {
-                    AdvancedLoadingState(
-                        title: L10n.string("Preparing cleanup options"),
-                        subtitle: L10n.string("Photos and videos you can review will appear shortly.")
-                    )
+                    AdvancedLoadingState(title: L10n.string("Preparing cleanup options"))
                     .padding(.top, Theme.space8)
                 } else if assets.isEmpty {
                     AdvancedEmptyState(

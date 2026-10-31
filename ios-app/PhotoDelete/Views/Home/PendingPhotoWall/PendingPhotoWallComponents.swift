@@ -136,6 +136,8 @@ struct PendingPhotoWallModeSegment: View {
     let mode: PendingPhotoWallDisplayMode
     let onSelect: (PendingPhotoWallDisplayMode) -> Void
 
+    @Namespace private var selectionNamespace
+
     var body: some View {
         HStack(spacing: 2) {
             modeButton(.calendar, systemName: "calendar", label: L10n.string("Calendar"))
@@ -153,6 +155,8 @@ struct PendingPhotoWallModeSegment: View {
         label: String
     ) -> some View {
         Button {
+            guard value != mode else { return }
+            HapticManager.impact(.light)
             onSelect(value)
         } label: {
             Image(systemName: systemName)
@@ -161,7 +165,9 @@ struct PendingPhotoWallModeSegment: View {
                 .frame(width: 30, height: 24)
                 .background {
                     if mode == value {
-                        Capsule(style: .continuous).fill(Color.white.opacity(0.12))
+                        Capsule(style: .continuous)
+                            .fill(Color.white.opacity(0.12))
+                            .matchedGeometryEffect(id: "mode-selection", in: selectionNamespace)
                     }
                 }
         }
@@ -328,6 +334,8 @@ struct PendingPhotoWallPolaroidBoard: View {
 
     /// 排布是纯计算，先摆出空白相纸定住板高；缩略图等这块板进视口再拉，避免切到相纸墙时整年一起解码。
     @State private var isActivated = false
+    /// 相纸一次性错峰落位；之后滚动进出视口不再重播。
+    @State private var hasSettled = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject private var motion = PolaroidBoardMotion.shared
 
@@ -347,7 +355,7 @@ struct PendingPhotoWallPolaroidBoard: View {
                 ZStack(alignment: .topLeading) {
                     boardBackground
 
-                    ForEach(board.items) { item in
+                    ForEach(Array(board.items.enumerated()), id: \.element.id) { index, item in
                         polaroid(item, scale: scale)
                             .frame(width: item.width * scale, height: item.height * scale)
                             .overlay(alignment: .top) {
@@ -375,11 +383,21 @@ struct PendingPhotoWallPolaroidBoard: View {
                                         + (reduceMotion ? 0 : Double(motion.swingRotation(hang: item.hang)))
                                 )
                             )
+                            .opacity(reduceMotion || hasSettled ? 1 : 0)
+                            .scaleEffect(reduceMotion || hasSettled ? 1 : 0.94)
+                            .offset(y: reduceMotion || hasSettled ? 0 : -8)
                             .position(
                                 x: (item.x + item.width / 2) * scale,
                                 y: (item.y + item.height / 2) * scale
                             )
                             .zIndex(item.zIndex + 1)
+                            .animation(
+                                reduceMotion
+                                    ? nil
+                                    : .spring(response: 0.46, dampingFraction: 0.82)
+                                        .delay(Double(index) * 0.018),
+                                value: hasSettled
+                            )
                     }
                 }
             }
@@ -389,6 +407,7 @@ struct PendingPhotoWallPolaroidBoard: View {
                 if !reduceMotion {
                     motion.retain()
                 }
+                settleIfNeeded()
             }
             .onDisappear {
                 if !reduceMotion {
@@ -407,6 +426,20 @@ struct PendingPhotoWallPolaroidBoard: View {
             .foregroundColor(Theme.secondaryText)
             .monospacedDigit()
             .frame(maxWidth: .infinity)
+        }
+    }
+
+    /// 先让“未落位”的首帧上屏，再触发错峰弹簧；否则所有相纸会同一帧到位。
+    private func settleIfNeeded() {
+        guard !hasSettled else { return }
+        guard !reduceMotion else {
+            hasSettled = true
+            return
+        }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(16))
+            guard !Task.isCancelled else { return }
+            hasSettled = true
         }
     }
 
@@ -524,6 +557,7 @@ struct PendingPhotoWallThumbnail: View {
     var cornerRadius: CGFloat = 8
     var quality: PendingPhotoWallThumbnailQuality = .fast
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var image: UIImage?
     @State private var requestID: PHImageRequestID?
     @State private var loadGeneration = 0
@@ -540,6 +574,7 @@ struct PendingPhotoWallThumbnail: View {
                         .interpolation(quality == .sharp ? .high : .medium)
                         .scaledToFill()
                         .frame(width: proxy.size.width, height: proxy.size.height)
+                        .transition(.opacity)
                 } else {
                     placeholder
                 }
@@ -605,8 +640,15 @@ struct PendingPhotoWallThumbnail: View {
             targetSize: targetSize,
             quality: quality
         ) { loaded in
-            guard generation == loadGeneration else { return }
-            image = loaded
+            guard generation == loadGeneration, let loaded else { return }
+            // 缓存命中直接显示；只有真正解码出来的图淡入，避免入场时所有格子同一帧硬切。
+            if reduceMotion {
+                image = loaded
+                return
+            }
+            withAnimation(.easeOut(duration: 0.16)) {
+                image = loaded
+            }
         }
     }
 
