@@ -91,12 +91,14 @@ struct AssetQueryMetadata: Identifiable, Equatable, Sendable {
     let isReviewed: Bool
     let duration: TimeInterval
     var size: AssetQuerySizeState
+    /// Metadata-only placeholder shown until the exact size resolves.
+    let estimatedSizeMB: Double
 
     init(
         id: String, creationDate: Date?, modificationDate: Date? = nil,
         mediaType: AssetQueryMediaType = .photo, isFavorite: Bool = false,
         isReviewed: Bool = false, duration: TimeInterval = 0,
-        size: AssetQuerySizeState = .pending
+        size: AssetQuerySizeState = .pending, estimatedSizeMB: Double = 0
     ) {
         self.id = id
         self.creationDate = creationDate
@@ -106,6 +108,7 @@ struct AssetQueryMetadata: Identifiable, Equatable, Sendable {
         self.isReviewed = isReviewed
         self.duration = duration
         self.size = size
+        self.estimatedSizeMB = estimatedSizeMB
     }
 }
 
@@ -129,8 +132,24 @@ struct AssetQuerySummary: Equatable, Sendable {
     let count: Int
     let pendingCount: Int
     let knownSizeMB: Double
+    /// Total metadata estimate; the header shows this until exact sizes settle.
+    let estimatedSizeMB: Double
     let unknownSizeCount: Int
     var reviewedCount: Int { count - pendingCount }
+
+    init(
+        count: Int,
+        pendingCount: Int,
+        knownSizeMB: Double,
+        estimatedSizeMB: Double = 0,
+        unknownSizeCount: Int
+    ) {
+        self.count = count
+        self.pendingCount = pendingCount
+        self.knownSizeMB = knownSizeMB
+        self.estimatedSizeMB = estimatedSizeMB
+        self.unknownSizeCount = unknownSizeCount
+    }
 }
 
 struct AssetQueryResult: Equatable, Sendable {

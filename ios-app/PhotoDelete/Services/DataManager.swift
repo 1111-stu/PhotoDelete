@@ -315,6 +315,7 @@ class DataManager: ObservableObject {
     @Published private(set) var locatedAssetCount = 0
     @Published private(set) var advancedCleanupQueues: [AdvancedCleanupQueue] = []
     @Published private(set) var advancedCleanupQueuesRevision = UUID()
+    @Published private(set) var specialCleanupSizeSummary = SpecialCleanupSizeSummary.empty
     @Published private(set) var isLoadingAdvancedCleanupQueues = false
     @Published private(set) var isRestoringLibrarySnapshot = false
     let cleanupStatsStore: CleanupStatsStore
@@ -412,8 +413,14 @@ class DataManager: ObservableObject {
         let lastPhotoID: String?
         let videoCount: Int
         let screenshotCount: Int
+        let livePhotoCount: Int
         let imageCompressionSessionCount: Int
         let imageCompressionItemCount: Int
+    }
+
+    private struct AdvancedCleanupBuildResult {
+        let queues: [AdvancedCleanupQueue]
+        let specialSizes: SpecialCleanupSizeSummary
     }
 
     private struct DaySummaryAccumulator {
@@ -1270,6 +1277,7 @@ class DataManager: ObservableObject {
         isLoadingPeriodSummaries = false
         advancedCleanupQueues = []
         advancedCleanupQueuesRevision = UUID()
+        specialCleanupSizeSummary = .empty
         isLoadingAdvancedCleanupQueues = false
         lastAdvancedCleanupQueueBuildSignature = nil
         pendingAdvancedCleanupQueueRefresh = false
@@ -1724,11 +1732,11 @@ class DataManager: ObservableObject {
             return videoCompressionCandidates()
         case .videos:
             return photoLibraryManager.videos.sorted {
-                estimatedAssetSizeMB($0) > estimatedAssetSizeMB($1)
+                AssetSizeHeuristic.estimateMB(for: $0) > AssetSizeHeuristic.estimateMB(for: $1)
             }
         case .screenRecordings:
             return photoLibraryManager.screenRecordings.sorted {
-                estimatedAssetSizeMB($0) > estimatedAssetSizeMB($1)
+                AssetSizeHeuristic.estimateMB(for: $0) > AssetSizeHeuristic.estimateMB(for: $1)
             }
         }
     }
@@ -1769,7 +1777,7 @@ class DataManager: ObservableObject {
                 loadedAssets = videos.sorted(by: Self.defaultVideoListOrder)
             case .screenRecordings:
                 loadedAssets = screenRecordings.sorted {
-                    Self.estimatedAssetSizeMBForAsset($0) > Self.estimatedAssetSizeMBForAsset($1)
+                    AssetSizeHeuristic.estimateMB(for: $0) > AssetSizeHeuristic.estimateMB(for: $1)
                 }
             }
 
@@ -1880,7 +1888,7 @@ class DataManager: ObservableObject {
                 favoriteCandidateIDs.contains(identifier) ||
                 asset.isFavorite
             let isScreenshot = screenshotIDs.contains(identifier)
-            let estimatedSize = Self.estimatedAssetSizeMBForAsset(asset)
+            let estimatedSize = AssetSizeHeuristic.estimateMB(for: asset)
 
             for scope in scopes {
                 let interval = calendar.dateInterval(for: scope, containing: creationDate)
@@ -1928,19 +1936,21 @@ class DataManager: ObservableObject {
     }
 
     func makeAdvancedCleanupQueues() -> [AdvancedCleanupQueue] {
-        Self.makeAdvancedCleanupQueues(
+        Self.makeAdvancedCleanupData(
             photos: photoLibraryManager.allPhotos,
             videos: photoLibraryManager.videos,
             screenRecordings: photoLibraryManager.screenRecordings,
-            screenshotIDs: Set(photoLibraryManager.screenshots.map(\.localIdentifier)),
+            screenshots: photoLibraryManager.screenshots,
+            livePhotos: photoLibraryManager.livePhotos,
             imageCompressionProcessedIDs: imageCompressionProcessedAssetIDs()
-        )
+        ).queues
     }
 
     func refreshAdvancedCleanupQueues(force: Bool = false) {
         guard photoLibraryManager.hasPhotoLibraryAccess else {
             advancedCleanupQueues = []
             advancedCleanupQueuesRevision = UUID()
+            specialCleanupSizeSummary = .empty
             isLoadingAdvancedCleanupQueues = false
             lastAdvancedCleanupQueueBuildSignature = nil
             pendingAdvancedCleanupQueueRefresh = false
@@ -1950,7 +1960,8 @@ class DataManager: ObservableObject {
         let photos = photoLibraryManager.allPhotos
         let videos = photoLibraryManager.videos
         let screenRecordings = photoLibraryManager.screenRecordings
-        let screenshotIDs = Set(photoLibraryManager.screenshots.map(\.localIdentifier))
+        let screenshots = photoLibraryManager.screenshots
+        let livePhotos = photoLibraryManager.livePhotos
         let imageSessions = AppConstants.isImageCompressionVisible ? imageCompressionHistoryStore.sessions : []
         let processedIDs = Self.imageCompressionProcessedAssetIDs(from: imageSessions)
         let signature = AdvancedCleanupQueueBuildSignature(
@@ -1958,7 +1969,8 @@ class DataManager: ObservableObject {
             firstPhotoID: photos.first?.localIdentifier,
             lastPhotoID: photos.last?.localIdentifier,
             videoCount: videos.count,
-            screenshotCount: screenshotIDs.count,
+            screenshotCount: screenshots.count,
+            livePhotoCount: livePhotos.count,
             imageCompressionSessionCount: imageSessions.count,
             imageCompressionItemCount: imageSessions.reduce(0) { $0 + $1.items.count }
         )
@@ -1979,17 +1991,19 @@ class DataManager: ObservableObject {
         isLoadingAdvancedCleanupQueues = true
 
         DispatchQueue.global(qos: .utility).async { [weak self] in
-            let queues = Self.makeAdvancedCleanupQueues(
+            let build = Self.makeAdvancedCleanupData(
                 photos: photos,
                 videos: videos,
                 screenRecordings: screenRecordings,
-                screenshotIDs: screenshotIDs,
+                screenshots: screenshots,
+                livePhotos: livePhotos,
                 imageCompressionProcessedIDs: processedIDs
             )
 
             DispatchQueue.main.async {
                 guard let self, self.advancedCleanupQueueBuildGeneration == generation else { return }
-                self.advancedCleanupQueues = queues
+                self.advancedCleanupQueues = build.queues
+                self.specialCleanupSizeSummary = build.specialSizes
                 self.advancedCleanupQueuesRevision = UUID()
                 self.lastAdvancedCleanupQueueBuildSignature = signature
                 self.isLoadingAdvancedCleanupQueues = false
@@ -2002,19 +2016,28 @@ class DataManager: ObservableObject {
         }
     }
 
-    private static func makeAdvancedCleanupQueues(
+    private static func makeAdvancedCleanupData(
         photos: [PHAsset],
         videos: [PHAsset],
         screenRecordings: [PHAsset],
-        screenshotIDs: Set<String>,
+        screenshots: [PHAsset],
+        livePhotos: [PHAsset],
         imageCompressionProcessedIDs: Set<String>
-    ) -> [AdvancedCleanupQueue] {
+    ) -> AdvancedCleanupBuildResult {
+        let screenshotIDs = Set(screenshots.map(\.localIdentifier))
         let similarGroups = makeSimilarPhotoGroups(
             photos: photos,
             screenshotIDs: screenshotIDs
         )
         let largeFiles = largeFileCandidates(from: photos)
         let videoCompressionCandidates = videoCompressionCandidates(from: videos)
+        let videosMB = videos.reduce(0) { $0 + AssetSizeHeuristic.estimateMB(for: $1) }
+
+        let specialSizes = SpecialCleanupSizeSummary(
+            screenshotsMB: screenshots.reduce(0) { $0 + AssetSizeHeuristic.estimateMB(for: $1) },
+            livePhotosMB: livePhotos.reduce(0) { $0 + AssetSizeHeuristic.estimateMB(for: $1) },
+            videosMB: videosMB
+        )
 
         var queues = [
             AdvancedCleanupQueue(
@@ -2025,7 +2048,7 @@ class DataManager: ObservableObject {
             AdvancedCleanupQueue(
                 kind: .largeFiles,
                 assetCount: largeFiles.count,
-                estimatedSpaceMB: largeFiles.reduce(0) { $0 + estimatedAssetSizeMBForAsset($1) }
+                estimatedSpaceMB: largeFiles.reduce(0) { $0 + AssetSizeHeuristic.estimateMB(for: $1) }
             ),
             AdvancedCleanupQueue(
                 kind: .videoCompression,
@@ -2035,31 +2058,31 @@ class DataManager: ObservableObject {
             AdvancedCleanupQueue(
                 kind: .videos,
                 assetCount: videos.count,
-                estimatedSpaceMB: 0
+                estimatedSpaceMB: videosMB
             ),
             AdvancedCleanupQueue(
                 kind: .screenRecordings,
                 assetCount: screenRecordings.count,
-                estimatedSpaceMB: screenRecordings.reduce(0) { $0 + estimatedAssetSizeMBForAsset($1) }
+                estimatedSpaceMB: screenRecordings.reduce(0) { $0 + AssetSizeHeuristic.estimateMB(for: $1) }
             )
         ]
 
         if AppConstants.isImageCompressionVisible {
-            let imageCompressionCandidates = imageCompressionCandidates(
+            let candidates = imageCompressionCandidates(
                 from: photos,
                 processedIDs: imageCompressionProcessedIDs
             )
             queues.insert(
                 AdvancedCleanupQueue(
                     kind: .imageCompression,
-                    assetCount: imageCompressionCandidates.count,
-                    estimatedSpaceMB: estimatedImageCompressionEstimate(for: imageCompressionCandidates).estimatedSavedMidMB
+                    assetCount: candidates.count,
+                    estimatedSpaceMB: estimatedImageCompressionEstimate(for: candidates).estimatedSavedMidMB
                 ),
                 at: 2
             )
         }
 
-        return queues
+        return AdvancedCleanupBuildResult(queues: queues, specialSizes: specialSizes)
     }
 
     func makeSimilarPhotoGroups(
@@ -2118,7 +2141,7 @@ class DataManager: ObservableObject {
             return lhsDate < rhsDate
         }
         let estimatedSpace = sortedAssets.dropFirst().reduce(0) {
-            $0 + estimatedAssetSizeMBForAsset($1)
+            $0 + AssetSizeHeuristic.estimateMB(for: $1)
         }
         return AdvancedSimilarPhotoGroup(
             assets: sortedAssets,
@@ -2221,7 +2244,7 @@ class DataManager: ObservableObject {
 
     private static func largeFileCandidates(from photos: [PHAsset], maxCount: Int? = nil) -> [PHAsset] {
         let candidates = photos.filter { asset in
-            let estimatedSize = estimatedAssetSizeMBForAsset(asset)
+            let estimatedSize = AssetSizeHeuristic.estimateMB(for: asset)
             if asset.mediaType == .video {
                 return true
             }
@@ -2230,7 +2253,7 @@ class DataManager: ObservableObject {
         let source = candidates.isEmpty ? photos : candidates
 
         let sorted = source.sorted {
-            estimatedAssetSizeMBForAsset($0) > estimatedAssetSizeMBForAsset($1)
+            AssetSizeHeuristic.estimateMB(for: $0) > AssetSizeHeuristic.estimateMB(for: $1)
         }
         if let maxCount {
             return Array(sorted.prefix(maxCount))
@@ -2269,7 +2292,7 @@ class DataManager: ObservableObject {
             asset.mediaType == .image &&
                 !asset.mediaSubtypes.contains(.photoLive) &&
                 !processedIDs.contains(asset.localIdentifier) &&
-                estimatedAssetSizeMBForAsset(asset) >= 2
+                AssetSizeHeuristic.estimateMB(for: asset) >= 2
         }
         let source = candidates.isEmpty
             ? photos.filter {
@@ -2280,7 +2303,7 @@ class DataManager: ObservableObject {
             : candidates
 
         let sorted = source.sorted {
-            estimatedAssetSizeMBForAsset($0) > estimatedAssetSizeMBForAsset($1)
+            AssetSizeHeuristic.estimateMB(for: $0) > AssetSizeHeuristic.estimateMB(for: $1)
         }
         if let maxCount {
             return Array(sorted.prefix(maxCount))
@@ -2459,7 +2482,7 @@ class DataManager: ObservableObject {
            estimate.isReliable {
             return estimate.sizeMB
         }
-        return estimatedAssetSizeMB(asset)
+        return AssetSizeHeuristic.estimateMB(for: asset)
     }
 
     func cachedAssetFileSizeEstimate(for asset: PHAsset) -> AssetFileSizeEstimate? {
@@ -2509,26 +2532,11 @@ class DataManager: ObservableObject {
         videoFileSizeEstimateCache = videoFileSizeEstimateCache.filter { assetIdentifiers.contains($0.key) }
     }
 
-    private func estimatedAssetSizeMB(_ asset: PHAsset) -> Double {
-        Self.estimatedAssetSizeMBForAsset(asset)
-    }
-
-    private static func estimatedAssetSizeMBForAsset(_ asset: PHAsset) -> Double {
-        if asset.mediaType == .video {
-            let megapixels = Double(asset.pixelWidth) * Double(asset.pixelHeight) / 1_000_000
-            let duration = max(asset.duration, 1)
-            let bitrateMbps = min(max(megapixels * 4.2, 2.4), 48)
-            return max(duration * bitrateMbps / 8, 1.5)
-        }
-        let megapixels = Double(asset.pixelWidth) * Double(asset.pixelHeight) / 1_000_000
-        return max(megapixels * 0.55, 0.8)
-    }
-
     private static func originalSizeMB(
         for asset: PHAsset,
         knownOriginalSizeMBByAssetID: [String: Double]
     ) -> Double {
-        knownOriginalSizeMBByAssetID[asset.localIdentifier] ?? estimatedAssetSizeMBForAsset(asset)
+        knownOriginalSizeMBByAssetID[asset.localIdentifier] ?? AssetSizeHeuristic.estimateMB(for: asset)
     }
 
     private static func estimatedCompressedSizeMB(

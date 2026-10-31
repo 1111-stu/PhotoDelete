@@ -82,9 +82,7 @@ struct CleanupAssetBrowserView: View {
     private func summary(_ result: AssetQueryResult) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             (dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8)) : AnyLayout(HStackLayout(alignment: .firstTextBaseline))) {
-                Text(result.summary.knownSizeMB > 0 || result.summary.unknownSizeCount == 0
-                     ? CleanupStatsFormatter.fileSize(result.summary.knownSizeMB)
-                     : (result.isCalculatingSizes ? L10n.string("Calculating") : L10n.string("Unknown size")))
+                Text(summarySizeText(for: result))
                     .font(.largeTitle.bold()).monospacedDigit()
                     .foregroundStyle(Theme.primaryText)
                     .accessibilityIdentifier("cleanup-browser-size")
@@ -118,6 +116,18 @@ struct CleanupAssetBrowserView: View {
                 .padding(.top, 10)
         }
         .padding(.horizontal, 4)
+    }
+
+    /// 精确大小还在读时先给同口径的估算总量，避免把部分合计当成总数。
+    private func summarySizeText(for result: AssetQueryResult) -> String {
+        if result.isCalculatingSizes {
+            guard result.summary.estimatedSizeMB > 0 else { return L10n.string("Calculating") }
+            return "≈ " + CleanupStatsFormatter.fileSize(result.summary.estimatedSizeMB)
+        }
+        if result.summary.knownSizeMB > 0 || result.summary.unknownSizeCount == 0 {
+            return CleanupStatsFormatter.fileSize(result.summary.knownSizeMB)
+        }
+        return L10n.string("Unknown size")
     }
 
     private func assetSections(_ result: AssetQueryResult, width: CGFloat) -> some View {
@@ -321,7 +331,7 @@ struct CleanupAssetCard: View {
                 HStack(spacing: 4) {
                     Text(shortDate).foregroundStyle(Theme.secondaryText)
                     Spacer(minLength: 0)
-                    Text(metadata.size.cardText).foregroundStyle(Theme.primaryText)
+                    Text(sizeText(for: metadata)).foregroundStyle(Theme.primaryText)
                 }
                 .font(.system(size: metadataSize)).monospacedDigit().lineLimit(1).fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 3)
@@ -331,8 +341,15 @@ struct CleanupAssetCard: View {
             .contentShape(RoundedRectangle(cornerRadius: Theme.radiusMd))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(fullDate), \(metadata.size.displayText)\(asset.mediaType == .video ? ", \(durationText)" : "")\(isPendingDeletion ? ", \(L10n.string("Pending deletion"))" : metadata.isReviewed ? ", \(L10n.string("Reviewed"))" : "")")
+        .accessibilityLabel("\(fullDate), \(sizeText(for: metadata))\(asset.mediaType == .video ? ", \(durationText)" : "")\(isPendingDeletion ? ", \(L10n.string("Pending deletion"))" : metadata.isReviewed ? ", \(L10n.string("Reviewed"))" : "")")
         .accessibilityIdentifier("cleanup-asset-\(asset.localIdentifier)")
+    }
+
+    private func sizeText(for metadata: AssetQueryMetadata) -> String {
+        if metadata.size.isCalculating, metadata.estimatedSizeMB > 0 {
+            return "≈ " + CleanupStatsFormatter.fileSize(metadata.estimatedSizeMB)
+        }
+        return metadata.size.cardText
     }
 
     private var shortDate: String {

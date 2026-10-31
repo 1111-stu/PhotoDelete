@@ -186,7 +186,8 @@ private final class AssetQuerySubscription {
                 modificationDate: asset.modificationDate,
                 mediaType: asset.mediaType == .video ? .video : (asset.mediaType == .image ? .photo : .other),
                 isFavorite: asset.isFavorite, isReviewed: reviewed.contains(asset.localIdentifier),
-                duration: asset.duration, size: size
+                duration: asset.duration, size: size,
+                estimatedSizeMB: AssetSizeHeuristic.estimateMB(for: asset)
             )
         }
         metadataIndexByID = Dictionary(metadata.enumerated().map { ($0.element.id, $0.offset) }, uniquingKeysWith: { first, _ in first })

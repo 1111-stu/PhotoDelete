@@ -659,6 +659,20 @@ struct AdvancedCleanupQueue: Identifiable, Equatable {
     }
 }
 
+/// Metadata-only category totals shown by the home "Special cleanup" rows.
+/// Exact sizes stay in the asset browsers.
+struct SpecialCleanupSizeSummary: Equatable {
+    var screenshotsMB: Double = 0
+    var livePhotosMB: Double = 0
+    var videosMB: Double = 0
+
+    static let empty = SpecialCleanupSizeSummary()
+
+    var totalMB: Double {
+        screenshotsMB + livePhotosMB + videosMB
+    }
+}
+
 struct AdvancedLibraryStats: Equatable {
     let totalAssets: Int
     let reviewedAssets: Int

@@ -695,6 +695,7 @@ struct HomeView: View {
                     iconImageSize: 42,
                     titleFont: .system(size: 16, weight: .semibold),
                     title: L10n.string("Screenshots"),
+                    value: specialCleanupSizeText(dataManager.specialCleanupSizeSummary.screenshotsMB),
                     accessibilityIdentifier: "home-cleanup-screenshots"
                 ) {
                     router.push(SwipeViewDestination.assetBrowser(.screenshots))
@@ -716,7 +717,7 @@ struct HomeView: View {
                     iconImageSize: 38,
                     titleFont: .system(size: 16, weight: .semibold),
                     title: L10n.string("Videos & Screen Recordings"),
-                    value: videosAndScreenRecordingsQueueValue,
+                    value: specialCleanupSizeText(dataManager.specialCleanupSizeSummary.videosMB),
                     accessibilityIdentifier: "home-cleanup-videos"
                 ) {
                     router.push(SwipeViewDestination.assetBrowser(.videos))
@@ -727,6 +728,7 @@ struct HomeView: View {
                     iconImageSize: 38,
                     titleFont: .system(size: 16, weight: .semibold),
                     title: L10n.string("Live Photos"),
+                    value: specialCleanupSizeText(dataManager.specialCleanupSizeSummary.livePhotosMB),
                     accessibilityIdentifier: "home-cleanup-live-photos"
                 ) {
                     router.push(SwipeViewDestination.assetBrowser(.livePhotos))
@@ -788,25 +790,20 @@ struct HomeView: View {
         dataManager.advancedCleanupQueues.first { $0.kind == kind }
     }
 
-    /// 录屏是视频的子集：两个队列取较大值，避免重复计数；录像大小未读到时用录屏估算兜底。
-    private var videosAndScreenRecordingsQueueValue: String? {
-        let videosMB = cleanupQueue(for: .videos)?.estimatedSpaceMB ?? 0
-        let recordingsMB = cleanupQueue(for: .screenRecordings)?.estimatedSpaceMB ?? 0
-        let totalMB = max(videosMB, recordingsMB)
-        guard totalMB > 0 else { return nil }
-        return CleanupStatsFormatter.space(totalMB)
+    private func specialCleanupSizeText(_ megabytes: Double) -> String? {
+        guard megabytes > 0 else { return nil }
+        return CleanupStatsFormatter.space(megabytes)
     }
 
     private var libraryStats: AdvancedLibraryStats {
         dataManager.makeSettingsStatsSummary()
     }
 
-    /// 专项清理头部合计（相似 + 视频与录屏；录屏是视频子集，取两者较大值避免重复计数）。
+    /// 专项清理头部合计：相似可回收 + 视频/录屏 + 截图 + 实况。
+    /// 录屏是视频子集，videosMB 已覆盖，不再单独相加。
     private var cleanupReclaimableSizeText: String {
         let similarMB = cleanupQueue(for: .similarPhotos)?.estimatedSpaceMB ?? 0
-        let videosMB = cleanupQueue(for: .videos)?.estimatedSpaceMB ?? 0
-        let recordingsMB = cleanupQueue(for: .screenRecordings)?.estimatedSpaceMB ?? 0
-        let reclaimMB = similarMB + max(videosMB, recordingsMB)
+        let reclaimMB = similarMB + dataManager.specialCleanupSizeSummary.totalMB
         if reclaimMB <= 0 && dataManager.isLoadingAdvancedCleanupQueues {
             return L10n.string("Reading")
         }

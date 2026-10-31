@@ -54,6 +54,17 @@ struct AssetQueryTests {
         #expect(result.summary.unknownSizeCount == 2)
     }
 
+    @Test func estimatedSizesCoverPendingAssetsUntilExactSizesSettle() {
+        let assets: [AssetQueryMetadata] = [
+            .init(id: "pending", creationDate: nil, size: .pending, estimatedSizeMB: 12),
+            .init(id: "known", creationDate: nil, size: .knownMB(8), estimatedSizeMB: 10)
+        ]
+        let result = AssetQueryEngine.execute(query: query(), assets: assets)
+        #expect(result.summary.estimatedSizeMB == 22)
+        #expect(result.summary.knownSizeMB == 8)
+        #expect(result.isCalculatingSizes)
+    }
+
     @Test func dateSortDoesNotDependOnInputOrderAndUndatedAlwaysLast() {
         let assets: [AssetQueryMetadata] = [
             .init(id: "nil", creationDate: nil),

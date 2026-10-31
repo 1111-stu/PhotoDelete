@@ -99,12 +99,14 @@ enum AssetQueryEngine {
         var pendingIDs: [String] = []
         var knownSizeMB = 0.0
         var knownSizeCount = 0
+        var estimatedSizeMB = 0.0
         var assetIDs: [String] = []
         var metadataByID: [String: AssetQueryMetadata] = [:]
         for asset in ordered {
             try checkCancellation()
             assetIDs.append(asset.id)
             metadataByID[asset.id] = asset
+            estimatedSizeMB += asset.estimatedSizeMB
             if !asset.isReviewed { pendingIDs.append(asset.id) }
             if let size = asset.size.knownSizeMB {
                 knownSizeMB += size
@@ -121,6 +123,7 @@ enum AssetQueryEngine {
             summary: .init(
                 count: ordered.count, pendingCount: pendingIDs.count,
                 knownSizeMB: knownSizeMB,
+                estimatedSizeMB: estimatedSizeMB,
                 unknownSizeCount: ordered.count - knownSizeCount
             )
         )
