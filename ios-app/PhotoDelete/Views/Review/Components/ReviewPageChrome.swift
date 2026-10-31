@@ -91,6 +91,14 @@ struct ReviewCompletionOverlay: View {
             }
 
             VStack(alignment: .leading, spacing: 22) {
+                Text(L10n.string("Organizing Complete"))
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(Theme.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.trailing, 44)
+
                 VStack(spacing: 16) {
                     completionStatRow(
                         tint: Theme.destructive,
@@ -116,7 +124,7 @@ struct ReviewCompletionOverlay: View {
                 .accessibilityIdentifier("review-completion-primary-button")
             }
             .padding(.horizontal, 22)
-            .padding(.top, 46)
+            .padding(.top, 20)
             .padding(.bottom, 22)
             .background {
                 RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
@@ -135,11 +143,13 @@ struct ReviewCompletionOverlay: View {
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(Theme.primaryText)
                         .frame(width: 32, height: 32)
-                        .background(Circle().fill(Color.white.opacity(0.18)))
+                        .background { PhotoDeleteGlassCircleBackground() }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .padding(.top, 10)
-                .padding(.trailing, 10)
+                .padding(.top, 6)
+                .padding(.trailing, 6)
                 .accessibilityLabel(Text(L10n.string("Close")))
                 .accessibilityIdentifier("review-completion-close")
             }

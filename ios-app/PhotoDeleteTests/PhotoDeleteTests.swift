@@ -2162,6 +2162,45 @@ struct PhotoDeleteTests {
         ) == 0)
     }
 
+    @Test func albumStripPolicyDropsQueuedDeletesFromSelectionList() async throws {
+        let queuedIndices: Set<Int> = [1, 3]
+
+        let visible = AlbumReviewStripPolicy.visibleSessionIndices(
+            count: 5,
+            currentIndex: 0,
+            isQueuedForDelete: { queuedIndices.contains($0) }
+        )
+
+        #expect(visible == [0, 2, 4])
+    }
+
+    @Test func albumStripPolicyKeepsCurrentPhotoEvenWhenQueued() async throws {
+        let queuedIndices: Set<Int> = [2]
+
+        let visible = AlbumReviewStripPolicy.visibleSessionIndices(
+            count: 4,
+            currentIndex: 2,
+            isQueuedForDelete: { queuedIndices.contains($0) }
+        )
+
+        #expect(visible == [0, 1, 2, 3])
+    }
+
+    @Test func albumStripPolicyHandlesEmptyAndFullyQueuedRounds() async throws {
+        #expect(AlbumReviewStripPolicy.visibleSessionIndices(
+            count: 0,
+            currentIndex: 0,
+            isQueuedForDelete: { _ in true }
+        ).isEmpty)
+
+        let allQueued: Set<Int> = [0, 1, 2]
+        #expect(AlbumReviewStripPolicy.visibleSessionIndices(
+            count: 3,
+            currentIndex: 1,
+            isQueuedForDelete: { allQueued.contains($0) }
+        ) == [1])
+    }
+
     @Test func randomReviewWaitsForTheCompleteLibraryEvenWhenPartialPhotosExist() async throws {
         #expect(PhotoReviewSessionInitializationPolicy.shouldWaitForSource(
             isRandomReview: true,

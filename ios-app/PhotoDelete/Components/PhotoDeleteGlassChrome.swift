@@ -42,6 +42,21 @@ struct PhotoDeleteGlassCapsuleChrome: ViewModifier {
     }
 }
 
+/// 自定义尺寸按钮的玻璃圆底。
+/// 说明：这里不用 iOS 26 的 `glassEffect`——放在自定义尺寸按钮的 label 里会让
+/// 按钮的命中区域塌缩到图标本身，点击失效。用材质 + 高光描边模拟同一观感。
+/// 也不要给这层加 `.allowsHitTesting(false)`，否则整个按钮都收不到点击。
+struct PhotoDeleteGlassCircleBackground: View {
+    var body: some View {
+        Circle()
+            .fill(.ultraThinMaterial)
+            .overlay {
+                Circle()
+                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+            }
+    }
+}
+
 /// 整理页历史命名，指向共用实现。
 typealias ReviewGlassCircleChrome = PhotoDeleteGlassCircleChrome
 typealias ReviewGlassCapsuleChrome = PhotoDeleteGlassCapsuleChrome

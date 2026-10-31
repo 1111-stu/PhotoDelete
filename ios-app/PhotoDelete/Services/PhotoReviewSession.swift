@@ -163,6 +163,22 @@ enum PhotoRandomReviewNavigationPolicy {
     }
 }
 
+/// 相册整理页底部导轨的可选项。已加入待删除的项要从滚动选择列表里消失；
+/// 但当前正在看的那张即使在队列里也要保留 —— 否则导轨没有可跟随的高亮，
+/// 也滚不回当前项（典型场景：进页面时就停在一条已在垃圾桶里的照片上）。
+enum AlbumReviewStripPolicy {
+    static func visibleSessionIndices(
+        count: Int,
+        currentIndex: Int,
+        isQueuedForDelete: (Int) -> Bool
+    ) -> [Int] {
+        guard count > 0 else { return [] }
+        return (0..<count).filter { index in
+            index == currentIndex || !isQueuedForDelete(index)
+        }
+    }
+}
+
 enum PhotoReviewSessionReviewedStatePolicy {
     static func usesPersistedReviewedState(
         isAlbumMode: Bool,

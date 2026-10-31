@@ -716,8 +716,11 @@ struct SwipePhotoView: View {
     }
 
     private func horizontalNeighborIndex(step: Int) -> Int? {
+        // 相册整理和随机整理一样：已加入待删除的照片不再参与左右翻页，
+        // 避免用户滑回去又看到「已加入待删除」。
+        let excludesQueuedDeletes = randomReviewScope != nil || isAlbumMode
         let isExcluded: (Int) -> Bool = { index in
-            randomReviewScope != nil && isAssetQueuedForDelete(session.photos[index])
+            excludesQueuedDeletes && isAssetQueuedForDelete(session.photos[index])
         }
         if step < 0 {
             return PhotoRandomReviewNavigationPolicy.previousIndex(
@@ -871,12 +874,25 @@ struct SwipePhotoView: View {
     }
 
     private var albumPhotoStrip: some View {
-        ReviewPhotoStrip(
-            photos: session.photos,
+        // 导轨只列还留在本轮里的照片；已加入待删除的项不会再出现在选择列表里
+        // （当前项例外，见 AlbumReviewStripPolicy）。下标要映射回 session，
+        // 否则过滤后点缩略图会跳到错的照片。
+        let sessionIndices = AlbumReviewStripPolicy.visibleSessionIndices(
+            count: session.photos.count,
             currentIndex: session.currentIndex,
+            isQueuedForDelete: { isAssetQueuedForDelete(session.photos[$0]) }
+        )
+        let stripPhotos = sessionIndices.map { session.photos[$0] }
+        let currentStripIndex = sessionIndices.firstIndex(of: session.currentIndex) ?? 0
+        return ReviewPhotoStrip(
+            photos: stripPhotos,
+            currentIndex: currentStripIndex,
             photoLibraryManager: dataManager.photoLibraryManager,
             isScrubbing: $isStripScrubbing,
-            onSelect: selectAlbumStripPhoto(at:)
+            onSelect: { stripIndex in
+                guard sessionIndices.indices.contains(stripIndex) else { return }
+                selectAlbumStripPhoto(at: sessionIndices[stripIndex])
+            }
         )
     }
 

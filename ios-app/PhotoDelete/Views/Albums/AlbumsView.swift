@@ -1529,12 +1529,16 @@ private struct AlbumNameDialog: View {
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.primaryText)
                     .frame(width: 32, height: 32)
+                    .background { PhotoDeleteGlassCircleBackground() }
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
-            .modifier(PhotoDeleteGlassCircleChrome())
+            .buttonStyle(.plain)
             .disabled(isBusy)
-            .padding(.top, 10)
-            .padding(.trailing, 10)
+            .padding(.top, 4)
+            .padding(.trailing, 4)
             .accessibilityLabel(Text(L10n.string("Cancel")))
+            .accessibilityIdentifier("album-dialog-close")
         }
     }
 }
