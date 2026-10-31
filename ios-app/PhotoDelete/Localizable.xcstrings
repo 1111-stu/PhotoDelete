@@ -31830,46 +31830,6 @@
         }
       }
     },
-    "Only the current video plays. Playback stops when you switch photos." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يتم تشغيل الفيديو الحالي فقط. يتوقف التشغيل تلقائيًا عند التبديل."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nur das aktuelle Video wird abgespielt. Beim Wechseln stoppt die Wiedergabe automatisch."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Only the current video plays. Playback stops when you switch photos."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "現在の動画だけ再生します。切り替えると自動停止します。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "只播放当前视频，切换后会自动停止"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "只播放目前影片，切換後會自動停止"
-          }
-        }
-      }
-    },
     "Only upgrades to a higher plan are supported" : {
       "localizations" : {
         "ar" : {
@@ -35031,28 +34991,6 @@
         }
       }
     },
-    "Photos already added to your albums are hidden by default" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Photos already added to your albums are hidden by default"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "默认不再显示已加入用户相册的照片"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "預設不再顯示已加入使用者相簿的照片"
-          }
-        }
-      }
-    },
     "Photos and videos you can review will appear shortly." : {
       "localizations" : {
         "ar" : {
@@ -35964,46 +35902,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "播放"
-          }
-        }
-      }
-    },
-    "Plays once when you open the current photo. You can also control it from the top-right button." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يتم التشغيل مرة واحدة عند فتح الصورة الحالية. يمكنك أيضًا التحكم به من الزر في أعلى اليمين."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wird beim Öffnen des aktuellen Fotos einmal abgespielt. Du kannst es auch über die Taste oben rechts steuern."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plays once when you open the current photo. You can also control it from the top-right button."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "現在の写真を開いたときに1回だけ再生します。右上のボタンから手動で操作することもできます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "进入当前照片时只播放一次，也可点右上角手动控制"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "進入目前照片時只播放一次，也可點右上角手動控制"
           }
         }
       }
@@ -37073,9 +36971,6 @@
           }
         }
       }
-    },
-    "PRO" : {
-
     },
     "Processing image %lld" : {
       "localizations" : {
@@ -54771,46 +54666,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "查看價格"
-          }
-        }
-      }
-    },
-    "View Pro" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "عرض Pro"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro ansehen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View Pro"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro を見る"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看 Pro"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看 Pro"
           }
         }
       }

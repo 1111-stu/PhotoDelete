@@ -233,7 +233,7 @@ final class PhotoReviewActions: ObservableObject {
                     message: targetStatus ? L10n.string("Added to Favorites") : L10n.string("Removed from favorites"),
                     icon: targetStatus ? "heart.fill" : "heart.slash",
                     style: .favorite,
-                    showsUndo: true
+                    showsUndo: false
                 ))
             } else {
                 self.events.send(.haptic(.error))

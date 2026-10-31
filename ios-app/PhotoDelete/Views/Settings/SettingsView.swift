@@ -194,7 +194,7 @@ struct SettingsView: View {
             VStack(spacing: 0) {
                 SettingRow(
                     title: L10n.string("Language"),
-                    subtitle: selectedLanguage.title,
+                    value: selectedLanguage.title,
                     action: {
                         activeSheet = .languageSettings
                     }
@@ -204,7 +204,6 @@ struct SettingsView: View {
 
                 SettingToggleRow(
                     title: L10n.string("Auto-play videos"),
-                    subtitle: L10n.string("Only the current video plays. Playback stops when you switch photos."),
                     isOn: $reviewVideoAutoPlay
                 )
 
@@ -212,7 +211,6 @@ struct SettingsView: View {
 
                 SettingToggleRow(
                     title: L10n.string("Auto-play Live Photos"),
-                    subtitle: L10n.string("Plays once when you open the current photo. You can also control it from the top-right button."),
                     isOn: $reviewLivePhotoAutoPlay
                 )
             }
@@ -232,7 +230,6 @@ struct SettingsView: View {
 
                 SettingToggleRow(
                     title: L10n.string("Hide filed photos"),
-                    subtitle: L10n.string("Photos already added to your albums are hidden by default"),
                     isOn: $randomReviewHideFiledPhotos
                 )
             }
@@ -248,7 +245,7 @@ struct SettingsView: View {
             VStack(spacing: 0) {
                 SettingRow(
                     title: L10n.string("Local Cleanup Data"),
-                    subtitle: localDataSubtitle,
+                    value: localDataSubtitle,
                     showsChevron: false,
                     action: {
                         showingClearLocalDataConfirmation = true
@@ -271,7 +268,7 @@ struct SettingsView: View {
 
                 SettingRow(
                     title: L10n.string("Photo Access"),
-                    subtitle: photoAccessSubtitle,
+                    value: photoAccessSubtitle,
                     action: {
                         dataManager.managePhotoLibraryAccessSettings()
                     }
@@ -478,6 +475,7 @@ struct StatCard: View {
 struct SettingRow: View {
     let title: String
     var subtitle = ""
+    var value = ""
     var showsChevron = true
     let action: () -> Void
 
@@ -489,6 +487,13 @@ struct SettingRow: View {
                     subtitleLabel
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+
+                if !value.isEmpty {
+                    Text(value)
+                        .settingsRowValue()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
 
                 if showsChevron {
                     Image(systemName: "chevron.right")
@@ -506,7 +511,7 @@ struct SettingRow: View {
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(title))
-        .accessibilityValue(Text(subtitle))
+        .accessibilityValue(Text(value.isEmpty ? subtitle : value))
     }
 
     private var titleLabel: some View {
@@ -528,21 +533,13 @@ struct SettingRow: View {
 
 struct SettingToggleRow: View {
     let title: String
-    let subtitle: String
     @Binding var isOn: Bool
 
     var body: some View {
         Toggle(isOn: $isOn) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .settingsRowTitle()
-                    .multilineTextAlignment(.leading)
-
-                Text(subtitle)
-                    .settingsRowValue()
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
-            }
+            Text(title)
+                .settingsRowTitle()
+                .multilineTextAlignment(.leading)
         }
         .tint(Theme.positive)
         .padding(.horizontal, 16)
@@ -573,17 +570,14 @@ struct RandomReviewBatchSizeSettingRow: View {
             }
         } label: {
             HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("Photos per round"))
-                        .settingsRowTitle()
-                        .multilineTextAlignment(.leading)
+                Text(L10n.string("Photos per round"))
+                    .settingsRowTitle()
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Text(selectedSize.subtitle)
-                        .settingsRowValue()
-                        .lineLimit(2)
-                }
-
-                Spacer(minLength: 12)
+                Text(selectedSize.title)
+                    .settingsRowValue()
+                    .lineLimit(1)
 
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.subheadline.weight(.semibold))
@@ -599,7 +593,7 @@ struct RandomReviewBatchSizeSettingRow: View {
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(L10n.string("Photos per round")))
-        .accessibilityValue(Text(selectedSize.subtitle))
+        .accessibilityValue(Text(selectedSize.title))
         .accessibilityIdentifier("random-review-batch-size-setting")
     }
 }

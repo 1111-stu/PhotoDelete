@@ -88,6 +88,13 @@ private extension ProEntryBanner {
             RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
                 .fill(Theme.surface)
 
+            // 内圈折射：把彩光再往卡面里压 6pt，边框才像一块有厚度的材质，而不是一条描边。
+            RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
+                .strokeBorder(PaywallDS.Gradient.iridescent, lineWidth: 6)
+                .blur(radius: 6)
+                .opacity(isPro ? 0.10 : 0.30)
+                .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
+
             specularSweep
                 .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
 

@@ -138,10 +138,6 @@ enum PhotoRandomReviewBatchSize: Int, CaseIterable, Identifiable {
         String(format: L10n.string("%lld images"), Int64(rawValue))
     }
 
-    var subtitle: String {
-        String(format: L10n.string("Up to %lld photos per round"), Int64(rawValue))
-    }
-
     static func normalized(_ rawValue: Int) -> PhotoRandomReviewBatchSize {
         PhotoRandomReviewBatchSize(rawValue: rawValue) ?? defaultValue
     }

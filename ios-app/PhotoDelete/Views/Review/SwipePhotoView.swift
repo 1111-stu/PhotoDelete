@@ -333,7 +333,7 @@ struct SwipePhotoView: View {
                         }
                         .padding(.horizontal, Theme.space5)
                         .allowsHitTesting(feedbackToast.showsUndo)
-                        .padding(.top, 88)
+                        .padding(.top, Theme.space16)
                         .frame(
                             maxWidth: .infinity,
                             maxHeight: .infinity,

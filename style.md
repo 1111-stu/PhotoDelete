@@ -29,7 +29,7 @@ PhotoDelete is a local-first photo cleanup app. The interface is built around on
 3. **One container per group.** Use hairlines inside a card; do not stack equally prominent cards inside cards.
 4. **Photos and illustrations lead.** Keep labels, chrome, and dividers subordinate.
 5. **Optical alignment beats mechanical alignment.** Align icon centers and title columns across sections; size each illustration by perceived ink mass, not by a single box.
-6. **Static is static.** No ambient motion, parallax, floating loops, or scroll-triggered reveals. Motion explains a state change or direct manipulation. Registered exception (2026-10-25): the home Random Review action row’s slow, low-contrast sheen.
+6. **Static is static.** No ambient motion, parallax, floating loops, or scroll-triggered reveals. Motion explains a state change or direct manipulation. Registered exceptions: the home Random Review action row’s slow, low-contrast sheen (2026-10-25), and the settings Pro entry’s specular sweep (2026-10-31; conversion-only — it stops once the user is Pro).
 7. **Native where it matters.** Use system sheets, switches, blur, and safe-area behavior; custom chrome only where it adds identity.
 
 ### 1.3 Reference set (2026-10-25)
@@ -151,7 +151,7 @@ The period and cleanup illustrations are **approved raster assets**, not color t
 4. Use white for primary actions and selected states. Amber is not an action color.
 5. Do not use color alone to communicate state; pair it with weight, shape, label, or icon.
 6. Green is reserved for switch-on and success. Do not use green as a general brand accent or for selected tabs.
-7. Registered exception: the Supporter paywall (`PaywallDS`) keeps its own pink accent, gold rating star, and white CTA. Its settings entry (`ProEntryBanner`) borrows the same pink for one seal, one `PRO` chip, and a pink→white rim — nothing else in settings may use pink. Both are dedicated conversion surfaces and do not inherit the home action tokens.
+7. Registered exception: the Supporter paywall (`PaywallDS`) keeps its own pink accent, gold rating star, and white CTA. Its settings entry (`ProEntryBanner`) borrows the same palette for one iridescent glass orb and one iridescent edge — nothing else in settings may use these colors. Both are dedicated conversion surfaces and do not inherit the home action tokens.
 
 ---
 
@@ -544,18 +544,20 @@ The provided reference screens add useful composition patterns:
 - Page inset 20pt; card radius 24; surface; internal hairline 16pt.
 - Section labels: 14 / 700 or 13 / 500 secondary for quiet groups.
 - Rows: 56pt min height; title 17 / 600; subtitle 13 / 400 secondary; chevron tertiary.
-- Toggles: soft green tint (`Theme.positive`); row labels remain primary.
+- Current values (language, photo access, photos per round, local cleanup data) sit on the trailing edge before the chevron as one line, never as a subtitle under the title.
+- Toggles: soft green tint (`Theme.positive`); row labels remain primary. Toggle rows are title-only unless the subtitle carries information the title cannot.
+- Use `SettingRow(value:)` for a trailing value and `subtitle:` only for a second line that cannot move right (for example an email address).
 - A Pro/feature card may use a glass pill CTA and a larger 24–28pt radius; keep it to one prominent card per screen.
-- **Settings Pro entry (`ProEntryBanner`, 2026-10-31):** one 24pt card at the top of settings; `surface` fill with a 1pt pink→white 6% diagonal rim; 52pt `elevatedSurface` seal with a pink 30% border and a pink crown (checkmark when active); title 17 / 700 with a 16pt pink `PRO` chip; benefit line 12.5 / 400 secondary, up to 2 lines; a white 32pt `View Pro` capsule on the trailing edge. The whole card is the hit target and the capsule is visual only (same rule as the hero CTA). Active Pro users see the plan title, status subtitle, and a 32pt soft-fill chevron circle instead of the capsule.
+- **Settings Pro entry (`ProEntryBanner`, 2026-10-31):** one 28pt card at the top of settings, 20pt padding, `surface` fill. The material is the only art: an iridescent `PaywallDS.Gradient.iridescent` edge (2pt crisp stroke + 8pt blurred outer halo + a 6pt inner refraction, all low-contrast and clipped), plus a 44pt iridescent glass orb with a top-left specular and a darkened lower rim (pink → lavender → mint). Content is deliberately minimal: title 17 / 700 (the only place "Pro" appears), one benefit line 12.5 / 400 secondary up to 2 lines, and a plain `chevron.right` in secondary text. No chip, no crown, no filled CTA pill — the whole card is the only hit target. Active Pro: the orb carries a checkmark, the iridescent edge collapses to a 1pt white 14% hairline with a faint halo, the sweep stops, and the title/subtitle switch to the plan name and status. Reduce Motion: no sweep, identical composition.
 - Do not use the reference's green switches or its display font.
 
 ### 6.15 Toast
 
 - One shared component (`PhotoDeleteToastView`): capsule, `elevatedSurface` at 94%, 1px `hairline`, floating shadow. Never tint the border by outcome.
 - Monochrome: icon, message, and Undo all use primary text. Status is carried by the icon shape and copy, not by color.
-- Type 14 / 600, single line with 0.8 minimum scale; 20pt icon slot; 16pt horizontal and 12pt vertical padding. Undo is separated by a hairline divider and is the only hit-testable part.
+- Type 13 / 600, single line with 0.8 minimum scale; 20pt icon slot; 16pt horizontal and 12pt vertical padding. Undo is separated by a hairline divider and is the only hit-testable part.
 - Default dwell 2.4s; 4.5s when Undo is shown. Short contextual feedback (mute, boundary) may override via `PhotoDeleteToast.duration`.
-- Placement: bottom with a 96pt inset on tab screens; top with an 88pt inset on the review screen (16pt inside the iPad sidebar) because the bottom is reserved for review controls; the album-tray variant stays left-aligned above the tray.
+- Placement: bottom with a 96pt inset on tab screens; top with a 64pt inset on the review screen (16pt inside the iPad sidebar) because the bottom is reserved for review controls; the album-tray variant stays left-aligned above the tray.
 - Motion: 0.22s fade + 0.30s translate. Reduce Motion keeps the fade only.
 
 ---
@@ -590,6 +592,7 @@ Rules:
 
 - **Static is static.** No ambient floating, parallax, ripple, or scroll-triggered reveals.
 - **Registered exception (2026-10-25):** the home Random Review action row carries a slow ambient sheen (7s loop; ~3s sweep, ~4s rest; white 4–13%; 30fps; clipped to the row; disabled under Reduce Motion). Do not generalize it to other rows or cards.
+- **Registered exception (2026-10-31):** the settings Pro entry card carries one specular sweep (9s loop; ~3.8s sweep, rest otherwise; white 10%; 30fps; clipped to the 28pt card). It is a conversion cue only: it disappears when the user is Pro and under Reduce Motion. Do not add a second animation to the same card.
 - Motion explains a state change, a gesture result, or a direct manipulation.
 - Keep durations short; respect Reduce Motion.
 - Prefer opacity/transform/background; avoid animating layout where a crossfade is clearer.
@@ -607,6 +610,7 @@ Rules:
 | Sheet presentation | System spring; prototype reference ≈0.34s cubic-bezier(.22,.9,.28,1) |
 | Toast | 0.22s opacity + 0.30s transform; Reduce Motion = opacity only |
 | Random Review sheen | 7s loop: ~3s sweep, ~4s rest; 30fps; disabled for Reduce Motion |
+| Pro entry specular sweep | 9s loop: ~3.8s sweep, rest; 30fps; Pro users and Reduce Motion see a static rim |
 
 ### 8.3 Reduce Motion
 
@@ -993,7 +997,7 @@ Use these to prevent regressions:
 11. **Functional amber removed (2026-10-25):** the action layer is monochrome white; amber/coral remain only in the two home entry cards. Switches use `Theme.positive` green; section trailing and tab selection are neutral. Do not reintroduce amber CTAs, tabs, toggles, or section totals.
 12. **Stone icon set (2026-10-25):** period icons are calendar+clock / grid calendar / sundial; cleanup icons are frame / twin busts / film camera / stone camera. Optical sizes are 42 / 42 / 38 / 38. The dice is reserved for the random card; the broom is a spare asset.
 13. **Title density + fixed More (2026-10-25):** period titles and home cleanup titles share 16pt; the period right zone uses a fixed 更多 / More label so all three card columns align and English titles stay on one line. Row titles use one line with 0.9 minimum scale.
-14. **Settings Pro entry (2026-10-31):** the top-of-settings paywall entry is one prominent Pro card, not a utility row — 24pt radius, pink seal + `PRO` chip + white `View Pro` capsule, whole card tappable. Active Pro users get the same card as a status surface (plan title, status subtitle, chevron circle). The benefit line is the compact `Timeline · Compression · Similar photos`, not the long paywall hero sentence.
+14. **Settings Pro entry (2026-10-31):** subtraction pass after the first version was too busy. "Pro" now appears once (title only): the `PRO` chip, crown seal, and white `View Pro` capsule were removed. The art is the material — a 28pt card with an iridescent edge (crisp stroke + outer halo + inner refraction), a 44pt iridescent glass orb, a plain chevron, and the compact `Timeline · Compression · Similar photos` line. Active Pro collapses the edge to a white hairline, turns the orb into a check, and stops the specular sweep.
 
 ---
 

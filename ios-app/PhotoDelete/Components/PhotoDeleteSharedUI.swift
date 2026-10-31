@@ -554,12 +554,12 @@ struct PhotoDeleteToastView: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: toast.icon)
-                .font(.system(size: Theme.textSizeSm, weight: .semibold))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(Theme.primaryText)
                 .frame(width: 20)
 
             Text(toast.message)
-                .font(.system(size: Theme.textSizeSm, weight: .semibold))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(Theme.primaryText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -570,7 +570,7 @@ struct PhotoDeleteToastView: View {
                     .background(Theme.hairline)
 
                 Button(L10n.string("Undo"), action: onUndo)
-                    .font(.system(size: Theme.textSizeSm, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(Theme.primaryText)
                     .buttonStyle(.plain)
             }
