@@ -157,7 +157,8 @@ enum PaywallDS {
         /// 设置页 Pro 入口的虹彩环：粉 → 蜜桃 → 薄荷 → 珊瑚 → 粉。
         /// 各站透明度故意不等（0.95 / 0.5 / 0.9 …），让环上出现“受光”和“背光”段，
         /// 读起来像抛光金属边，而不是一圈均匀的 RGB 灯带。
-        /// 描边、外圈光晕和玻璃珠共用同一组色相，保证整张卡像同一种材质。
+        /// 起始角 220° 把最亮的粉段放在左上，和玻璃珠的高光同一个光源——
+        /// 整张卡只被一盏灯照亮，这是它不像“彩色贴纸”的关键。
         static var iridescent: AngularGradient {
             AngularGradient(
                 stops: [
@@ -168,7 +169,7 @@ enum PaywallDS {
                     .init(color: PaywallDS.Color.iridescentPink.opacity(0.95), location: 1.00)
                 ],
                 center: .center,
-                angle: .degrees(-35)
+                angle: .degrees(220)
             )
         }
 

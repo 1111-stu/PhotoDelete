@@ -3433,9 +3433,8 @@ struct AdvancedLoadingState: View {
                 .multilineTextAlignment(.center)
 
             ProgressView()
-                .progressViewStyle(LinearProgressViewStyle(tint: Theme.accent))
-                .frame(width: 132)
-                .clipShape(Capsule(style: .continuous))
+                .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
+                .scaleEffect(1.1)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 28)

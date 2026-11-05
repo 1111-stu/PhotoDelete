@@ -10,8 +10,11 @@
 //  - Contrast：行动暗示只留一个箭头，卡片本身是唯一的点击面。
 //  - Emotion：材质本身就是情绪；卡片保持静止（2026-11-01 移除扫光，实测太抢）。
 //
-//  材质语言沿用 PaywallDS（樱粉系虹彩），但卡片主体仍是 Theme 的暖中性面：
+//  材质语言沿用 PaywallDS（暖虹彩），但卡片主体仍是 Theme 的暖中性面：
 //  设置页只借边缘的一圈彩光，不整页换成付费页的冷调画布。
+//
+//  打光规则（2026-11-01 定稿）：整张卡只被左上的一盏灯照亮——
+//  虹彩边最亮的粉段在左上，球的高光在左上，卡面左上还有一点暖色光池。
 //
 
 import SwiftUI
@@ -60,7 +63,20 @@ struct ProEntryBanner: View {
             .padding(.leading, 20)
             .padding(.trailing, 18)
             .frame(maxWidth: .infinity, minHeight: preferredHeight, alignment: .leading)
+            .clipShape(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
             .background(cardMaterial)
+            // 边框画在内容之上，和外框保持在同一层。
+            .overlay(
+                RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
+                    .strokeBorder(rimStyle, lineWidth: isPro ? 1 : 2)
+                    .allowsHitTesting(false)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
+                    .inset(by: 1.5)
+                    .strokeBorder(innerBevel, lineWidth: 0.5)
+                    .allowsHitTesting(false)
+            )
             .contentShape(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
         }
         .buttonStyle(ProEntryPressStyle())
@@ -73,12 +89,12 @@ struct ProEntryBanner: View {
     }
 }
 
-// MARK: - Material
+// MARK: - Card material
 
 private extension ProEntryBanner {
 
-    /// 三层材质：外圈虹彩光晕 / 石墨卡面 / 1.5pt 虹彩描边。
-    /// 光晕只负责“看起来有厚度”，不再往卡片里加第二层渐变底。
+    /// 四层：外圈虹彩光晕 / 受光的石墨卡面 / 内圈折射 / 顶部倒角。
+    /// 卡面不是一块纯色板：上亮下暗，左上还有一点从球体溢出的暖光。
     var cardMaterial: some View {
         ZStack {
             RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
@@ -89,16 +105,36 @@ private extension ProEntryBanner {
             RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
                 .fill(Theme.surface)
 
+            // 卡面受光：顶部抬亮、底部沉下去，像一块被左上灯照到的板。
+            LinearGradient(
+                stops: [
+                    .init(color: .white.opacity(0.040), location: 0),
+                    .init(color: .clear, location: 0.42),
+                    .init(color: .black.opacity(0.100), location: 1)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
+
+            // 球体溢出的暖光：中心对准球心（卡宽 14%、卡高 50%），让卡面和材质同源。
+            RadialGradient(
+                colors: [
+                    PaywallDS.Color.iridescentPeach.opacity(isPro ? 0.05 : 0.10),
+                    .clear
+                ],
+                center: UnitPoint(x: 0.14, y: 0.50),
+                startRadius: 0,
+                endRadius: 130
+            )
+            .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
+
             // 内圈折射：把彩光再往卡面里压 6pt，边框才像一块有厚度的材质，而不是一条描边。
             RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
                 .strokeBorder(PaywallDS.Gradient.iridescent, lineWidth: 6)
                 .blur(radius: 6)
                 .opacity(isPro ? 0.10 : 0.30)
                 .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
-
-            // 未解锁＝虹彩边，是“邀请”；已解锁＝回归安静的白发丝边，是“状态”。
-            RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
-                .strokeBorder(rimStyle, lineWidth: isPro ? 1 : 2)
         }
     }
 
@@ -108,11 +144,24 @@ private extension ProEntryBanner {
             : AnyShapeStyle(PaywallDS.Gradient.iridescent)
     }
 
-    /// 一颗虹彩玻璃珠：把“彩色材质”集中在一点，替代皇冠 + PRO 徽章两种身份暗示。
-    /// 用三色线性渐变做球体底色（锥形渐变在 56pt 里会在圆心显出扇形缝），
-    /// 再叠左上高光和右下压暗，读起来才像玻璃珠而不是色轮。
+    /// 0.5pt 顶部倒角：只在顶边有光，往下迅速消失。
+    var innerBevel: LinearGradient {
+        LinearGradient(
+            stops: [
+                .init(color: .white.opacity(isPro ? 0.10 : 0.14), location: 0),
+                .init(color: .clear, location: 0.35)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+
+    /// 一颗虹彩玻璃珠：底色用三色线性渐变（锥形渐变在小尺寸会露出扇形缝），
+    /// 再叠接触阴影、压暗球缘、高光和反光弧，读起来才像玻璃而不是色轮。
     var orb: some View {
         ZStack {
+            contactShadow
+
             Circle()
                 .fill(
                     LinearGradient(
@@ -139,15 +188,15 @@ private extension ProEntryBanner {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [Color.white.opacity(0.75), Color.white.opacity(0)],
+                        colors: [Color.white.opacity(0.78), Color.white.opacity(0)],
                         center: .center,
                         startRadius: 0,
-                        endRadius: orbSize * 0.22
+                        endRadius: orbSize * 0.20
                     )
                 )
-                .frame(width: orbSize * 0.46, height: orbSize * 0.46)
-                .offset(x: -orbSize * 0.17, y: -orbSize * 0.20)
-                .blur(radius: 1.2)
+                .frame(width: orbSize * 0.42, height: orbSize * 0.42)
+                .offset(x: -orbSize * 0.18, y: -orbSize * 0.21)
+                .blur(radius: 1.1)
 
             Circle()
                 .strokeBorder(
@@ -161,13 +210,22 @@ private extension ProEntryBanner {
 
             if isPro {
                 Image(systemName: "checkmark")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: orbSize * 0.29, weight: .bold))
                     .foregroundStyle(PaywallDS.Color.recommendedBadgeText)
             }
         }
         .frame(width: orbSize, height: orbSize)
-        .shadow(color: PaywallDS.Color.iridescentPink.opacity(0.28), radius: 14, y: 3)
+        .shadow(color: PaywallDS.Color.iridescentPink.opacity(0.16), radius: 12, y: 2)
         .accessibilityHidden(true)
+    }
+
+    /// 接触阴影：把球“放”在卡面上，而不是浮着。
+    var contactShadow: some View {
+        Circle()
+            .fill(Color.black.opacity(0.34))
+            .frame(width: orbSize * 0.84, height: orbSize * 0.50)
+            .blur(radius: orbSize * 0.15)
+            .offset(y: orbSize * 0.36)
     }
 }
 

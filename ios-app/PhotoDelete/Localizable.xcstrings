@@ -827,16 +827,6 @@
         }
       }
     },
-    "%@. %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@. %2$@"
-          }
-        }
-      }
-    },
     "%@/%@" : {
       "localizations" : {
         "ar" : {
@@ -7428,6 +7418,7 @@
       }
     },
     "Analyzing similar images" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37004,6 +36995,9 @@
         }
       }
     },
+    "PRO" : {
+
+    },
     "Processing image %lld" : {
       "localizations" : {
         "ar" : {
@@ -56106,6 +56100,9 @@
           }
         }
       }
+    },
+    "样式" : {
+
     }
   },
   "version" : "1.2"
