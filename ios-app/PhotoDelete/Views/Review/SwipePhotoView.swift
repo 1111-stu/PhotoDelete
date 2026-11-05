@@ -251,19 +251,6 @@ struct SwipePhotoView: View {
                             VStack(spacing: 0) {
                                 navigationHeader
                                 photoArea
-                                    .overlay(alignment: .top) {
-                                        if let feedbackToast, !showsAlbumTray {
-                                            PhotoDeleteToastView(toast: feedbackToast) {
-                                                handleUndoAction()
-
-                                            }
-                                            .frame(maxWidth: 420)
-                                            .padding(.horizontal, Theme.space6)
-                                            .padding(.top, Theme.space4)
-                                            .allowsHitTesting(feedbackToast.showsUndo)
-                                            .transition(PhotoDeleteToastTiming.transition(reduceMotion: reduceMotion, edge: .top))
-                                        }
-                                    }
                             }
                             .frame(width: primaryWidth)
 
@@ -288,24 +275,14 @@ struct SwipePhotoView: View {
                             .accessibilityHidden(true)
                             .transition(.opacity)
 
-                        VStack(alignment: .leading, spacing: 12) {
-                            if let feedbackToast {
-                                PhotoDeleteToastView(toast: feedbackToast) {
-                                    handleUndoAction()
-                                }
-                                .frame(maxWidth: 280, alignment: .leading)
-                                .allowsHitTesting(feedbackToast.showsUndo)
-                            }
-
-                            ReviewAlbumTray(
-                                albums: dataManager.getUserAlbumsSortedByCustomOrder(),
-                                isLoading: dataManager.isLoadingAlbums,
-                                isFiling: isAlbumTrayFiling,
-                                filingAlbumID: filingAlbumID,
-                                onSelect: fileCurrentTrayPhoto(to:),
-                                onClose: closeAlbumTray
-                            )
-                        }
+                        ReviewAlbumTray(
+                            albums: dataManager.getUserAlbumsSortedByCustomOrder(),
+                            isLoading: dataManager.isLoadingAlbums,
+                            isFiling: isAlbumTrayFiling,
+                            filingAlbumID: filingAlbumID,
+                            onSelect: fileCurrentTrayPhoto(to:),
+                            onClose: closeAlbumTray
+                        )
                         .frame(
                             maxWidth: ReviewAlbumTrayLayout.maxWidth,
                             alignment: .leading
@@ -326,12 +303,14 @@ struct SwipePhotoView: View {
                         )
                     }
 
-                    if !usesSidebar, !showsAlbumTray, let feedbackToast {
+                    // 统一 Toast：始终固定在页头，托盘打开时也不下移。
+                    if let feedbackToast {
                         PhotoDeleteToastView(toast: feedbackToast) {
                             handleUndoAction()
-
                         }
+                        .frame(maxWidth: 420)
                         .padding(.horizontal, Theme.space5)
+                        .padding(.trailing, usesSidebar ? sidebarWidth : 0)
                         .allowsHitTesting(feedbackToast.showsUndo)
                         .padding(.top, Theme.space16)
                         .frame(

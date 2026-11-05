@@ -45,7 +45,7 @@ struct ReviewPhotoDetailLine: View {
 }
 
 /// 整理页照片框的承托面：对角渐变 + 参考图上的细斜纹。
-private struct ReviewPhotoSurfaceBackground: View {
+struct ReviewPhotoSurfaceBackground: View {
     var cornerRadius: CGFloat = Theme.radiusMd
 
     var body: some View {
@@ -333,19 +333,20 @@ struct RealPhotoCard: View {
         .padding(12)
     }
 
+    /// 入册/归类只用 Toast 反馈，不再给照片盖对勾遮罩。
     @ViewBuilder
     private var candidateOverlay: some View {
-        if isInDeleteCandidates || isBeingFiledToAlbum || isFiledToAlbum {
+        if isInDeleteCandidates {
             ZStack {
                 RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                     .fill(Theme.background.opacity(0.72))
 
                 VStack(spacing: 12) {
-                    Image(systemName: candidateOverlayIcon)
+                    Image(systemName: "trash.fill")
                         .font(.system(size: 38, weight: .medium))
-                        .foregroundColor(candidateOverlayTint)
+                        .foregroundColor(Theme.destructive)
 
-                    Text(candidateOverlayTitle)
+                    Text(L10n.string("To delete"))
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(Theme.primaryText)
                 }
@@ -354,23 +355,6 @@ struct RealPhotoCard: View {
             .cornerRadius(Theme.radiusMd)
             .allowsHitTesting(false)
         }
-    }
-
-    private var candidateOverlayIcon: String {
-        if isInDeleteCandidates { return "trash.fill" }
-        if isBeingFiledToAlbum { return "tray.and.arrow.down.fill" }
-        return "checkmark.circle.fill"
-    }
-
-    private var candidateOverlayTint: Color {
-        if isInDeleteCandidates { return Theme.destructive }
-        return Theme.positive
-    }
-
-    private var candidateOverlayTitle: String {
-        if isInDeleteCandidates { return L10n.string("To delete") }
-        if isBeingFiledToAlbum { return L10n.string("Filing") }
-        return L10n.string("Filed")
     }
 
     @ViewBuilder

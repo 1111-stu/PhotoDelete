@@ -395,6 +395,13 @@ final class PhotoReviewActions: ObservableObject {
                     )
                     self.finishUndo()
                     self.events.send(.restorePosition(asset: asset, preferredIndex: originalIndex, refreshSource: refreshSource))
+                } else {
+                    self.events.send(.feedback(
+                        message: L10n.string("Already in this album"),
+                        icon: "checkmark.circle",
+                        style: .neutral,
+                        showsUndo: false
+                    ))
                 }
             } else {
                 if self.silentAlbumFilingUndoKeys.remove(filingKey) != nil {

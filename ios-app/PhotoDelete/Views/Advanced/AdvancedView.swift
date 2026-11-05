@@ -2697,6 +2697,7 @@ struct AdvancedAssetThumbnail: View {
 
 struct AdvancedAssetPreviewView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let asset: PHAsset
     let photoLibraryManager: PhotoLibraryManager
     let assets: [PHAsset]
@@ -2719,52 +2720,116 @@ struct AdvancedAssetPreviewView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            GeometryReader { geometry in
-                ZStack {
-                    Theme.background.ignoresSafeArea()
+        GeometryReader { geometry in
+            let cardSize = previewCardSize(in: geometry.size)
 
-                    if assets.count > 1 {
-                        TabView(selection: $selectedAssetID) {
-                            ForEach(assets, id: \.localIdentifier) { asset in
-                                AdvancedAssetPreviewPage(
-                                    asset: asset,
-                                    photoLibraryManager: photoLibraryManager,
-                                    viewportSize: geometry.size,
-                                    isSelected: selectedAssetID == asset.localIdentifier
-                                )
-                                .tag(asset.localIdentifier)
-                            }
-                        }
-                        .tabViewStyle(.page(indexDisplayMode: .never))
-                    } else {
-                        AdvancedAssetPreviewPage(
-                            asset: selectedAsset,
-                            photoLibraryManager: photoLibraryManager,
-                            viewportSize: geometry.size,
-                            isSelected: true
+            ZStack {
+                Theme.reviewCanvas.ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    previewHeader
+
+                    VStack(spacing: 6) {
+                        previewCard(size: cardSize)
+                        ReviewPhotoDetailLine(asset: selectedAsset)
+                            .id(selectedAsset.localIdentifier)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    previewSelectionBar
+                }
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    /// 页头对齐整理页：左侧圆形关闭、标题居中、页码靠右。
+    private var previewHeader: some View {
+        ZStack {
+            Text(navigationTitle)
+                .font(.system(size: 17, weight: .bold))
+                .foregroundColor(Theme.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
+                .padding(.horizontal, 88)
+
+            HStack {
+                PhotoDeleteCircleIconButton(
+                    systemName: "xmark",
+                    accessibilityLabel: L10n.string("Close"),
+                    accessibilityIdentifier: "advanced-preview-close"
+                ) {
+                    dismiss()
+                }
+
+                Spacer(minLength: 0)
+
+                if let previewPositionText {
+                    Text(previewPositionText)
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundColor(Theme.secondaryText)
+                        .monospacedDigit()
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 6)
+                        .background(Capsule(style: .continuous).fill(Theme.elevatedSurface))
+                        .overlay(
+                            Capsule(style: .continuous)
+                                .stroke(Theme.hairline, lineWidth: Theme.stroke)
                         )
-                    }
-
-                    if assets.count > 1 {
-                        previewPagingOverlay
-                    }
-
-                    if selectedAssetIDs != nil {
-                        previewSelectionOverlay
-                    }
+                        .accessibilityLabel(Text("\(L10n.string("Position")) \(previewPositionText)"))
+                } else {
+                    Color.clear
+                        .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
                 }
             }
-            .navigationTitle(navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.string("Close")) {
-                        dismiss()
+        }
+        .padding(.horizontal, Theme.space5)
+        .padding(.top, 8)
+        .padding(.bottom, 12)
+    }
+
+    /// 与整理页同一张圆角照片卡：渐变承托面 + 细描边，照片 fit 在卡内。
+    private func previewCard(size: CGSize) -> some View {
+        ZStack {
+            ReviewPhotoSurfaceBackground(cornerRadius: Theme.radiusMd)
+
+            if assets.count > 1 {
+                TabView(selection: $selectedAssetID) {
+                    ForEach(assets, id: \.localIdentifier) { asset in
+                        AdvancedAssetPreviewPage(
+                            asset: asset,
+                            photoLibraryManager: photoLibraryManager,
+                            viewportSize: size,
+                            isSelected: selectedAssetID == asset.localIdentifier
+                        )
+                        .tag(asset.localIdentifier)
                     }
-                    .foregroundColor(Theme.accent)
                 }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+            } else {
+                AdvancedAssetPreviewPage(
+                    asset: selectedAsset,
+                    photoLibraryManager: photoLibraryManager,
+                    viewportSize: size,
+                    isSelected: true
+                )
             }
+        }
+        .frame(width: size.width, height: size.height)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Theme.reviewPhotoStroke,
+                            Theme.reviewPhotoStrokeFade
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: Theme.stroke
+                )
         }
     }
 
@@ -2793,117 +2858,39 @@ struct AdvancedAssetPreviewView: View {
         )
     }
 
-    private var canSelectPreviousPreviewAsset: Bool {
-        AdvancedPreviewPaging.adjacentIdentifier(
-            selectedIdentifier: selectedAssetID,
-            identifiers: assetIdentifiers,
-            direction: .previous
-        ) != nil
-    }
-
-    private var canSelectNextPreviewAsset: Bool {
-        AdvancedPreviewPaging.adjacentIdentifier(
-            selectedIdentifier: selectedAssetID,
-            identifiers: assetIdentifiers,
-            direction: .next
-        ) != nil
-    }
-
     private var isSelectedForDeletion: Bool {
         selectedAssetIDs?.wrappedValue.contains(selectedAssetID) ?? false
     }
 
-    private var previewSelectionOverlay: some View {
-        HStack {
-            Spacer()
-
+    @ViewBuilder
+    private var previewSelectionBar: some View {
+        if selectedAssetIDs != nil {
             Button(action: toggleSelectedPreviewAsset) {
                 Label(
                     isSelectedForDeletion ? L10n.string("Marked to delete") : L10n.string("Mark to delete"),
                     systemImage: isSelectedForDeletion ? "checkmark.circle.fill" : "square"
                 )
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.white)
-                .padding(.horizontal, 14)
-                .frame(minHeight: 46)
-                .background(
-                    Capsule(style: .continuous)
-                        .fill(Color.black.opacity(0.66))
-                )
-                .overlay(
-                    Capsule(style: .continuous)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(AdvancedAssetPreviewSelectionButtonStyle(isSelected: isSelectedForDeletion))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(isSelectedForDeletion ? L10n.string("Marked to delete") : L10n.string("Mark to delete")))
             .accessibilityIdentifier("advanced-preview-delete-selection-toggle")
-        }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 28)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-        .zIndex(3)
-    }
-
-    private var previewPagingOverlay: some View {
-        ZStack {
-            VStack {
-                if let previewPositionText {
-                    HStack {
-                        Spacer()
-
-                        Text(previewPositionText)
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 6)
-                            .background(Capsule(style: .continuous).fill(Color.black.opacity(0.54)))
-                            .accessibilityLabel(Text("\(L10n.string("Position")) \(previewPositionText)"))
-                    }
-                    .padding(.top, 12)
-                    .padding(.trailing, 16)
-                }
-
-                Spacer()
-            }
-            .allowsHitTesting(false)
-
-            HStack {
-                AdvancedPreviewPagingButton(
-                    systemImage: "chevron.left",
-                    accessibilityLabel: L10n.string("Previous"),
-                    isDisabled: !canSelectPreviousPreviewAsset
-                ) {
-                    selectPreviewAsset(.previous)
-                }
-
-                Spacer()
-
-                AdvancedPreviewPagingButton(
-                    systemImage: "chevron.right",
-                    accessibilityLabel: L10n.string("Next Photo"),
-                    isDisabled: !canSelectNextPreviewAsset
-                ) {
-                    selectPreviewAsset(.next)
-                }
-            }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, Theme.space5)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
         }
     }
 
-    private func selectPreviewAsset(_ direction: AdvancedPreviewPagingDirection) {
-        guard let nextIdentifier = AdvancedPreviewPaging.adjacentIdentifier(
-            selectedIdentifier: selectedAssetID,
-            identifiers: assetIdentifiers,
-            direction: direction
-        ) else {
-            return
-        }
-
-        withAnimation(.easeInOut(duration: 0.18)) {
-            selectedAssetID = nextIdentifier
-        }
+    /// 卡片左右留出与整理页一致的页面边距，并给页头、日期行和底部按钮留空间。
+    private func previewCardSize(in container: CGSize) -> CGSize {
+        let width = max(container.width - Theme.space5 * 2, 180)
+        let maxSize = PhotoDeleteAdaptiveLayout.reviewPhotoCardMaxSize(
+            in: container,
+            horizontalSizeClass: horizontalSizeClass
+        )
+        let reservedHeight: CGFloat = selectedAssetIDs == nil ? 150 : 210
+        let height = min(max(container.height - reservedHeight, 220), maxSize.height)
+        return CGSize(width: width, height: height)
     }
 
     private func toggleSelectedPreviewAsset() {
@@ -2967,31 +2954,26 @@ enum AdvancedPreviewPaging {
     }
 }
 
-private struct AdvancedPreviewPagingButton: View {
-    let systemImage: String
-    let accessibilityLabel: String
-    let isDisabled: Bool
-    let action: () -> Void
+private struct AdvancedAssetPreviewSelectionButtonStyle: ButtonStyle {
+    let isSelected: Bool
 
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(.white)
-                .frame(width: 46, height: 58)
-                .background(
-                    Capsule(style: .continuous)
-                        .fill(Color.black.opacity(0.42))
-                )
-                .overlay(
-                    Capsule(style: .continuous)
-                        .stroke(Color.white.opacity(0.16), lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
-        .disabled(isDisabled)
-        .opacity(isDisabled ? 0.25 : 1)
-        .accessibilityLabel(accessibilityLabel)
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundColor(isSelected ? Theme.primaryText : Theme.onAccent)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 15)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                    .fill(isSelected ? Theme.elevatedSurface : Theme.accent)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                            .stroke(isSelected ? Theme.accentSoftStroke : Color.clear, lineWidth: Theme.stroke)
+                    )
+            )
+            .opacity(configuration.isPressed ? 0.85 : 1)
+            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+            .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
     }
 }
 
@@ -3450,10 +3432,10 @@ struct AdvancedSimilarGroupsLoadingSkeleton: View {
         VStack(spacing: 14) {
             AdvancedSimilarSummarySkeletonCard()
 
-            ForEach(0..<2, id: \.self) { index in
+            ForEach(0..<4, id: \.self) { index in
                 AdvancedSimilarGroupSkeletonCard(
-                    titleWidth: index == 0 ? 132 : 104,
-                    subtitleWidth: index == 0 ? 92 : 76
+                    titleWidth: index.isMultiple(of: 2) ? 132 : 104,
+                    subtitleWidth: index.isMultiple(of: 2) ? 92 : 76
                 )
             }
         }
