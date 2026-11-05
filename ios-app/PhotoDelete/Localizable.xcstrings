@@ -36995,9 +36995,6 @@
         }
       }
     },
-    "PRO" : {
-
-    },
     "Processing image %lld" : {
       "localizations" : {
         "ar" : {
@@ -56100,9 +56097,6 @@
           }
         }
       }
-    },
-    "样式" : {
-
     }
   },
   "version" : "1.2"

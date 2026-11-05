@@ -14,7 +14,7 @@
 //  设置页只借边缘的一圈彩光，不整页换成付费页的冷调画布。
 //
 //  打光规则（2026-11-01 定稿）：整张卡只被左上的一盏灯照亮——
-//  虹彩边最亮的粉段在左上，球的高光在左上，卡面左上还有一点暖色光池。
+//  虹彩边最亮的粉段在左上，月球的高光（烘焙在图里）在左上，卡面左上还有一点暖色光池。
 //
 
 import SwiftUI
@@ -93,39 +93,28 @@ struct ProEntryBanner: View {
 
 private extension ProEntryBanner {
 
-    /// 四层：外圈虹彩光晕 / 受光的石墨卡面 / 内圈折射 / 顶部倒角。
-    /// 卡面不是一块纯色板：上亮下暗，左上还有一点从球体溢出的暖光。
+    /// 三层：收敛的外圈虹彩光晕 / 受光的石墨卡面 / 轻微内圈折射。
+    /// 2026-11-01：月球是中性灰，卡面左侧的暖色光池和粉色球影会让它像“贴上去的涂层”，
+    /// 因此删掉光池、把外晕压到 32%、内折射压到 20%，让月亮直接坐在卡面上。
     var cardMaterial: some View {
         ZStack {
             RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
-                .stroke(PaywallDS.Gradient.iridescent, lineWidth: 8)
-                .blur(radius: 14)
-                .opacity(isPro ? 0.14 : 0.55)
+                .stroke(PaywallDS.Gradient.iridescent, lineWidth: 7)
+                .blur(radius: 12)
+                .opacity(isPro ? 0.10 : 0.32)
 
             RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
                 .fill(Theme.surface)
 
-            // 卡面受光：顶部抬亮、底部沉下去，像一块被左上灯照到的板。
+            // 卡面受光：左上抬亮、右下沉下去，斜向和左上灯一致。
             LinearGradient(
                 stops: [
-                    .init(color: .white.opacity(0.040), location: 0),
-                    .init(color: .clear, location: 0.42),
-                    .init(color: .black.opacity(0.100), location: 1)
+                    .init(color: .white.opacity(0.045), location: 0),
+                    .init(color: .clear, location: 0.45),
+                    .init(color: .black.opacity(0.095), location: 1)
                 ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
-
-            // 球体溢出的暖光：中心对准球心（卡宽 14%、卡高 50%），让卡面和材质同源。
-            RadialGradient(
-                colors: [
-                    PaywallDS.Color.iridescentPeach.opacity(isPro ? 0.05 : 0.10),
-                    .clear
-                ],
-                center: UnitPoint(x: 0.14, y: 0.50),
-                startRadius: 0,
-                endRadius: 130
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
             .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
 
@@ -133,7 +122,7 @@ private extension ProEntryBanner {
             RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
                 .strokeBorder(PaywallDS.Gradient.iridescent, lineWidth: 6)
                 .blur(radius: 6)
-                .opacity(isPro ? 0.10 : 0.30)
+                .opacity(isPro ? 0.08 : 0.20)
                 .mask(RoundedRectangle(cornerRadius: cardRadius, style: .continuous))
         }
     }
@@ -156,57 +145,17 @@ private extension ProEntryBanner {
         )
     }
 
-    /// 一颗虹彩玻璃珠：底色用三色线性渐变（锥形渐变在小尺寸会露出扇形缝），
-    /// 再叠接触阴影、压暗球缘、高光和反光弧，读起来才像玻璃而不是色轮。
+    /// 一颗石膏质感的月球：光已经烘焙在图里（左上亮、右下暗）。
+    /// 不用白色描边勾轮廓（会像一条白 border），改用一盏方向一致的右下投影：
+    /// 左上受光、右下落影，月亮自然“坐”在卡面上。
     var orb: some View {
         ZStack {
             contactShadow
 
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            PaywallDS.Color.iridescentPeach,
-                            PaywallDS.Color.iridescentPink,
-                            PaywallDS.Color.iridescentMint
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [.clear, Color.black.opacity(0.34)],
-                        center: UnitPoint(x: 0.32, y: 0.28),
-                        startRadius: orbSize * 0.18,
-                        endRadius: orbSize * 0.60
-                    )
-                )
-
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [Color.white.opacity(0.78), Color.white.opacity(0)],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: orbSize * 0.20
-                    )
-                )
-                .frame(width: orbSize * 0.42, height: orbSize * 0.42)
-                .offset(x: -orbSize * 0.18, y: -orbSize * 0.21)
-                .blur(radius: 1.1)
-
-            Circle()
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.45), Color.white.opacity(0.04)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 0.7
-                )
+            Image("ProMoonIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: orbSize, height: orbSize)
 
             if isPro {
                 Image(systemName: "checkmark")
@@ -215,17 +164,17 @@ private extension ProEntryBanner {
             }
         }
         .frame(width: orbSize, height: orbSize)
-        .shadow(color: PaywallDS.Color.iridescentPink.opacity(0.16), radius: 12, y: 2)
+        .shadow(color: .black.opacity(0.40), radius: 8, x: 2, y: 4)
         .accessibilityHidden(true)
     }
 
     /// 接触阴影：把球“放”在卡面上，而不是浮着。
     var contactShadow: some View {
         Circle()
-            .fill(Color.black.opacity(0.34))
-            .frame(width: orbSize * 0.84, height: orbSize * 0.50)
-            .blur(radius: orbSize * 0.15)
-            .offset(y: orbSize * 0.36)
+            .fill(Color.black.opacity(0.20))
+            .frame(width: orbSize * 0.86, height: orbSize * 0.50)
+            .blur(radius: orbSize * 0.18)
+            .offset(y: orbSize * 0.35)
     }
 }
 
