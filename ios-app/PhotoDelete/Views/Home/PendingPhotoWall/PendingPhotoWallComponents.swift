@@ -349,83 +349,69 @@ struct PendingPhotoWallPolaroidBoard: View {
 
     var body: some View {
         let board = board
-        VStack(spacing: 9) {
-            GeometryReader { proxy in
-                let scale = proxy.size.width / PolaroidBoardLayout.boardWidth
-                ZStack(alignment: .topLeading) {
-                    boardBackground
+        GeometryReader { proxy in
+            let scale = proxy.size.width / PolaroidBoardLayout.boardWidth
+            ZStack(alignment: .topLeading) {
+                boardBackground
 
-                    ForEach(Array(board.items.enumerated()), id: \.element.id) { index, item in
-                        polaroid(item, scale: scale)
-                            .frame(width: item.width * scale, height: item.height * scale)
-                            .overlay(alignment: .top) {
-                                if let clip = item.clip {
-                                    PendingPhotoWallBoardClip(colorIndex: clip.colorIndex)
-                                        .frame(
-                                            width: PolaroidBoardLayout.clipWidth * scale,
-                                            height: PolaroidBoardLayout.clipHeight * scale
-                                        )
-                                        .rotationEffect(.degrees(Double(clip.rotationDegrees)))
-                                        .offset(
-                                            x: clip.offsetX * scale,
-                                            y: -PolaroidBoardLayout.clipRise * scale
-                                        )
-                                        .allowsHitTesting(false)
-                                }
+                ForEach(Array(board.items.enumerated()), id: \.element.id) { index, item in
+                    polaroid(item, scale: scale)
+                        .frame(width: item.width * scale, height: item.height * scale)
+                        .overlay(alignment: .top) {
+                            if let clip = item.clip {
+                                PendingPhotoWallBoardClip(colorIndex: clip.colorIndex)
+                                    .frame(
+                                        width: PolaroidBoardLayout.clipWidth * scale,
+                                        height: PolaroidBoardLayout.clipHeight * scale
+                                    )
+                                    .rotationEffect(.degrees(Double(clip.rotationDegrees)))
+                                    .offset(
+                                        x: clip.offsetX * scale,
+                                        y: -PolaroidBoardLayout.clipRise * scale
+                                    )
+                                    .allowsHitTesting(false)
                             }
-                            .offset(
-                                x: reduceMotion ? 0 : motion.swingX(hang: item.hang) * scale,
-                                y: reduceMotion ? 0 : motion.swingY(hang: item.hang) * scale
+                        }
+                        .offset(
+                            x: reduceMotion ? 0 : motion.swingX(hang: item.hang) * scale,
+                            y: reduceMotion ? 0 : motion.swingY(hang: item.hang) * scale
+                        )
+                        .rotationEffect(
+                            .degrees(
+                                Double(item.rotationDegrees)
+                                    + (reduceMotion ? 0 : Double(motion.swingRotation(hang: item.hang)))
                             )
-                            .rotationEffect(
-                                .degrees(
-                                    Double(item.rotationDegrees)
-                                        + (reduceMotion ? 0 : Double(motion.swingRotation(hang: item.hang)))
-                                )
-                            )
-                            .opacity(reduceMotion || hasSettled ? 1 : 0)
-                            .scaleEffect(reduceMotion || hasSettled ? 1 : 0.94)
-                            .offset(y: reduceMotion || hasSettled ? 0 : -8)
-                            .position(
-                                x: (item.x + item.width / 2) * scale,
-                                y: (item.y + item.height / 2) * scale
-                            )
-                            .zIndex(item.zIndex + 1)
-                            .animation(
-                                reduceMotion
-                                    ? nil
-                                    : .spring(response: 0.46, dampingFraction: 0.82)
-                                        .delay(Double(index) * 0.018),
-                                value: hasSettled
-                            )
-                    }
+                        )
+                        .opacity(reduceMotion || hasSettled ? 1 : 0)
+                        .scaleEffect(reduceMotion || hasSettled ? 1 : 0.94)
+                        .offset(y: reduceMotion || hasSettled ? 0 : -8)
+                        .position(
+                            x: (item.x + item.width / 2) * scale,
+                            y: (item.y + item.height / 2) * scale
+                        )
+                        .zIndex(item.zIndex + 1)
+                        .animation(
+                            reduceMotion
+                                ? nil
+                                : .spring(response: 0.46, dampingFraction: 0.82)
+                                    .delay(Double(index) * 0.018),
+                            value: hasSettled
+                        )
                 }
             }
-            .aspectRatio(PolaroidBoardLayout.boardWidth / max(board.height, 1), contentMode: .fit)
-            .onAppear {
-                isActivated = true
-                if !reduceMotion {
-                    motion.retain()
-                }
-                settleIfNeeded()
+        }
+        .aspectRatio(PolaroidBoardLayout.boardWidth / max(board.height, 1), contentMode: .fit)
+        .onAppear {
+            isActivated = true
+            if !reduceMotion {
+                motion.retain()
             }
-            .onDisappear {
-                if !reduceMotion {
-                    motion.release()
-                }
+            settleIfNeeded()
+        }
+        .onDisappear {
+            if !reduceMotion {
+                motion.release()
             }
-
-            Text(
-                String(
-                    format: L10n.string("Showing %lld of %lld photos"),
-                    Int64(board.items.count),
-                    Int64(month.remainingCount)
-                )
-            )
-            .font(.system(size: 11.5))
-            .foregroundColor(Theme.secondaryText)
-            .monospacedDigit()
-            .frame(maxWidth: .infinity)
         }
     }
 

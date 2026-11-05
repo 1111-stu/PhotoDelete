@@ -271,7 +271,7 @@ struct HomeView: View {
             : L10n.string("Trash")
     }
 
-    /// 待删除角标：数量 > 0 时显示，最多 99+（对齐原型 tbadge：红底白字 + 背景色描边环）。
+    /// 待删除角标：数量 > 0 时显示，最多 99+（红底白字，不加描边环）。
     @ViewBuilder
     private var pendingDeleteBadge: some View {
         let count = pendingDeleteCount
@@ -285,10 +285,6 @@ struct HomeView: View {
                 .background(
                     Capsule(style: .continuous)
                         .fill(Theme.destructive)
-                )
-                .overlay(
-                    Capsule(style: .continuous)
-                        .stroke(Theme.backgroundTop, lineWidth: 2.5)
                 )
                 .offset(x: 3, y: -3)
                 .accessibilityHidden(true)

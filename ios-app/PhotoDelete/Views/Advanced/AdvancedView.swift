@@ -3444,33 +3444,47 @@ struct AdvancedLoadingState: View {
     }
 }
 
-/// 相似照片结果加载中的骨架：先把摘要卡和分组卡的形状摆出来，避免整屏只剩一个转圈。
+/// 相似照片结果加载中的骨架：进入页面立即铺出摘要卡和分组卡的占位形状，不先显示转圈。
 struct AdvancedSimilarGroupsLoadingSkeleton: View {
-    @State private var showsSkeletons = false
-
     var body: some View {
         VStack(spacing: 14) {
-            AdvancedLoadingState(title: L10n.string("Analyzing"))
+            AdvancedSimilarSummarySkeletonCard()
 
-            if showsSkeletons {
-                ForEach(0..<2, id: \.self) { index in
-                    AdvancedSimilarGroupSkeletonCard(
-                        titleWidth: index == 0 ? 132 : 104,
-                        subtitleWidth: index == 0 ? 92 : 76
-                    )
-                }
-                .transition(.opacity)
+            ForEach(0..<2, id: \.self) { index in
+                AdvancedSimilarGroupSkeletonCard(
+                    titleWidth: index == 0 ? 132 : 104,
+                    subtitleWidth: index == 0 ? 92 : 76
+                )
             }
         }
         .accessibilityElement(children: .contain)
-        // 分析很快时不要闪一下骨架；超过约 0.3 秒才把结果形状铺出来。
-        .task {
-            try? await Task.sleep(for: .milliseconds(300))
-            guard !Task.isCancelled else { return }
-            withAnimation(.easeOut(duration: 0.2)) {
-                showsSkeletons = true
+        .accessibilityLabel(L10n.string("Analyzing"))
+    }
+}
+
+private struct AdvancedSimilarSummarySkeletonCard: View {
+    var body: some View {
+        HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 6) {
+                skeletonBar(width: 148, height: 16)
+                skeletonBar(width: 196, height: 11)
             }
+
+            Spacer(minLength: 8)
+
+            Capsule(style: .continuous)
+                .fill(Color.white.opacity(0.06))
+                .frame(width: 88, height: 34)
         }
+        .padding(14)
+        .photoDeleteCard()
+        .accessibilityHidden(true)
+    }
+
+    private func skeletonBar(width: CGFloat, height: CGFloat) -> some View {
+        Capsule(style: .continuous)
+            .fill(Color.white.opacity(0.07))
+            .frame(width: width, height: height)
     }
 }
 
