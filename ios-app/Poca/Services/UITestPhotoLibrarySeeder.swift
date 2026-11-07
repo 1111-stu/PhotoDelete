@@ -1,6 +1,6 @@
 //
 //  UITestPhotoLibrarySeeder.swift
-//  PhotoDelete
+//  Poca
 //
 //  Creates a deterministic Photos library for UI-test screenshots.
 //

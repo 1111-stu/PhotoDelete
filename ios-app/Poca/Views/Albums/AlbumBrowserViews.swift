@@ -1,6 +1,6 @@
 //
 //  AlbumBrowserViews.swift
-//  PhotoDelete
+//  Poca
 //
 
 import SwiftUI
@@ -204,7 +204,7 @@ struct AlbumDisplayStyleSheet: View {
             .padding(.top, 12)
             .padding(.bottom, Theme.space5)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(PhotoDeleteScreenBackground())
+            .background(PocaScreenBackground())
             .navigationTitle(L10n.string("Display"))
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -395,7 +395,7 @@ struct AlbumCoverTile: View {
                     )
                     .aspectRatio(1, contentMode: .fit)
 
-                    Text(PhotoDeleteCountFormat.plain(photosCount))
+                    Text(PocaCountFormat.plain(photosCount))
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(Theme.primaryText)
                         .padding(.horizontal, 8)
@@ -569,7 +569,7 @@ struct AlbumPhotoBrowserView: View {
                 .padding(.vertical, 12)
             }
         }
-        .background(PhotoDeleteScreenBackground())
+        .background(PocaScreenBackground())
         // iOS 26 的 partial detent sheet 是悬浮玻璃卡片，四边不贴屏幕；
         // 滤镜页打开时给浏览页盖一层暗幕，免得底部缝隙里透出亮照片（看起来像漏光）。
         .overlay {
@@ -610,7 +610,7 @@ struct AlbumPhotoBrowserView: View {
     }
 
     private var albumFilterButton: some View {
-        PhotoDeleteFilterToolbarButton(
+        PocaFilterToolbarButton(
             isActive: contentFilter != .all
                 || grouping != .day
                 || density != .standard
@@ -720,7 +720,7 @@ struct AlbumBrowserFilterSheet: View {
                     .animation(.easeInOut(duration: 0.18), value: pane)
                 }
             }
-            .background(PhotoDeleteScreenBackground())
+            .background(PocaScreenBackground())
             .navigationTitle(L10n.string("Filter and sort"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -755,7 +755,7 @@ struct AlbumBrowserFilterSheet: View {
                     FilterSegmentOption(
                         value: item,
                         title: item.title,
-                        subtitle: PhotoDeleteCountFormat.plain(count(for: item))
+                        subtitle: PocaCountFormat.plain(count(for: item))
                     )
                 },
                 selection: $contentFilter

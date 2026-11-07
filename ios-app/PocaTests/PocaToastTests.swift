@@ -1,41 +1,41 @@
 import Foundation
 import Testing
-@testable import PhotoDelete
+@testable import Poca
 
-struct PhotoDeleteToastTests {
+struct PocaToastTests {
     @Test func standardToastUsesUnifiedDwell() {
-        let toast = PhotoDeleteToast(message: "Saved", icon: "checkmark", style: .positive)
-        #expect(PhotoDeleteToastTiming.visibleDuration(for: toast) == 2.4)
+        let toast = PocaToast(message: "Saved", icon: "checkmark", style: .positive)
+        #expect(PocaToastTiming.visibleDuration(for: toast) == 2.4)
     }
 
     @Test func undoToastStaysLonger() {
-        let toast = PhotoDeleteToast(
+        let toast = PocaToast(
             message: "Deleted",
             icon: "trash",
             style: .destructive,
             showsUndo: true
         )
-        #expect(PhotoDeleteToastTiming.visibleDuration(for: toast) == 4.5)
+        #expect(PocaToastTiming.visibleDuration(for: toast) == 4.5)
     }
 
     @Test func explicitDurationOverridesDefaults() {
-        let toast = PhotoDeleteToast(
+        let toast = PocaToast(
             message: "Muted",
             icon: "speaker.slash.fill",
             style: .neutral,
             duration: 1.1
         )
-        #expect(PhotoDeleteToastTiming.visibleDuration(for: toast) == 1.1)
+        #expect(PocaToastTiming.visibleDuration(for: toast) == 1.1)
     }
 
     @Test func explicitDurationWinsEvenWithUndo() {
-        let toast = PhotoDeleteToast(
+        let toast = PocaToast(
             message: "Saved",
             icon: "checkmark",
             style: .positive,
             showsUndo: true,
             duration: 2
         )
-        #expect(PhotoDeleteToastTiming.visibleDuration(for: toast) == 2)
+        #expect(PocaToastTiming.visibleDuration(for: toast) == 2)
     }
 }

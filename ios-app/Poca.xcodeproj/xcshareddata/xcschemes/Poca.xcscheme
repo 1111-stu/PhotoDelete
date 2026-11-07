@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C8964B012E2162AB00B434E4"
-               BuildableName = "PhotoDelete.app"
-               BlueprintName = "PhotoDelete"
-               ReferencedContainer = "container:PhotoDelete.xcodeproj">
+               BuildableName = "Poca.app"
+               BlueprintName = "Poca"
+               ReferencedContainer = "container:Poca.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,9 +35,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C8964B0E2E2162AE00B434E4"
-               BuildableName = "PhotoDeleteTests.xctest"
-               BlueprintName = "PhotoDeleteTests"
-               ReferencedContainer = "container:PhotoDelete.xcodeproj">
+               BuildableName = "PocaTests.xctest"
+               BlueprintName = "PocaTests"
+               ReferencedContainer = "container:Poca.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -45,9 +45,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C8964B182E2162AE00B434E4"
-               BuildableName = "PhotoDeleteUITests.xctest"
-               BlueprintName = "PhotoDeleteUITests"
-               ReferencedContainer = "container:PhotoDelete.xcodeproj">
+               BuildableName = "PocaUITests.xctest"
+               BlueprintName = "PocaUITests"
+               ReferencedContainer = "container:Poca.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -67,13 +67,13 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C8964B012E2162AB00B434E4"
-            BuildableName = "PhotoDelete.app"
-            BlueprintName = "PhotoDelete"
-            ReferencedContainer = "container:PhotoDelete.xcodeproj">
+            BuildableName = "Poca.app"
+            BlueprintName = "Poca"
+            ReferencedContainer = "container:Poca.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
-         identifier = "container:PhotoDelete/PhotoDelete.storekit">
+         identifier = "container:Poca/Poca.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
@@ -87,9 +87,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C8964B012E2162AB00B434E4"
-            BuildableName = "PhotoDelete.app"
-            BlueprintName = "PhotoDelete"
-            ReferencedContainer = "container:PhotoDelete.xcodeproj">
+            BuildableName = "Poca.app"
+            BlueprintName = "Poca"
+            ReferencedContainer = "container:Poca.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -1,8 +1,8 @@
 //
 //  DataManager.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 11/7/25.
+//  Created by Poca Team on 11/7/25.
 //
 
 import SwiftUI
@@ -13,7 +13,7 @@ import CoreLocation
 import OSLog
 
 private let dataManagerLogger = Logger(
-    subsystem: Bundle.main.bundleIdentifier ?? "PhotoDelete",
+    subsystem: Bundle.main.bundleIdentifier ?? "Poca",
     category: "DataManager"
 )
 
@@ -851,7 +851,7 @@ class DataManager: ObservableObject {
         }
 
         guard photoLibraryManager.hasPhotoLibraryAccess else {
-            let error = NSError(domain: "PhotoDeleteError", code: 1001, userInfo: [
+            let error = NSError(domain: "PocaError", code: 1001, userInfo: [
                 NSLocalizedDescriptionKey: L10n.string("Photo access is not available")
             ])
             completion(false, error, nil)
@@ -887,7 +887,7 @@ class DataManager: ObservableObject {
                     dataManagerLogger.error("Batch operation failed: \(error.localizedDescription, privacy: .public)")
                 }
 
-                let enhancedError = NSError(domain: "PhotoDeleteError", code: 1002, userInfo: [
+                let enhancedError = NSError(domain: "PocaError", code: 1002, userInfo: [
                     NSLocalizedDescriptionKey: L10n.string("Operation failed. Try again later."),
                     NSLocalizedFailureReasonErrorKey: L10n.string("The photo library did not complete this batch operation. Please try again later.")
                 ])
@@ -1014,7 +1014,7 @@ class DataManager: ObservableObject {
         imageCompressionTask = Task { [weak self] in
             guard let self else { return }
             let backgroundTaskID = await MainActor.run {
-                Self.beginAdvancedCompressionBackgroundTask(named: "PhotoDelete.ImageCompression")
+                Self.beginAdvancedCompressionBackgroundTask(named: "Poca.ImageCompression")
             }
             var resultItems: [AdvancedImageCompressionResultItem] = []
             var failedCount = 0
@@ -1105,7 +1105,7 @@ class DataManager: ObservableObject {
         videoCompressionTask = Task { [weak self] in
             guard let self else { return }
             let backgroundTaskID = await MainActor.run {
-                Self.beginAdvancedCompressionBackgroundTask(named: "PhotoDelete.VideoCompression")
+                Self.beginAdvancedCompressionBackgroundTask(named: "Poca.VideoCompression")
             }
             var resultItems: [AdvancedVideoCompressionResultItem] = []
             var failedCount = 0

@@ -1,6 +1,6 @@
 //
 //  FilterSheetControls.swift
-//  PhotoDelete
+//  Poca
 //
 //  筛选与排序弹窗共用控件：顶栏三 Tab + 轨道滑动玻璃分段 + 紧凑单选格。
 //  选中态用白高光 / 玻璃滑块；琥珀只留给「完成」文字。

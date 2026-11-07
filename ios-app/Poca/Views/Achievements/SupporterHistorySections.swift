@@ -1,6 +1,6 @@
 //
 //  SupporterHistorySections.swift
-//  PhotoDelete
+//  Poca
 //
 //  清理历史 / 月度统计区块，被成就页（CleanupAchievementsView）使用。
 //  仍走琥珀语境（Theme），不要换成付费页的 PaywallDS。

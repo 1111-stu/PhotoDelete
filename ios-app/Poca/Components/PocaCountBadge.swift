@@ -1,6 +1,6 @@
 //
-//  PhotoDeleteCountBadge.swift
-//  PhotoDelete
+//  PocaCountBadge.swift
+//  Poca
 //
 //  头部圆形按钮的数量角标（统一标准）：
 //  胶囊最小 20pt / destructive 底 / 白色 11.5 bold / 99+ 封顶 / 无描边环。
@@ -9,11 +9,11 @@
 
 import SwiftUI
 
-struct PhotoDeleteCountBadge: View {
+struct PocaCountBadge: View {
     let count: Int
 
     var body: some View {
-        Text(count > 99 ? "99+" : PhotoDeleteCountFormat.plain(count))
+        Text(count > 99 ? "99+" : PocaCountFormat.plain(count))
             .font(.system(size: 11.5, weight: .bold))
             .monospacedDigit()
             .lineLimit(1)

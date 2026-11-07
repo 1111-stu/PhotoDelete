@@ -125,7 +125,7 @@ struct SimilarPhotosFilterSheet: View {
                 .padding(.top, 12)
                 .padding(.bottom, 20)
             }
-            .background(PhotoDeleteScreenBackground())
+            .background(PocaScreenBackground())
             .navigationTitle(L10n.string("Filter and sort"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

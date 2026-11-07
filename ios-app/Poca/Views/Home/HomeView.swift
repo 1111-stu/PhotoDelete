@@ -1,8 +1,8 @@
 //
 //  HomeView.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 11/7/25.
+//  Created by Poca Team on 11/7/25.
 //
 
 import Photos
@@ -170,27 +170,27 @@ struct HomeView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                PhotoDeleteScreenBackground()
+                PocaScreenBackground()
 
                 ScrollView {
                     homeContent()
                         .padding(
                             .horizontal,
-                            PhotoDeleteAdaptiveLayout.homeHorizontalPadding(
+                            PocaAdaptiveLayout.homeHorizontalPadding(
                                 in: geometry.size,
                                 horizontalSizeClass: horizontalSizeClass
                             )
                         )
                         .padding(
                             .top,
-                            PhotoDeleteAdaptiveLayout.homeTopPadding(
+                            PocaAdaptiveLayout.homeTopPadding(
                                 in: geometry.size,
                                 horizontalSizeClass: horizontalSizeClass
                             )
                         )
                         .padding(.bottom, Theme.space24)
                         .frame(
-                            maxWidth: PhotoDeleteAdaptiveLayout.homeContentMaxWidth(
+                            maxWidth: PocaAdaptiveLayout.homeContentMaxWidth(
                                 in: geometry.size,
                                 horizontalSizeClass: horizontalSizeClass
                             )
@@ -257,7 +257,7 @@ struct HomeView: View {
     /// 右上角待删除入口：进入「垃圾桶」（TrashBinView）。
     /// 用归档图标表达「暂存待确认」；数量角标挂在按钮上（最多 99+）。
     private var trashBinEntryButton: some View {
-        PhotoDeleteCircleIconButton(
+        PocaCircleIconButton(
             systemName: "archivebox",
             accessibilityLabel: trashBinAccessibilityLabel,
             accessibilityIdentifier: "home-trash-bin"
@@ -282,7 +282,7 @@ struct HomeView: View {
     @ViewBuilder
     private var pendingDeleteBadge: some View {
         if pendingDeleteCount > 0 {
-            PhotoDeleteCountBadge(count: pendingDeleteCount)
+            PocaCountBadge(count: pendingDeleteCount)
         }
     }
 
@@ -451,7 +451,7 @@ struct HomeView: View {
             .buttonStyle(.plain)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(L10n.string("Photo Wall"))
-            .accessibilityValue("\(PhotoDeleteCountFormat.plain(total)) \(L10n.string("photos label"))")
+            .accessibilityValue("\(PocaCountFormat.plain(total)) \(L10n.string("photos label"))")
             .accessibilityIdentifier("home-pending-review")
 
             heroInfoBar(total: total)
@@ -466,7 +466,7 @@ struct HomeView: View {
         HStack(alignment: .bottom, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
-                    Text(PhotoDeleteCountFormat.plain(total))
+                    Text(PocaCountFormat.plain(total))
                         .font(.system(size: 26, weight: .bold))
                         .monospacedDigit()
                         .foregroundStyle(
@@ -599,7 +599,7 @@ struct HomeView: View {
 
     private var periodCardsSection: some View {
         VStack(alignment: .leading, spacing: 9) {
-            PhotoDeleteSectionHeader(title: L10n.string("By time"))
+            PocaSectionHeader(title: L10n.string("By time"))
 
             VStack(spacing: Theme.space3) {
                 periodCard(
@@ -661,7 +661,7 @@ struct HomeView: View {
 
                         Text(String(
                             format: L10n.string("%@ items · %@"),
-                            PhotoDeleteCountFormat.plain(summary.assetCount),
+                            PocaCountFormat.plain(summary.assetCount),
                             summary.formattedEstimatedSize
                         ))
                         .font(.system(size: 11.5, weight: .regular))
@@ -722,13 +722,13 @@ struct HomeView: View {
 
     private var specialCleanupSection: some View {
         VStack(alignment: .leading, spacing: 9) {
-            PhotoDeleteSectionHeader(
+            PocaSectionHeader(
                 title: L10n.string("Special cleanup"),
                 trailing: String(format: L10n.string("About %@ to clear"), cleanupReclaimableSizeText)
             )
 
             VStack(spacing: 0) {
-                PhotoDeleteListRow(
+                PocaListRow(
                     iconImage: "CleanupScreenshotsIcon",
                     iconImageSize: 42,
                     titleFont: .system(size: 16, weight: .semibold),
@@ -739,7 +739,7 @@ struct HomeView: View {
                     router.push(SwipeViewDestination.assetBrowser(.screenshots))
                 }
                 insetHairline(inset: 16)
-                PhotoDeleteListRow(
+                PocaListRow(
                     iconImage: "CleanupSimilarIcon",
                     iconImageSize: 42,
                     titleFont: .system(size: 16, weight: .semibold),
@@ -750,7 +750,7 @@ struct HomeView: View {
                     router.push(SwipeViewDestination.cleanup(.similarPhotos))
                 }
                 insetHairline(inset: 16)
-                PhotoDeleteListRow(
+                PocaListRow(
                     iconImage: "CleanupVideoIcon",
                     iconImageSize: 38,
                     titleFont: .system(size: 16, weight: .semibold),
@@ -761,7 +761,7 @@ struct HomeView: View {
                     router.push(SwipeViewDestination.assetBrowser(.videos))
                 }
                 insetHairline(inset: 16)
-                PhotoDeleteListRow(
+                PocaListRow(
                     iconImage: "CleanupLivePhotoIcon",
                     iconImageSize: 38,
                     titleFont: .system(size: 16, weight: .semibold),
@@ -785,11 +785,11 @@ struct HomeView: View {
 
     private var toolSection: some View {
         VStack(alignment: .leading, spacing: 9) {
-            PhotoDeleteSectionHeader(title: L10n.string("Tools"))
+            PocaSectionHeader(title: L10n.string("Tools"))
 
             VStack(spacing: 0) {
                 if AppConstants.isImageCompressionVisible {
-                    PhotoDeleteListRow(
+                    PocaListRow(
                         title: L10n.string("Image Compression"),
                         subtitle: L10n.string("Smaller, not deleted"),
                         value: countText(cleanupQueue(for: .imageCompression)?.assetCount),
@@ -800,7 +800,7 @@ struct HomeView: View {
                     insetHairline()
                 }
 
-                PhotoDeleteListRow(
+                PocaListRow(
                     title: L10n.string("Video Compression"),
                     subtitle: L10n.string("Smaller, not deleted"),
                     value: countText(cleanupQueue(for: .videoCompression)?.assetCount),
@@ -891,7 +891,7 @@ struct HomeView: View {
 
     private func countText(_ count: Int?) -> String {
         guard let count else { return L10n.string("Reading") }
-        return PhotoDeleteCountFormat.plain(count)
+        return PocaCountFormat.plain(count)
     }
 
 }
@@ -1047,7 +1047,7 @@ private struct RollingNumberText: View {
     @State private var hasRun = false
 
     var body: some View {
-        Text(PhotoDeleteCountFormat.plain(displayed))
+        Text(PocaCountFormat.plain(displayed))
             .monospacedDigit()
             .onAppear(perform: startCounting)
     }

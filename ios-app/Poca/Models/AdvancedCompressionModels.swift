@@ -1,8 +1,8 @@
 //
 //  AdvancedCompressionModels.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 7/2/26.
+//  Created by Poca Team on 7/2/26.
 //
 
 import CoreGraphics

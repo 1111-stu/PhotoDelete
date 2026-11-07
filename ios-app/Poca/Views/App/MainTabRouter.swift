@@ -1,6 +1,6 @@
 //
 //  MainTabRouter.swift
-//  PhotoDelete
+//  Poca
 //
 //  方案 C：根 NavigationStack 盖住 TabView。path 非空时底栏不在可见层。
 //

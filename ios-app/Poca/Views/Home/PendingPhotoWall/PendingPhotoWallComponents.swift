@@ -1,6 +1,6 @@
 //
 //  PendingPhotoWallComponents.swift
-//  PhotoDelete
+//  Poca
 //
 //  待整理照片墙：顶栏、日历格、相纸板、空状态、年份液态玻璃下拉。
 //
@@ -105,7 +105,7 @@ struct PendingPhotoWallMonthSection<Content: View>: View {
                         Image(systemName: "photo.on.rectangle")
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(Theme.tertiaryText)
-                        Text(PhotoDeleteCountFormat.plain(photoCount))
+                        Text(PocaCountFormat.plain(photoCount))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(Theme.secondaryText)
                             .monospacedDigit()
@@ -121,7 +121,7 @@ struct PendingPhotoWallMonthSection<Content: View>: View {
                     String(
                         format: L10n.string("Organize %@ · %@ photos"),
                         title,
-                        PhotoDeleteCountFormat.plain(photoCount)
+                        PocaCountFormat.plain(photoCount)
                     )
                 )
             }
@@ -280,7 +280,7 @@ struct PendingPhotoWallDayCellView: View {
                 String(
                     format: L10n.string("Organize from %@ · %@ photos"),
                     AppDateFormatter.string(from: cell.date, template: "MMMd"),
-                    PhotoDeleteCountFormat.plain(cell.photoCount)
+                    PocaCountFormat.plain(cell.photoCount)
                 )
             )
         }
@@ -481,7 +481,7 @@ struct PendingPhotoWallPolaroidBoard: View {
             String(
                 format: L10n.string("Organize from day %lld · %@ photos"),
                 Int64(item.dayOfMonth),
-                PhotoDeleteCountFormat.plain(item.photoCount)
+                PocaCountFormat.plain(item.photoCount)
             )
         )
     }

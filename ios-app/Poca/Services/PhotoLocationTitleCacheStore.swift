@@ -1,15 +1,15 @@
 //
 //  PhotoLocationTitleCacheStore.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 6/24/26.
+//  Created by Poca Team on 6/24/26.
 //
 
 import Foundation
 import OSLog
 
 private let photoLocationTitleCacheLogger = Logger(
-    subsystem: Bundle.main.bundleIdentifier ?? "PhotoDelete",
+    subsystem: Bundle.main.bundleIdentifier ?? "Poca",
     category: "PhotoLocationTitleCache"
 )
 
@@ -128,7 +128,7 @@ final class PhotoLocationTitleCacheStore {
         let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         return baseURL
-            .appendingPathComponent("PhotoDelete", isDirectory: true)
+            .appendingPathComponent("Poca", isDirectory: true)
             .appendingPathComponent("location-title-cache.json")
     }
 

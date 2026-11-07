@@ -10,7 +10,7 @@ struct ReviewNavigationHeader: View {
     var body: some View {
         HStack {
             HStack(spacing: 8) {
-                PhotoDeleteCircleIconButton(
+                PocaCircleIconButton(
                     systemName: "arrow.left",
                     accessibilityLabel: L10n.string("Back"),
                     action: onBack
@@ -31,7 +31,7 @@ struct ReviewNavigationHeader: View {
 
             Spacer()
 
-            PhotoDeleteCircleIconButton(
+            PocaCircleIconButton(
                 systemName: "archivebox",
                 accessibilityLabel: L10n.string("Trash"),
                 accessibilityIdentifier: "review-trash-button",
@@ -39,7 +39,7 @@ struct ReviewNavigationHeader: View {
                 action: onDelete
             ) {
                 if deleteCount > 0 {
-                    PhotoDeleteCountBadge(count: deleteCount)
+                    PocaCountBadge(count: deleteCount)
                 }
             }
             .accessibilityValue(L10n.string("\(deleteCount) to delete"))
@@ -129,7 +129,7 @@ struct ReviewCompletionOverlay: View {
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(Theme.primaryText)
                         .frame(width: 32, height: 32)
-                        .background { PhotoDeleteGlassCircleBackground() }
+                        .background { PocaGlassCircleBackground() }
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
@@ -154,7 +154,7 @@ struct ReviewCompletionOverlay: View {
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Theme.primaryText)
             Spacer(minLength: 12)
-            Text(PhotoDeleteCountFormat.plain(value))
+            Text(PocaCountFormat.plain(value))
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundStyle(Theme.primaryText)
                 .monospacedDigit()
@@ -309,4 +309,4 @@ struct ReviewActionToolbar: View {
     }
 }
 
-// ReviewGlassCircleChrome / ReviewGlassCapsuleChrome → Components/PhotoDeleteGlassChrome.swift
+// ReviewGlassCircleChrome / ReviewGlassCapsuleChrome → Components/PocaGlassChrome.swift

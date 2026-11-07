@@ -1,6 +1,6 @@
 //
-//  PhotoDeleteApp.swift
-//  PhotoDelete
+//  PocaApp.swift
+//  Poca
 //
 //  Created by jackie xiao on 11/7/25.
 //
@@ -8,9 +8,9 @@
 import SwiftUI
 
 @main
-struct PhotoDeleteApp: App {
+struct PocaApp: App {
     @AppStorage(AppConstants.appLanguageKey) private var appLanguageValue =
-        PhotoDeleteLaunchDefaults.string(
+        PocaLaunchDefaults.string(
             forKey: AppConstants.appLanguageKey,
             fallback: AppLanguage.system.rawValue
         )
@@ -44,10 +44,10 @@ struct PhotoDeleteApp: App {
 
 }
 
-private enum PhotoDeleteLaunchDefaults {
+private enum PocaLaunchDefaults {
     private static let prepared: Void = {
         #if DEBUG
-        PhotoDeleteUITestDefaults.applyIfNeeded()
+        PocaUITestDefaults.applyIfNeeded()
         #endif
     }()
 
@@ -70,7 +70,7 @@ private struct AppLayoutDirectionModifier: ViewModifier {
 }
 
 #if DEBUG
-private enum PhotoDeleteUITestDefaults {
+private enum PocaUITestDefaults {
     static func applyIfNeeded() {
         let environment = ProcessInfo.processInfo.environment
         guard environment["PHOTO_DELETE_UI_TEST"] == "1" else { return }

@@ -1,7 +1,7 @@
 import Foundation
 import Photos
 import Testing
-@testable import PhotoDelete
+@testable import Poca
 
 struct LivePhotoFileSizeEstimateTests {
     @Test func selectsEditedLivePhotoResourcesWhenPresent() {

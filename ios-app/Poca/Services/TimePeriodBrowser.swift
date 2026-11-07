@@ -1,6 +1,6 @@
 //
 //  TimePeriodBrowser.swift
-//  PhotoDelete
+//  Poca
 //
 
 import Foundation
@@ -93,7 +93,7 @@ enum TimePeriodBrowser {
     static func rowSubtitle(for summary: PhotoPeriodSummary) -> String {
         String(
             format: L10n.string("%@ items · %@"),
-            PhotoDeleteCountFormat.plain(summary.assetCount),
+            PocaCountFormat.plain(summary.assetCount),
             summary.formattedEstimatedSize
         )
     }

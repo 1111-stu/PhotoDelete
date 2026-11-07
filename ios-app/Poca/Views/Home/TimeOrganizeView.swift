@@ -1,8 +1,8 @@
 //
 //  TimeOrganizeView.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 6/21/26.
+//  Created by Poca Team on 6/21/26.
 //
 
 import SwiftUI
@@ -19,7 +19,7 @@ struct TimeOrganizeView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 LazyVStack(spacing: 16) {
@@ -74,7 +74,7 @@ struct TimeOrganizeView: View {
                 .padding(.horizontal, Theme.space5)
                 .padding(.top, Theme.space2)
                 .padding(.bottom, Theme.space24)
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+                .frame(maxWidth: PocaAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
         }

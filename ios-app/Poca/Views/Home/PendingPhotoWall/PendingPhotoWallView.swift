@@ -1,6 +1,6 @@
 //
 //  PendingPhotoWallView.swift
-//  PhotoDelete
+//  Poca
 //
 //  首页「待整理」入口：按年浏览未整理日封面，点天/月进当月滑动整理。
 //
@@ -184,7 +184,7 @@ struct PendingPhotoWallView: View {
     }
 
     private var wallBackButton: some View {
-        PhotoDeleteCircleIconButton(
+        PocaCircleIconButton(
             systemName: "arrow.left",
             accessibilityLabel: L10n.string("Back")
         ) {
@@ -213,14 +213,14 @@ struct PendingPhotoWallView: View {
             .padding(.trailing, 16)
             .frame(height: Theme.sizeChrome)
         }
-        .modifier(PhotoDeleteGlassCapsuleChrome())
+        .modifier(PocaGlassCapsuleChrome())
         .accessibilityLabel(L10n.string("Select year"))
         .accessibilityValue(yearPillLabel)
     }
 
     private var wallBinButton: some View {
         let binCount = dataManager.deleteCandidates.count
-        return PhotoDeleteCircleIconButton(
+        return PocaCircleIconButton(
             systemName: "archivebox",
             accessibilityLabel: L10n.string("Trash")
         ) {
@@ -228,7 +228,7 @@ struct PendingPhotoWallView: View {
             router.push(.trashBin)
         } badge: {
             if binCount > 0 {
-                PhotoDeleteCountBadge(count: binCount)
+                PocaCountBadge(count: binCount)
             }
         }
         .accessibilityValue(L10n.string("\(binCount) to delete"))

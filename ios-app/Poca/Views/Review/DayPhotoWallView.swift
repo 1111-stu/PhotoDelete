@@ -1,6 +1,6 @@
 //
 //  DayPhotoWallView.swift
-//  PhotoDelete
+//  Poca
 //
 //  随机整理里双指捏合进入的「回到那天」瀑布流：
 //  按拍摄时间铺开同一天的全部照片，轻点一张就像泡泡一样碎掉并加入垃圾桶（可撤销）。
@@ -24,7 +24,7 @@ struct DayPhotoWallView: View {
     @State private var poppedIDs: Set<String> = []
     @State private var poppingIDs: Set<String> = []
     @State private var highlightedID: String?
-    @State private var toast: PhotoDeleteToast?
+    @State private var toast: PocaToast?
     @State private var showsTrash = false
 
     private var visibleAssets: [PHAsset] {
@@ -69,7 +69,7 @@ struct DayPhotoWallView: View {
                 .accessibilityAddTraits(.isHeader)
 
             HStack(spacing: 12) {
-                PhotoDeleteCircleIconButton(
+                PocaCircleIconButton(
                     systemName: "xmark",
                     accessibilityLabel: L10n.string("Close"),
                     accessibilityIdentifier: "day-wall-close"
@@ -79,7 +79,7 @@ struct DayPhotoWallView: View {
 
                 Spacer(minLength: 0)
 
-                PhotoDeleteCircleIconButton(
+                PocaCircleIconButton(
                     systemName: "archivebox",
                     accessibilityLabel: L10n.string("Trash"),
                     accessibilityIdentifier: "day-wall-trash"
@@ -87,7 +87,7 @@ struct DayPhotoWallView: View {
                     showsTrash = true
                 } badge: {
                     if dataManager.deleteCandidates.count > 0 {
-                        PhotoDeleteCountBadge(count: dataManager.deleteCandidates.count)
+                        PocaCountBadge(count: dataManager.deleteCandidates.count)
                     }
                 }
                 .accessibilityValue(
@@ -142,7 +142,7 @@ struct DayPhotoWallView: View {
     private func showFirstVisitHintIfNeeded() {
         guard !hasSeenDayWallHint else { return }
         hasSeenDayWallHint = true
-        toast = PhotoDeleteToast(
+        toast = PocaToast(
             message: L10n.string("Tap a photo to add it to Trash"),
             icon: "hand.tap",
             style: .neutral,

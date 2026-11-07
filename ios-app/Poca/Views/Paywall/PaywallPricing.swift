@@ -1,6 +1,6 @@
 //
 //  PaywallPricing.swift
-//  PhotoDelete
+//  Poca
 //
 //  把 StoreKit Product 翻译成 Paywall 的展示文案。此文件不含任何 View，
 //  也不持有 SubscriptionManager，因此可以用假 Product 构造来单独验证文案分支。

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import PhotoDelete
+@testable import Poca
 
 struct ReviewPhotoStripLayoutTests {
     // MARK: - 卡片与槽位（对齐 iOS 原生胶片条：固定竖幅，只有当前格是正方形）

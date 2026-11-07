@@ -12,50 +12,50 @@
 			containerPortal = C8964AFA2E2162AB00B434E4 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = C8964B012E2162AB00B434E4;
-			remoteInfo = PhotoDelete;
+			remoteInfo = Poca;
 		};
 		C8964B1A2E2162AE00B434E4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C8964AFA2E2162AB00B434E4 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = C8964B012E2162AB00B434E4;
-			remoteInfo = PhotoDelete;
+			remoteInfo = Poca;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C8964B022E2162AB00B434E4 /* PhotoDelete.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoDelete.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C8964B0F2E2162AE00B434E4 /* PhotoDeleteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoDeleteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C8964B192E2162AE00B434E4 /* PhotoDeleteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoDeleteUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8964B022E2162AB00B434E4 /* Poca.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Poca.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8964B0F2E2162AE00B434E4 /* PocaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PocaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8964B192E2162AE00B434E4 /* PocaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PocaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C8964B3A2E2162AF00B434E4 /* Exceptions for "PhotoDelete" folder in "PhotoDelete" target */ = {
+		C8964B3A2E2162AF00B434E4 /* Exceptions for "Poca" folder in "Poca" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				PhotoDelete.storekit,
+				Poca.storekit,
 			);
-			target = C8964B012E2162AB00B434E4 /* PhotoDelete */;
+			target = C8964B012E2162AB00B434E4 /* Poca */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C8964B042E2162AB00B434E4 /* PhotoDelete */ = {
+		C8964B042E2162AB00B434E4 /* Poca */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				C8964B3A2E2162AF00B434E4 /* Exceptions for "PhotoDelete" folder in "PhotoDelete" target */,
+				C8964B3A2E2162AF00B434E4 /* Exceptions for "Poca" folder in "Poca" target */,
 			);
-			path = PhotoDelete;
+			path = Poca;
 			sourceTree = "<group>";
 		};
-		C8964B122E2162AE00B434E4 /* PhotoDeleteTests */ = {
+		C8964B122E2162AE00B434E4 /* PocaTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PhotoDeleteTests;
+			path = PocaTests;
 			sourceTree = "<group>";
 		};
-		C8964B1C2E2162AE00B434E4 /* PhotoDeleteUITests */ = {
+		C8964B1C2E2162AE00B434E4 /* PocaUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PhotoDeleteUITests;
+			path = PocaUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -88,9 +88,9 @@
 		C8964AF92E2162AB00B434E4 = {
 			isa = PBXGroup;
 			children = (
-				C8964B042E2162AB00B434E4 /* PhotoDelete */,
-				C8964B122E2162AE00B434E4 /* PhotoDeleteTests */,
-				C8964B1C2E2162AE00B434E4 /* PhotoDeleteUITests */,
+				C8964B042E2162AB00B434E4 /* Poca */,
+				C8964B122E2162AE00B434E4 /* PocaTests */,
+				C8964B1C2E2162AE00B434E4 /* PocaUITests */,
 				C8964B032E2162AB00B434E4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -98,9 +98,9 @@
 		C8964B032E2162AB00B434E4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C8964B022E2162AB00B434E4 /* PhotoDelete.app */,
-				C8964B0F2E2162AE00B434E4 /* PhotoDeleteTests.xctest */,
-				C8964B192E2162AE00B434E4 /* PhotoDeleteUITests.xctest */,
+				C8964B022E2162AB00B434E4 /* Poca.app */,
+				C8964B0F2E2162AE00B434E4 /* PocaTests.xctest */,
+				C8964B192E2162AE00B434E4 /* PocaUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,9 +108,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C8964B012E2162AB00B434E4 /* PhotoDelete */ = {
+		C8964B012E2162AB00B434E4 /* Poca */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C8964B232E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PhotoDelete" */;
+			buildConfigurationList = C8964B232E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "Poca" */;
 			buildPhases = (
 				C8964AFE2E2162AB00B434E4 /* Sources */,
 				C8964AFF2E2162AB00B434E4 /* Frameworks */,
@@ -121,18 +121,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				C8964B042E2162AB00B434E4 /* PhotoDelete */,
+				C8964B042E2162AB00B434E4 /* Poca */,
 			);
-			name = PhotoDelete;
+			name = Poca;
 			packageProductDependencies = (
 			);
-			productName = PhotoDelete;
-			productReference = C8964B022E2162AB00B434E4 /* PhotoDelete.app */;
+			productName = Poca;
+			productReference = C8964B022E2162AB00B434E4 /* Poca.app */;
 			productType = "com.apple.product-type.application";
 		};
-		C8964B0E2E2162AE00B434E4 /* PhotoDeleteTests */ = {
+		C8964B0E2E2162AE00B434E4 /* PocaTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C8964B262E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PhotoDeleteTests" */;
+			buildConfigurationList = C8964B262E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PocaTests" */;
 			buildPhases = (
 				C8964B0B2E2162AE00B434E4 /* Sources */,
 				C8964B0C2E2162AE00B434E4 /* Frameworks */,
@@ -144,18 +144,18 @@
 				C8964B112E2162AE00B434E4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				C8964B122E2162AE00B434E4 /* PhotoDeleteTests */,
+				C8964B122E2162AE00B434E4 /* PocaTests */,
 			);
-			name = PhotoDeleteTests;
+			name = PocaTests;
 			packageProductDependencies = (
 			);
-			productName = PhotoDeleteTests;
-			productReference = C8964B0F2E2162AE00B434E4 /* PhotoDeleteTests.xctest */;
+			productName = PocaTests;
+			productReference = C8964B0F2E2162AE00B434E4 /* PocaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		C8964B182E2162AE00B434E4 /* PhotoDeleteUITests */ = {
+		C8964B182E2162AE00B434E4 /* PocaUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C8964B292E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PhotoDeleteUITests" */;
+			buildConfigurationList = C8964B292E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PocaUITests" */;
 			buildPhases = (
 				C8964B152E2162AE00B434E4 /* Sources */,
 				C8964B162E2162AE00B434E4 /* Frameworks */,
@@ -167,13 +167,13 @@
 				C8964B1B2E2162AE00B434E4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				C8964B1C2E2162AE00B434E4 /* PhotoDeleteUITests */,
+				C8964B1C2E2162AE00B434E4 /* PocaUITests */,
 			);
-			name = PhotoDeleteUITests;
+			name = PocaUITests;
 			packageProductDependencies = (
 			);
-			productName = PhotoDeleteUITests;
-			productReference = C8964B192E2162AE00B434E4 /* PhotoDeleteUITests.xctest */;
+			productName = PocaUITests;
+			productReference = C8964B192E2162AE00B434E4 /* PocaUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -199,7 +199,7 @@
 					};
 				};
 			};
-			buildConfigurationList = C8964AFD2E2162AB00B434E4 /* Build configuration list for PBXProject "PhotoDelete" */;
+			buildConfigurationList = C8964AFD2E2162AB00B434E4 /* Build configuration list for PBXProject "Poca" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -259,9 +259,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C8964B012E2162AB00B434E4 /* PhotoDelete */,
-				C8964B0E2E2162AE00B434E4 /* PhotoDeleteTests */,
-				C8964B182E2162AE00B434E4 /* PhotoDeleteUITests */,
+				C8964B012E2162AB00B434E4 /* Poca */,
+				C8964B0E2E2162AE00B434E4 /* PocaTests */,
+				C8964B182E2162AE00B434E4 /* PocaUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -317,12 +317,12 @@
 /* Begin PBXTargetDependency section */
 		C8964B112E2162AE00B434E4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C8964B012E2162AB00B434E4 /* PhotoDelete */;
+			target = C8964B012E2162AB00B434E4 /* Poca */;
 			targetProxy = C8964B102E2162AE00B434E4 /* PBXContainerItemProxy */;
 		};
 		C8964B1B2E2162AE00B434E4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C8964B012E2162AB00B434E4 /* PhotoDelete */;
+			target = C8964B012E2162AB00B434E4 /* Poca */;
 			targetProxy = C8964B1A2E2162AE00B434E4 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -457,7 +457,7 @@
 				DEVELOPMENT_TEAM = SGRUVK542K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "Config/PhotoDelete-Info.plist";
+				INFOPLIST_FILE = "Config/Poca-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -465,7 +465,7 @@
 				);
 				MARKETING_VERSION = 1.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.01mvp.photodelete;
-				PRODUCT_NAME = PhotoDelete;
+				PRODUCT_NAME = Poca;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -482,7 +482,7 @@
 				DEVELOPMENT_TEAM = SGRUVK542K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "Config/PhotoDelete-Info.plist";
+				INFOPLIST_FILE = "Config/Poca-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -490,7 +490,7 @@
 				);
 				MARKETING_VERSION = 1.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.01mvp.photodelete;
-				PRODUCT_NAME = PhotoDelete;
+				PRODUCT_NAME = Poca;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -508,11 +508,11 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.01mvp.photodelete.tests;
-				PRODUCT_NAME = PhotoDeleteTests;
+				PRODUCT_NAME = PocaTests;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PhotoDelete.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PhotoDelete";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Poca.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Poca";
 			};
 			name = Debug;
 		};
@@ -527,11 +527,11 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.01mvp.photodelete.tests;
-				PRODUCT_NAME = PhotoDeleteTests;
+				PRODUCT_NAME = PocaTests;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PhotoDelete.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PhotoDelete";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Poca.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Poca";
 			};
 			name = Release;
 		};
@@ -545,11 +545,11 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.01mvp.photodelete.uitests;
-				PRODUCT_NAME = PhotoDeleteUITests;
+				PRODUCT_NAME = PocaUITests;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = PhotoDelete;
+				TEST_TARGET_NAME = Poca;
 			};
 			name = Debug;
 		};
@@ -563,18 +563,18 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.01mvp.photodelete.uitests;
-				PRODUCT_NAME = PhotoDeleteUITests;
+				PRODUCT_NAME = PocaUITests;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = PhotoDelete;
+				TEST_TARGET_NAME = Poca;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C8964AFD2E2162AB00B434E4 /* Build configuration list for PBXProject "PhotoDelete" */ = {
+		C8964AFD2E2162AB00B434E4 /* Build configuration list for PBXProject "Poca" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C8964B212E2162AE00B434E4 /* Debug */,
@@ -583,7 +583,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C8964B232E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PhotoDelete" */ = {
+		C8964B232E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "Poca" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C8964B242E2162AE00B434E4 /* Debug */,
@@ -592,7 +592,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C8964B262E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PhotoDeleteTests" */ = {
+		C8964B262E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PocaTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C8964B272E2162AE00B434E4 /* Debug */,
@@ -601,7 +601,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C8964B292E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PhotoDeleteUITests" */ = {
+		C8964B292E2162AE00B434E4 /* Build configuration list for PBXNativeTarget "PocaUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C8964B2A2E2162AE00B434E4 /* Debug */,

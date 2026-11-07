@@ -1,8 +1,8 @@
 //
 //  CleanupStatsStore.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 11/7/25.
+//  Created by Poca Team on 11/7/25.
 //
 
 import Foundation
@@ -10,7 +10,7 @@ import Combine
 import OSLog
 
 private let cleanupStatsLogger = Logger(
-    subsystem: Bundle.main.bundleIdentifier ?? "PhotoDelete",
+    subsystem: Bundle.main.bundleIdentifier ?? "Poca",
     category: "CleanupStats"
 )
 
@@ -278,7 +278,7 @@ final class CleanupStatsStore: ObservableObject {
         let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         return baseURL
-            .appendingPathComponent("PhotoDelete", isDirectory: true)
+            .appendingPathComponent("Poca", isDirectory: true)
             .appendingPathComponent("cleanup-history.json")
     }
 

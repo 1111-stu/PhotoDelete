@@ -1,8 +1,8 @@
 //
 //  LocationOrganizeView.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 6/21/26.
+//  Created by Poca Team on 6/21/26.
 //
 
 import Photos
@@ -16,7 +16,7 @@ struct LocationOrganizeView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {

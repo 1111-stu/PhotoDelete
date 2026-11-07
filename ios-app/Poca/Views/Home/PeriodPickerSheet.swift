@@ -1,6 +1,6 @@
 //
 //  PeriodPickerSheet.swift
-//  PhotoDelete
+//  Poca
 //
 
 import SwiftUI
@@ -113,7 +113,7 @@ struct PeriodPickerSheet: View {
                 Spacer(minLength: 8)
 
                 VStack(alignment: .trailing, spacing: 1) {
-                    Text(PhotoDeleteCountFormat.plain(summary.remainingCount))
+                    Text(PocaCountFormat.plain(summary.remainingCount))
                         .font(.system(size: 20, weight: .bold))
                         .monospacedDigit()
                         .foregroundColor(Theme.primaryText)

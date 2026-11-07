@@ -1,6 +1,6 @@
 //
 //  PaywallView.swift
-//  PhotoDelete
+//  Poca
 //
 //  Paywall 骨架：持有页面状态与购买动作，把区块组装起来。
 //  各区块见 PaywallSections，文案计算见 PaywallPricing，token 见 PaywallTheme。

@@ -1,8 +1,8 @@
 //
 //  AlbumsView.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 11/7/25.
+//  Created by Poca Team on 11/7/25.
 //
 
 import Combine
@@ -59,7 +59,7 @@ private struct FavoritesEntryButton: View {
     let action: () -> Void
 
     var body: some View {
-        PhotoDeleteCircleIconButton(
+        PocaCircleIconButton(
             systemName: "heart.fill",
             accessibilityLabel: L10n.string("Favorites"),
             accessibilityIdentifier: "album-favorites-entry",
@@ -78,7 +78,7 @@ struct AlbumsView: View {
     @AppStorage(AppConstants.albumDisplayStyleKey) private var albumDisplayStyleValue = AlbumDisplayStyle.cover.rawValue
     @State private var showsDisplayStyle = false
     @State private var showsEmptyFavorites = false
-    @State private var albumToast: PhotoDeleteToast?
+    @State private var albumToast: PocaToast?
     @State private var displayedRows: [AlbumListRowModel] = []
     @State private var albumsByID: [String: AlbumInfo] = [:]
 
@@ -113,10 +113,10 @@ struct AlbumsView: View {
 
     var body: some View {
         rootContent
-            .frame(maxWidth: PhotoDeleteAdaptiveLayout.listContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+            .frame(maxWidth: PocaAdaptiveLayout.listContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
             .frame(maxWidth: .infinity)
             .background {
-                PhotoDeleteScreenBackground()
+                PocaScreenBackground()
             }
             .photoDeleteToast($albumToast, placement: .bottom(inset: Theme.space24))
             .sheet(isPresented: $showsDisplayStyle) {
@@ -206,7 +206,7 @@ struct AlbumsView: View {
 
     /// 右上角显示方式入口（统一标题栏圆钮规格）。
     private var displayStyleEntryButton: some View {
-        PhotoDeleteCircleIconButton(
+        PocaCircleIconButton(
             systemName: "square.grid.2x2",
             accessibilityLabel: L10n.string("Display"),
             accessibilityIdentifier: "album-display-style"
@@ -231,7 +231,7 @@ struct AlbumsView: View {
         HStack(spacing: 10) {
             albumSearchField
 
-            PhotoDeleteCircleIconButton(
+            PocaCircleIconButton(
                 systemName: "plus",
                 accessibilityLabel: L10n.string("Create Album"),
                 action: createAlbum
@@ -361,7 +361,7 @@ struct AlbumsView: View {
     private func albumSections(proxy: ScrollViewProxy) -> some View {
         if showsMyAlbumsSection {
             VStack(alignment: .leading, spacing: 10) {
-                PhotoDeleteSectionHeader(title: L10n.string("My Albums"))
+                PocaSectionHeader(title: L10n.string("My Albums"))
                 if displayedRows.isEmpty {
                     myAlbumsEmptyRow
                 } else {
@@ -1100,8 +1100,8 @@ struct AlbumsView: View {
         }
     }
 
-    private func showAlbumToast(_ message: String, icon: String, style: PhotoDeleteToastStyle) {
-        albumToast = PhotoDeleteToast(message: message, icon: icon, style: style)
+    private func showAlbumToast(_ message: String, icon: String, style: PocaToastStyle) {
+        albumToast = PocaToast(message: message, icon: icon, style: style)
     }
 }
 
@@ -1513,7 +1513,7 @@ private struct AlbumNameDialog: View {
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.primaryText)
                     .frame(width: 32, height: 32)
-                    .background { PhotoDeleteGlassCircleBackground() }
+                    .background { PocaGlassCircleBackground() }
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
             }

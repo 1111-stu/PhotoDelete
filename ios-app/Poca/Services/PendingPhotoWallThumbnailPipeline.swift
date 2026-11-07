@@ -1,6 +1,6 @@
 //
 //  PendingPhotoWallThumbnailPipeline.swift
-//  PhotoDelete
+//  Poca
 //
 //  待整理照片墙专用的缩略图管线：资产查找、小图缓存、按显示顺序预取都收在这里。
 //  墙面只负责布局和点击，不再逐格查库、逐格发重请求。

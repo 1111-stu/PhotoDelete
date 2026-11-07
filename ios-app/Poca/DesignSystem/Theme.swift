@@ -1,6 +1,6 @@
 //
 //  Theme.swift
-//  PhotoDelete
+//  Poca
 //
 //  全局设计 token（暗色静态）。规范见仓库根目录 style.md。
 //

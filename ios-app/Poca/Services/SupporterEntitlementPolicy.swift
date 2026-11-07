@@ -1,6 +1,6 @@
 //
 //  SupporterEntitlementPolicy.swift
-//  PhotoDelete
+//  Poca
 //
 //  缓存的会员权益判定。`SubscriptionManager` 把权益写进 AppConstants 的 supporter
 //  UserDefaults 键，这里负责判断那份缓存还能不能信（离线解锁等）。

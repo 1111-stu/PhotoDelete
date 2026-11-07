@@ -1,8 +1,8 @@
 //
 //  SettingsView.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 11/7/25.
+//  Created by Poca Team on 11/7/25.
 //
 
 import SwiftUI
@@ -84,7 +84,7 @@ struct SettingsView: View {
     @AppStorage(AppConstants.randomReviewHideFiledPhotosKey) private var randomReviewHideFiledPhotos = true
     @State private var activeSheet: SettingsSheet?
     @State private var showingClearLocalDataConfirmation = false
-    @State private var settingsToast: PhotoDeleteToast?
+    @State private var settingsToast: PocaToast?
 
     var body: some View {
         ZStack {
@@ -122,7 +122,7 @@ struct SettingsView: View {
                 }
                 .padding(.horizontal, SettingsChrome.pageInset)
                 .padding(.top, Theme.space3)
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+                .frame(maxWidth: PocaAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
         }
@@ -151,7 +151,7 @@ struct SettingsView: View {
     // MARK: - 关于与支持
     private var aboutSection: some View {
         VStack(spacing: 16) {
-            PhotoDeleteSectionHeader(title: L10n.string("About and Support"))
+            PocaSectionHeader(title: L10n.string("About and Support"))
 
             VStack(spacing: 0) {
                 SettingRow(
@@ -189,7 +189,7 @@ struct SettingsView: View {
     // MARK: - 偏好设置
     private var preferencesSection: some View {
         VStack(spacing: 16) {
-            PhotoDeleteSectionHeader(title: L10n.string("Preferences"))
+            PocaSectionHeader(title: L10n.string("Preferences"))
 
             VStack(spacing: 0) {
                 SettingRow(
@@ -221,7 +221,7 @@ struct SettingsView: View {
     // MARK: - 随机浏览
     private var randomBrowseSection: some View {
         VStack(spacing: 16) {
-            PhotoDeleteSectionHeader(title: L10n.string("Random Browse"))
+            PocaSectionHeader(title: L10n.string("Random Browse"))
 
             VStack(spacing: 0) {
                 RandomReviewBatchSizeSettingRow(selectedValue: $randomReviewBatchSizeValue)
@@ -240,7 +240,7 @@ struct SettingsView: View {
     // MARK: - 数据与权限
     private var dataPermissionsSection: some View {
         VStack(spacing: 16) {
-            PhotoDeleteSectionHeader(title: L10n.string("Data & Permissions"))
+            PocaSectionHeader(title: L10n.string("Data & Permissions"))
 
             VStack(spacing: 0) {
                 SettingRow(
@@ -424,8 +424,8 @@ struct SettingsView: View {
         #endif
     }
 
-    private func showSettingsToast(_ message: String, icon: String, style: PhotoDeleteToastStyle) {
-        settingsToast = PhotoDeleteToast(message: message, icon: icon, style: style)
+    private func showSettingsToast(_ message: String, icon: String, style: PocaToastStyle) {
+        settingsToast = PocaToast(message: message, icon: icon, style: style)
     }
 }
 
@@ -668,7 +668,7 @@ private struct LanguageSettingsView: View {
                     .padding(.horizontal, SettingsChrome.pageInset)
                     .padding(.top, Theme.space2)
                     .padding(.bottom, Theme.space6)
-                    .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+                    .frame(maxWidth: PocaAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                     .frame(maxWidth: .infinity)
                 }
             }
@@ -784,7 +784,7 @@ struct PrivacyInfoView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                PhotoDeleteScreenBackground()
+                PocaScreenBackground()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {
@@ -876,7 +876,7 @@ struct AboutView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                PhotoDeleteScreenBackground()
+                PocaScreenBackground()
 
                 ScrollView {
                     VStack(spacing: 32) {

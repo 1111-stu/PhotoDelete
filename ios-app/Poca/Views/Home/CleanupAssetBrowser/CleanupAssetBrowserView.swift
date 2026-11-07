@@ -44,7 +44,7 @@ struct CleanupAssetBrowserView: View {
             }
             .modifier(CleanupBrowserScrollActivity(onChange: model.setInteractionActive))
         }
-        .background(PhotoDeleteScreenBackground())
+        .background(PocaScreenBackground())
         .navigationTitle(category.browserTitle)
         .navigationBarTitleDisplayMode(.inline)
         .photoDeletePushedToolbar {
@@ -71,7 +71,7 @@ struct CleanupAssetBrowserView: View {
     }
 
     private var cleanupFilterButton: some View {
-        PhotoDeleteFilterToolbarButton(
+        PocaFilterToolbarButton(
             isActive: model.query != defaultQuery,
             accessibilityIdentifier: "cleanup-browser-filter"
         ) {

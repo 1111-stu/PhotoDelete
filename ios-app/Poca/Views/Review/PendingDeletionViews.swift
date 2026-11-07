@@ -107,7 +107,7 @@ private struct DeletionQueueScreen: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
             if assets.isEmpty {
                 emptyState
             } else {
@@ -183,7 +183,7 @@ private struct DeletionQueueScreen: View {
     }
 
     private var modalCloseButton: some View {
-        PhotoDeleteCircleIconButton(
+        PocaCircleIconButton(
             systemName: "xmark",
             accessibilityLabel: L10n.string("Close"),
             action: { dismiss() }

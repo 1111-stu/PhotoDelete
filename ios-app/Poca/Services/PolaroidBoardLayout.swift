@@ -1,6 +1,6 @@
 //
 //  PolaroidBoardLayout.swift
-//  PhotoDelete
+//  Poca
 //
 //  相纸墙密铺钉板：全部拍立得白边，尺寸只微差，4 列错列压边。
 //  逐张的尺寸 / 倾斜 / 夹子按「月 + 日 + variant」定种子，照片增删后其余相纸只换位、不变样。

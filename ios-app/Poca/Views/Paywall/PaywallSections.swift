@@ -1,6 +1,6 @@
 //
 //  PaywallSections.swift
-//  PhotoDelete
+//  Poca
 //
 //  Paywall 的三个主要区块。每个都是独立组件，依赖通过参数显式传入，
 //  不直接访问 SubscriptionManager。

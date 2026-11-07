@@ -110,7 +110,7 @@ struct PhotoSelectionLoadingCard: View {
     }
 }
 
-private struct PhotoDeletePressScaleButtonStyle: ButtonStyle {
+private struct PocaPressScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.94 : 1)
@@ -120,7 +120,7 @@ private struct PhotoDeletePressScaleButtonStyle: ButtonStyle {
 }
 
 
-enum PhotoDeleteActionButtonStyle {
+enum PocaActionButtonStyle {
     case quiet
     case soft
     case solid
@@ -130,7 +130,7 @@ struct ActionButton: View {
     let icon: String
     let title: String
     let color: Color
-    var style: PhotoDeleteActionButtonStyle = .soft
+    var style: PocaActionButtonStyle = .soft
     var badgeText: String? = nil
     let action: () -> Void
 
@@ -170,7 +170,7 @@ struct ActionButton: View {
             }
             .frame(width: 68)
         }
-        .buttonStyle(PhotoDeletePressScaleButtonStyle())
+        .buttonStyle(PocaPressScaleButtonStyle())
     }
 
     private var buttonSize: CGFloat {
@@ -245,7 +245,7 @@ struct SessionMuteToggleButton: View {
             )
             .photoDeleteMinimumTapTarget()
         }
-        .buttonStyle(PhotoDeletePressScaleButtonStyle())
+        .buttonStyle(PocaPressScaleButtonStyle())
         .accessibilityLabel(isMuted ? L10n.string("Turn Sound On") : L10n.string("Mute"))
         .accessibilityHint(L10n.string("Only affects the current review screen."))
     }

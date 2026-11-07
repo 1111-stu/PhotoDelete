@@ -1,8 +1,8 @@
 //
 //  SwipePhotoView.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 11/7/25.
+//  Created by Poca Team on 11/7/25.
 //
 
 import SwiftUI
@@ -44,7 +44,7 @@ struct SwipePhotoView: View {
     @State private var randomReviewSeed = UUID().uuidString
     @AppStorage(AppConstants.randomReviewHideFiledPhotosKey) private var randomReviewHideFiledPhotos = true
     @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
-    @State private var feedbackToast: PhotoDeleteToast?
+    @State private var feedbackToast: PocaToast?
     @State private var didInitializeSession = false
     @State private var preloadedAssets: [PHAsset] = []
     @State private var sessionProgressSaveWorkItem: DispatchWorkItem?
@@ -239,11 +239,11 @@ struct SwipePhotoView: View {
                 .ignoresSafeArea()
 
             GeometryReader { geometry in
-                let usesSidebar = PhotoDeleteAdaptiveLayout.prefersReviewSidebar(
+                let usesSidebar = PocaAdaptiveLayout.prefersReviewSidebar(
                     in: geometry.size,
                     horizontalSizeClass: horizontalSizeClass
                 )
-                let sidebarWidth = PhotoDeleteAdaptiveLayout.reviewSidebarWidth(totalWidth: geometry.size.width)
+                let sidebarWidth = PocaAdaptiveLayout.reviewSidebarWidth(totalWidth: geometry.size.width)
                 let primaryWidth = geometry.size.width - sidebarWidth
 
                 ZStack(alignment: .bottom) {
@@ -306,7 +306,7 @@ struct SwipePhotoView: View {
 
                     // 统一 Toast：始终固定在页头，托盘打开时也不下移。
                     if let feedbackToast {
-                        PhotoDeleteToastView(toast: feedbackToast) {
+                        PocaToastView(toast: feedbackToast) {
                             handleUndoAction()
                         }
                         .frame(maxWidth: 420)
@@ -319,7 +319,7 @@ struct SwipePhotoView: View {
                             maxHeight: .infinity,
                             alignment: .top
                         )
-                        .transition(PhotoDeleteToastTiming.transition(reduceMotion: reduceMotion, edge: .top))
+                        .transition(PocaToastTiming.transition(reduceMotion: reduceMotion, edge: .top))
                     }
                 }
             }
@@ -958,7 +958,7 @@ struct SwipePhotoView: View {
 
     private var navigationHeaderTitle: String {
         // 数字一律无千分位
-        "\(PhotoDeleteCountFormat.plain(currentProgress)) / \(PhotoDeleteCountFormat.plain(totalPhotosCount))"
+        "\(PocaCountFormat.plain(currentProgress)) / \(PocaCountFormat.plain(totalPhotosCount))"
     }
 
     private var headerProgressSubtitle: String {
@@ -1167,7 +1167,7 @@ struct SwipePhotoView: View {
         // 两侧留出页面边距；翻页步长仍是整页宽，卡片之间因此有可见间隔。
         let availableWidth = max(containerSize.width - Theme.space5 * 2, 180)
         let availableHeight = max(containerSize.height - 132, 220)
-        let maxSize = PhotoDeleteAdaptiveLayout.reviewPhotoCardMaxSize(
+        let maxSize = PocaAdaptiveLayout.reviewPhotoCardMaxSize(
             in: containerSize,
             horizontalSizeClass: horizontalSizeClass
         )
@@ -1481,7 +1481,7 @@ struct SwipePhotoView: View {
     private func handleActionEvent(_ event: PhotoReviewActionEvent) {
         switch event {
         case let .feedback(message, icon, style, showsUndo):
-            let toastStyle: PhotoDeleteToastStyle
+            let toastStyle: PocaToastStyle
             switch style {
             case .neutral: toastStyle = .neutral
             case .positive: toastStyle = .positive
@@ -1586,18 +1586,18 @@ struct SwipePhotoView: View {
     private func showFeedback(
         _ message: String,
         icon: String,
-        style: PhotoDeleteToastStyle,
+        style: PocaToastStyle,
         showsUndo: Bool = false,
         duration: TimeInterval? = nil
     ) {
-        let toast = PhotoDeleteToast(
+        let toast = PocaToast(
             message: message,
             icon: icon,
             style: style,
             showsUndo: showsUndo,
             duration: duration
         )
-        withAnimation(reduceMotion ? PhotoDeleteToastTiming.reducedEnter : PhotoDeleteToastTiming.enter) {
+        withAnimation(reduceMotion ? PocaToastTiming.reducedEnter : PocaToastTiming.enter) {
             feedbackToast = toast
         }
     }

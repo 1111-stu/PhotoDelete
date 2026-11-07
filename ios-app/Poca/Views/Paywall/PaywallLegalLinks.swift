@@ -1,6 +1,6 @@
 //
 //  PaywallLegalLinks.swift
-//  PhotoDelete
+//  Poca
 //
 //  隐私政策 / 使用条款链接行。付费页与进阶页锁定底栏共用，
 //  accessibility identifier 是 UI 测试契约的一部分，不要改名。

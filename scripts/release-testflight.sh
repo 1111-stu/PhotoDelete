@@ -2,9 +2,9 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECT_PATH="$ROOT_DIR/IOSAPP/PhotoDelete.xcodeproj"
+PROJECT_PATH="$ROOT_DIR/IOSAPP/Poca.xcodeproj"
 PROJECT_FILE="$PROJECT_PATH/project.pbxproj"
-SCHEME="${SCHEME:-PhotoDelete}"
+SCHEME="${SCHEME:-Poca}"
 TEAM_ID="${TEAM_ID:-PCJ84YD7HQ}"
 BUNDLE_ID="${BUNDLE_ID:-com.01mvp.photodelete}"
 PROFILE_SPECIFIER="${PROFILE_SPECIFIER:-}"
@@ -114,9 +114,9 @@ is_closed_marketing_version_error() {
 MARKETING_VERSION_WAS_EXPLICIT="${MARKETING_VERSION+x}"
 MARKETING_VERSION="${MARKETING_VERSION:-$(resolve_project_marketing_version)}"
 BUILD_NUMBER="${BUILD_NUMBER:-$(TZ=Asia/Shanghai date +%Y%m%d%H%M)}"
-RELEASE_DIR="${PHOTO_DELETE_RELEASE_DIR:-/tmp/PhotoDeleteRelease}"
+RELEASE_DIR="${PHOTO_DELETE_RELEASE_DIR:-/tmp/PocaRelease}"
 DERIVED_DATA_PATH="${PHOTO_DELETE_DERIVED_DATA_PATH:-$ROOT_DIR/IOSAPP/DerivedData}"
-ARCHIVE_PATH="$RELEASE_DIR/PhotoDelete.xcarchive"
+ARCHIVE_PATH="$RELEASE_DIR/Poca.xcarchive"
 EXPORT_PATH="$RELEASE_DIR/export"
 EXPORT_OPTIONS="$RELEASE_DIR/ExportOptions.plist"
 SKIP_TESTS="${SKIP_TESTS:-0}"
@@ -130,7 +130,7 @@ else
 fi
 
 check_icon_alpha() {
-  local icon_dir="$ROOT_DIR/IOSAPP/PhotoDelete/Assets.xcassets/AppIcon.appiconset"
+  local icon_dir="$ROOT_DIR/IOSAPP/Poca/Assets.xcassets/AppIcon.appiconset"
   local alpha_icons=()
 
   while IFS= read -r -d '' icon_path; do
@@ -170,7 +170,7 @@ write_export_options() {
 }
 
 verify_archive_version() {
-  local info_plist="$ARCHIVE_PATH/Products/Applications/PhotoDelete.app/Info.plist"
+  local info_plist="$ARCHIVE_PATH/Products/Applications/Poca.app/Info.plist"
   local archived_build_number
   local archived_bundle_id
   local archived_marketing_version
@@ -265,7 +265,7 @@ archive_and_upload() {
   verify_archive_version
 
   if [[ "$ARCHIVE_CODE_SIGNING_ALLOWED" == "NO" ]]; then
-    printf 'Dry-run archive completed for PhotoDelete %s (%s); skipped export and upload because ARCHIVE_CODE_SIGNING_ALLOWED=NO.\n' "$MARKETING_VERSION" "$BUILD_NUMBER"
+    printf 'Dry-run archive completed for Poca %s (%s); skipped export and upload because ARCHIVE_CODE_SIGNING_ALLOWED=NO.\n' "$MARKETING_VERSION" "$BUILD_NUMBER"
     return 0
   fi
 
@@ -283,7 +283,7 @@ archive_and_upload() {
     return 1
   fi
 
-  printf 'Uploaded PhotoDelete %s (%s) to App Store Connect/TestFlight.\n' "$MARKETING_VERSION" "$BUILD_NUMBER"
+  printf 'Uploaded Poca %s (%s) to App Store Connect/TestFlight.\n' "$MARKETING_VERSION" "$BUILD_NUMBER"
 }
 
 attempt=1

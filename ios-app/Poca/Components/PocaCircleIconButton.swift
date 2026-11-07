@@ -1,6 +1,6 @@
 //
-//  PhotoDeleteCircleIconButton.swift
-//  PhotoDelete
+//  PocaCircleIconButton.swift
+//  Poca
 //
 //  头部圆形 icon 按钮（统一标准）：
 //  可见圆 48 / 图标 17 bold rounded / 触控随圆 48。
@@ -10,7 +10,7 @@
 
 import SwiftUI
 
-struct PhotoDeleteCircleIconButton<Badge: View>: View {
+struct PocaCircleIconButton<Badge: View>: View {
     let systemName: String
     let accessibilityLabel: String
     var accessibilityIdentifier: String? = nil
@@ -78,7 +78,7 @@ struct PhotoDeleteCircleIconButton<Badge: View>: View {
                     }
                 }
         }
-        .modifier(PhotoDeleteGlassCircleChrome())
+        .modifier(PocaGlassCircleChrome())
         .disabled(!isEnabled)
         .overlay(alignment: .topTrailing) { badge() }
         .accessibilityLabel(accessibilityLabel)

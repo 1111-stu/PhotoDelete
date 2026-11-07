@@ -25,7 +25,7 @@ enum FeedbackDiagnostics {
             return existingID
         }
 
-        let newID = "$PhotoDeleteAnonymousID:\(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased())"
+        let newID = "$PocaAnonymousID:\(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased())"
         defaults.set(newID, forKey: AppConstants.anonymousUserIDKey)
         return newID
     }

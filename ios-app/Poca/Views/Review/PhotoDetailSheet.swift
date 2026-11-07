@@ -1,6 +1,6 @@
 //
 //  PhotoDetailSheet.swift
-//  PhotoDelete
+//  Poca
 //
 
 import SwiftUI
@@ -28,7 +28,7 @@ struct PhotoDetailSheet: View {
 
     private var resolutionText: String? {
         guard asset.pixelWidth > 0, asset.pixelHeight > 0 else { return nil }
-        return "\(PhotoDeleteCountFormat.plain(asset.pixelWidth)) × \(PhotoDeleteCountFormat.plain(asset.pixelHeight))"
+        return "\(PocaCountFormat.plain(asset.pixelWidth)) × \(PocaCountFormat.plain(asset.pixelHeight))"
     }
 
     var body: some View {

@@ -1,6 +1,6 @@
 //
-//  PhotoDeleteFilterToolbarButton.swift
-//  PhotoDelete
+//  PocaFilterToolbarButton.swift
+//  Poca
 //
 //  导航栏筛选按钮：line.3.horizontal.decrease，48pt 圆钮规格。
 //  默认：液态玻璃圆 + 白图标；筛选非默认：玻璃圆内叠加浅色填充 + 描边（accentSoftFill / accentSoftStroke）。
@@ -10,13 +10,13 @@
 
 import SwiftUI
 
-struct PhotoDeleteFilterToolbarButton: View {
+struct PocaFilterToolbarButton: View {
     var isActive: Bool = false
     var accessibilityIdentifier: String? = nil
     let action: () -> Void
 
     var body: some View {
-        PhotoDeleteCircleIconButton(
+        PocaCircleIconButton(
             systemName: "line.3.horizontal.decrease",
             accessibilityLabel: L10n.string("Filter and sort"),
             accessibilityIdentifier: accessibilityIdentifier,

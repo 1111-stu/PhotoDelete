@@ -1,6 +1,6 @@
 //
 //  SubscriptionManager.swift
-//  PhotoDelete
+//  Poca
 //
 //  订阅权益的唯一真相来源：月度 / 年度 / 永久买断三档。
 //  权益解析结果会写回 AppConstants 的 supporter UserDefaults 键，

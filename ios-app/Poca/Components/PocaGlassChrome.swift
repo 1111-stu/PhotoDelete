@@ -1,6 +1,6 @@
 //
-//  PhotoDeleteGlassChrome.swift
-//  PhotoDelete
+//  PocaGlassChrome.swift
+//  Poca
 //
 //  头部共用液态玻璃 chrome：圆钮 / 胶囊。
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// 圆形液态玻璃：iOS 26+ `glassEffect`，老系统 elevatedSurface 实心圆。
-struct PhotoDeleteGlassCircleChrome: ViewModifier {
+struct PocaGlassCircleChrome: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
             content
@@ -23,7 +23,7 @@ struct PhotoDeleteGlassCircleChrome: ViewModifier {
 }
 
 /// 胶囊液态玻璃：iOS 26+ `glassEffect`，老系统 surface 实心胶囊。
-struct PhotoDeleteGlassCapsuleChrome: ViewModifier {
+struct PocaGlassCapsuleChrome: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
             content
@@ -46,7 +46,7 @@ struct PhotoDeleteGlassCapsuleChrome: ViewModifier {
 /// 说明：这里不用 iOS 26 的 `glassEffect`——放在自定义尺寸按钮的 label 里会让
 /// 按钮的命中区域塌缩到图标本身，点击失效。用材质 + 高光描边模拟同一观感。
 /// 也不要给这层加 `.allowsHitTesting(false)`，否则整个按钮都收不到点击。
-struct PhotoDeleteGlassCircleBackground: View {
+struct PocaGlassCircleBackground: View {
     var body: some View {
         Circle()
             .fill(.ultraThinMaterial)
@@ -58,5 +58,5 @@ struct PhotoDeleteGlassCircleBackground: View {
 }
 
 /// 整理页历史命名，指向共用实现。
-typealias ReviewGlassCircleChrome = PhotoDeleteGlassCircleChrome
-typealias ReviewGlassCapsuleChrome = PhotoDeleteGlassCapsuleChrome
+typealias ReviewGlassCircleChrome = PocaGlassCircleChrome
+typealias ReviewGlassCapsuleChrome = PocaGlassCapsuleChrome

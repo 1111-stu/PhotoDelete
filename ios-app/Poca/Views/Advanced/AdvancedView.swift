@@ -1,8 +1,8 @@
 //
 //  AdvancedView.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 6/11/26.
+//  Created by Poca Team on 6/11/26.
 //
 
 import SwiftUI
@@ -88,7 +88,7 @@ struct AdvancedView: View {
 
     private var advancedRootContent: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 let snapshot = dashboardSnapshot
@@ -123,7 +123,7 @@ struct AdvancedView: View {
                 }
                 .padding(.horizontal, Theme.space5)
                 .padding(.top, Theme.space2)
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+                .frame(maxWidth: PocaAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
         }
@@ -676,7 +676,7 @@ private struct AdvancedPeriodNavigator: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            PhotoDeleteCircleIconButton(
+            PocaCircleIconButton(
                 systemName: "chevron.left",
                 accessibilityLabel: L10n.string("Previous Period"),
                 action: onPrevious
@@ -697,7 +697,7 @@ private struct AdvancedPeriodNavigator: View {
             }
             .frame(maxWidth: .infinity)
 
-            PhotoDeleteCircleIconButton(
+            PocaCircleIconButton(
                 systemName: "chevron.right",
                 accessibilityLabel: L10n.string("Next Period"),
                 action: onNext
@@ -845,7 +845,7 @@ private struct AdvancedCleanupEntryRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(
+            PocaIconTile(
                 icon: queue.kind.icon,
                 tint: queue.kind.tint,
                 size: 38,
@@ -1100,7 +1100,7 @@ private struct AdvancedPeriodListView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 LazyVStack(spacing: 16) {
@@ -1222,7 +1222,7 @@ private struct AdvancedAssetListView: View {
     @State private var selectedAssetIDs: Set<String> = []
     @State private var selectedFilter: AdvancedCleanupFilter = .all
     @State private var showingICloudVideoInfo = false
-    @State private var toast: PhotoDeleteToast?
+    @State private var toast: PocaToast?
     @State private var previewAsset: AdvancedPreviewAsset?
     @State private var sizeLoadingTask: Task<Void, Never>?
     @State private var visibleAssetLimit = 40
@@ -1300,7 +1300,7 @@ private struct AdvancedAssetListView: View {
         let snapshot = makeFilteredAssetSnapshot()
 
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 VStack(spacing: 14) {
@@ -1820,7 +1820,7 @@ private struct AdvancedAssetListView: View {
 
     private var trashToolbarButton: some View {
         let count = dataManager.deleteCandidates.count
-        return PhotoDeleteCircleIconButton(
+        return PocaCircleIconButton(
             systemName: "archivebox",
             accessibilityLabel: L10n.string("Trash"),
             accessibilityIdentifier: "advanced-trash-button"
@@ -1828,7 +1828,7 @@ private struct AdvancedAssetListView: View {
             openTrash()
         } badge: {
             if count > 0 {
-                PhotoDeleteCountBadge(count: count)
+                PocaCountBadge(count: count)
             }
         }
         .accessibilityValue(L10n.string("\(count) to delete"))
@@ -1841,7 +1841,7 @@ private struct AdvancedAssetListView: View {
         dataManager.addToDeleteCandidates(assets)
         selectedAssetIDs.removeAll()
         HapticManager.notify(.success)
-        toast = PhotoDeleteToast(
+        toast = PocaToast(
             message: String(
                 format: L10n.string("Added %lld items to Trash"),
                 Int64(assets.count)
@@ -1888,7 +1888,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
     @State private var selectedAssetIDs: Set<String> = []
     @State private var filterQuery = SimilarPhotosFilterQuery.default
     @State private var showsFilters = false
-    @State private var toast: PhotoDeleteToast?
+    @State private var toast: PocaToast?
     @State private var visibleGroupLimit = 24
 
     private let groupLimitStep = 24
@@ -1932,7 +1932,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 VStack(spacing: 14) {
@@ -1995,7 +1995,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
     }
 
     private var similarFilterButton: some View {
-        PhotoDeleteFilterToolbarButton(isActive: !filterQuery.isDefault) {
+        PocaFilterToolbarButton(isActive: !filterQuery.isDefault) {
             showsFilters = true
         }
     }
@@ -2102,7 +2102,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
 
     private var trashToolbarButton: some View {
         let count = dataManager.deleteCandidates.count
-        return PhotoDeleteCircleIconButton(
+        return PocaCircleIconButton(
             systemName: "archivebox",
             accessibilityLabel: L10n.string("Trash"),
             accessibilityIdentifier: "similar-trash-button"
@@ -2110,7 +2110,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
             openTrash()
         } badge: {
             if count > 0 {
-                PhotoDeleteCountBadge(count: count)
+                PocaCountBadge(count: count)
             }
         }
         .accessibilityValue(L10n.string("\(count) to delete"))
@@ -2123,7 +2123,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
         dataManager.addToDeleteCandidates(assets)
         selectedAssetIDs.removeAll()
         HapticManager.notify(.success)
-        toast = PhotoDeleteToast(
+        toast = PocaToast(
             message: String(
                 format: L10n.string("Added %lld items to Trash"),
                 Int64(assets.count)
@@ -2823,7 +2823,7 @@ struct AdvancedAssetPreviewView: View {
             let cardSize = previewCardSize(in: geometry.size)
 
             ZStack {
-                PhotoDeleteScreenBackground()
+                PocaScreenBackground()
 
                 VStack(spacing: 0) {
                     previewHeader
@@ -2986,7 +2986,7 @@ struct AdvancedAssetPreviewView: View {
     /// 卡片左右留出与整理页一致的页面边距，并给页头、日期行和底部按钮留空间。
     private func previewCardSize(in container: CGSize) -> CGSize {
         let width = max(container.width - Theme.space5 * 2, 180)
-        let maxSize = PhotoDeleteAdaptiveLayout.reviewPhotoCardMaxSize(
+        let maxSize = PocaAdaptiveLayout.reviewPhotoCardMaxSize(
             in: container,
             horizontalSizeClass: horizontalSizeClass
         )

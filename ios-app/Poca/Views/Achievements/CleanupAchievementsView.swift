@@ -1,8 +1,8 @@
 //
 //  CleanupAchievementsView.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 6/12/26.
+//  Created by Poca Team on 6/12/26.
 //
 
 import SwiftUI
@@ -25,7 +25,7 @@ struct CleanupAchievementsEntryCard: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(
+            PocaIconTile(
                 icon: "seal.fill",
                 tint: Theme.warning,
                 size: 42,
@@ -112,7 +112,7 @@ struct CleanupAchievementsView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 VStack(spacing: Theme.space6) {
@@ -129,7 +129,7 @@ struct CleanupAchievementsView: View {
                 .padding(.horizontal, Theme.space5)
                 .padding(.top, Theme.space2)
                 .padding(.bottom, Theme.space24)
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+                .frame(maxWidth: PocaAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
             .scrollIndicators(.hidden)
@@ -168,7 +168,7 @@ struct CleanupAchievementsView: View {
 
             VStack(spacing: 0) {
                 HStack(spacing: 12) {
-                    PhotoDeleteIconTile(
+                    PocaIconTile(
                         icon: "seal.fill",
                         tint: Theme.warning,
                         size: 38,
@@ -235,7 +235,7 @@ struct CleanupAchievementsView: View {
 
     private var nextBadgeSection: some View {
         VStack(spacing: 16) {
-            PhotoDeleteSectionHeader(title: L10n.string("Next Badge"))
+            PocaSectionHeader(title: L10n.string("Next Badge"))
 
             VStack(spacing: 0) {
                 if let nextProgress {
@@ -251,7 +251,7 @@ struct CleanupAchievementsView: View {
     private var badgeWallSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                PhotoDeleteSectionHeader(title: L10n.string("Milestone Badges"))
+                PocaSectionHeader(title: L10n.string("Milestone Badges"))
 
                 Text(L10n.string("Light up each cleanup badge by category"))
                     .font(.system(size: 12, weight: .regular))
@@ -310,7 +310,7 @@ struct RecentOrganizedPhotosSection: View {
         VStack(alignment: .leading, spacing: 14) {
             ZStack(alignment: .topTrailing) {
                 VStack(alignment: .leading, spacing: 3) {
-                    PhotoDeleteSectionHeader(title: L10n.string("Recently Organized"))
+                    PocaSectionHeader(title: L10n.string("Recently Organized"))
 
                     Text(L10n.string("Tap Organize Again to remove it from pending deletion and return it to review."))
                         .font(.system(size: 12, weight: .regular))
@@ -528,7 +528,7 @@ private struct CleanupAchievementNextRow: View {
 private struct CleanupAchievementAllUnlockedRow: View {
     var body: some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(
+            PocaIconTile(
                 icon: "checkmark.seal.fill",
                 tint: Theme.positive,
                 size: 38,
@@ -709,7 +709,7 @@ private struct CleanupAchievementEmptyCard: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(
+            PocaIconTile(
                 icon: "seal",
                 tint: Theme.tertiaryText,
                 size: 38,

@@ -1,6 +1,6 @@
 //
 //  BatchReviewViews.swift
-//  PhotoDelete
+//  Poca
 //
 
 import SwiftUI
@@ -55,7 +55,7 @@ struct BatchConfirmView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             if let completedCelebration {
                 BatchCleanupCompletionView(
@@ -118,7 +118,7 @@ struct BatchConfirmView: View {
 
         return NavigationStack {
             ZStack {
-                PhotoDeleteScreenBackground()
+                PocaScreenBackground()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         if hasVisiblePendingOperations {
@@ -697,7 +697,7 @@ private struct BatchCleanupCompletionView: View {
 
     private func compactStatusRow(icon: String, tint: Color, title: String, subtitle: String) -> some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(
+            PocaIconTile(
                 icon: icon,
                 tint: tint,
                 size: 34,
@@ -730,7 +730,7 @@ private struct BatchCleanupCompletionView: View {
     private func nextGoalCard(_ progress: CleanupAchievementProgress) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .center, spacing: 12) {
-                PhotoDeleteIconTile(
+                PocaIconTile(
                     icon: progress.achievement.systemImage,
                     tint: progress.achievement.tint.color,
                     size: 34,
@@ -808,7 +808,7 @@ private struct CandidatePreviewSection: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 if let title {
-                    Text("\(title) · \(PhotoDeleteCountFormat.plain(selectedCount))/\(PhotoDeleteCountFormat.plain(assets.count))")
+                    Text("\(title) · \(PocaCountFormat.plain(selectedCount))/\(PocaCountFormat.plain(assets.count))")
                         .font(.headline)
                         .foregroundColor(Theme.primaryText)
                 } else if let sizeSummary {
@@ -1969,7 +1969,7 @@ private struct PhotoAssetDetailsPanel: View {
 
     private func detailRow(label: String, value: String, icon: String) -> some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(icon: icon, tint: Theme.accent, size: 32, cornerRadius: Theme.radiusSm)
+            PocaIconTile(icon: icon, tint: Theme.accent, size: 32, cornerRadius: Theme.radiusSm)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(label)

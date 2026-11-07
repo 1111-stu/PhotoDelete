@@ -1,6 +1,6 @@
 //
 //  SupporterBenefitsSheet.swift
-//  PhotoDelete
+//  Poca
 //
 //  「功能差异」弹窗与免费 vs Pro 对比表。
 //  同时被付费页（社会证明位）与进阶页（锁定态的「查看功能差异」）复用。

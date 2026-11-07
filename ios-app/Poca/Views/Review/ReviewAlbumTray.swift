@@ -1,6 +1,6 @@
 //
 //  ReviewAlbumTray.swift
-//  PhotoDelete
+//  Poca
 //
 //  Floating album tray for the review screen, replacing the old filing sheet.
 //  Visual reference: designs/review-album-tray-prototype.html
@@ -341,7 +341,7 @@ struct AlbumFolderIllustration: View {
         HStack(spacing: 4) {
             Image(systemName: "photo.on.rectangle")
                 .font(.system(size: 11, weight: .semibold))
-            Text(PhotoDeleteCountFormat.plain(album.photosCount))
+            Text(PocaCountFormat.plain(album.photosCount))
                 .font(.system(size: 10, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .lineLimit(1)

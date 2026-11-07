@@ -1,6 +1,6 @@
 //
-//  PhotoDeleteTests.swift
-//  PhotoDeleteTests
+//  PocaTests.swift
+//  PocaTests
 //
 //  Created by jackie xiao on 11/7/25.
 //
@@ -11,10 +11,10 @@ import CoreLocation
 import Photos
 import SwiftUI
 import UIKit
-@testable import PhotoDelete
+@testable import Poca
 
 @Suite(.serialized)
-struct PhotoDeleteTests {
+struct PocaTests {
 
     @Test func timeGroupResolverClassifiesRelativeDates() async throws {
         var calendar = Calendar(identifier: .gregorian)
@@ -170,7 +170,7 @@ struct PhotoDeleteTests {
     }
 
     @Test func reviewPlaybackLaunchDefaultsInitializeButDoNotOverrideVideoMute() async throws {
-        let suiteName = "PhotoDeletePlaybackDefaults-\(UUID().uuidString)"
+        let suiteName = "PocaPlaybackDefaults-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
@@ -601,7 +601,7 @@ struct PhotoDeleteTests {
         #expect(AppLanguage.supportedStoreMetadataLocales.contains("zh-Hant"))
     }
 
-    @Test func appStoreReviewURLTargetsPhotoDeleteReviewPage() async throws {
+    @Test func appStoreReviewURLTargetsPocaReviewPage() async throws {
         #expect(AppConstants.appStoreID == "6779493280")
         #expect(AppConstants.appStoreReviewURL.absoluteString.contains(AppConstants.appStoreID))
         #expect(AppConstants.appStoreReviewURL.absoluteString.contains("action=write-review"))
@@ -657,7 +657,7 @@ struct PhotoDeleteTests {
         let storeKitURL = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-            .appendingPathComponent("PhotoDelete/PhotoDelete.storekit")
+            .appendingPathComponent("Poca/Poca.storekit")
         let data = try Data(contentsOf: storeKitURL)
         let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
         let products = try #require(json["products"] as? [[String: Any]])
@@ -1912,7 +1912,7 @@ struct PhotoDeleteTests {
 
     @Test func pendingCandidatesPersistAndClearLocalIdentifiers() async throws {
         guard let asset = fetchFirstAsset() else { return }
-        let suiteName = "PhotoDeleteTests.pendingCandidates.\(UUID().uuidString)"
+        let suiteName = "PocaTests.pendingCandidates.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defaults.removePersistentDomain(forName: suiteName)
         defer { defaults.removePersistentDomain(forName: suiteName) }
@@ -1988,7 +1988,7 @@ struct PhotoDeleteTests {
 
     @Test func flushingReviewPersistenceWritesCoalescedRecentHistory() async throws {
         guard let asset = fetchFirstAsset() else { return }
-        let suiteName = "PhotoDeleteTests.reviewPersistence.\(UUID().uuidString)"
+        let suiteName = "PocaTests.reviewPersistence.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defer { defaults.removePersistentDomain(forName: suiteName) }
         let dm = DataManager(userDefaults: defaults)
@@ -2298,7 +2298,7 @@ struct PhotoDeleteTests {
     }
 
     @Test func reviewProgressStoreRoundTripsAndClearsScope() async throws {
-        let suiteName = "PhotoDeleteReviewProgress-\(UUID().uuidString)"
+        let suiteName = "PocaReviewProgress-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
@@ -2312,7 +2312,7 @@ struct PhotoDeleteTests {
     }
 
     @Test func clearLocalOrganizeDataClearsReviewProgress() async throws {
-        let suiteName = "PhotoDeleteClearProgress-\(UUID().uuidString)"
+        let suiteName = "PocaClearProgress-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defer { defaults.removePersistentDomain(forName: suiteName) }
 

@@ -1,6 +1,6 @@
 import Photos
 import Testing
-@testable import PhotoDelete
+@testable import Poca
 
 struct AssetSizeHeuristicTests {
     @Test func imageEstimateHasMinimumFloor() {

@@ -1,8 +1,8 @@
 //
 //  ReviewDiscoveryModels.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 6/21/26.
+//  Created by Poca Team on 6/21/26.
 //
 
 import CoreLocation

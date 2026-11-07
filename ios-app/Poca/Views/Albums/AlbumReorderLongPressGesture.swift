@@ -1,6 +1,6 @@
 //
 //  AlbumReorderLongPressGesture.swift
-//  PhotoDelete
+//  Poca
 //
 //  iOS 18+ long-press→drag for album reorder inside ScrollView.
 //
@@ -20,7 +20,7 @@ import UIKit
 /// Temporary scroll/gesture diagnostics. Filter Xcode console by `AlbumScroll`.
 enum AlbumScrollDebug {
     private static let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier ?? "PhotoDelete",
+        subsystem: Bundle.main.bundleIdentifier ?? "Poca",
         category: "AlbumScroll"
     )
 

@@ -43,7 +43,7 @@ struct CleanupAssetFilterSheet: View {
                     .animation(.easeInOut(duration: 0.18), value: pane)
                 }
             }
-            .background(PhotoDeleteScreenBackground())
+            .background(PocaScreenBackground())
             .navigationTitle(L10n.string("Filter and sort"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

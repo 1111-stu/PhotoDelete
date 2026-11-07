@@ -1,6 +1,6 @@
 //
 //  CompressionHistorySupport.swift
-//  PhotoDelete
+//  Poca
 //
 //  压缩对比 Sheet、历史列表（分页）与会话明细。
 //

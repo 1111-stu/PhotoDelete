@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  PhotoDelete
+//  Poca
 //
 //  Created by jackie xiao on 11/7/25.
 //
@@ -74,7 +74,7 @@ private struct OnboardingFlowView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             VStack(spacing: 0) {
                 OnboardingHeaderView(onSkip: onSkip)
@@ -520,7 +520,7 @@ private struct AdvancedCleanupIntroVisual: View {
 
     private func advancedToolRow(icon: String, title: String, tint: Color, delayIndex: Int) -> some View {
         HStack(spacing: 12) {
-            PhotoDeleteIconTile(icon: icon, tint: tint, size: 34, cornerRadius: 10)
+            PocaIconTile(icon: icon, tint: tint, size: 34, cornerRadius: 10)
 
             Text(title)
                 .font(.system(size: 15, weight: .semibold))

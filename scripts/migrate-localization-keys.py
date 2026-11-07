@@ -17,7 +17,7 @@ from localization_tools import (CJK, FORMAT, interpolated_quote, localization_co
                                 source_format, swift_quote)
 
 ROOT = Path(__file__).resolve().parents[1]
-CATALOG = ROOT / 'ios-app/PhotoDelete/Localizable.xcstrings'
+CATALOG = ROOT / 'ios-app/Poca/Localizable.xcstrings'
 DATA = ROOT / 'scripts/localization'
 FIXED_COUNTS = {
     '删除 (selectedIDs.count) 项': ('删除 %lld 项', ['selectedIDs.count']),
@@ -68,7 +68,7 @@ def find_key(literal, strings):
 def test_key_context(path, text, literal):
     # Keys in the existing cross-language fixture dictionaries are lookup inputs;
     # expected localized outputs and persisted legacy values must remain untouched.
-    if path.name != 'PhotoDeleteTests.swift':
+    if path.name != 'PocaTests.swift':
         return False
     begin = text.find('let localizedExpectations:')
     end = text.find('for (language, expectations)', begin)
@@ -172,7 +172,7 @@ def main():
             'translationFingerprints': {lang: fingerprint(loc) for lang, loc in localizations.items()},
         }
     changes, references, unresolved = {}, [], []
-    for folder in ['ios-app/PhotoDelete', 'ios-app/PhotoDeleteTests']:
+    for folder in ['ios-app/Poca', 'ios-app/PocaTests']:
         for path in sorted((ROOT / folder).rglob('*.swift')):
             try:
                 original_source = read(path)
@@ -194,7 +194,7 @@ def main():
     if unresolved:
         dump(DATA / 'unresolved.json', unresolved)
         raise ValueError(f'{len(unresolved)} unresolved localized literals; see scripts/localization/unresolved.json')
-    localization = ROOT / 'ios-app/PhotoDelete/Services/Localization.swift'
+    localization = ROOT / 'ios-app/Poca/Services/Localization.swift'
     changes[localization] = changes.get(localization, read(localization)).replace(
         'AppLanguage.current.usesChineseText ? string("Favorite") : "Favorites"', 'string("Favorites")')
     for ref in references:

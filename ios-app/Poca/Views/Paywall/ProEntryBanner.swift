@@ -1,6 +1,6 @@
 //
 //  ProEntryBanner.swift
-//  PhotoDelete
+//  Poca
 //
 //  设置页顶部的 Pro 入口卡。
 //

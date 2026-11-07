@@ -1,6 +1,6 @@
 //
 //  CompressionViews.swift
-//  PhotoDelete
+//  Poca
 //
 //  图片 / 视频压缩：挑选 → 方案 → 执行 → 决断（互斥），历史为次级入口。
 //  视觉对齐 Cleanup 浏览页 + FilterSheet + Theme（单琥珀主操作）。
@@ -75,7 +75,7 @@ struct AdvancedImageCompressionView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             switch phase {
             case .running:
@@ -207,7 +207,7 @@ struct AdvancedImageCompressionView: View {
     }
 
     private var historyButton: some View {
-        PhotoDeleteCircleIconButton(
+        PocaCircleIconButton(
             systemName: "clock",
             accessibilityLabel: L10n.string("Recent compression history")
         ) {
@@ -482,7 +482,7 @@ struct AdvancedVideoCompressionView: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             switch phase {
             case .running:
@@ -619,7 +619,7 @@ struct AdvancedVideoCompressionView: View {
     }
 
     private var historyButton: some View {
-        PhotoDeleteCircleIconButton(
+        PocaCircleIconButton(
             systemName: "clock",
             accessibilityLabel: L10n.string("Recent compression history")
         ) {

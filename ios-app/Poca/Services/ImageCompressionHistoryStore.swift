@@ -1,15 +1,15 @@
 //
 //  ImageCompressionHistoryStore.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 6/25/26.
+//  Created by Poca Team on 6/25/26.
 //
 
 import Foundation
 import OSLog
 
 private let imageCompressionHistoryLogger = Logger(
-    subsystem: Bundle.main.bundleIdentifier ?? "PhotoDelete",
+    subsystem: Bundle.main.bundleIdentifier ?? "Poca",
     category: "ImageCompressionHistory"
 )
 
@@ -295,7 +295,7 @@ final class ImageCompressionHistoryStore: ObservableObject {
         let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         return baseURL
-            .appendingPathComponent("PhotoDelete", isDirectory: true)
+            .appendingPathComponent("Poca", isDirectory: true)
             .appendingPathComponent("image-compression-history.json")
     }
 }

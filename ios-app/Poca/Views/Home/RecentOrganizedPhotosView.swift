@@ -1,6 +1,6 @@
 //
 //  RecentOrganizedPhotosView.swift
-//  PhotoDelete
+//  Poca
 //
 
 import SwiftUI
@@ -32,7 +32,7 @@ struct RecentOrganizedPhotosView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                PhotoDeleteScreenBackground()
+                PocaScreenBackground()
 
                 if items.isEmpty {
                     emptyState
@@ -100,7 +100,7 @@ struct RecentOrganizedPhotosView: View {
     }
 
     private var recentOrganizedCloseButton: some View {
-        PhotoDeleteCircleIconButton(
+        PocaCircleIconButton(
             systemName: "xmark",
             accessibilityLabel: L10n.string("Close"),
             action: { dismiss() }

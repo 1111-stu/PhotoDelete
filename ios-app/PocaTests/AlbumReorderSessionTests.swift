@@ -1,13 +1,13 @@
 //
 //  AlbumReorderSessionTests.swift
-//  PhotoDeleteTests
+//  PocaTests
 //
 //  相册拖拽排序的纯逻辑测试：插入位判定、顺序搬移、会话生命周期。
 //
 
 import CoreGraphics
 import Testing
-@testable import PhotoDelete
+@testable import Poca
 
 struct AlbumReorderSessionTests {
 

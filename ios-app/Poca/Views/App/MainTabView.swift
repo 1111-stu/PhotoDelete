@@ -1,8 +1,8 @@
 //
 //  MainTabView.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 11/7/25.
+//  Created by Poca Team on 11/7/25.
 //
 //  方案 C：NavigationStack 包住 TabView。只有三个 Tab 根页看得到底栏；
 //  任意 push 后整页盖住 TabView，子页 .toolbar 无法再把底栏翻出来。
@@ -18,7 +18,7 @@ struct MainTabView: View {
     @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var router = MainTabRouter()
-    @State private var selectedTab: PhotoDeleteMainTab = .organize
+    @State private var selectedTab: PocaMainTab = .organize
 
     /// 根页：整理/相册用自绘顶栏，隐藏系统导航栏；设置用 large title。
     /// push 后一律显示系统导航栏（返回）。
@@ -83,35 +83,35 @@ struct MainTabView: View {
             tabContent(for: .organize)
                 .tint(Theme.accent)
                 .tabItem {
-                    Image(systemName: PhotoDeleteMainTab.organize.systemImage)
-                    Text(PhotoDeleteMainTab.organize.title)
+                    Image(systemName: PocaMainTab.organize.systemImage)
+                    Text(PocaMainTab.organize.title)
                 }
-                .tag(PhotoDeleteMainTab.organize)
+                .tag(PocaMainTab.organize)
 
             if AppConstants.showsAlbumsTab {
                 tabContent(for: .albums)
                     .tint(Theme.accent)
                     .tabItem {
-                        Image(systemName: PhotoDeleteMainTab.albums.systemImage)
-                        Text(PhotoDeleteMainTab.albums.title)
+                        Image(systemName: PocaMainTab.albums.systemImage)
+                        Text(PocaMainTab.albums.title)
                     }
-                    .tag(PhotoDeleteMainTab.albums)
+                    .tag(PocaMainTab.albums)
             }
 
             tabContent(for: .settings)
                 .tint(Theme.accent)
                 .tabItem {
-                    Image(systemName: PhotoDeleteMainTab.settings.systemImage)
-                    Text(PhotoDeleteMainTab.settings.title)
+                    Image(systemName: PocaMainTab.settings.systemImage)
+                    Text(PocaMainTab.settings.title)
                 }
-                .tag(PhotoDeleteMainTab.settings)
+                .tag(PocaMainTab.settings)
         }
-        .tint(PhotoDeleteTabBarColors.selectedIconColor)
+        .tint(PocaTabBarColors.selectedIconColor)
         .toolbarColorScheme(.dark, for: .tabBar)
     }
 
     @ViewBuilder
-    private func tabContent(for tab: PhotoDeleteMainTab) -> some View {
+    private func tabContent(for tab: PocaMainTab) -> some View {
         switch tab {
         case .organize:
             HomeView()
@@ -248,13 +248,13 @@ struct MainTabView: View {
             tabBarProxy.standardAppearance = customBackground
             tabBarProxy.scrollEdgeAppearance = customBackground
         }
-        tabBarProxy.tintColor = PhotoDeleteTabBarColors.selectedIcon
-        tabBarProxy.unselectedItemTintColor = PhotoDeleteTabBarColors.unselected
+        tabBarProxy.tintColor = PocaTabBarColors.selectedIcon
+        tabBarProxy.unselectedItemTintColor = PocaTabBarColors.unselected
 
         for scene in UIApplication.shared.connectedScenes {
             guard let windowScene = scene as? UIWindowScene else { continue }
             for window in windowScene.windows {
-                window.rootViewController?.applyPhotoDeleteTabBarAppearance(customBackground)
+                window.rootViewController?.applyPocaTabBarAppearance(customBackground)
             }
         }
     }
@@ -268,15 +268,15 @@ struct MainTabView: View {
 
         let appearance = UITabBarAppearance()
         appearance.configureWithTransparentBackground()
-        appearance.backgroundColor = PhotoDeleteTabBarColors.barBackground
+        appearance.backgroundColor = PocaTabBarColors.barBackground
         appearance.backgroundEffect = nil
-        appearance.selectionIndicatorTintColor = PhotoDeleteTabBarColors.selectionPlate
-        PhotoDeleteTabBarColors.apply(to: appearance)
+        appearance.selectionIndicatorTintColor = PocaTabBarColors.selectionPlate
+        PocaTabBarColors.apply(to: appearance)
         return appearance
     }
 }
 
-private enum PhotoDeleteTabBarColors {
+private enum PocaTabBarColors {
     static let selectedIcon = Theme.uiAccent
     static let selectedLabel = UIColor(Theme.primaryText)
     static let unselected = Theme.uiSecondaryText
@@ -300,30 +300,30 @@ private enum PhotoDeleteTabBarColors {
 }
 
 private extension UIViewController {
-    func applyPhotoDeleteTabBarAppearance(_ customBackground: UITabBarAppearance?) {
+    func applyPocaTabBarAppearance(_ customBackground: UITabBarAppearance?) {
         if let tabBar = (self as? UITabBarController)?.tabBar {
             if let customBackground {
                 tabBar.standardAppearance = customBackground
                 tabBar.scrollEdgeAppearance = customBackground
             } else {
                 let standardAppearance = tabBar.standardAppearance
-                PhotoDeleteTabBarColors.apply(to: standardAppearance)
+                PocaTabBarColors.apply(to: standardAppearance)
                 tabBar.standardAppearance = standardAppearance
                 if let scrollEdgeAppearance = tabBar.scrollEdgeAppearance {
-                    PhotoDeleteTabBarColors.apply(to: scrollEdgeAppearance)
+                    PocaTabBarColors.apply(to: scrollEdgeAppearance)
                     tabBar.scrollEdgeAppearance = scrollEdgeAppearance
                 }
             }
-            tabBar.tintColor = PhotoDeleteTabBarColors.selectedIcon
-            tabBar.unselectedItemTintColor = PhotoDeleteTabBarColors.unselected
+            tabBar.tintColor = PocaTabBarColors.selectedIcon
+            tabBar.unselectedItemTintColor = PocaTabBarColors.unselected
         }
 
-        children.forEach { $0.applyPhotoDeleteTabBarAppearance(customBackground) }
-        presentedViewController?.applyPhotoDeleteTabBarAppearance(customBackground)
+        children.forEach { $0.applyPocaTabBarAppearance(customBackground) }
+        presentedViewController?.applyPocaTabBarAppearance(customBackground)
     }
 }
 
-private enum PhotoDeleteMainTab: CaseIterable, Identifiable, Hashable {
+private enum PocaMainTab: CaseIterable, Identifiable, Hashable {
     case organize
     case albums
     case advanced

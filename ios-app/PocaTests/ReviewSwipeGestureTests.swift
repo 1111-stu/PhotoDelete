@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import PhotoDelete
+@testable import Poca
 
 struct ReviewSwipeGestureTests {
     @Test func verticalDragKeepsItsAxisWhenFingerMovesDiagonally() {

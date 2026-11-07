@@ -1,6 +1,6 @@
 //
 //  StatsView.swift
-//  PhotoDelete
+//  Poca
 //
 
 import SwiftUI
@@ -33,7 +33,7 @@ private struct StatsScreen: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 VStack(spacing: Theme.space6) {
@@ -51,7 +51,7 @@ private struct StatsScreen: View {
                 .padding(.horizontal, Theme.space5)
                 .padding(.top, Theme.space2)
                 .padding(.bottom, 36)
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+                .frame(maxWidth: PocaAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
             .scrollIndicators(.hidden)
@@ -77,7 +77,7 @@ private struct StatsScreen: View {
         let stats = dataManager.makeSettingsStatsSummary()
 
         return VStack(alignment: .leading, spacing: 9) {
-            PhotoDeleteSectionHeader(title: L10n.string("Cleanup Progress"))
+            PocaSectionHeader(title: L10n.string("Cleanup Progress"))
 
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .bottom) {
@@ -86,7 +86,7 @@ private struct StatsScreen: View {
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Theme.secondaryText)
 
-                        Text(PhotoDeleteCountFormat.plain(stats.organizedAssets))
+                        Text(PocaCountFormat.plain(stats.organizedAssets))
                             .font(.system(size: 42, weight: .bold))
                             .monospacedDigit()
                             .foregroundColor(Theme.primaryText)
@@ -152,7 +152,7 @@ private struct StatsScreen: View {
         )
 
         return VStack(alignment: .leading, spacing: 9) {
-            PhotoDeleteSectionHeader(title: L10n.string("Cleanup History"))
+            PocaSectionHeader(title: L10n.string("Cleanup History"))
 
             if months.isEmpty {
                 Text(L10n.string("Local cleanup records appear after you confirm deletions or favorites."))
@@ -194,7 +194,7 @@ private struct StatsScreen: View {
             selectedMonth = month
         } label: {
             VStack(spacing: 6) {
-                Text(count > 0 ? PhotoDeleteCountFormat.plain(count) : " ")
+                Text(count > 0 ? PocaCountFormat.plain(count) : " ")
                     .font(.system(size: 10, weight: .semibold))
                     .monospacedDigit()
                     .foregroundColor(Theme.secondaryText)
@@ -235,7 +235,7 @@ private struct StatsScreen: View {
 
         return NavigationStack {
             ZStack {
-                PhotoDeleteScreenBackground()
+                PocaScreenBackground()
 
                 ScrollView {
                     VStack(spacing: 0) {

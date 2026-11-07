@@ -934,7 +934,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
         }
 
         let directoryURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("PhotoDeleteShare", isDirectory: true)
+            .appendingPathComponent("PocaShare", isDirectory: true)
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(
             at: directoryURL,
@@ -2552,7 +2552,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
             quality: plan.quality
         )
         let outputURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("PhotoDelete-Compressed-\(UUID().uuidString)")
+            .appendingPathComponent("Poca-Compressed-\(UUID().uuidString)")
             .appendingPathExtension("mp4")
 
         try? FileManager.default.removeItem(at: outputURL)
@@ -2879,7 +2879,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
         let targetSize = plan.size.targetPixelSize(for: originalSize)
         let maxPixelSize = max(Int(max(targetSize.width, targetSize.height).rounded()), 1)
         let outputURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("PhotoDelete-Image-Compressed-\(UUID().uuidString)")
+            .appendingPathComponent("Poca-Image-Compressed-\(UUID().uuidString)")
             .appendingPathExtension("jpg")
 
         try? FileManager.default.removeItem(at: outputURL)
@@ -4243,7 +4243,7 @@ private final class VideoCompressionExportSession: @unchecked Sendable {
         }
         writer.startSession(atSourceTime: .zero)
 
-        let videoQueue = DispatchQueue(label: "PhotoDelete.VideoCompression.video")
+        let videoQueue = DispatchQueue(label: "Poca.VideoCompression.video")
         videoInput.requestMediaDataWhenReady(on: videoQueue) { [self] in
             drainVideoSamples()
         }
@@ -4252,7 +4252,7 @@ private final class VideoCompressionExportSession: @unchecked Sendable {
             return
         }
 
-        let audioQueue = DispatchQueue(label: "PhotoDelete.VideoCompression.audio")
+        let audioQueue = DispatchQueue(label: "Poca.VideoCompression.audio")
         audioInput.requestMediaDataWhenReady(on: audioQueue) { [self] in
             drainAudioSamples()
         }

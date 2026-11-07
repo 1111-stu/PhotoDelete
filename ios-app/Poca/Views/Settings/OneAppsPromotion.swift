@@ -1,6 +1,6 @@
 //
 //  OneAppsPromotion.swift
-//  PhotoDelete
+//  Poca
 //
 //  One Apps Studio catalog entry + dedicated "More Apps" page.
 //  Layout mirrors OneAppsKit's catalog link → catalog page pattern.
@@ -168,7 +168,7 @@ struct OneAppsPromotionItem: Identifiable, Equatable {
 struct OneAppsPromotionSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            PhotoDeleteSectionHeader(title: L10n.string("More Apps"))
+            PocaSectionHeader(title: L10n.string("More Apps"))
 
             NavigationLink {
                 OneAppsCatalogPage()
@@ -224,7 +224,7 @@ struct OneAppsCatalogPage: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 VStack(spacing: 14) {
@@ -243,7 +243,7 @@ struct OneAppsCatalogPage: View {
                 .padding(.horizontal, Theme.space5)
                 .padding(.top, 16)
                 .padding(.bottom, 28)
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+                .frame(maxWidth: PocaAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
         }
@@ -310,7 +310,7 @@ struct OneAppsCatalogDetailPage: View {
 
     var body: some View {
         ZStack {
-            PhotoDeleteScreenBackground()
+            PocaScreenBackground()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
@@ -357,7 +357,7 @@ struct OneAppsCatalogDetailPage: View {
                 .padding(.horizontal, Theme.space5)
                 .padding(.top, 20)
                 .padding(.bottom, 28)
-                .frame(maxWidth: PhotoDeleteAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
+                .frame(maxWidth: PocaAdaptiveLayout.readableContentMaxWidth(horizontalSizeClass: horizontalSizeClass))
                 .frame(maxWidth: .infinity)
             }
         }

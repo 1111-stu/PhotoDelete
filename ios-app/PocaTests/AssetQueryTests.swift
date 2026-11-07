@@ -2,7 +2,7 @@ import Testing
 import Foundation
 import Combine
 import Photos
-@testable import PhotoDelete
+@testable import Poca
 
 struct AssetQueryTests {
     private var calendar: Calendar {

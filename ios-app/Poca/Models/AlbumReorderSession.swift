@@ -1,6 +1,6 @@
 //
 //  AlbumReorderSession.swift
-//  PhotoDelete
+//  Poca
 //
 //  相册拖拽排序的状态机与几何计算。视图只负责把手势、坐标系与几何喂进来，
 //  摆放判定与顺序变更全部在这里完成，方便单测。

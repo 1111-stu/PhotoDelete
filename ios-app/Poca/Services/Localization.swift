@@ -39,7 +39,7 @@ enum AppDateFormatter {
         key: String,
         configure: (DateFormatter) -> Void
     ) -> DateFormatter {
-        let cacheKey = "PhotoDelete.DateFormatter.\(key)" as NSString
+        let cacheKey = "Poca.DateFormatter.\(key)" as NSString
         if let formatter = Thread.current.threadDictionary[cacheKey] as? DateFormatter {
             return formatter
         }

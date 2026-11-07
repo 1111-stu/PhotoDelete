@@ -33,7 +33,7 @@ enum ShareCardRenderer {
         }
 
         let directoryURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("PhotoDeleteShare", isDirectory: true)
+            .appendingPathComponent("PocaShare", isDirectory: true)
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(
             at: directoryURL,

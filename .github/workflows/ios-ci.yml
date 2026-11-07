@@ -40,8 +40,8 @@ jobs:
       - name: Build for testing
         run: |
           xcodebuild build-for-testing \
-            -project ios-app/PhotoDelete.xcodeproj \
-            -scheme PhotoDelete \
+            -project ios-app/Poca.xcodeproj \
+            -scheme Poca \
             -destination "${{ steps.simulator.outputs.destination }}" \
             -derivedDataPath ios-app/DerivedData \
             CODE_SIGNING_ALLOWED=NO
@@ -52,11 +52,11 @@ jobs:
       - name: Run unit tests
         run: |
           xcodebuild test-without-building \
-            -project ios-app/PhotoDelete.xcodeproj \
-            -scheme PhotoDelete \
+            -project ios-app/Poca.xcodeproj \
+            -scheme Poca \
             -destination "${{ steps.simulator.outputs.destination }}" \
             -derivedDataPath ios-app/DerivedData \
-            -only-testing:PhotoDeleteTests \
+            -only-testing:PocaTests \
             CODE_SIGNING_ALLOWED=NO
 
   ui-smoke-tests:
@@ -79,8 +79,8 @@ jobs:
       - name: Build for UI testing
         run: |
           xcodebuild build-for-testing \
-            -project ios-app/PhotoDelete.xcodeproj \
-            -scheme PhotoDelete \
+            -project ios-app/Poca.xcodeproj \
+            -scheme Poca \
             -destination "${{ steps.simulator.outputs.destination }}" \
             -derivedDataPath ios-app/DerivedData \
             CODE_SIGNING_ALLOWED=NO
@@ -88,9 +88,9 @@ jobs:
       - name: Run UI smoke tests
         run: |
           xcodebuild test-without-building \
-            -project ios-app/PhotoDelete.xcodeproj \
-            -scheme PhotoDelete \
+            -project ios-app/Poca.xcodeproj \
+            -scheme Poca \
             -destination "${{ steps.simulator.outputs.destination }}" \
             -derivedDataPath ios-app/DerivedData \
-            -only-testing:PhotoDeleteUITests \
+            -only-testing:PocaUITests \
             CODE_SIGNING_ALLOWED=NO

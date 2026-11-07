@@ -1,6 +1,6 @@
 //
-//  PhotoDeleteSharedUI.swift
-//  PhotoDelete
+//  PocaSharedUI.swift
+//  Poca
 //
 //  全局共用 UI：背景 / 卡片 / 按钮样式 / Toast 等。Token 见 DesignSystem/Theme.swift。
 //
@@ -21,7 +21,7 @@ struct SystemShareSheet: UIViewControllerRepresentable {
 }
 #endif
 
-enum PhotoDeleteAdaptiveLayout {
+enum PocaAdaptiveLayout {
     static func isRegularPad(horizontalSizeClass: UserInterfaceSizeClass?) -> Bool {
         isPad && horizontalSizeClass == .regular
     }
@@ -77,7 +77,7 @@ enum PhotoDeleteAdaptiveLayout {
     #endif
 }
 
-struct PhotoDeleteScreenBackground: View {
+struct PocaScreenBackground: View {
 
     var body: some View {
         LinearGradient(
@@ -92,7 +92,7 @@ struct PhotoDeleteScreenBackground: View {
     }
 }
 
-struct PhotoDeleteCardBackground: ViewModifier {
+struct PocaCardBackground: ViewModifier {
     var radius: CGFloat = Theme.radiusLg
 
     func body(content: Content) -> some View {
@@ -108,7 +108,7 @@ struct PhotoDeleteCardBackground: ViewModifier {
     }
 }
 
-struct PhotoDeleteFloatingSurface<Content: View>: View {
+struct PocaFloatingSurface<Content: View>: View {
     let radius: CGFloat
     let content: Content
 
@@ -131,7 +131,7 @@ struct PhotoDeleteFloatingSurface<Content: View>: View {
     }
 }
 
-struct PhotoDeleteMetricCard: View {
+struct PocaMetricCard: View {
     let value: String
     let label: String
     let tint: Color
@@ -156,7 +156,7 @@ struct PhotoDeleteMetricCard: View {
 }
 
 /// 首页等页面的分区标题：14pt 加粗标题 + 可选右侧琥珀值（对应原型 `.glabel`）。
-struct PhotoDeleteSectionHeader: View {
+struct PocaSectionHeader: View {
     let title: String
     var trailing: String?
 
@@ -185,7 +185,7 @@ struct PhotoDeleteSectionHeader: View {
 }
 
 /// 列表行（style.md §4.4）：32 icon tile + 15/600 标题 + 次级值 + chevron。
-struct PhotoDeleteListRow: View {
+struct PocaListRow: View {
     var icon: String? = nil
     /// 彩色插画图标（切图 PNG）。提供时优先于 `icon`，且不套灰色图标砖。
     var iconImage: String? = nil
@@ -255,11 +255,11 @@ struct PhotoDeleteListRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .modifier(PhotoDeleteOptionalAccessibilityIdentifier(accessibilityIdentifier))
+        .modifier(PocaOptionalAccessibilityIdentifier(accessibilityIdentifier))
     }
 }
 
-private struct PhotoDeleteOptionalAccessibilityIdentifier: ViewModifier {
+private struct PocaOptionalAccessibilityIdentifier: ViewModifier {
     let identifier: String?
 
     init(_ identifier: String?) {
@@ -277,24 +277,24 @@ private struct PhotoDeleteOptionalAccessibilityIdentifier: ViewModifier {
 }
 
 /// 数字格式约定：一律不带千分位（2974，而不是 2,974）。
-enum PhotoDeleteCountFormat {
+enum PocaCountFormat {
     static func plain(_ count: Int) -> String {
         String(count)
     }
 }
 
-enum PhotoDeleteIconTileStyle {
+enum PocaIconTileStyle {
     case soft
     case solid
     case plain
 }
 
-struct PhotoDeleteIconTile: View {
+struct PocaIconTile: View {
     let icon: String
     var tint: Color?
     var size: CGFloat = Theme.sizeIcon
     var cornerRadius: CGFloat = Theme.radiusSm
-    var style: PhotoDeleteIconTileStyle = .soft
+    var style: PocaIconTileStyle = .soft
     var filled: Bool? = nil
 
     init(
@@ -302,7 +302,7 @@ struct PhotoDeleteIconTile: View {
         tint: Color? = nil,
         size: CGFloat = Theme.sizeIcon,
         cornerRadius: CGFloat = Theme.radiusSm,
-        style: PhotoDeleteIconTileStyle = .soft,
+        style: PocaIconTileStyle = .soft,
         filled: Bool? = nil
     ) {
         self.icon = icon
@@ -318,7 +318,7 @@ struct PhotoDeleteIconTile: View {
             .frame(width: size, height: size)
     }
 
-    private var resolvedStyle: PhotoDeleteIconTileStyle {
+    private var resolvedStyle: PocaIconTileStyle {
         if let filled {
             return filled ? .solid : .soft
         }
@@ -368,7 +368,7 @@ struct PhotoDeleteIconTile: View {
     }
 }
 
-struct PhotoDeletePrimaryButtonStyle: ButtonStyle {
+struct PocaPrimaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
@@ -387,7 +387,7 @@ struct PhotoDeletePrimaryButtonStyle: ButtonStyle {
     }
 }
 
-struct PhotoDeleteSecondaryButtonStyle: ButtonStyle {
+struct PocaSecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
@@ -410,7 +410,7 @@ struct PhotoDeleteSecondaryButtonStyle: ButtonStyle {
     }
 }
 
-struct PhotoDeleteDestructiveButtonStyle: ButtonStyle {
+struct PocaDestructiveButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
@@ -477,12 +477,12 @@ extension View {
 }
 
 // MARK: - Shared Toast
-struct PhotoDeleteToast: Identifiable {
+struct PocaToast: Identifiable {
     let id = UUID()
     let message: String
     let icon: String
     /// 语义标记：便于调用方表达意图，不参与配色（功能层保持单色）。
-    let style: PhotoDeleteToastStyle
+    let style: PocaToastStyle
     var showsUndo: Bool = false
     /// 非撤销类动作（如「查看」），复用 `photoDeleteToast(onUndo:)` 的回调。
     var actionTitle: String? = nil
@@ -494,7 +494,7 @@ struct PhotoDeleteToast: Identifiable {
     }
 }
 
-enum PhotoDeleteToastStyle {
+enum PocaToastStyle {
     case neutral
     case positive
     case destructive
@@ -502,7 +502,7 @@ enum PhotoDeleteToastStyle {
     case warning
 }
 
-enum PhotoDeleteToastTiming {
+enum PocaToastTiming {
     static let standard: TimeInterval = 2.4
     static let undoable: TimeInterval = 4.5
     static let enter: Animation = .easeOut(duration: 0.30)
@@ -511,7 +511,7 @@ enum PhotoDeleteToastTiming {
     private static let fade: Animation = .easeOut(duration: 0.22)
     private static let transform: Animation = .easeOut(duration: 0.30)
 
-    static func visibleDuration(for toast: PhotoDeleteToast) -> TimeInterval {
+    static func visibleDuration(for toast: PocaToast) -> TimeInterval {
         toast.duration ?? (toast.hasAction ? undoable : standard)
     }
 
@@ -525,7 +525,7 @@ enum PhotoDeleteToastTiming {
     }
 }
 
-enum PhotoDeleteToastPlacement {
+enum PocaToastPlacement {
     case top(inset: CGFloat)
     case bottom(inset: CGFloat)
 
@@ -553,8 +553,8 @@ enum PhotoDeleteToastPlacement {
     }
 }
 
-struct PhotoDeleteToastView: View {
-    let toast: PhotoDeleteToast
+struct PocaToastView: View {
+    let toast: PocaToast
     var onUndo: (() -> Void)?
 
     var body: some View {
@@ -604,9 +604,9 @@ struct PhotoDeleteToastView: View {
     }
 }
 
-private struct PhotoDeleteToastPresenter: ViewModifier {
-    @Binding var toast: PhotoDeleteToast?
-    let placement: PhotoDeleteToastPlacement
+private struct PocaToastPresenter: ViewModifier {
+    @Binding var toast: PocaToast?
+    let placement: PocaToastPlacement
     let maxWidth: CGFloat
     let onUndo: (() -> Void)?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -615,31 +615,31 @@ private struct PhotoDeleteToastPresenter: ViewModifier {
         content
             .overlay(alignment: placement.alignment) {
                 if let toast {
-                    PhotoDeleteToastView(toast: toast, onUndo: onUndo)
+                    PocaToastView(toast: toast, onUndo: onUndo)
                         .frame(maxWidth: maxWidth)
                         .padding(placement.padding)
                         .allowsHitTesting(toast.hasAction && onUndo != nil)
-                        .transition(PhotoDeleteToastTiming.transition(reduceMotion: reduceMotion, edge: placement.edge))
+                        .transition(PocaToastTiming.transition(reduceMotion: reduceMotion, edge: placement.edge))
                 }
             }
             .animation(
-                reduceMotion ? PhotoDeleteToastTiming.reducedEnter : PhotoDeleteToastTiming.enter,
+                reduceMotion ? PocaToastTiming.reducedEnter : PocaToastTiming.enter,
                 value: toast?.id
             )
             .photoDeleteToastAutoDismiss($toast)
     }
 }
 
-private struct PhotoDeleteToastAutoDismiss: ViewModifier {
-    @Binding var toast: PhotoDeleteToast?
+private struct PocaToastAutoDismiss: ViewModifier {
+    @Binding var toast: PocaToast?
 
     func body(content: Content) -> some View {
         content.task(id: toast?.id) {
             guard let toast else { return }
-            let duration = PhotoDeleteToastTiming.visibleDuration(for: toast)
+            let duration = PocaToastTiming.visibleDuration(for: toast)
             try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
             guard !Task.isCancelled else { return }
-            withAnimation(PhotoDeleteToastTiming.enter) {
+            withAnimation(PocaToastTiming.enter) {
                 self.toast = nil
             }
         }
@@ -681,13 +681,13 @@ struct PhotoAuthorizationCard: View {
 extension View {
     /// 统一 Toast：位置、入场/退场动画、停留时长、Reduce Motion 与点击穿透。
     func photoDeleteToast(
-        _ toast: Binding<PhotoDeleteToast?>,
-        placement: PhotoDeleteToastPlacement,
+        _ toast: Binding<PocaToast?>,
+        placement: PocaToastPlacement,
         maxWidth: CGFloat = 420,
         onUndo: (() -> Void)? = nil
     ) -> some View {
         modifier(
-            PhotoDeleteToastPresenter(
+            PocaToastPresenter(
                 toast: toast,
                 placement: placement,
                 maxWidth: maxWidth,
@@ -697,23 +697,23 @@ extension View {
     }
 
     /// 仅统一自动消失；用于托盘等需要自定义 Toast 位置的场景。
-    func photoDeleteToastAutoDismiss(_ toast: Binding<PhotoDeleteToast?>) -> some View {
-        modifier(PhotoDeleteToastAutoDismiss(toast: toast))
+    func photoDeleteToastAutoDismiss(_ toast: Binding<PocaToast?>) -> some View {
+        modifier(PocaToastAutoDismiss(toast: toast))
     }
 
     func photoDeleteCard(radius: CGFloat = Theme.radiusLg) -> some View {
-        modifier(PhotoDeleteCardBackground(radius: radius))
+        modifier(PocaCardBackground(radius: radius))
     }
 
     func photoDeletePrimaryButton() -> some View {
-        buttonStyle(PhotoDeletePrimaryButtonStyle())
+        buttonStyle(PocaPrimaryButtonStyle())
     }
 
     func photoDeleteSecondaryButton() -> some View {
-        buttonStyle(PhotoDeleteSecondaryButtonStyle())
+        buttonStyle(PocaSecondaryButtonStyle())
     }
 
     func photoDeleteDestructiveButton() -> some View {
-        buttonStyle(PhotoDeleteDestructiveButtonStyle())
+        buttonStyle(PocaDestructiveButtonStyle())
     }
 }

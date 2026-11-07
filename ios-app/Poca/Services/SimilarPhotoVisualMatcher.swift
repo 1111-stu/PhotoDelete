@@ -1,6 +1,6 @@
 //
 //  SimilarPhotoVisualMatcher.swift
-//  PhotoDelete
+//  Poca
 //
 //  Vision Feature Print confirmation for metadata-prefiltered similar-photo groups.
 //

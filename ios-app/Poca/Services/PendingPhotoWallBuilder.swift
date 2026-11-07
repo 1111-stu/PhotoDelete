@@ -1,6 +1,6 @@
 //
 //  PendingPhotoWallBuilder.swift
-//  PhotoDelete
+//  Poca
 //
 //  照片墙：从相册资产构建「年 → 月 → 日封面」纯数据，无视图依赖。
 //

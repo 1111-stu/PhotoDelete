@@ -1,6 +1,6 @@
 //
 //  AppSupport.swift
-//  PhotoDelete
+//  Poca
 //
 //  应用常量与触觉反馈（非设计 token）。
 //
@@ -36,14 +36,14 @@ enum AppConstants {
         return URL(string: "https://photodelete.01mvp.com/\(path)")!
     }
     static let termsOfUseURL = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
-    static let technicalAppName = "PhotoDelete"
+    static let technicalAppName = "Poca"
     static let zhHansAppStoreName = "Poca"
     static let enAppStoreName = "Poca"
     static var appDisplayName: String {
         L10n.string("Poca")
     }
     static let landscapeBreakpoint: CGFloat = 700
-    static let hasCompletedOnboardingKey = "hasCompletedPhotoDeleteOnboarding"
+    static let hasCompletedOnboardingKey = "hasCompletedPocaOnboarding"
     static let reviewedAssetIDsKey = "photoDeleteReviewedAssetIDs"
     static let recentOrganizedPhotosKey = "photoDeleteRecentOrganizedPhotosV1"
     static let pendingDeleteCandidateIDsKey = "photoDeletePendingDeleteCandidateIDs"

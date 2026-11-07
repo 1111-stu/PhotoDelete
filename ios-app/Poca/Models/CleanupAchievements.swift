@@ -1,8 +1,8 @@
 //
 //  CleanupAchievements.swift
-//  PhotoDelete
+//  Poca
 //
-//  Created by PhotoDelete Team on 6/12/26.
+//  Created by Poca Team on 6/12/26.
 //
 
 import SwiftUI

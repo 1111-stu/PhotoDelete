@@ -56,7 +56,7 @@ def main():
     parser.add_argument('--derived-data', type=Path)
     args = parser.parse_args()
     errors = []
-    catalog = load_json(ROOT / 'ios-app/PhotoDelete/Localizable.xcstrings')
+    catalog = load_json(ROOT / 'ios-app/Poca/Localizable.xcstrings')
     strings = catalog['strings']
     if catalog['sourceLanguage'] != 'en':
         errors.append('Localizable sourceLanguage must be en')
@@ -77,12 +77,12 @@ def main():
         if en is not None and en != key:
             errors.append(f'English source value differs from key: {key!r} -> {en!r}')
 
-    plist = load_json(ROOT / 'ios-app/PhotoDelete/PhotoDelete-InfoPlist.xcstrings')
+    plist = load_json(ROOT / 'ios-app/Poca/Poca-InfoPlist.xcstrings')
     if plist['sourceLanguage'] != 'en':
         errors.append('InfoPlist sourceLanguage must be en')
     if set(plist['strings']) != {'CFBundleName', 'CFBundleDisplayName', 'NSPhotoLibraryUsageDescription', 'NSPhotoLibraryAddUsageDescription'}:
         errors.append('InfoPlist system keys changed')
-    with (ROOT / 'ios-app/Config/PhotoDelete-Info.plist').open('rb') as file:
+    with (ROOT / 'ios-app/Config/Poca-Info.plist').open('rb') as file:
         defaults = plistlib.load(file)
     for key, entry in plist['strings'].items():
         locales = entry.get('localizations', {})
@@ -93,12 +93,12 @@ def main():
             en = locales.get('en', {}).get('stringUnit', {}).get('value')
             if defaults.get(key) != en:
                 errors.append(f'Default permission description differs from English: {key}')
-    project = (ROOT / 'ios-app/PhotoDelete.xcodeproj/project.pbxproj').read_text()
+    project = (ROOT / 'ios-app/Poca.xcodeproj/project.pbxproj').read_text()
     if 'developmentRegion = en;' not in project and 'developmentRegion = "en";' not in project:
         errors.append('Xcode developmentRegion must be en')
 
     lookups = 0
-    for path in (ROOT / 'ios-app/PhotoDelete').rglob('*.swift'):
+    for path in (ROOT / 'ios-app/Poca').rglob('*.swift'):
         text = path.read_text()
         for literal in scan_literals(text):
             context = localization_context(text, literal)
@@ -131,8 +131,8 @@ def main():
 
     extracted = 0
     if args.derived_data:
-        build = args.derived_data / 'Build/Intermediates.noindex/PhotoDelete.build'
-        files = list(build.glob('**/PhotoDelete.build/Objects-normal/*/*.stringsdata'))
+        build = args.derived_data / 'Build/Intermediates.noindex/Poca.build'
+        files = list(build.glob('**/Poca.build/Objects-normal/*/*.stringsdata'))
         if not files:
             errors.append('No app compiler .stringsdata found; run build-for-testing first')
         for path in files:
@@ -145,7 +145,7 @@ def main():
                     errors.append(f'Compiler key absent from catalog: {data.get("source")}:{location.get("startingLine")}: {key!r}')
                 if CJK.search(key):
                     errors.append(f'Compiler extracted Chinese key: {key}')
-        products = args.derived_data / 'Build/Products/Debug-iphonesimulator/PhotoDelete.app'
+        products = args.derived_data / 'Build/Products/Debug-iphonesimulator/Poca.app'
         for lang in ('en', 'zh-Hans', 'zh-Hant', 'ar', 'de', 'ja'):
             path = products / f'{lang}.lproj/Localizable.strings'
             if not path.exists():

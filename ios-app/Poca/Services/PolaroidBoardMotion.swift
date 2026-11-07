@@ -1,6 +1,6 @@
 //
 //  PolaroidBoardMotion.swift
-//  PhotoDelete
+//  Poca
 //
 //  相纸墙悬挂微晃：倾斜跟随 + 轻摇惯性。多块板共享一份传感器。
 //
