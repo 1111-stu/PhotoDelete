@@ -3,7 +3,7 @@
 //  PhotoDelete
 //
 //  相纸墙密铺钉板：全部拍立得白边，尺寸只微差，4 列错列压边。
-//  逐张的尺寸 / 倾斜 / 夹子按「月 + 日 + variant」定种子，整理掉一天后其余相纸只换位、不变样。
+//  逐张的尺寸 / 倾斜 / 夹子按「月 + 日 + variant」定种子，照片增删后其余相纸只换位、不变样。
 //
 
 import CoreGraphics
@@ -22,7 +22,7 @@ struct PolaroidBoardItem: Identifiable, Equatable {
     let dayOfMonth: Int
     let variant: Int
     let coverAssetID: String?
-    let remainingCount: Int
+    let photoCount: Int
     /// 未旋转相纸框的左上角（设计单位）。
     let x: CGFloat
     let y: CGFloat
@@ -58,8 +58,8 @@ enum PolaroidBoardLayout {
     /// 夹子露出相纸顶边的高度。
     static let clipRise: CGFloat = 9
     static let clipColorCount = 6
-    /// 剩这么多张以上的天，才在空位里补挂同日另一张。
-    static let alternateMinimumRemaining = 6
+    /// 当天这么多张照片以上，才在空位里补挂同日另一张。
+    static let alternateMinimumPhotos = 6
     static let photoAspectRatios: [CGFloat] = [0.8, 0.85, 1, 1, 1.15, 1.25]
 
     private static let minPhotoWidth: CGFloat = 55
@@ -74,7 +74,7 @@ enum PolaroidBoardLayout {
     private static let clipJitter: CGFloat = 10
     private static let clipMaxRotation: CGFloat = 14
 
-    /// `days`：当月有待整理照片的日格，顺序不限。
+    /// `days`：当月有照片的日格，顺序不限。
     static func layout(
         year: Int,
         month: Int,
@@ -124,7 +124,7 @@ enum PolaroidBoardLayout {
                 dayOfMonth: item.entry.day.dayOfMonth,
                 variant: item.entry.variant,
                 coverAssetID: item.entry.assetID,
-                remainingCount: item.entry.day.remainingCount,
+                photoCount: item.entry.day.photoCount,
                 x: item.center.x - item.width / 2,
                 y: item.center.y + offsetY - item.height / 2,
                 width: item.width,
@@ -178,7 +178,7 @@ enum PolaroidBoardLayout {
         var zIndex: Double = 0
     }
 
-    /// 最近的天各一张；不够时，剩得多的天再挂同日另一张（variant=1），同天两张相邻。
+    /// 最近的天各一张；不够时，照片多的天再挂同日另一张（variant=1），同天两张相邻。
     private static func polaroidPool(from days: [PendingPhotoWallDayCell]) -> [PoolEntry] {
         let newestFirst = days.sorted { $0.date > $1.date }
         let primaries = newestFirst.prefix(maxPolaroids).map {
@@ -188,8 +188,8 @@ enum PolaroidBoardLayout {
         guard openSlots > 0 else { return primaries }
 
         let alternates = newestFirst
-            .filter { $0.alternateCoverAssetID != nil && $0.remainingCount >= alternateMinimumRemaining }
-            .sorted { ($0.remainingCount, $0.date) > ($1.remainingCount, $1.date) }
+            .filter { $0.alternateCoverAssetID != nil && $0.photoCount >= alternateMinimumPhotos }
+            .sorted { ($0.photoCount, $0.date) > ($1.photoCount, $1.date) }
             .prefix(openSlots)
             .map { PoolEntry(day: $0, assetID: $0.alternateCoverAssetID, variant: 1) }
 

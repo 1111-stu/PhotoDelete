@@ -18,7 +18,7 @@ struct PendingPhotoWallView: View {
         years: [],
         months: [],
         selectedYear: Calendar.current.component(.year, from: Date()),
-        totalPendingInLibrary: 0
+        libraryPhotoCount: 0
     )
     /// 按月显示方式：默认日历；只有用户点过的月才会进相纸墙，互不影响。
     @State private var displayModeByMonthID: [String: PendingPhotoWallDisplayMode] = [:]
@@ -51,12 +51,6 @@ struct PendingPhotoWallView: View {
                         .padding(.top, 8)
                     } else if snapshot.isLibraryEmpty {
                         PendingPhotoWallEmptyState(
-                            isWholeLibrary: true,
-                            onViewHistory: { showingRecentOrganized = true }
-                        )
-                    } else if snapshot.isSelectedYearEmpty {
-                        PendingPhotoWallEmptyState(
-                            isWholeLibrary: false,
                             onViewHistory: { showingRecentOrganized = true }
                         )
                     } else {
@@ -66,7 +60,7 @@ struct PendingPhotoWallView: View {
 
                             PendingPhotoWallMonthSection(
                                 title: monthTitle(for: month),
-                                remainingCount: month.remainingCount,
+                                photoCount: month.photoCount,
                                 displayMode: mode,
                                 onSelectMode: { next in
                                     guard next != mode else { return }
@@ -154,13 +148,7 @@ struct PendingPhotoWallView: View {
         .onChange(of: dataManager.cleanupStatsRevision) {
             rebuildSnapshot(preferredYear: selectedYear)
         }
-        .onChange(of: dataManager.deleteCandidates.count) {
-            rebuildSnapshot(preferredYear: selectedYear)
-        }
         .onReceive(dataManager.photoLibraryManager.$allPhotos) { _ in
-            rebuildSnapshot(preferredYear: selectedYear)
-        }
-        .onReceive(dataManager.$reviewedAssetIDs) { _ in
             rebuildSnapshot(preferredYear: selectedYear)
         }
     }
@@ -240,20 +228,7 @@ struct PendingPhotoWallView: View {
             router.push(.trashBin)
         } badge: {
             if binCount > 0 {
-                Text(binCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(binCount))
-                    .font(.system(size: 10.5, weight: .bold))
-                    .foregroundColor(.white)
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .padding(.horizontal, 5)
-                    .frame(minWidth: 18, minHeight: 18)
-                    .background(Capsule(style: .continuous).fill(Theme.destructive))
-                    .overlay(
-                        Capsule(style: .continuous)
-                            .stroke(Theme.background, lineWidth: 2.5)
-                    )
-                    .offset(x: 2, y: -2)
-                    .accessibilityHidden(true)
+                PhotoDeleteCountBadge(count: binCount)
             }
         }
         .accessibilityValue(L10n.string("\(binCount) to delete"))
@@ -330,7 +305,7 @@ struct PendingPhotoWallView: View {
 
     private var yearMenuOptions: [PendingPhotoWallYearOption] {
         if snapshot.years.isEmpty {
-            return [PendingPhotoWallYearOption(year: selectedYear, remainingCount: 0)]
+            return [PendingPhotoWallYearOption(year: selectedYear, photoCount: 0)]
         }
         return snapshot.years
     }
@@ -344,16 +319,10 @@ struct PendingPhotoWallView: View {
         rebuildGeneration += 1
         let generation = rebuildGeneration
         let photos = dataManager.photoLibraryManager.allPhotos
-        let reviewed = dataManager.reviewedAssetIDs
-        let deleteIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
-        let favoriteIDs = Set(dataManager.favoriteCandidates.map(\.localIdentifier))
 
         Task.detached(priority: .userInitiated) {
             let built = PendingPhotoWallBuilder.build(
                 photos: photos,
-                reviewedIDs: reviewed,
-                deleteCandidateIDs: deleteIDs,
-                favoriteCandidateIDs: favoriteIDs,
                 selectedYear: preferredYear
             )
             let plan = PendingPhotoWallBuilder.thumbnailPlan(for: built)

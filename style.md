@@ -497,7 +497,7 @@ The provided reference screens add useful composition patterns:
 
 - `PhotoDeleteCircleIconButton`: 48pt visible circle, glass on iOS 26+, `elevatedSurface` fallback; symbol 17 / 700 rounded, primary by default.
 - **Exception:** the top-right collection/trash entry keeps the system `archivebox` line icon. Do not replace it with an illustration.
-- Badge: capsule 20pt min, destructive fill, white 11.5 / 700, 2.5pt background ring, offset (3, -3), 99+ cap.
+- Badge: use `PhotoDeleteCountBadge` everywhere (home, pending wall, review chrome). Capsule 20pt min, destructive fill, white 11.5 / 700, **no stroke ring**, offset (3, -3), 99+ cap.
 - Filter toolbar: default is a glass circle with a white icon; a non-default filter tints the circle — `accentSoftFill` (white 10%) fill + `accentSoftStroke` (white 22%) rim on the glass, no dot. Use surface tinting, not an amber icon tint, for active state.
 - Do not tint header chrome amber unless it expresses a documented state.
 

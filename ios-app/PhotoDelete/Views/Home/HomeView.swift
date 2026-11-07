@@ -271,23 +271,11 @@ struct HomeView: View {
             : L10n.string("Trash")
     }
 
-    /// 待删除角标：数量 > 0 时显示，最多 99+（红底白字，不加描边环）。
+    /// 待删除角标：数量 > 0 时显示，最多 99+（统一角标组件）。
     @ViewBuilder
     private var pendingDeleteBadge: some View {
-        let count = pendingDeleteCount
-        if count > 0 {
-            Text(count > 99 ? "99+" : PhotoDeleteCountFormat.plain(count))
-                .font(.system(size: 11, weight: .bold))
-                .monospacedDigit()
-                .foregroundColor(.white)
-                .padding(.horizontal, 5)
-                .frame(minWidth: 20, minHeight: 20)
-                .background(
-                    Capsule(style: .continuous)
-                        .fill(Theme.destructive)
-                )
-                .offset(x: 3, y: -3)
-                .accessibilityHidden(true)
+        if pendingDeleteCount > 0 {
+            PhotoDeleteCountBadge(count: pendingDeleteCount)
         }
     }
 

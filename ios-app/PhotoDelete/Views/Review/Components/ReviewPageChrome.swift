@@ -39,21 +39,7 @@ struct ReviewNavigationHeader: View {
                 action: onDelete
             ) {
                 if deleteCount > 0 {
-                    // 颜色只承担"数量"语义：图标中性、角标珊瑚红（>99 显示 99+）。
-                    Text(deleteCount > 99 ? "99+" : PhotoDeleteCountFormat.plain(deleteCount))
-                        .font(.system(size: 10.5, weight: .bold))
-                        .foregroundColor(.white)
-                        .monospacedDigit()
-                        .lineLimit(1)
-                        .padding(.horizontal, 5)
-                        .frame(minWidth: 18, minHeight: 18)
-                        .background(Capsule(style: .continuous).fill(Theme.destructive))
-                        .overlay(
-                            Capsule(style: .continuous)
-                                .stroke(Theme.reviewCanvas, lineWidth: 2)
-                        )
-                        .offset(x: 2, y: -2)
-                        .accessibilityHidden(true)
+                    PhotoDeleteCountBadge(count: deleteCount)
                 }
             }
             .accessibilityValue(L10n.string("\(deleteCount) to delete"))

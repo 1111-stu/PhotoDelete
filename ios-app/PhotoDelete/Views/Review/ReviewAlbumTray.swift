@@ -49,7 +49,6 @@ enum ReviewAlbumTrayLayout {
     static let pressScale: CGFloat = 0.97
     static let pressOverlayOpacity: Double = 0.46
     static let plusCircleSize: CGFloat = 30
-    static let plusSymbolSize: CGFloat = 11
     static let captionFontSize: CGFloat = 9
 
     static let presentationAnimation: Animation = .spring(response: 0.34, dampingFraction: 0.88)
@@ -136,7 +135,6 @@ struct ReviewAlbumTray: View {
                         isDisabled: isFiling,
                         onSelect: { onSelect(album) }
                     )
-                    .opacity(isFiling && !isThisAlbumFiling ? 0.55 : 1)
                 }
             }
             .padding(.horizontal, ReviewAlbumTrayLayout.railHorizontalPadding)
@@ -262,10 +260,7 @@ struct ReviewAlbumFolderCard: View {
             .frame(width: ReviewAlbumTrayLayout.cardWidth)
             .contentShape(Rectangle())
         }
-        .buttonStyle(ReviewAlbumFolderButtonStyle(
-            isFiling: isFiling,
-            caption: L10n.string("Add to Album")
-        ))
+        .buttonStyle(ReviewAlbumFolderButtonStyle(isFiling: isFiling))
         .disabled(isDisabled)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(String(format: L10n.string("Add to %@"), album.title)))
@@ -423,47 +418,6 @@ struct AlbumFolderBackShape: Shape {
 
 // MARK: - Press / filing overlays
 
-struct ReviewAlbumFolderPressOverlay: View {
-    let caption: String
-
-    var body: some View {
-        ZStack {
-            RoundedRectangle(
-                cornerRadius: ReviewAlbumTrayLayout.folderCornerRadius,
-                style: .continuous
-            )
-            .fill(Color.black.opacity(ReviewAlbumTrayLayout.pressOverlayOpacity))
-
-            VStack(spacing: 3) {
-                ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.16))
-                    Circle()
-                        .stroke(Color.white.opacity(0.34), lineWidth: 1)
-                    Image(systemName: "plus")
-                        .font(.system(size: ReviewAlbumTrayLayout.plusSymbolSize, weight: .bold))
-                        .foregroundStyle(.white)
-                }
-                .frame(
-                    width: ReviewAlbumTrayLayout.plusCircleSize,
-                    height: ReviewAlbumTrayLayout.plusCircleSize
-                )
-
-                Text(caption)
-                    .font(.system(size: ReviewAlbumTrayLayout.captionFontSize, weight: .bold))
-                    .foregroundStyle(.white)
-            }
-        }
-        .clipShape(
-            RoundedRectangle(
-                cornerRadius: ReviewAlbumTrayLayout.folderCornerRadius,
-                style: .continuous
-            )
-        )
-        .allowsHitTesting(false)
-    }
-}
-
 struct ReviewAlbumFilingOverlay: View {
     var body: some View {
         ZStack {
@@ -500,7 +454,6 @@ struct ReviewAlbumFilingOverlay: View {
 
 struct ReviewAlbumFolderButtonStyle: ButtonStyle {
     let isFiling: Bool
-    let caption: String
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -510,15 +463,6 @@ struct ReviewAlbumFolderButtonStyle: ButtonStyle {
                     : 1
             )
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-            .overlay(alignment: .top) {
-                if configuration.isPressed && !isFiling {
-                    ReviewAlbumFolderPressOverlay(caption: caption)
-                        .frame(
-                            width: ReviewAlbumTrayLayout.folderSize,
-                            height: ReviewAlbumTrayLayout.folderSize
-                        )
-                }
-            }
     }
 }
 

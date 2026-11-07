@@ -6630,6 +6630,7 @@
       }
     },
     "All caught up" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -19400,6 +19401,7 @@
       }
     },
     "Every photo has been reviewed." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -29800,6 +29802,46 @@
         }
       }
     },
+    "No photos yet" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا توجد صور بعد"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Fotos"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No photos yet"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真がまだありません"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有照片"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還沒有照片"
+          }
+        }
+      }
+    },
     "No places to show on the map yet" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -35484,6 +35526,7 @@
       }
     },
     "Pick another year, or keep going elsewhere." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -49898,6 +49941,7 @@
       }
     },
     "This year is done" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -56094,6 +56138,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "您已經瀏覽完所有照片"
+          }
+        }
+      }
+    },
+    "Your photo library is empty." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مكتبة الصور فارغة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Fotomediathek ist leer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your photo library is empty."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真ライブラリは空です。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相册里还没有照片。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相簿裡還沒有照片。"
           }
         }
       }

@@ -2724,7 +2724,7 @@ struct AdvancedAssetPreviewView: View {
             let cardSize = previewCardSize(in: geometry.size)
 
             ZStack {
-                Theme.reviewCanvas.ignoresSafeArea()
+                PhotoDeleteScreenBackground()
 
                 VStack(spacing: 0) {
                     previewHeader
@@ -2754,33 +2754,34 @@ struct AdvancedAssetPreviewView: View {
                 .padding(.horizontal, 88)
 
             HStack {
-                PhotoDeleteCircleIconButton(
-                    systemName: "xmark",
-                    accessibilityLabel: L10n.string("Close"),
-                    accessibilityIdentifier: "advanced-preview-close"
-                ) {
+                // 轻量关闭：只留图标，不套圆形容器，避免压过标题和页码。
+                Button {
                     dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(Theme.primaryText)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L10n.string("Close"))
+                .accessibilityIdentifier("advanced-preview-close")
 
                 Spacer(minLength: 0)
 
-                if let previewPositionText {
-                    Text(previewPositionText)
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .foregroundColor(Theme.secondaryText)
-                        .monospacedDigit()
-                        .padding(.horizontal, 11)
-                        .padding(.vertical, 6)
-                        .background(Capsule(style: .continuous).fill(Theme.elevatedSurface))
-                        .overlay(
-                            Capsule(style: .continuous)
-                                .stroke(Theme.hairline, lineWidth: Theme.stroke)
-                        )
-                        .accessibilityLabel(Text("\(L10n.string("Position")) \(previewPositionText)"))
-                } else {
-                    Color.clear
-                        .frame(width: Theme.sizeChrome, height: Theme.sizeChrome)
+                Group {
+                    if let previewPositionText {
+                        Text(previewPositionText)
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .foregroundColor(Theme.secondaryText)
+                            .monospacedDigit()
+                            .accessibilityLabel(Text("\(L10n.string("Position")) \(previewPositionText)"))
+                    } else {
+                        Color.clear
+                    }
                 }
+                .frame(minWidth: 28, minHeight: 44, alignment: .trailing)
             }
         }
         .padding(.horizontal, Theme.space5)
@@ -2866,10 +2867,7 @@ struct AdvancedAssetPreviewView: View {
     private var previewSelectionBar: some View {
         if selectedAssetIDs != nil {
             Button(action: toggleSelectedPreviewAsset) {
-                Label(
-                    isSelectedForDeletion ? L10n.string("Marked to delete") : L10n.string("Mark to delete"),
-                    systemImage: isSelectedForDeletion ? "checkmark.circle.fill" : "square"
-                )
+                Text(isSelectedForDeletion ? L10n.string("Marked to delete") : L10n.string("Mark to delete"))
             }
             .buttonStyle(AdvancedAssetPreviewSelectionButtonStyle(isSelected: isSelectedForDeletion))
             .accessibilityElement(children: .ignore)
@@ -3020,7 +3018,11 @@ private struct AdvancedAssetPreviewPage: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel(L10n.string("Live Photos"))
             } else if let image {
-                ZoomablePhotoPreview(image: image)
+                // 预览页左右滑用于切换组内照片；不再内嵌可缩放 ScrollView，
+                // 否则横向手势会被内部滚动吃掉。
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 VStack(spacing: 12) {

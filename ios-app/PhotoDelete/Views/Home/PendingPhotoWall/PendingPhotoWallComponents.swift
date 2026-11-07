@@ -81,7 +81,7 @@ private struct PendingPhotoWallGlassPanelChrome: ViewModifier {
 
 struct PendingPhotoWallMonthSection<Content: View>: View {
     let title: String
-    let remainingCount: Int
+    let photoCount: Int
     let displayMode: PendingPhotoWallDisplayMode
     let onSelectMode: (PendingPhotoWallDisplayMode) -> Void
     let onOrganizeMonth: () -> Void
@@ -105,7 +105,7 @@ struct PendingPhotoWallMonthSection<Content: View>: View {
                         Image(systemName: "photo.on.rectangle")
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(Theme.tertiaryText)
-                        Text(PhotoDeleteCountFormat.plain(remainingCount))
+                        Text(PhotoDeleteCountFormat.plain(photoCount))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(Theme.secondaryText)
                             .monospacedDigit()
@@ -121,7 +121,7 @@ struct PendingPhotoWallMonthSection<Content: View>: View {
                     String(
                         format: L10n.string("Organize %@ · %@ photos"),
                         title,
-                        PhotoDeleteCountFormat.plain(remainingCount)
+                        PhotoDeleteCountFormat.plain(photoCount)
                     )
                 )
             }
@@ -280,7 +280,7 @@ struct PendingPhotoWallDayCellView: View {
                 String(
                     format: L10n.string("Organize from %@ · %@ photos"),
                     AppDateFormatter.string(from: cell.date, template: "MMMd"),
-                    PhotoDeleteCountFormat.plain(cell.remainingCount)
+                    PhotoDeleteCountFormat.plain(cell.photoCount)
                 )
             )
         }
@@ -481,7 +481,7 @@ struct PendingPhotoWallPolaroidBoard: View {
             String(
                 format: L10n.string("Organize from day %lld · %@ photos"),
                 Int64(item.dayOfMonth),
-                PhotoDeleteCountFormat.plain(item.remainingCount)
+                PhotoDeleteCountFormat.plain(item.photoCount)
             )
         )
     }
@@ -647,7 +647,6 @@ struct PendingPhotoWallThumbnail: View {
 // MARK: - Empty
 
 struct PendingPhotoWallEmptyState: View {
-    let isWholeLibrary: Bool
     let onViewHistory: () -> Void
 
     var body: some View {
@@ -657,44 +656,38 @@ struct PendingPhotoWallEmptyState: View {
                     .fill(Color.white.opacity(0.06))
                     .overlay(Circle().stroke(Color.white.opacity(0.08), lineWidth: 1))
                     .frame(width: 84, height: 84)
-                Image(systemName: "checkmark")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(Theme.positive)
+                Image(systemName: "photo")
+                    .font(.system(size: 26, weight: .semibold))
+                    .foregroundColor(Theme.tertiaryText)
             }
             .padding(.bottom, 22)
 
-            Text(isWholeLibrary ? L10n.string("All caught up") : L10n.string("This year is done"))
+            Text(L10n.string("No photos yet"))
                 .font(.system(size: 21, weight: .bold))
                 .foregroundColor(Theme.primaryText)
                 .padding(.bottom, 10)
 
-            Text(
-                isWholeLibrary
-                    ? L10n.string("Every photo has been reviewed.")
-                    : L10n.string("Pick another year, or keep going elsewhere.")
-            )
-            .font(.system(size: 13))
-            .foregroundColor(Theme.secondaryText)
-            .multilineTextAlignment(.center)
-            .lineSpacing(4)
+            Text(L10n.string("Your photo library is empty."))
+                .font(.system(size: 13))
+                .foregroundColor(Theme.secondaryText)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
 
-            if isWholeLibrary {
-                Button(action: onViewHistory) {
-                    HStack(spacing: 8) {
-                        Text(L10n.string("View review history"))
-                            .font(.system(size: 13.5, weight: .semibold))
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(Theme.tertiaryText)
-                    }
-                    .foregroundColor(Theme.primaryText)
-                    .padding(.horizontal, 20)
-                    .frame(height: 44)
-                    .background(Capsule(style: .continuous).fill(Theme.elevatedSurface))
+            Button(action: onViewHistory) {
+                HStack(spacing: 8) {
+                    Text(L10n.string("View review history"))
+                        .font(.system(size: 13.5, weight: .semibold))
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(Theme.tertiaryText)
                 }
-                .buttonStyle(.plain)
-                .padding(.top, 24)
+                .foregroundColor(Theme.primaryText)
+                .padding(.horizontal, 20)
+                .frame(height: 44)
+                .background(Capsule(style: .continuous).fill(Theme.elevatedSurface))
             }
+            .buttonStyle(.plain)
+            .padding(.top, 24)
         }
         .padding(.horizontal, 24)
         .padding(.top, 100)

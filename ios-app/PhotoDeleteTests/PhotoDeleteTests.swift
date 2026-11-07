@@ -3628,7 +3628,7 @@ struct PhotoDeleteTests {
             }
             return PendingPhotoWallDayCell(
                 date: date,
-                remainingCount: remaining(day),
+                photoCount: remaining(day),
                 coverAssetID: "cover-\(day)",
                 alternateCoverAssetID: "alt-\(day)"
             )
@@ -3730,7 +3730,7 @@ struct PhotoDeleteTests {
         mixed.add(assetID: "photo-newer", isScreenshot: false)
         mixed.add(assetID: "shot-middle", isScreenshot: true)
         mixed.add(assetID: "photo-oldest", isScreenshot: false)
-        #expect(mixed.remainingCount == 4)
+        #expect(mixed.photoCount == 4)
         #expect(mixed.coverAssetID == "photo-newer")
         #expect(mixed.alternateCoverAssetID == "photo-oldest")
 
@@ -3749,14 +3749,11 @@ struct PhotoDeleteTests {
         // 无 PHAsset 时 builder 仍应返回空月与当前年选项结构。
         let snapshot = PendingPhotoWallBuilder.build(
             photos: [],
-            reviewedIDs: [],
-            deleteCandidateIDs: [],
-            favoriteCandidateIDs: [],
             selectedYear: 2024,
             now: Date(timeIntervalSince1970: 1_764_000_000) // ~2025-11
         )
         #expect(snapshot.months.isEmpty)
-        #expect(snapshot.totalPendingInLibrary == 0)
+        #expect(snapshot.libraryPhotoCount == 0)
         #expect(snapshot.selectedYear == 2024 || snapshot.years.isEmpty)
     }
 
@@ -3765,14 +3762,14 @@ struct PhotoDeleteTests {
         let days = polaroidBoardDays(1...3)
         let month = PendingPhotoWallMonth(
             monthStart: calendar.date(from: DateComponents(year: 2026, month: 10, day: 1))!,
-            remainingCount: 24,
+            photoCount: 24,
             daysWithPhotos: Dictionary(uniqueKeysWithValues: days.map { ($0.dayOfMonth, $0) })
         )
         let snapshot = PendingPhotoWallSnapshot(
-            years: [PendingPhotoWallYearOption(year: 2026, remainingCount: 24)],
+            years: [PendingPhotoWallYearOption(year: 2026, photoCount: 24)],
             months: [month],
             selectedYear: 2026,
-            totalPendingInLibrary: 24
+            libraryPhotoCount: 24
         )
 
         let plan = PendingPhotoWallBuilder.thumbnailPlan(for: snapshot)
