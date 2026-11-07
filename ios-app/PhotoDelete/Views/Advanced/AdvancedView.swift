@@ -2730,7 +2730,7 @@ struct AdvancedAssetPreviewView: View {
                     previewHeader
 
                     VStack(spacing: 6) {
-                        previewCard(size: cardSize)
+                        previewPager(cardSize: cardSize)
                         ReviewPhotoDetailLine(asset: selectedAsset)
                             .id(selectedAsset.localIdentifier)
                     }
@@ -2789,32 +2789,35 @@ struct AdvancedAssetPreviewView: View {
         .padding(.bottom, 12)
     }
 
-    /// 与整理页同一张圆角照片卡：渐变承托面 + 细描边，照片 fit 在卡内。
-    private func previewCard(size: CGSize) -> some View {
+    /// 翻页时整张卡片（照片 + 承托面 + 描边）一起滑动，页与页之间露出背景间隔，
+    /// 与整理页的卡片翻页一致；不做「卡片定住、照片在框内滑」。
+    @ViewBuilder
+    private func previewPager(cardSize: CGSize) -> some View {
+        if assets.count > 1 {
+            TabView(selection: $selectedAssetID) {
+                ForEach(assets, id: \.localIdentifier) { asset in
+                    previewCardPage(asset: asset, size: cardSize)
+                        .tag(asset.localIdentifier)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .frame(height: cardSize.height)
+        } else {
+            previewCardPage(asset: selectedAsset, size: cardSize)
+                .frame(height: cardSize.height)
+        }
+    }
+
+    private func previewCardPage(asset: PHAsset, size: CGSize) -> some View {
         ZStack {
             ReviewPhotoSurfaceBackground(cornerRadius: Theme.radiusMd)
 
-            if assets.count > 1 {
-                TabView(selection: $selectedAssetID) {
-                    ForEach(assets, id: \.localIdentifier) { asset in
-                        AdvancedAssetPreviewPage(
-                            asset: asset,
-                            photoLibraryManager: photoLibraryManager,
-                            viewportSize: size,
-                            isSelected: selectedAssetID == asset.localIdentifier
-                        )
-                        .tag(asset.localIdentifier)
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-            } else {
-                AdvancedAssetPreviewPage(
-                    asset: selectedAsset,
-                    photoLibraryManager: photoLibraryManager,
-                    viewportSize: size,
-                    isSelected: true
-                )
-            }
+            AdvancedAssetPreviewPage(
+                asset: asset,
+                photoLibraryManager: photoLibraryManager,
+                viewportSize: size,
+                isSelected: selectedAssetID == asset.localIdentifier
+            )
         }
         .frame(width: size.width, height: size.height)
         .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
@@ -2832,6 +2835,8 @@ struct AdvancedAssetPreviewView: View {
                     lineWidth: Theme.stroke
                 )
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
     }
 
     private var selectedAsset: PHAsset {

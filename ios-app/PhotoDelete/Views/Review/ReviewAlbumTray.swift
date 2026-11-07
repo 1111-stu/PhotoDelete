@@ -47,9 +47,6 @@ enum ReviewAlbumTrayLayout {
         railTopPadding + folderSize + folderNameSpacing + nameLineHeight + railBottomPadding
 
     static let pressScale: CGFloat = 0.97
-    static let pressOverlayOpacity: Double = 0.46
-    static let plusCircleSize: CGFloat = 30
-    static let captionFontSize: CGFloat = 9
 
     static let presentationAnimation: Animation = .spring(response: 0.34, dampingFraction: 0.88)
     static let reduceMotionAnimation: Animation = .easeOut(duration: 0.16)
@@ -244,11 +241,6 @@ struct ReviewAlbumFolderCard: View {
                         width: ReviewAlbumTrayLayout.folderSize,
                         height: ReviewAlbumTrayLayout.folderSize
                     )
-                    .overlay {
-                        if isFiling {
-                            ReviewAlbumFilingOverlay()
-                        }
-                    }
 
                 Text(album.title)
                     .font(.system(size: ReviewAlbumTrayLayout.nameFontSize, weight: .semibold))
@@ -416,41 +408,7 @@ struct AlbumFolderBackShape: Shape {
     }
 }
 
-// MARK: - Press / filing overlays
-
-struct ReviewAlbumFilingOverlay: View {
-    var body: some View {
-        ZStack {
-            RoundedRectangle(
-                cornerRadius: ReviewAlbumTrayLayout.folderCornerRadius,
-                style: .continuous
-            )
-            .fill(Color.black.opacity(ReviewAlbumTrayLayout.pressOverlayOpacity))
-
-            VStack(spacing: 3) {
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .tint(.white)
-                    .scaleEffect(0.8)
-                    .frame(
-                        width: ReviewAlbumTrayLayout.plusCircleSize,
-                        height: ReviewAlbumTrayLayout.plusCircleSize
-                    )
-
-                Text(L10n.string("Add to Album"))
-                    .font(.system(size: ReviewAlbumTrayLayout.captionFontSize, weight: .bold))
-                    .foregroundStyle(.white)
-            }
-        }
-        .clipShape(
-            RoundedRectangle(
-                cornerRadius: ReviewAlbumTrayLayout.folderCornerRadius,
-                style: .continuous
-            )
-        )
-        .allowsHitTesting(false)
-    }
-}
+// MARK: - Press feedback
 
 struct ReviewAlbumFolderButtonStyle: ButtonStyle {
     let isFiling: Bool
