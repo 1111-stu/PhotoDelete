@@ -484,8 +484,14 @@ struct PhotoDeleteToast: Identifiable {
     /// 语义标记：便于调用方表达意图，不参与配色（功能层保持单色）。
     let style: PhotoDeleteToastStyle
     var showsUndo: Bool = false
+    /// 非撤销类动作（如「查看」），复用 `photoDeleteToast(onUndo:)` 的回调。
+    var actionTitle: String? = nil
     /// 极短反馈（如静音、到头提示）可覆盖默认停留时长。
     var duration: TimeInterval? = nil
+
+    var hasAction: Bool {
+        showsUndo || actionTitle != nil
+    }
 }
 
 enum PhotoDeleteToastStyle {
@@ -506,7 +512,7 @@ enum PhotoDeleteToastTiming {
     private static let transform: Animation = .easeOut(duration: 0.30)
 
     static func visibleDuration(for toast: PhotoDeleteToast) -> TimeInterval {
-        toast.duration ?? (toast.showsUndo ? undoable : standard)
+        toast.duration ?? (toast.hasAction ? undoable : standard)
     }
 
     /// style.md §8.2：0.22s 透明度 + 0.30s 位移；Reduce Motion 只保留透明度。
@@ -564,12 +570,12 @@ struct PhotoDeleteToastView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
 
-            if toast.showsUndo, let onUndo {
+            if let actionTitle = toastActionTitle, let onUndo {
                 Divider()
                     .frame(height: 18)
                     .background(Theme.hairline)
 
-                Button(L10n.string("Undo"), action: onUndo)
+                Button(actionTitle, action: onUndo)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(Theme.primaryText)
                     .buttonStyle(.plain)
@@ -586,8 +592,15 @@ struct PhotoDeleteToastView: View {
                 )
         )
         .shadow(color: Theme.floatingShadow, radius: 10, x: 0, y: 5)
-        // Undo 必须是独立可达元素；纯信息 Toast 合并成一条朗读。
-        .accessibilityElement(children: toast.showsUndo && onUndo != nil ? .contain : .combine)
+        // 动作按钮必须是独立可达元素；纯信息 Toast 合并成一条朗读。
+        .accessibilityElement(children: toast.hasAction && onUndo != nil ? .contain : .combine)
+    }
+
+    private var toastActionTitle: String? {
+        if toast.showsUndo {
+            return L10n.string("Undo")
+        }
+        return toast.actionTitle
     }
 }
 
@@ -605,7 +618,7 @@ private struct PhotoDeleteToastPresenter: ViewModifier {
                     PhotoDeleteToastView(toast: toast, onUndo: onUndo)
                         .frame(maxWidth: maxWidth)
                         .padding(placement.padding)
-                        .allowsHitTesting(toast.showsUndo && onUndo != nil)
+                        .allowsHitTesting(toast.hasAction && onUndo != nil)
                         .transition(PhotoDeleteToastTiming.transition(reduceMotion: reduceMotion, edge: placement.edge))
                 }
             }

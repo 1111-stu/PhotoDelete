@@ -391,7 +391,7 @@ extension SubscriptionManager.SubscriptionType {
     /// 用于 UI 测试的 accessibility identifier 片段
     var accessibilitySlug: String {
         switch self {
-        case .quarterly: return "quarterly"
+        case .monthly: return "monthly"
         case .yearly: return "yearly"
         case .lifetime: return "lifetime"
         }

@@ -1,13 +1,13 @@
 # 付费页重做：订阅制 + 参考页 dark 移植
 
-> 2026-10-09。本文记录付费页从「年度订阅 + 永久买断」改为**季度 / 年度 / 买断三档**、
-> 并把 UI 从琥珀暖黑语言换成参考页冷调 dark 方案的完整决策与实现锚点。
+> 2026-10-09 立项，2026-11-07 更新为**月度 / 年度 / 买断三档**（原季度档已彻底移除）。
+> 本文记录付费页的完整决策与实现锚点，以及把 UI 从琥珀暖黑语言换成参考页冷调 dark 的方案。
 
 ## 1. 决策
 
 | 项 | 决定 |
 | --- | --- |
-| 付费模型 | 季度 + 年度 + 买断三档订阅制（旧文档「一次买断」作废） |
+| 付费模型 | 月度 + 年度 + 买断三档订阅制（旧文档「一次买断」作废） |
 | 视觉基准 | 照搬 `../eisenhower-matrix-app` 的 paywall dark 配色，**不用** PhotoDelete 的琥珀体系 |
 | 入口 | 沿用现状：设置页横幅 + 进阶页锁定底栏，都指向新的 `PaywallView` |
 | 埋点 | 不引入。`SubscriptionManager` 原有 `AnalyticsService.*` 调用全部删除（AGENTS.md 禁止未批准的分析 SDK） |
@@ -16,20 +16,20 @@
 
 ## 2. 商品
 
-沿用两个已上线 ID（品牌规范：已上线内购 ID 不随意更换），只新增季度：
+沿用两个已上线 ID（品牌规范：已上线内购 ID 不随意更换），用月度替换原季度档：
 
 | 档位 | Product ID | 周期 | 价格 |
 | --- | --- | --- | --- |
-| 季度 | `com.01mvp.photodelete.pro.quarterly` | P3M | 4.99 |
+| 月度 | `com.01mvp.photodelete.pro.monthly` | P1M | 2.99 |
 | 年度 | `com.01mvp.photodelete.pro.annual` | P1Y | 9.90，含 7 天免费试用（`P1W` × 1，`paymentMode: free`） |
 | 买断 | `com.01mvp.photodelete.supporter.stats` | NonConsumable | 29.90 |
 
 三档同处「OnePhoto Pro」订阅组（intro offer 资格按组判定，跨组不是 Apple 的语义）。
 
 **App Store Connect 待办**（代码之外，上线前必须做）：
-1. 在 OnePhoto Pro 组内创建季度订阅 `com.01mvp.photodelete.pro.quarterly`，展示名与本地 `PhotoDelete.storekit` 一致。
+1. 在 OnePhoto Pro 组内创建月度订阅 `com.01mvp.photodelete.pro.monthly`，展示名与本地 `PhotoDelete.storekit` 一致。
 2. 给年度订阅配置 7 天免费试用 introductory offer。
-3. 季度定价需产品确认（4.99 是建议值；9.90 / 4.99 时 `SAVE` 徽章算出 37%，数学成立）。
+3. 月度定价已确认为 2.99；月度 × 12 = 35.88，年度 9.90 时 `SAVE` 徽章算出 72%。
 
 ## 3. 视觉 token 对照
 
@@ -64,7 +64,7 @@ PaywallView（Views/Paywall/PaywallView.swift）
 └── PaywallFooter  .safeAreaInset(edge: .bottom)，玻璃卡 + 56pt CTA + 试用副文案 + 信任行
 ```
 
-状态派生全部在 `PaywallView` 里：`visiblePlans` 跟随 `availablePurchaseTypes`（季订用户只见年度升级档），
+状态派生全部在 `PaywallView` 里：`visiblePlans` 跟随 `availablePurchaseTypes`（月订用户只见年度升级档），
 `shouldHidePurchaseUI` 对年度 / 买断用户隐藏全部购买入口与底栏，
 `.task` 里**先 `checkSubscriptionStatus()` 再 `fetchProducts()`**（顺序反了会让已订阅用户闪一下试用 CTA）。
 
@@ -92,7 +92,7 @@ PaywallView（Views/Paywall/PaywallView.swift）
 
 这样 `SupporterCachedEntitlementPolicy`（`Services/SupporterEntitlementPolicy.swift`）与
 `PhotoDeleteTheme.hasStoredThemeAccess` 不用改就能继续工作——离线解锁与主题门禁都建立在它之上。
-`SupporterAccessKind` 新增了 `.quarterly` 分支，否则缓存的季度权益会被静默判为无效。
+`SupporterAccessKind` 新增了 `.monthly` 分支，否则缓存的月度权益会被静默判为无效。
 
 判定优先级（`resolveCurrentEntitlement`）：只认 verified → 跳过撤销/退款 → 只认已声明的 SKU →
 买断优先（在 `isUpgraded` / `expirationDate` 判定之前，所以非续订型买断不会被误判过期）→
@@ -101,8 +101,8 @@ PaywallView（Views/Paywall/PaywallView.swift）
 ## 7. 测试
 
 - `PhotoDeleteTests`：三档商品映射（含「商品 ID 只在 AppConstants 取一处」的防漂移断言）、
-  `SubscriptionType.from(productID:)` 往返、升级规则、`.storekit` 配置（季度 P3M / 年度 P1Y + 7 天 free intro / 三档三语言）、
-  缓存策略（含季度）、以及 `PaywallPricing` 的文案分支（试用 CTA 只在「年度 + 有资格」出现、缺产品时的降级、`%%` 转义）。
+  `SubscriptionType.from(productID:)` 往返、升级规则、`.storekit` 配置（月度 P1M / 年度 P1Y + 7 天 free intro / 三档三语言）、
+  缓存策略（含月度）、以及 `PaywallPricing` 的文案分支（试用 CTA 只在「年度 + 有资格」出现、缺产品时的降级、`%%` 转义）。
   `Product` 没有公开构造器，价格与节省百分比分支无法单测——那里靠模拟器人工验收。
 - `PhotoDeleteUITests`：三档套餐卡（用 `paywall-plan-*` identifier）+ `paywall-unlock-cta` + legal link，
   以及已购态不出现购买入口。启动钩子从 `PHOTO_DELETE_UI_TEST_SUPPORTER_TRIAL_ACTIVE` 换成
@@ -113,5 +113,5 @@ PaywallView（Views/Paywall/PaywallView.swift）
 本地 `PhotoDelete.storekit` 已挂在 scheme 的 Run → Options → StoreKit Configuration 上，
 模拟器里可直接跑真实购买流程。要核对的点：点阵是纹理而非灰雾、选中卡比未选中卡更亮、
 渐变描边没穿过发灰区、反色白 CTA 与玻璃底栏的对比度、三档价格与月均价随选中切换、
-年度的「试用 7 天」与「试用期间可随时取消 · 之后 ¥9.90 / 年」、
+年度的「试用 7 天」与「试用期内可随时取消 · 之后 ¥9.90 / 年 · 自动续订」、
 购买成功后 sheet 关闭且设置页主题选择器可用（证明 UserDefaults 键写对了）。

@@ -4,43 +4,18 @@ import UIKit
 
 struct ReviewPhotoDetailLine: View {
     let asset: PHAsset
-    @EnvironmentObject private var dataManager: DataManager
-    @State private var sizeText: String?
 
+
+    /// 只展示日期。照片大小要异步读原图数据，切换照片时必然晚一拍出现，
+    /// 补上去的那一下会把居中整行撑开、看起来在左右跳，所以干脆不展示。
     var body: some View {
-        let dateText = PhotoAssetMetadataFormatter.shortCaptureDate(for: asset.creationDate)
-        Text(sizeText.map { "\(dateText) · \($0)" } ?? dateText)
+        Text(PhotoAssetMetadataFormatter.shortCaptureDate(for: asset.creationDate))
             .font(.system(size: 11, weight: .regular))
+            .monospacedDigit()
             .foregroundColor(Theme.tertiaryText)
             .lineLimit(1)
             .minimumScaleFactor(0.8)
             .frame(maxWidth: .infinity)
-            .task(id: asset.localIdentifier) {
-                sizeText = nil
-                if let cached = dataManager.cachedAssetFileSizeEstimate(for: asset), cached.isReliable {
-                    sizeText = CleanupStatsFormatter.fileSize(cached.sizeMB)
-                    return
-                }
-                do {
-                    let state = try await AssetSizeLoader.shared.estimate(for: asset, dataManager: dataManager)
-                    sizeText = Self.displayText(for: state)
-                } catch is CancellationError {
-                    return
-                } catch {
-                    sizeText = nil
-                }
-            }
-    }
-
-    private static func displayText(for state: AssetQuerySizeState) -> String? {
-        switch state {
-        case .knownMB(let value):
-            return CleanupStatsFormatter.fileSize(value)
-        case .iCloud:
-            return "iCloud"
-        case .pending, .loading, .unavailable:
-            return nil
-        }
     }
 }
 

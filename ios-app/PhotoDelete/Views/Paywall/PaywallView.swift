@@ -48,13 +48,13 @@ private extension PaywallView {
 
     var pricing: PaywallPricing {
         PaywallPricing(
-            quarterly: subscriptionManager.quarterlyProduct,
+            monthly: subscriptionManager.monthlyProduct,
             yearly: subscriptionManager.yearlyProduct,
             lifetime: subscriptionManager.lifetimeProduct
         )
     }
 
-    /// 只展示当前权益下还能买的套餐（如年订用户不再看到季订）
+    /// 只展示当前权益下还能买的套餐（如年订用户不再看到月订）
     var visiblePlans: [PaywallPlan] {
         let availableTypes = Set(subscriptionManager.availablePurchaseTypes)
         return PaywallPlan.all.filter { availableTypes.contains($0.type) }
@@ -65,7 +65,7 @@ private extension PaywallView {
         visiblePlans.first { $0.type == selectedPlanType } ?? visiblePlans.first
     }
 
-    /// 年订与买断用户已到顶，不再展示任何购买入口；季订用户仍可升级
+    /// 年订与买断用户已到顶，不再展示任何购买入口；月订用户仍可升级
     var shouldHidePurchaseUI: Bool {
         guard let currentType = subscriptionManager.currentSubscriptionType else {
             return false
@@ -74,7 +74,7 @@ private extension PaywallView {
         switch currentType {
         case .yearly, .lifetime:
             return true
-        case .quarterly:
+        case .monthly:
             return false
         }
     }
@@ -163,7 +163,7 @@ private extension PaywallView {
         let title = isStoreReady
             ? pricing.ctaTitle(for: type, isTrialEligible: isTrialEligible, trialDayCount: subscriptionManager.trialDayCount)
             : ""
-        let subline = isStoreReady ? pricing.trialSubline(for: type, isTrialEligible: isTrialEligible) : nil
+        let subline = isStoreReady ? pricing.ctaSubline(for: type, isTrialEligible: isTrialEligible) : nil
 
         return PaywallFooter.CTA(
             title: title,

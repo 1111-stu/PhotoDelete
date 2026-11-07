@@ -1036,7 +1036,7 @@ private struct AdvancedPaywallBar: View {
 
     private var subtitle: String {
         guard let yearlyPriceText else {
-            return L10n.string("Quarterly or annual subscription, or a one-time Lifetime purchase.")
+            return L10n.string("Monthly or annual subscription, or a one-time Lifetime purchase.")
         }
 
         return String(
@@ -1212,6 +1212,7 @@ private struct AdvancedFilteredAssetSnapshot {
 
 private struct AdvancedAssetListView: View {
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject private var router: MainTabRouter
     let mode: AdvancedAssetListMode
 
     @State private var assets: [PHAsset] = []
@@ -1221,7 +1222,7 @@ private struct AdvancedAssetListView: View {
     @State private var selectedAssetIDs: Set<String> = []
     @State private var selectedFilter: AdvancedCleanupFilter = .all
     @State private var showingICloudVideoInfo = false
-    @State private var showBatchConfirm = false
+    @State private var toast: PhotoDeleteToast?
     @State private var previewAsset: AdvancedPreviewAsset?
     @State private var sizeLoadingTask: Task<Void, Never>?
     @State private var visibleAssetLimit = 40
@@ -1288,8 +1289,11 @@ private struct AdvancedAssetListView: View {
     }
 
     private func filteredAssetCandidates() -> [PHAsset] {
-        guard selectedFilter != .all else { return orderedAssets }
-        return orderedAssets.filter { matches(asset: $0, filter: selectedFilter) }
+        // 已加入垃圾桶的照片不再出现在列表中，避免重复加入与选中歧义。
+        let queuedIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
+        let availableAssets = orderedAssets.filter { !queuedIDs.contains($0.localIdentifier) }
+        guard selectedFilter != .all else { return availableAssets }
+        return availableAssets.filter { matches(asset: $0, filter: selectedFilter) }
     }
 
     var body: some View {
@@ -1379,12 +1383,21 @@ private struct AdvancedAssetListView: View {
             }
         }
         .advancedDetailNavigation(title: mode.title)
-        .fullScreenCover(isPresented: $showBatchConfirm, onDismiss: {
-            syncSelectionWithPendingDeleteCandidates()
-            reloadAssets()
-        }) {
-            BatchConfirmView()
-                .environmentObject(dataManager)
+        .toolbar {
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    trashToolbarButton
+                }
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    trashToolbarButton
+                }
+            }
+        }
+        .photoDeleteHidesMainTabBar()
+        .photoDeleteToast($toast, placement: .top(inset: 8)) {
+            openTrash()
         }
         .sheet(item: $previewAsset) { item in
             AdvancedAssetPreviewView(
@@ -1805,17 +1818,43 @@ private struct AdvancedAssetListView: View {
         }
     }
 
+    private var trashToolbarButton: some View {
+        let count = dataManager.deleteCandidates.count
+        return PhotoDeleteCircleIconButton(
+            systemName: "archivebox",
+            accessibilityLabel: L10n.string("Trash"),
+            accessibilityIdentifier: "advanced-trash-button"
+        ) {
+            openTrash()
+        } badge: {
+            if count > 0 {
+                PhotoDeleteCountBadge(count: count)
+            }
+        }
+        .accessibilityValue(L10n.string("\(count) to delete"))
+    }
+
+    /// 只收集，不跳转确认页：批量页同样落到统一的垃圾桶。
     private func addSelectedAssetsToDeleteCandidates() {
         let assets = selectedAssets
         guard !assets.isEmpty else { return }
         dataManager.addToDeleteCandidates(assets)
+        selectedAssetIDs.removeAll()
         HapticManager.notify(.success)
-        showBatchConfirm = true
+        toast = PhotoDeleteToast(
+            message: String(
+                format: L10n.string("Added %lld items to Trash"),
+                Int64(assets.count)
+            ),
+            icon: "archivebox",
+            style: .neutral,
+            actionTitle: L10n.string("View")
+        )
     }
 
-    private func syncSelectionWithPendingDeleteCandidates() {
-        let pendingDeleteIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
-        selectedAssetIDs = selectedAssetIDs.filter { pendingDeleteIDs.contains($0) }
+    private func openTrash() {
+        toast = nil
+        router.push(.trashBin)
     }
 
     private func showICloudVideoInfo() {
@@ -1842,14 +1881,14 @@ private struct AdvancedSimilarGroupSnapshot {
 
 private struct AdvancedSimilarPhotoGroupsView: View {
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject private var router: MainTabRouter
     @State private var groups: [AdvancedSimilarPhotoGroup] = []
     @State private var isLoading = true
     @State private var loadGeneration = 0
     @State private var selectedAssetIDs: Set<String> = []
     @State private var filterQuery = SimilarPhotosFilterQuery.default
     @State private var showsFilters = false
-    @State private var showBatchConfirm = false
-    @State private var previewAsset: AdvancedPreviewAsset?
+    @State private var toast: PhotoDeleteToast?
     @State private var visibleGroupLimit = 24
 
     private let groupLimitStep = 24
@@ -1858,14 +1897,37 @@ private struct AdvancedSimilarPhotoGroupsView: View {
         makeGroupSnapshot().groups.flatMap(\.assets).filter { selectedAssetIDs.contains($0.localIdentifier) }
     }
 
+    /// 已收进垃圾桶的照片从分组里移除；剩余不足 2 张的分组视为已处理完。
     private func makeGroupSnapshot() -> AdvancedSimilarGroupSnapshot {
-        let filteredGroups = groups.filter { matches(group: $0, query: filterQuery) }
+        let queuedIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
+        let availableGroups = groups.compactMap { group -> AdvancedSimilarPhotoGroup? in
+            guard group.assets.contains(where: { queuedIDs.contains($0.localIdentifier) }) else {
+                return group
+            }
+            let remainingAssets = group.assets.filter { !queuedIDs.contains($0.localIdentifier) }
+            guard remainingAssets.count >= 2 else { return nil }
+            let keptRatio = Double(remainingAssets.count) / Double(max(group.assets.count, 1))
+            return AdvancedSimilarPhotoGroup(
+                assets: remainingAssets,
+                estimatedSpaceMB: group.estimatedSpaceMB * keptRatio
+            )
+        }
+        let filteredGroups = availableGroups.filter { matches(group: $0, query: filterQuery) }
         return AdvancedSimilarGroupSnapshot(
             groups: filteredGroups,
             visibleGroups: VisibleListPagination.visibleItems(filteredGroups, limit: visibleGroupLimit),
             suggestedDeleteCount: filteredGroups.reduce(0) { $0 + $1.suggestedDeleteCount },
             hasMoreGroups: VisibleListPagination.hasMore(totalCount: filteredGroups.count, limit: visibleGroupLimit)
         )
+    }
+
+    /// 所有分组都已收进垃圾桶，用于区分「筛选无结果」和「已经处理完」。
+    private var allGroupsResolved: Bool {
+        guard !groups.isEmpty else { return false }
+        let queuedIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
+        return !groups.contains { group in
+            group.assets.filter { !queuedIDs.contains($0.localIdentifier) }.count >= 2
+        }
     }
 
     var body: some View {
@@ -1896,12 +1958,18 @@ private struct AdvancedSimilarPhotoGroupsView: View {
         .toolbar {
             if #available(iOS 26.0, *) {
                 ToolbarItem(placement: .topBarTrailing) {
-                    similarFilterButton
+                    HStack(spacing: 8) {
+                        similarFilterButton
+                        trashToolbarButton
+                    }
                 }
                 .sharedBackgroundVisibility(.hidden)
             } else {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    similarFilterButton
+                    HStack(spacing: 8) {
+                        similarFilterButton
+                        trashToolbarButton
+                    }
                 }
             }
         }
@@ -1910,20 +1978,8 @@ private struct AdvancedSimilarPhotoGroupsView: View {
         .sheet(isPresented: $showsFilters) {
             SimilarPhotosFilterSheet(query: $filterQuery)
         }
-        .fullScreenCover(isPresented: $showBatchConfirm, onDismiss: {
-            syncSelectionWithPendingDeleteCandidates()
-            Task { await reloadGroups() }
-        }) {
-            BatchConfirmView()
-                .environmentObject(dataManager)
-        }
-        .sheet(item: $previewAsset) { item in
-            AdvancedAssetPreviewView(
-                asset: item.asset,
-                photoLibraryManager: dataManager.photoLibraryManager,
-                assets: item.assets,
-                selectedAssetIDs: $selectedAssetIDs
-            )
+        .photoDeleteToast($toast, placement: .top(inset: 8)) {
+            openTrash()
         }
         .task(id: filterQuery.match) {
             await reloadGroups()
@@ -1975,11 +2031,19 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                 subtitle: L10n.string("Photos taken close together are grouped so you can review each group.")
             )
         } else if snapshot.groups.isEmpty {
-            AdvancedEmptyState(
-                icon: AdvancedCleanupKind.similarPhotos.icon,
-                title: L10n.string("No Results for This Filter"),
-                subtitle: L10n.string("Try adjusting filters, or check again later.")
-            )
+            if allGroupsResolved {
+                AdvancedEmptyState(
+                    icon: "archivebox",
+                    title: L10n.string("All Similar Photos Handled"),
+                    subtitle: L10n.string("Photos you added are in Trash. Clean them up whenever you're ready.")
+                )
+            } else {
+                AdvancedEmptyState(
+                    icon: AdvancedCleanupKind.similarPhotos.icon,
+                    title: L10n.string("No Results for This Filter"),
+                    subtitle: L10n.string("Try adjusting filters, or check again later.")
+                )
+            }
         } else {
             LazyVStack(spacing: 10) {
                 ForEach(snapshot.visibleGroups) { group in
@@ -1989,7 +2053,7 @@ private struct AdvancedSimilarPhotoGroupsView: View {
                         selectedAssetIDs: selectedAssetIDs,
                         onSelectRecommended: { selectRecommended(in: group) },
                         onToggleAsset: toggleSelection,
-                        onPreview: { previewAsset = AdvancedPreviewAsset(asset: $0, assets: group.assets) }
+                        onOpenReview: { asset in openGroupReview(group, startingAt: asset) }
                     )
                     .onAppear {
                         showMoreGroupsIfNeeded(currentGroup: group)
@@ -2036,17 +2100,57 @@ private struct AdvancedSimilarPhotoGroupsView: View {
         }
     }
 
+    private var trashToolbarButton: some View {
+        let count = dataManager.deleteCandidates.count
+        return PhotoDeleteCircleIconButton(
+            systemName: "archivebox",
+            accessibilityLabel: L10n.string("Trash"),
+            accessibilityIdentifier: "similar-trash-button"
+        ) {
+            openTrash()
+        } badge: {
+            if count > 0 {
+                PhotoDeleteCountBadge(count: count)
+            }
+        }
+        .accessibilityValue(L10n.string("\(count) to delete"))
+    }
+
+    /// 只收集，不跳转确认页：与滑动整理的「加入垃圾桶」保持同一心智。
     private func addSelectedAssetsToDeleteCandidates() {
         let assets = selectedAssets
         guard !assets.isEmpty else { return }
         dataManager.addToDeleteCandidates(assets)
+        selectedAssetIDs.removeAll()
         HapticManager.notify(.success)
-        showBatchConfirm = true
+        toast = PhotoDeleteToast(
+            message: String(
+                format: L10n.string("Added %lld items to Trash"),
+                Int64(assets.count)
+            ),
+            icon: "archivebox",
+            style: .neutral,
+            actionTitle: L10n.string("View")
+        )
     }
 
-    private func syncSelectionWithPendingDeleteCandidates() {
-        let pendingDeleteIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
-        selectedAssetIDs = selectedAssetIDs.filter { pendingDeleteIDs.contains($0) }
+    private func openTrash() {
+        toast = nil
+        router.push(.trashBin)
+    }
+
+    /// 组内逐张整理：复用统一整理页，上滑入垃圾桶、左滑保留。
+    /// 点哪张就把哪张排在第一位，进入后直接看到它。
+    private func openGroupReview(_ group: AdvancedSimilarPhotoGroup, startingAt asset: PHAsset) {
+        let orderedIDs = [asset.localIdentifier]
+            + group.assets.map(\.localIdentifier).filter { $0 != asset.localIdentifier }
+        HapticManager.impact(.light)
+        router.pushExplicitReview(
+            scope: ExplicitAssetReviewScope(
+                orderedAssetIDs: orderedIDs,
+                reviewedPolicy: .includeAll
+            )
+        )
     }
 
     private func reloadGroups() async {
@@ -2140,7 +2244,8 @@ private struct AdvancedSimilarPhotoGroupCard: View {
     let selectedAssetIDs: Set<String>
     let onSelectRecommended: () -> Void
     let onToggleAsset: (PHAsset) -> Void
-    let onPreview: (PHAsset) -> Void
+    /// 点缩略图进入组内整理页，而不是弹预览；预览与决策合并成同一个动作。
+    let onOpenReview: (PHAsset) -> Void
 
     @State private var visibleAssetLimit = 24
 
@@ -2189,7 +2294,7 @@ private struct AdvancedSimilarPhotoGroupCard: View {
                             isSelected: selectedAssetIDs.contains(asset.localIdentifier),
                             showsRecommendedBadge: asset.localIdentifier == group.assets.first?.localIdentifier,
                             onToggleSelection: { onToggleAsset(asset) },
-                            onPreview: { onPreview(asset) }
+                            onOpenReview: { onOpenReview(asset) }
                         )
                     }
 
@@ -2470,21 +2575,15 @@ private struct AdvancedSelectableThumbnail: View {
     let isSelected: Bool
     let showsRecommendedBadge: Bool
     let onToggleSelection: () -> Void
-    let onPreview: () -> Void
+    let onOpenReview: () -> Void
 
     private var previewAccessibilityLabel: String {
-        if asset.mediaType == .video {
-            return L10n.string("Video Preview")
-        }
-        if photoLibraryManager.isLivePhoto(asset) {
-            return L10n.string("Live Photos")
-        }
-        return L10n.string("Photo Preview")
+        L10n.string("Open in Organize")
     }
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            Button(action: onPreview) {
+            Button(action: onOpenReview) {
                 AdvancedAssetThumbnail(
                     asset: asset,
                     photoLibraryManager: photoLibraryManager,

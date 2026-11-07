@@ -4,45 +4,48 @@
     "" : {
 
     },
+    " · %@" : {
+
+    },
     "·" : {
 
     },
-    "/ quarter" : {
+    "/ month" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/ ربع سنة"
+            "value" : "/ شهر"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/ Quartal"
+            "value" : "/ Monat"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/ quarter"
+            "value" : "/ month"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/ 四半期"
+            "value" : "/ 月"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/ 季度"
+            "value" : "/ 月"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/ 季"
+            "value" : "/ 月"
           }
         }
       }
@@ -5678,6 +5681,46 @@
         }
       }
     },
+    "Added %lld items to Trash" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تمت إضافة %lld عناصر إلى سلة المهملات"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Elemente zum Papierkorb hinzugefügt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Added %lld items to Trash"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld項目をゴミ箱に追加しました"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已加入垃圾桶 %lld 项"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已加入垃圾桶 %lld 項"
+          }
+        }
+      }
+    },
     "Added to %@" : {
       "localizations" : {
         "ar" : {
@@ -7024,6 +7067,46 @@
         }
       }
     },
+    "All Similar Photos Handled" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تمت معالجة جميع الصور المتشابهة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle ähnlichen Fotos erledigt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Similar Photos Handled"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "類似写真はすべて処理済み"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相似照片已处理完"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相似照片已處理完"
+          }
+        }
+      }
+    },
     "Allow photo library access to start organizing photos" : {
       "localizations" : {
         "ar" : {
@@ -8287,6 +8370,86 @@
         }
       }
     },
+    "Auto-renews monthly · Cancel anytime" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يتجدد تلقائيًا كل شهر · يمكن الإلغاء في أي وقت"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlängert sich monatlich automatisch · Jederzeit kündbar"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto-renews monthly · Cancel anytime"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "毎月自動更新・いつでもキャンセル"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月自动续订，可随时取消"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月自動續訂，可隨時取消"
+          }
+        }
+      }
+    },
+    "Auto-renews yearly · Cancel anytime" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يتجدد تلقائيًا كل عام · يمكن الإلغاء في أي وقت"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlängert sich jährlich automatisch · Jederzeit kündbar"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto-renews yearly · Cancel anytime"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "毎年自動更新・いつでもキャンセル"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按年自动续订，可随时取消"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按年自動續訂，可隨時取消"
+          }
+        }
+      }
+    },
     "Automatically follows iPhone appearance" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -8853,6 +9016,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "適合聊天備份和低重要性影片，空間優先。"
+          }
+        }
+      }
+    },
+    "Billed monthly" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يُحصَّل شهريًا"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatliche Abrechnung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Billed monthly"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "毎月請求"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月计费"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月計費"
           }
         }
       }
@@ -10173,42 +10376,82 @@
         }
       }
     },
-    "Cancel anytime during the trial · Then %@" : {
+    "Cancel anytime" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "يمكنك الإلغاء في أي وقت خلال التجربة · ثم %@"
+            "value" : "يمكن الإلغاء في أي وقت"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Während des Testzeitraums jederzeit kündbar · Danach %@"
+            "value" : "Jederzeit kündbar"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cancel anytime during the trial · Then %@"
+            "value" : "Cancel anytime"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "トライアル中はいつでも解約できます · その後 %@"
+            "value" : "いつでもキャンセル"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "试用期间可随时取消 · 之后 %@"
+            "value" : "随时取消"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "試用期間可隨時取消 · 之後 %@"
+            "value" : "隨時取消"
+          }
+        }
+      }
+    },
+    "Cancel anytime during the trial · Then %@ · Auto-renews" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يمكن الإلغاء في أي وقت خلال الفترة التجريبية · ثم %@ · يتجدد تلقائيًا"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jederzeit während der Testphase kündbar · Danach %@ · Automatische Verlängerung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel anytime during the trial · Then %@ · Auto-renews"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "トライアル期間はいつでもキャンセル · その後 %@ · 自動更新"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "试用期内可随时取消 · 之后 %@ · 自动续订"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "試用期內可隨時取消 · 之後 %@ · 自動續訂"
           }
         }
       }
@@ -10674,6 +10917,47 @@
         }
       }
     },
+    "Choose a monthly or annual subscription, or a one-time Lifetime Pro purchase." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختر اشتراكًا شهريًا أو سنويًا، أو شراء Pro الدائم لمرة واحدة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle ein monatliches oder jährliches Abo oder einen einmaligen Lifetime-Pro-Kauf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a monthly or annual subscription, or a one-time Lifetime Pro purchase."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月額・年間サブスクリプション、または買い切りの永久 Pro から選択できます。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择月度或年度订阅，或一次性购买永久 Pro。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇月度或年度訂閱，或一次性購買永久 Pro。"
+          }
+        }
+      }
+    },
     "Choose a place on the map" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -10752,47 +11036,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "點選地圖上的地點後繼續整理。"
-          }
-        }
-      }
-    },
-    "Choose a quarterly or annual subscription, or a one-time Lifetime Pro purchase." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "اختر اشتراكًا ربع سنويًا أو سنويًا، أو شراء Pro الدائم لمرة واحدة."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wähle ein vierteljährliches oder jährliches Abo oder einen einmaligen Lifetime-Pro-Kauf."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose a quarterly or annual subscription, or a one-time Lifetime Pro purchase."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "四半期・年間サブスクリプション、または買い切りの永久 Pro から選択できます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "选择季度或年度订阅，或一次性购买永久 Pro。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選擇季度或年度訂閱，或一次性購買永久 Pro。"
           }
         }
       }
@@ -20151,46 +20394,6 @@
         }
       }
     },
-    "Flexible subscription for short-term use" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "اشتراك مرن للاستخدام قصير المدى"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flexibles Abo für kurze Nutzung"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flexible subscription for short-term use"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "短期利用に便利なサブスクリプション"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "短期使用的灵活订阅"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "短期使用的彈性訂閱"
-          }
-        }
-      }
-    },
     "Focus across Apple devices" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -26914,6 +27117,86 @@
         }
       }
     },
+    "Monthly" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "شهري"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatlich"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月額"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度"
+          }
+        }
+      }
+    },
+    "Monthly or annual subscription, or a one-time Lifetime purchase." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اشتراك شهري أو سنوي، أو شراء دائم لمرة واحدة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatliches oder jährliches Abo oder einmaliger Kauf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly or annual subscription, or a one-time Lifetime purchase."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月額・年間サブスクリプション、または買い切り。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度或年度订阅，或一次性买断。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度或年度訂閱，或一次性買斷。"
+          }
+        }
+      }
+    },
     "Monthly photo cleanup progress" : {
       "localizations" : {
         "ar" : {
@@ -26950,6 +27233,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本月照片清理進度"
+          }
+        }
+      }
+    },
+    "Monthly Pro Active" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro الشهري نشط"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatliches Pro aktiv"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly Pro Active"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月額 Pro 有効"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度 Pro 已激活"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度 Pro 已啟用"
           }
         }
       }
@@ -32016,6 +32339,46 @@
         }
       }
     },
+    "Open in Organize" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فتح في التنظيم"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Organisieren öffnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in Organize"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "整理画面で開く"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "进入整理"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "進入整理"
+          }
+        }
+      }
+    },
     "Open the Albums tab to manage albums" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -35136,46 +35499,6 @@
         }
       }
     },
-    "Photos appear here after you swipe up to add them to the deletion queue." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تظهر الصور هنا بعد السحب لأعلى لإضافتها إلى قائمة الحذف."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fotos erscheinen hier, nachdem du sie nach oben wischst und zur Löschwarteschlange hinzufügst."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Photos appear here after you swipe up to add them to the deletion queue."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上にスワイプして削除キューに追加すると、ここに表示されます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上滑照片加入待删除队列后，会显示在这里。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上滑照片加入待刪除佇列後，會顯示在這裡。"
-          }
-        }
-      }
-    },
     "Photos are not uploaded" : {
       "localizations" : {
         "ar" : {
@@ -35463,6 +35786,46 @@
         }
       }
     },
+    "Photos you added are in Trash. Clean them up whenever you're ready." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الصور التي أضفتها موجودة في سلة المهملات. نظّفها متى شئت."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die hinzugefügten Fotos sind im Papierkorb. Räume sie auf, wenn du bereit bist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos you added are in Trash. Clean them up whenever you're ready."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "追加した写真はゴミ箱にあります。準備ができたらまとめて整理できます。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已加入的照片都在垃圾桶，随时可以统一清理。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已加入的照片都在垃圾桶，隨時可以統一清理。"
+          }
+        }
+      }
+    },
     "Photos you can organize by place appear after loading." : {
       "localizations" : {
         "ar" : {
@@ -35521,6 +35884,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "收藏的照片會顯示在這裡。"
+          }
+        }
+      }
+    },
+    "Photos you mark for deletion are collected here. Clean them up whenever you're ready." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تُجمع هنا الصور التي تحددها للحذف. نظّفها متى شئت."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zum Löschen markierte Fotos werden hier gesammelt. Räume sie auf, wenn du bereit bist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos you mark for deletion are collected here. Clean them up whenever you're ready."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除する写真はここにまとめられます。準備ができたらまとめて整理できます。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标记删除的照片会先收进这里，随时可以统一清理。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "標記刪除的照片會先收進這裡，隨時可以統一清理。"
           }
         }
       }
@@ -37681,126 +38084,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "品質"
-          }
-        }
-      }
-    },
-    "Quarterly" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ربع سنوي"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vierteljährlich"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quarterly"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "四半期"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "季度"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "季度"
-          }
-        }
-      }
-    },
-    "Quarterly or annual subscription, or a one-time Lifetime purchase." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "اشتراك ربع سنوي أو سنوي، أو شراء دائم لمرة واحدة."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vierteljährliches oder jährliches Abo oder einmaliger Kauf."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quarterly or annual subscription, or a one-time Lifetime purchase."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "四半期・年間サブスクリプション、または買い切り。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "季度或年度订阅，或一次性买断。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "季度或年度訂閱，或一次性買斷。"
-          }
-        }
-      }
-    },
-    "Quarterly Pro Active" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro الربع سنوي نشط"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vierteljährliches Pro aktiv"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quarterly Pro Active"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "四半期 Pro 有効"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "季度 Pro 已激活"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "季度 Pro 已啟用"
           }
         }
       }
@@ -40924,42 +41207,42 @@
         }
       }
     },
-    "Save %lld%% vs quarterly" : {
+    "Save %lld%% vs monthly" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "وفّر %lld%% مقارنة بالاشتراك الربع سنوي"
+            "value" : "وفّر %lld%% مقارنة بالاشتراك الشهري"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld%% günstiger als vierteljährlich"
+            "value" : "%lld%% günstiger als monatlich"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Save %lld%% vs quarterly"
+            "value" : "Save %lld%% vs monthly"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "四半期より %lld%% お得"
+            "value" : "月額より %lld%% お得"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "比季度订阅省 %lld%%"
+            "value" : "比月度订阅省 %lld%%"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "比季度訂閱省 %lld%%"
+            "value" : "比月度訂閱省 %lld%%"
           }
         }
       }
@@ -54024,6 +54307,46 @@
         }
       }
     },
+    "View" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عرض"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzeigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看"
+          }
+        }
+      }
+    },
     "View 01MVP Guides" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -54158,46 +54481,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "查看全部 · %lld"
-          }
-        }
-      }
-    },
-    "View Annual and Lifetime Pro plans" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "عرض خطط Pro السنوية والدائمة"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro jährlich und dauerhaft anzeigen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View Annual and Lifetime Pro plans"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "年間・永久 Pro プランを見る"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "查看年度与永久 Pro 方案"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看年度與永久 Pro 方案"
           }
         }
       }
@@ -54485,6 +54768,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "按月份查看整理成果和本機記錄"
+          }
+        }
+      }
+    },
+    "View Monthly, Annual, and Lifetime Pro plans" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عرض خطط Pro الشهرية والسنوية والدائمة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro monatlich, jährlich und dauerhaft anzeigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Monthly, Annual, and Lifetime Pro plans"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月額・年間・永久 Pro プランを見る"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看月度、年度与永久 Pro 方案"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看月度、年度與永久 Pro 方案"
           }
         }
       }

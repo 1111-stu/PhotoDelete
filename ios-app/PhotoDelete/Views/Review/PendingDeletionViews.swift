@@ -5,8 +5,9 @@ import Photos
 struct PendingDeletionView: View {
     @EnvironmentObject private var dataManager: DataManager
     @Environment(\.dismiss) private var dismiss
-    /// 队列管理页：默认不选，避免误触「移出」清空整队；确认删除仍走 BatchConfirm 默认全选。
+    /// 与首页垃圾桶一致：默认不选，先点选 / 全选再移出或删除。
     @State private var selectedIDs: Set<String> = []
+    @State private var showingBatchConfirm = false
 
     private var assets: [PHAsset] {
         dataManager.deleteCandidates.sorted { $0.creationDate ?? .distantPast > $1.creationDate ?? .distantPast }
@@ -18,21 +19,26 @@ struct PendingDeletionView: View {
             assets: assets,
             selectedIDs: $selectedIDs,
             emptyTitle: L10n.string("Trash Is Empty"),
-            emptyMessage: L10n.string("Photos appear here after you swipe up to add them to the deletion queue."),
+            emptyMessage: L10n.string("Photos you mark for deletion are collected here. Clean them up whenever you're ready."),
             onRemove: { asset in
                 dataManager.removeFromDeleteCandidates(asset)
                 selectedIDs.remove(asset.localIdentifier)
             },
-            onPrimaryAction: { dismiss() },
+            onPrimaryAction: { showingBatchConfirm = true },
             secondaryTitle: L10n.string("Remove selected from deletion"),
-            primaryTitle: L10n.string("Keep Organizing"),
+            primaryTitle: L10n.string("Delete Selected"),
             secondarySystemImage: "arrow.uturn.backward",
-            primarySystemImage: "arrow.right",
-            primaryRequiresSelection: false,
-            showsModalClose: true
+            primarySystemImage: "trash.fill",
+            primaryRequiresSelection: true,
+            showsModalClose: true,
+            primaryIsDestructive: true
         )
         .onChange(of: assets.map(\.localIdentifier)) { _ in
             selectedIDs.formIntersection(Set(assets.map(\.localIdentifier)))
+        }
+        .fullScreenCover(isPresented: $showingBatchConfirm) {
+            BatchConfirmView(initialDeleteIDs: selectedIDs, deleteOnly: true)
+                .environmentObject(dataManager)
         }
     }
 }
@@ -55,7 +61,7 @@ struct TrashBinView: View {
             assets: assets,
             selectedIDs: $selectedIDs,
             emptyTitle: L10n.string("Trash Is Empty"),
-            emptyMessage: L10n.string("Photos appear here after you swipe up to add them to the deletion queue."),
+            emptyMessage: L10n.string("Photos you mark for deletion are collected here. Clean them up whenever you're ready."),
             onRemove: { asset in
                 dataManager.removeFromDeleteCandidates(asset)
                 selectedIDs.remove(asset.localIdentifier)

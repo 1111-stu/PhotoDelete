@@ -587,7 +587,7 @@ struct PhotoDeleteTests {
     @Test func subscriptionTypesMapToTheConfiguredStoreKitProducts() async throws {
         let types = SubscriptionManager.SubscriptionType.allCases
 
-        #expect(SubscriptionManager.SubscriptionType.quarterly.productID == "com.01mvp.photodelete.pro.quarterly")
+        #expect(SubscriptionManager.SubscriptionType.monthly.productID == "com.01mvp.photodelete.pro.monthly")
         #expect(SubscriptionManager.SubscriptionType.yearly.productID == "com.01mvp.photodelete.pro.annual")
         #expect(SubscriptionManager.SubscriptionType.lifetime.productID == "com.01mvp.photodelete.supporter.stats")
         // 商品 ID 只从 AppConstants 取，且三档互不相同——防止字面量在多处漂移
@@ -606,14 +606,14 @@ struct PhotoDeleteTests {
     }
 
     @MainActor
-    @Test func onlyQuarterlyCanUpgradeToAYearlyPlan() async throws {
+    @Test func onlyMonthlyCanUpgradeToAYearlyPlan() async throws {
         typealias Type = SubscriptionManager.SubscriptionType
 
-        #expect(Type.quarterly.canUpgrade(to: .yearly))
-        #expect(!Type.quarterly.canUpgrade(to: .lifetime))
-        #expect(!Type.yearly.canUpgrade(to: .quarterly))
+        #expect(Type.monthly.canUpgrade(to: .yearly))
+        #expect(!Type.monthly.canUpgrade(to: .lifetime))
+        #expect(!Type.yearly.canUpgrade(to: .monthly))
         #expect(!Type.yearly.canUpgrade(to: .lifetime))
-        #expect(!Type.lifetime.canUpgrade(to: .quarterly))
+        #expect(!Type.lifetime.canUpgrade(to: .monthly))
         #expect(!Type.lifetime.canUpgrade(to: .yearly))
     }
 
@@ -621,12 +621,12 @@ struct PhotoDeleteTests {
     @Test func subscriptionTypeFlagsLifetimeAsTheOnlyNonSubscription() async throws {
         typealias Type = SubscriptionManager.SubscriptionType
 
-        #expect(Type.quarterly.isSubscription)
+        #expect(Type.monthly.isSubscription)
         #expect(Type.yearly.isSubscription)
         #expect(!Type.lifetime.isSubscription)
     }
 
-    @Test func storeKitConfigurationContainsQuarterlyAnnualAndLifetimePlans() async throws {
+    @Test func storeKitConfigurationContainsMonthlyAnnualAndLifetimePlans() async throws {
         let storeKitURL = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
@@ -646,12 +646,12 @@ struct PhotoDeleteTests {
         })
         let subscriptions = try #require(subscriptionGroup["subscriptions"] as? [[String: Any]])
         let annual = try #require(subscriptions.first { $0["productID"] as? String == AppConstants.supporterAnnualProductID })
-        let quarterly = try #require(subscriptions.first { $0["productID"] as? String == AppConstants.supporterQuarterlyProductID })
+        let monthly = try #require(subscriptions.first { $0["productID"] as? String == AppConstants.supporterMonthlyProductID })
 
         #expect(annual["displayPrice"] as? String == "9.90")
         #expect(annual["recurringSubscriptionPeriod"] as? String == "P1Y")
-        #expect(quarterly["displayPrice"] as? String == "4.99")
-        #expect(quarterly["recurringSubscriptionPeriod"] as? String == "P3M")
+        #expect(monthly["displayPrice"] as? String == "2.99")
+        #expect(monthly["recurringSubscriptionPeriod"] as? String == "P1M")
 
         // 年订的 7 天免费试用：缺这段 isTrialEligible 永远为 false，试用 CTA 不会出现
         let offer = try #require(annual["introductoryOffer"] as? [String: Any])
@@ -661,7 +661,7 @@ struct PhotoDeleteTests {
 
         // 三档都要有 zh-Hans / zh-Hant / en-US 展示名
         let requiredLocales: Set<String> = ["zh-Hans", "zh-Hant", "en-US"]
-        for product in [try #require(lifetime), annual, quarterly] {
+        for product in [try #require(lifetime), annual, monthly] {
             let localizations = product["localizations"] as? [[String: Any]] ?? []
             let locales = Set(localizations.compactMap { $0["locale"] as? String })
             #expect(requiredLocales.isSubset(of: locales))
@@ -671,7 +671,7 @@ struct PhotoDeleteTests {
     @Test func subscriptionCachedEntitlementsRequireAFutureExpirationDate() async throws {
         let now = Date(timeIntervalSince1970: 1_800_000_000)
 
-        for productID in [AppConstants.supporterQuarterlyProductID, AppConstants.supporterAnnualProductID] {
+        for productID in [AppConstants.supporterMonthlyProductID, AppConstants.supporterAnnualProductID] {
             #expect(SupporterCachedEntitlementPolicy.isValid(
                 isUnlocked: true,
                 productID: productID,
@@ -693,8 +693,8 @@ struct PhotoDeleteTests {
         }
     }
 
-    @Test func quarterlyEntitlementResolvesToTheQuarterlyAccessKind() async throws {
-        #expect(SupporterAccessKind(productID: AppConstants.supporterQuarterlyProductID) == .quarterly)
+    @Test func monthlyEntitlementResolvesToTheMonthlyAccessKind() async throws {
+        #expect(SupporterAccessKind(productID: AppConstants.supporterMonthlyProductID) == .monthly)
         #expect(SupporterAccessKind(productID: AppConstants.supporterAnnualProductID) == .annual)
         #expect(SupporterAccessKind(productID: AppConstants.supporterLifetimeProductID) == .lifetime)
         #expect(SupporterAccessKind(productID: "com.example.unknown") == nil)
@@ -736,14 +736,14 @@ struct PhotoDeleteTests {
     /// `Product` 没有公开构造器，因此价格 / 节省百分比分支无法在单测里造假数据；
     /// 这里覆盖「不依赖真实 Product」的全部文案分支——正是最容易漂移的那部分。
     private func makePaywallPricing() -> PaywallPricing {
-        PaywallPricing(quarterly: nil, yearly: nil, lifetime: nil)
+        PaywallPricing(monthly: nil, yearly: nil, lifetime: nil)
     }
 
     @MainActor
-    @Test func paywallPlansAreOrderedYearlyQuarterlyLifetime() async throws {
+    @Test func paywallPlansAreOrderedYearlyMonthlyLifetime() async throws {
         let types = PaywallPlan.all.map(\.type)
 
-        #expect(types == [.yearly, .quarterly, .lifetime])
+        #expect(types == [.yearly, .monthly, .lifetime])
         #expect(PaywallPlan.all.allSatisfy { !$0.name.isEmpty && !$0.priceCaption.isEmpty })
         #expect(Set(PaywallPlan.all.map(\.id)).count == PaywallPlan.all.count)
     }
@@ -759,7 +759,7 @@ struct PhotoDeleteTests {
         #expect(pricing.ctaTitle(for: .yearly, isTrialEligible: true, trialDayCount: nil) == L10n.string("Start free trial"))
         // 无资格或非年订：一律普通解锁文案
         #expect(pricing.ctaTitle(for: .yearly, isTrialEligible: false, trialDayCount: 7) == L10n.string("Unlock Now"))
-        #expect(pricing.ctaTitle(for: .quarterly, isTrialEligible: true, trialDayCount: 7) == L10n.string("Unlock Now"))
+        #expect(pricing.ctaTitle(for: .monthly, isTrialEligible: true, trialDayCount: 7) == L10n.string("Unlock Now"))
         #expect(pricing.ctaTitle(for: .lifetime, isTrialEligible: true, trialDayCount: 7) == L10n.string("Unlock Now"))
     }
 
@@ -771,29 +771,39 @@ struct PhotoDeleteTests {
         #expect(pricing.trialSubline(for: .yearly, isTrialEligible: true) == nil)
         // 非试用态永远没有副文案
         #expect(pricing.trialSubline(for: .yearly, isTrialEligible: false) == nil)
-        #expect(pricing.trialSubline(for: .quarterly, isTrialEligible: true) == nil)
+        #expect(pricing.trialSubline(for: .monthly, isTrialEligible: true) == nil)
         #expect(pricing.trialSubline(for: .lifetime, isTrialEligible: true) == nil)
+    }
+
+    @MainActor
+    @Test func subscriptionPlansExposeAutoRenewDisclosure() async throws {
+        let pricing = makePaywallPricing()
+
+        #expect(pricing.ctaSubline(for: .monthly, isTrialEligible: false) == L10n.string("Auto-renews monthly · Cancel anytime"))
+        #expect(pricing.ctaSubline(for: .yearly, isTrialEligible: false) == L10n.string("Auto-renews yearly · Cancel anytime"))
+        // 买断没有自动续订，也不需要副文案
+        #expect(pricing.ctaSubline(for: .lifetime, isTrialEligible: false) == nil)
     }
 
     @MainActor
     @Test func planDisplayDegradesToPlaceholdersWithoutLoadedProducts() async throws {
         let pricing = makePaywallPricing()
 
-        for type in [PaywallPlanType.yearly, .quarterly, .lifetime] {
+        for type in [PaywallPlanType.yearly, .monthly, .lifetime] {
             // 产品未就绪只降级价格，其余文案照常
             #expect(pricing.display(for: type).priceText == "--")
         }
 
-        // 年订/季订的副标题是「月均价」，必须等产品到位才算得出来
+        // 年订的副标题是「月均价」，必须等产品到位才算得出来；月订是固定计费说明
         #expect(pricing.display(for: .yearly).subtitleText == nil)
-        #expect(pricing.display(for: .quarterly).subtitleText == nil)
+        #expect(pricing.display(for: .monthly).subtitleText == L10n.string("Billed monthly"))
 
         // 年订算不出节省时退回通用推荐徽章，而不是留空
         #expect(pricing.display(for: .yearly).badgeText == L10n.string("Recommended"))
         #expect(pricing.display(for: .yearly).valueNoteText == nil)
-        // 季度 / 买断没有徽章，但有各自的说明
-        #expect(pricing.display(for: .quarterly).badgeText == nil)
-        #expect(pricing.display(for: .quarterly).valueNoteText == L10n.string("Flexible subscription for short-term use"))
+        // 月订 / 买断没有徽章，但有各自的说明
+        #expect(pricing.display(for: .monthly).badgeText == nil)
+        #expect(pricing.display(for: .monthly).valueNoteText == L10n.string("Cancel anytime"))
         #expect(pricing.display(for: .lifetime).badgeText == nil)
         #expect(pricing.display(for: .lifetime).subtitleText == L10n.string("Permanent buyout"))
         #expect(pricing.display(for: .lifetime).valueNoteText == L10n.string("Pay once, enjoy lifetime access"))
@@ -803,7 +813,7 @@ struct PhotoDeleteTests {
     @Test func paywallPricingRoutesEachTypeToItsOwnProduct() async throws {
         let pricing = makePaywallPricing()
 
-        #expect(pricing.product(for: .quarterly) == nil)
+        #expect(pricing.product(for: .monthly) == nil)
         #expect(pricing.product(for: .yearly) == nil)
         #expect(pricing.product(for: .lifetime) == nil)
     }
@@ -816,7 +826,7 @@ struct PhotoDeleteTests {
         #expect(badge.contains("%"))
         #expect(!badge.contains("%%"))
 
-        let note = String(format: L10n.string("Save %lld%% vs quarterly"), 37)
+        let note = String(format: L10n.string("Save %lld%% vs monthly"), 37)
         #expect(note.contains("37"))
         #expect(!note.contains("%%"))
     }

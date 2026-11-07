@@ -9,14 +9,14 @@
 import Foundation
 
 enum SupporterAccessKind: String, Equatable {
-    case quarterly
+    case monthly
     case annual
     case lifetime
 
     init?(productID: String) {
         switch productID {
-        case AppConstants.supporterQuarterlyProductID:
-            self = .quarterly
+        case AppConstants.supporterMonthlyProductID:
+            self = .monthly
         case AppConstants.supporterAnnualProductID:
             self = .annual
         case AppConstants.supporterLifetimeProductID:
@@ -43,7 +43,7 @@ enum SupporterCachedEntitlementPolicy {
         switch accessKind {
         case .lifetime:
             return true
-        case .quarterly, .annual:
+        case .monthly, .annual:
             // 订阅类权益必须有尚未到期的过期时间，否则视为已失效。
             guard let expirationDate else { return false }
             return expirationDate > now

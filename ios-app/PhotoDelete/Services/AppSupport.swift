@@ -76,11 +76,11 @@ enum AppConstants {
     /// 订阅制付费页完成后打开（2026-10-09）；要临时收回只需改回 false。
     static let advancedPaywallEnabled = true
     static let achievementsEnabled = false
-    static let supporterQuarterlyProductID = "com.01mvp.photodelete.pro.quarterly"
+    static let supporterMonthlyProductID = "com.01mvp.photodelete.pro.monthly"
     static let supporterAnnualProductID = "com.01mvp.photodelete.pro.annual"
     static let supporterLifetimeProductID = "com.01mvp.photodelete.supporter.stats"
     static let supporterProductIDs: Set<String> = [
-        supporterQuarterlyProductID,
+        supporterMonthlyProductID,
         supporterAnnualProductID,
         supporterLifetimeProductID
     ]

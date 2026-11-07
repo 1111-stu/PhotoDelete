@@ -2,7 +2,7 @@
 //  SubscriptionManager.swift
 //  PhotoDelete
 //
-//  订阅权益的唯一真相来源：季度 / 年度 / 永久买断三档。
+//  订阅权益的唯一真相来源：月度 / 年度 / 永久买断三档。
 //  权益解析结果会写回 AppConstants 的 supporter UserDefaults 键，
 //  离线解锁据此工作。
 //
@@ -57,14 +57,14 @@ final class SubscriptionManager: ObservableObject {
 
     /// 三档套餐。商品 ID 只从 `AppConstants` 取一处，避免字面量在多处漂移。
     enum SubscriptionType: CaseIterable {
-        case quarterly
+        case monthly
         case yearly
         case lifetime
 
         var productID: String {
             switch self {
-            case .quarterly:
-                return AppConstants.supporterQuarterlyProductID
+            case .monthly:
+                return AppConstants.supporterMonthlyProductID
             case .yearly:
                 return AppConstants.supporterAnnualProductID
             case .lifetime:
@@ -78,7 +78,7 @@ final class SubscriptionManager: ObservableObject {
 
         func canUpgrade(to other: SubscriptionType) -> Bool {
             switch (self, other) {
-            case (.quarterly, .yearly):
+            case (.monthly, .yearly):
                 return true
             default:
                 return false
@@ -92,7 +92,7 @@ final class SubscriptionManager: ObservableObject {
 
     enum MembershipStatus: Equatable {
         case free
-        case quarterly(expirationDate: Date?)
+        case monthly(expirationDate: Date?)
         case yearly(expirationDate: Date?)
         case lifetime
     }
@@ -136,8 +136,8 @@ final class SubscriptionManager: ObservableObject {
         currentSubscriptionType == .lifetime
     }
 
-    var quarterlyProduct: Product? {
-        product(for: .quarterly)
+    var monthlyProduct: Product? {
+        product(for: .monthly)
     }
 
     var yearlyProduct: Product? {
@@ -185,8 +185,8 @@ final class SubscriptionManager: ObservableObject {
         }
 
         switch currentSubscriptionType {
-        case .quarterly:
-            return .quarterly(expirationDate: expirationDate)
+        case .monthly:
+            return .monthly(expirationDate: expirationDate)
         case .yearly:
             return .yearly(expirationDate: expirationDate)
         case .lifetime:
@@ -196,11 +196,11 @@ final class SubscriptionManager: ObservableObject {
 
     var availablePurchaseTypes: [SubscriptionType] {
         guard let currentSubscriptionType else {
-            return [.yearly, .quarterly, .lifetime]
+            return [.yearly, .monthly, .lifetime]
         }
 
         switch currentSubscriptionType {
-        case .quarterly:
+        case .monthly:
             return [.yearly]
         case .yearly:
             return []
@@ -462,7 +462,7 @@ final class SubscriptionManager: ObservableObject {
                 continue
             }
 
-            // 已被升级替代的旧订阅不再代表当前权益，例如季度升级到年度后的旧季度单。
+            // 已被升级替代的旧订阅不再代表当前权益，例如月度升级到年度后的旧月度单。
             guard transaction.isUpgraded == false else {
                 continue
             }
@@ -486,7 +486,7 @@ final class SubscriptionManager: ObservableObject {
             activeSubscription = mostRecentSubscription(existing: activeSubscription, candidate: candidate)
         }
 
-        // lifetime 的优先级最高，高于季度/年度订阅。
+        // lifetime 的优先级最高，高于月度/年度订阅。
         if let lifetimePurchaseDate {
             return EntitlementSnapshot(
                 type: .lifetime,

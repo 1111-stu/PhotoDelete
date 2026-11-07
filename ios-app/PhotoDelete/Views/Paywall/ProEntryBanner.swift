@@ -184,8 +184,8 @@ private extension ProEntryBanner {
 
     var title: String {
         switch subscriptionType {
-        case .quarterly:
-            return L10n.string("Quarterly Pro Active")
+        case .monthly:
+            return L10n.string("Monthly Pro Active")
         case .yearly:
             return L10n.string("Annual Pro Active")
         case .lifetime:
@@ -197,7 +197,7 @@ private extension ProEntryBanner {
 
     var subtitle: String {
         switch subscriptionType {
-        case .quarterly, .yearly:
+        case .monthly, .yearly:
             return L10n.string("View subscription status and plan features")
         case .lifetime:
             return L10n.string("View purchase info and feature differences")
@@ -209,7 +209,7 @@ private extension ProEntryBanner {
     var accessibilityHint: String {
         isPro
             ? L10n.string("View purchase info and feature differences")
-            : L10n.string("View Annual and Lifetime Pro plans")
+            : L10n.string("View Monthly, Annual, and Lifetime Pro plans")
     }
 }
 

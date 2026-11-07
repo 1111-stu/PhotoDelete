@@ -25,7 +25,7 @@ struct PaywallPlan: Identifiable {
 
     static let all: [PaywallPlan] = [
         PaywallPlan(type: .yearly, name: L10n.string("Yearly"), priceCaption: L10n.string("/ year")),
-        PaywallPlan(type: .quarterly, name: L10n.string("Quarterly"), priceCaption: L10n.string("/ quarter")),
+        PaywallPlan(type: .monthly, name: L10n.string("Monthly"), priceCaption: L10n.string("/ month")),
         PaywallPlan(type: .lifetime, name: L10n.string("Lifetime"), priceCaption: L10n.string("Lifetime"))
     ]
 }
@@ -41,7 +41,7 @@ struct PlanDisplayPricing: Equatable {
 // MARK: - PaywallPricing
 
 struct PaywallPricing {
-    let quarterly: Product?
+    let monthly: Product?
     let yearly: Product?
     let lifetime: Product?
 
@@ -50,8 +50,8 @@ struct PaywallPricing {
 
     func product(for type: PaywallPlanType) -> Product? {
         switch type {
-        case .quarterly:
-            return quarterly
+        case .monthly:
+            return monthly
         case .yearly:
             return yearly
         case .lifetime:
@@ -66,11 +66,11 @@ struct PaywallPricing {
         let priceText = product?.displayPrice ?? Self.unavailablePrice
 
         switch type {
-        case .quarterly:
+        case .monthly:
             return PlanDisplayPricing(
                 priceText: priceText,
-                subtitleText: product.flatMap { monthlyEquivalent(product: $0, months: 3) },
-                valueNoteText: L10n.string("Flexible subscription for short-term use"),
+                subtitleText: L10n.string("Billed monthly"),
+                valueNoteText: L10n.string("Cancel anytime"),
                 badgeText: nil
             )
 
@@ -115,8 +115,7 @@ struct PaywallPricing {
             : L10n.string("Start free trial")
     }
 
-    /// CTA 副文案：仅试用态展示。正常购买不显示——价格已经在套餐卡上，
-    /// 不在点击瞬间重申成本。
+    /// 试用态专属副文案：说明试用结束后的年费。非试用态不重申成本。
     func trialSubline(for type: PaywallPlanType, isTrialEligible: Bool) -> String? {
         guard isTrialOffer(for: type, isTrialEligible: isTrialEligible),
               let product = product(for: type) else {
@@ -125,9 +124,25 @@ struct PaywallPricing {
 
         let priceWithPeriod = product.displayPrice + " " + L10n.string("/ year")
         return String(
-            format: L10n.string("Cancel anytime during the trial · Then %@"),
+            format: L10n.string("Cancel anytime during the trial · Then %@ · Auto-renews"),
             priceWithPeriod
         )
+    }
+
+    /// CTA 副文案：试用态优先，其次是订阅自动续订说明；买断没有副文案。
+    func ctaSubline(for type: PaywallPlanType, isTrialEligible: Bool) -> String? {
+        if let trialSubline = trialSubline(for: type, isTrialEligible: isTrialEligible) {
+            return trialSubline
+        }
+
+        switch type {
+        case .monthly:
+            return L10n.string("Auto-renews monthly · Cancel anytime")
+        case .yearly:
+            return L10n.string("Auto-renews yearly · Cancel anytime")
+        case .lifetime:
+            return nil
+        }
     }
 
     private func isTrialOffer(for type: PaywallPlanType, isTrialEligible: Bool) -> Bool {
@@ -149,23 +164,23 @@ private extension PaywallPricing {
         let discountPercent: Int
     }
 
-    /// 年订相对季度订的节省。缺任一产品、或算不出正的节省时返回 nil，此时退回通用推荐徽章。
+    /// 年订相对月订的节省。缺任一产品、或算不出正的节省时返回 nil，此时退回通用推荐徽章。
     var annualSavings: AnnualSavings? {
-        guard let quarterly, let yearly else {
+        guard let monthly, let yearly else {
             return nil
         }
 
-        let quarterlyAnnualized = multiply(quarterly.price, by: 4)
-        guard quarterlyAnnualized > 0 else {
+        let monthlyAnnualized = multiply(monthly.price, by: 12)
+        guard monthlyAnnualized > 0 else {
             return nil
         }
 
-        let savedAmount = quarterlyAnnualized - yearly.price
+        let savedAmount = monthlyAnnualized - yearly.price
         guard savedAmount > 0 else {
             return nil
         }
 
-        let percent = discountPercent(savedAmount: savedAmount, baseAmount: quarterlyAnnualized)
+        let percent = discountPercent(savedAmount: savedAmount, baseAmount: monthlyAnnualized)
         guard percent > 0 else {
             return nil
         }
@@ -190,7 +205,7 @@ private extension PaywallPricing {
         return AnnualPresentation(
             badgeText: String(format: L10n.string("SAVE %lld%%"), savings.discountPercent),
             subtitleText: monthlySubtitle,
-            valueNoteText: String(format: L10n.string("Save %lld%% vs quarterly"), savings.discountPercent)
+            valueNoteText: String(format: L10n.string("Save %lld%% vs monthly"), savings.discountPercent)
         )
     }
 
