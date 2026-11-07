@@ -9,9 +9,6 @@ import SwiftUI
 #if canImport(UIKit)
 import UIKit
 #endif
-#if canImport(MessageUI)
-import MessageUI
-#endif
 
 enum SettingsChrome {
     static let canvas = Theme.background
@@ -111,7 +108,7 @@ struct SettingsView: View {
                     // 关于与支持
                     aboutSection
 
-                    moreAppsSection
+                    otherWorksSection
 
                     // 版本信息
                     versionInfo
@@ -132,14 +129,6 @@ struct SettingsView: View {
         .settingsNavigationChrome()
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
-            case .mail:
-            #if canImport(MessageUI)
-                MailComposeView()
-            #else
-                Text(L10n.string("This device cannot send email"))
-                    .foregroundColor(Theme.primaryText)
-                    .padding()
-            #endif
             case .privacy:
                 PrivacyInfoView()
             case .languageSettings:
@@ -165,7 +154,7 @@ struct SettingsView: View {
                 SettingRow(
                     title: L10n.string("Email Feedback"),
                     subtitle: AppConstants.feedbackEmail,
-                    action: handleMailAction
+                    action: copyFeedbackEmail
                 )
 
                 SettingsHairline()
@@ -181,9 +170,51 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - One Apps 系列
-    private var moreAppsSection: some View {
-        OneAppsPromotionSection()
+    // MARK: - 我的其他作品
+    private var otherWorksSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            PocaSectionHeader(title: L10n.string("My Other Works"))
+
+            Button(action: openDoFirstAppStore) {
+                HStack(spacing: 12) {
+                    Image("DoFirstIcon")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 42, height: 42)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous))
+                        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(verbatim: "Do First !")
+                            .settingsRowTitle()
+                            .lineLimit(1)
+
+                        Text(L10n.string("Too many tasks? Lighten the load with an Eisenhower Matrix, on Mac and iOS."))
+                            .settingsRowValue()
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Spacer(minLength: 8)
+
+                    Image(systemName: "chevron.right")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(SettingsChrome.muted)
+                        .accessibilityHidden(true)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
+                .frame(minHeight: SettingsChrome.rowMinHeight)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .settingsGroupedCard()
+            .accessibilityElement(children: .combine)
+            .accessibilityHint(L10n.string("Open in the App Store"))
+            .accessibilityIdentifier("settings-dofirst-entry")
+        }
     }
 
     // MARK: - 偏好设置
@@ -370,33 +401,19 @@ struct SettingsView: View {
         return rounded.formatted(.number.grouping(.never).precision(.fractionLength(1)))
     }
 
-    private func handleMailAction() {
-        #if canImport(MessageUI)
-        if MFMailComposeViewController.canSendMail() {
-            activeSheet = .mail
-        } else {
-            openFeedbackMailURL()
-        }
-        #else
-        openFeedbackMailURL()
+    // MARK: - 方法
+    private func copyFeedbackEmail() {
+        #if canImport(UIKit)
+        UIPasteboard.general.string = AppConstants.feedbackEmail
+        HapticManager.notify(.success)
+        showSettingsToast(L10n.string("Email copied"), icon: "doc.on.doc.fill", style: .positive)
         #endif
     }
 
-    // MARK: - 方法
-    private func openFeedbackMailURL() {
-        var components = URLComponents()
-        components.scheme = "mailto"
-        components.path = AppConstants.feedbackEmail
-        components.queryItems = [
-            URLQueryItem(name: "subject", value: L10n.string("Poca Feedback")),
-            URLQueryItem(name: "body", value: FeedbackDiagnostics.emailBody())
-        ]
-
-        if let url = components.url {
-            #if canImport(UIKit)
-            UIApplication.shared.open(url)
-            #endif
-        }
+    private func openDoFirstAppStore() {
+        #if canImport(UIKit)
+        UIApplication.shared.open(AppConstants.doFirstAppStoreURL)
+        #endif
     }
 
     private func clearLocalOrganizeData() {
@@ -430,13 +447,11 @@ struct SettingsView: View {
 }
 
 private enum SettingsSheet: Identifiable {
-    case mail
     case privacy
     case languageSettings
 
     var id: String {
         switch self {
-        case .mail: return "mail"
         case .privacy: return "privacy"
         case .languageSettings: return "languageSettings"
         }
@@ -741,41 +756,6 @@ private struct LanguageSettingsView: View {
         .accessibilityValue(Text(selectedLanguage == language ? L10n.string("Selected") : L10n.string("Not Set")))
     }
 }
-
-// MARK: - 邮件编写视图
-#if canImport(MessageUI)
-struct MailComposeView: UIViewControllerRepresentable {
-    @Environment(\.dismiss) private var dismiss
-
-    func makeUIViewController(context: Context) -> MFMailComposeViewController {
-        let composer = MFMailComposeViewController()
-        composer.mailComposeDelegate = context.coordinator
-        composer.setSubject(L10n.string("Poca Feedback"))
-        composer.setToRecipients([AppConstants.feedbackEmail])
-        composer.setMessageBody(FeedbackDiagnostics.emailBody(), isHTML: false)
-
-        return composer
-    }
-
-    func updateUIViewController(_ uiViewController: MFMailComposeViewController, context: Context) {}
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-
-    class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
-        var parent: MailComposeView
-
-        init(_ parent: MailComposeView) {
-            self.parent = parent
-        }
-
-        func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-            parent.dismiss()
-        }
-    }
-}
-#endif
 
 // MARK: - 隐私说明视图
 struct PrivacyInfoView: View {

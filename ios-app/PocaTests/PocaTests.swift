@@ -154,13 +154,6 @@ struct PocaTests {
         #expect(stats.formattedSpaceSaved == "0.0 MB")
     }
 
-    @Test func feedbackEmailBodyDoesNotDuplicateSystemMailSignature() async throws {
-        let body = FeedbackDiagnostics.emailBody()
-        #expect(body.contains("Anonymous User ID:"))
-        #expect(!body.contains("发自我的 iPhone"))
-        #expect(!body.contains("Sent from my iPhone"))
-    }
-
     @Test func localizedMarkdownHelperReturnsReadableText() async throws {
         let text = L10n.attributedMarkdown("I like traveling, exploring the world, and building small AI-powered products. Blog and portfolio at [makerjackie.com](https://makerjackie.com).")
         let plainText = String(text.characters)
@@ -3576,15 +3569,6 @@ struct PocaTests {
         #expect(PhotoMemoryCaptionFormatter.relativeTitle(for: now, now: now, calendar: calendar) == L10n.string("Today"))
         #expect(PhotoMemoryCaptionFormatter.relativeTitle(for: threeYearsAgo, now: now, calendar: calendar) == String(format: L10n.string("%lld years ago"), Int64(3)))
         #expect(PhotoMemoryCaptionFormatter.dateSubtitle(for: threeYearsAgo) != nil)
-    }
-
-    @Test func promotedAppsExcludeOnePackAndUseNeutralProductDescriptions() async throws {
-        let apps = OneAppsPromotionCatalog.apps
-
-        #expect(!apps.contains(where: { $0.id == "onepack" }))
-        #expect(apps.first(where: { $0.id == "onescan" })?.subtitleKey == "PDF scanning")
-        #expect(apps.first(where: { $0.id == "onehabit" })?.subtitleKey == "Habit tracking")
-        #expect(apps.allSatisfy { !$0.subtitleKey.localizedCaseInsensitiveContains("private") && !$0.summaryKey.localizedCaseInsensitiveContains("private") })
     }
 
     // MARK: - Helpers

@@ -24,13 +24,11 @@ enum AppConstants {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     }
 
-    static let feedbackEmail = "contact@01mvp.com"
+    static let feedbackEmail = "2981451773@qq.com"
     static let appStoreID = "6779493280"
     static let appStoreProductURL = URL(string: "https://apps.apple.com/app/id6779493280")!
     static let appStoreReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id6779493280?action=write-review")!
-    static let oneZenAppStoreURL = URL(string: "https://apps.apple.com/app/id6780318004")!
-    static let oneAppsStudioURL = URL(string: "https://oneapps.studio")!
-    static let oneAppsCatalogURL = URL(string: "https://oneapps.studio/apps")!
+    static let doFirstAppStoreURL = URL(string: "https://apps.apple.com/app/id6755933357")!
     static var privacyPolicyURL: URL {
         let path = AppLanguage.current.usesChineseText ? "privacy/" : "en/privacy/"
         return URL(string: "https://photodelete.01mvp.com/\(path)")!
@@ -53,7 +51,6 @@ enum AppConstants {
     static let hasDismissedAlbumSwipeHintKey = "photoDeleteHasDismissedAlbumSwipeHintV3"
     static let albumDisplayStyleKey = "photoDeleteAlbumDisplayStyle"
     static let appLanguageKey = "photoDeleteAppLanguage"
-    static let anonymousUserIDKey = "photoDeleteAnonymousUserID"
     static let reviewVideoAutoPlayKey = "photoDeleteReviewMediaAutoPlay"
     static let reviewMediaAutoPlayKey = reviewVideoAutoPlayKey
     static let reviewLivePhotoAutoPlayKey = "photoDeleteReviewLivePhotoAutoPlay"

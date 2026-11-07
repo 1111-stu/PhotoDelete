@@ -18899,6 +18899,46 @@
         }
       }
     },
+    "Email copied" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تم نسخ البريد الإلكتروني"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-Mail kopiert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email copied"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メールアドレスをコピーしました"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邮箱已复制"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電子郵件已複製"
+          }
+        }
+      }
+    },
     "Email Feedback" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -27915,6 +27955,46 @@
         }
       }
     },
+    "My Other Works" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أعمالي الأخرى"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meine anderen Apps"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Other Works"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "その他のアプリ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的其他作品"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的其他作品"
+          }
+        }
+      }
+    },
     "Name" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -32362,6 +32442,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "進入整理"
+          }
+        }
+      }
+    },
+    "Open in the App Store" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فتح في App Store"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im App Store öffnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in the App Store"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Storeで開く"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 App Store 中打开"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 App Store 中開啟"
           }
         }
       }
@@ -50938,6 +51058,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "色調會影響背景、圖標、按鈕和選中狀態。"
+          }
+        }
+      }
+    },
+    "Too many tasks? Lighten the load with an Eisenhower Matrix, on Mac and iOS." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مهام كثيرة؟ خفف العبء باستخدام مصفوفة أيزنهاور على Mac وiOS."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu viele Aufgaben? Entlaste dich mit Do First."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many tasks? Lighten the load with an Eisenhower Matrix, on Mac and iOS."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タスクが多すぎる？アイゼンハワー・マトリクスで負担を軽く。Mac・iOS 両対応。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "任务太多理不清？用四象限帮你减负，支持 Mac、iOS 双端。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "任務太多理不清？用四象限幫你減負，支援 Mac、iOS 雙端。"
           }
         }
       }
