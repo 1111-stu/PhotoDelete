@@ -306,6 +306,10 @@ struct AlbumListCard: View {
         .background(
             RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
                 .fill(isDropSlot ? Color.clear : Theme.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                        .stroke(isDropSlot ? Color.clear : Theme.cardStroke, lineWidth: Theme.stroke)
+                )
         )
         .contentShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
     }
@@ -506,6 +510,7 @@ struct AlbumAssetThumbnail: View {
 struct AlbumPhotoBrowserView: View {
     @EnvironmentObject private var dataManager: DataManager
     @EnvironmentObject private var router: MainTabRouter
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let album: AlbumInfo
 
     @State private var assets: [PHAsset] = []
@@ -519,15 +524,24 @@ struct AlbumPhotoBrowserView: View {
     var body: some View {
         ScrollView {
             if isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 80)
+                VStack(spacing: Theme.space3) {
+                    Text(L10n.string("Analyzing"))
+                        .font(.system(size: 16.5, weight: .semibold))
+                        .foregroundColor(Theme.primaryText)
+
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Theme.space8)
+                .padding(.horizontal, Theme.space5)
+                .photoDeleteCard()
+                .padding(.top, Theme.space6)
             } else if visibleAssets.isEmpty {
-                Text(L10n.string("This album has no photos yet"))
-                    .font(.body)
-                    .foregroundStyle(Theme.secondaryText)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 80)
+                ContentUnavailableView {
+                    Label(L10n.string("This album has no photos yet"), systemImage: "photo.on.rectangle")
+                }
+                .padding(.top, Theme.space12)
             } else {
                 LazyVStack(alignment: .leading, spacing: 22) {
                     ForEach(sections) { section in
@@ -535,16 +549,16 @@ struct AlbumPhotoBrowserView: View {
                             if !section.title.isEmpty {
                                 HStack {
                                     Text(section.title)
-                                        .font(.headline)
+                                        .font(.system(size: 14, weight: .bold))
                                         .foregroundStyle(Theme.primaryText)
                                     Spacer()
                                     Text(L10n.photoCount(section.assets.count))
-                                        .font(.subheadline)
+                                        .font(.system(size: 12.5, weight: .semibold))
                                         .foregroundStyle(Theme.secondaryText)
                                 }
                             }
 
-                            LazyVGrid(columns: gridColumns, spacing: 6) {
+                            LazyVGrid(columns: gridColumns, spacing: Theme.space2) {
                                 ForEach(section.assets, id: \.localIdentifier) { asset in
                                     Button {
                                         startOrganize(from: asset)
@@ -557,7 +571,12 @@ struct AlbumPhotoBrowserView: View {
                                         .aspectRatio(1, contentMode: .fit)
                                     }
                                     .buttonStyle(.plain)
-                                    .accessibilityLabel(L10n.photoCount(1))
+                                    .accessibilityLabel(Text(
+                                        AppDateFormatter.string(
+                                            from: asset.creationDate ?? Date(),
+                                            template: "MMMd"
+                                        )
+                                    ))
                                     .accessibilityHint(Text(L10n.string("Organize")))
                                     .accessibilityIdentifier("album-browser-asset-\(asset.localIdentifier)")
                                 }
@@ -565,8 +584,8 @@ struct AlbumPhotoBrowserView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, Theme.space5)
+                .padding(.vertical, Theme.space3)
             }
         }
         .background(PocaScreenBackground())
@@ -580,7 +599,7 @@ struct AlbumPhotoBrowserView: View {
                     .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: 0.22), value: showsFilters)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.22), value: showsFilters)
         .navigationTitle(album.title)
         .navigationBarTitleDisplayMode(.inline)
         .photoDeletePushedToolbar {
@@ -687,6 +706,7 @@ struct AlbumBrowserFilterSheet: View {
     @Binding var density: AlbumBrowserDensity
     @Binding var sort: AlbumBrowserSort
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var pane: FilterSheetPane = .filter
 
     var body: some View {
@@ -717,7 +737,7 @@ struct AlbumBrowserFilterSheet: View {
                     }
                     .padding(.horizontal, Theme.space5)
                     .padding(.bottom, 20)
-                    .animation(.easeInOut(duration: 0.18), value: pane)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: pane)
                 }
             }
             .background(PocaScreenBackground())

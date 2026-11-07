@@ -352,16 +352,17 @@ private struct ShareCardBarcodeView: View {
         return UIImage(cgImage: cg)
     }
 
+    /// FNV-1a：导出物必须可复现，不能用进程级随机种子的 `Hasher`。
     private static func displayDigits(from seed: String) -> String {
-        var hasher = Hasher()
-        hasher.combine(seed)
-        let hash = abs(hasher.finalize())
+        var hash: UInt64 = 0xcbf2_9ce4_8422_2325
+        for byte in seed.utf8 {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x0000_0100_0000_01b3
+        }
         var digits = String(hash)
         while digits.count < 21 {
-            var step = Hasher()
-            step.combine(seed)
-            step.combine(digits.count)
-            digits += String(abs(step.finalize()))
+            hash = hash &* 0x0000_0100_0000_01b3
+            digits += String(hash)
         }
         return String(digits.prefix(21))
     }

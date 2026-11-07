@@ -84,7 +84,7 @@ struct ReviewAlbumTray: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(trayBackground)
-        .shadow(color: Theme.floatingShadow, radius: 18, y: 10)
+        .shadow(color: Theme.floatingShadow, radius: 12, y: 6)
         .overlay(alignment: .topTrailing) { closeButton }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("review-album-tray")

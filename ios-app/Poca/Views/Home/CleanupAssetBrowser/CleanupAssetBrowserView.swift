@@ -26,7 +26,7 @@ struct CleanupAssetBrowserView: View {
                     if !dataManager.photoLibraryManager.hasPhotoLibraryAccess {
                         accessState
                     } else if model.isLoading && model.result == nil {
-                        ProgressView().frame(maxWidth: .infinity).padding(.top, 64)
+                        loadingCard
                     } else if let result = model.result {
                         summary(result)
                         if result.assetIDs.isEmpty {
@@ -36,7 +36,7 @@ struct CleanupAssetBrowserView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 12)
+                .padding(.horizontal, Theme.space5)
                 .padding(.top, 16)
                 .padding(.bottom, 24)
                 .frame(maxWidth: 860)
@@ -175,6 +175,20 @@ struct CleanupAssetBrowserView: View {
         case .day(let date): return AppDateFormatter.string(from: date, template: "yMMMd")
         case .month(let date): return AppDateFormatter.string(from: date, template: "yMMMM")
         }
+    }
+
+    private var loadingCard: some View {
+        VStack(spacing: Theme.space3) {
+            Text(L10n.string("Analyzing"))
+                .font(.system(size: 16.5, weight: .semibold))
+                .foregroundColor(Theme.primaryText)
+
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Theme.space8)
+        .photoDeleteCard()
     }
 
     private var emptyState: some View {

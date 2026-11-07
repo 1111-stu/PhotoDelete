@@ -87,6 +87,15 @@ enum Theme {
 
     /// 相纸白边：接近纯白，在近黑板面上读作「冲印出来的相纸」。
     static let boardPaper = Color(red: 0.98, green: 0.98, blue: 0.97)
+    /// 日历相纸格的暖白相纸色：比 boardPaper 更暖，保留冲印纸的手感。
+    static let boardPaperWarm = Color(red: 242 / 255, green: 237 / 255, blue: 228 / 255)
+    /// 拼贴板背景的上/下承托色。
+    static let boardSurfaceTop = Color(red: 0.110, green: 0.110, blue: 0.133)
+    static let boardSurfaceBottom = Color(red: 0.071, green: 0.071, blue: 0.086)
+    /// 日历里没有照片的空白格。
+    static let boardBlank = Color(red: 0.071, green: 0.071, blue: 0.086)
+    /// 缩略图解码前的占位纸色。
+    static let boardThumbnailPlaceholder = Color(red: 0.886, green: 0.859, blue: 0.812)
     /// 相纸墙小木夹：只用于相纸墙这类实物道具；刻意避开琥珀 / 珊瑚语义色。
     static let boardClipPalette: [Color] = [
         Color(red: 0.93, green: 0.84, blue: 0.36), // 柠檬黄

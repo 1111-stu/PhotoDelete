@@ -445,7 +445,7 @@ struct HomeView: View {
                     .clipShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
-                            .stroke(Color.white.opacity(0.12), lineWidth: Theme.stroke)
+                            .stroke(Theme.reviewPhotoStroke, lineWidth: Theme.stroke)
                     )
                     .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
             }
@@ -468,21 +468,14 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
                     Text(PocaCountFormat.plain(total))
-                        .font(.system(size: 26, weight: .bold))
+                        .font(.system(size: 32, weight: .bold))
                         .monospacedDigit()
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.white, .white.opacity(0.78)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .shadow(color: .black.opacity(0.28), radius: 5, y: 1)
+                        .foregroundColor(.white)
                         .lineLimit(1)
 
                     Text(L10n.string("photos label"))
-                        .font(.system(size: 12.5, weight: .medium))
-                        .foregroundColor(.white.opacity(0.74))
+                        .font(.system(size: 11.5, weight: .medium))
+                        .foregroundColor(.white.opacity(0.72))
                         .lineLimit(1)
                 }
                 .allowsHitTesting(false)
@@ -527,10 +520,10 @@ struct HomeView: View {
             .foregroundColor(.white.opacity(0.9))
             .padding(.horizontal, 12)
             .frame(height: 36)
-            .background(Capsule(style: .continuous).fill(Color.white.opacity(0.14)))
+            .background(Capsule(style: .continuous).fill(Theme.accentSoftFill))
             .overlay(
                 Capsule(style: .continuous)
-                    .stroke(Color.white.opacity(0.20), lineWidth: Theme.stroke)
+                    .stroke(Theme.accentSoftStroke, lineWidth: Theme.stroke)
             )
             .frame(height: 44)
             .contentShape(Rectangle())
@@ -588,7 +581,7 @@ struct HomeView: View {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(Theme.homeActionStroke, lineWidth: Theme.stroke)
             )
-            .shadow(color: Color.black.opacity(0.36), radius: 11, y: 6)
+            .shadow(color: Theme.floatingShadow, radius: 12, y: 6)
         }
         .buttonStyle(HomeRandomActionButtonStyle())
         .accessibilityLabel(L10n.string("Random Review"))
@@ -1019,6 +1012,7 @@ private struct HomeRandomActionButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .brightness(configuration.isPressed ? 0.04 : 0)
+            .scaleEffect(configuration.isPressed ? 0.985 : 1)
             .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
     }
 }

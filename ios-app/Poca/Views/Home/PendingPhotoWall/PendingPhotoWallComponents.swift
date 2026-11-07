@@ -41,8 +41,8 @@ struct PendingPhotoWallYearMenu: View {
             }
         }
         .padding(.vertical, 6)
-        .modifier(PendingPhotoWallGlassPanelChrome(cornerRadius: 18))
-        .shadow(color: Color.black.opacity(0.35), radius: 18, y: 10)
+        .modifier(PendingPhotoWallGlassPanelChrome(cornerRadius: Theme.radiusMd))
+        .shadow(color: Theme.floatingShadow, radius: 18, y: 10)
         .accessibilityLabel(L10n.string("Select year"))
     }
 
@@ -265,7 +265,7 @@ struct PendingPhotoWallDayCellView: View {
     let thumbnailTargetSize: CGSize
     let onTap: () -> Void
 
-    private let paper = Color(red: 242 / 255, green: 237 / 255, blue: 228 / 255)
+    private let paper = Theme.boardPaperWarm
 
     var body: some View {
         switch kind {
@@ -288,7 +288,7 @@ struct PendingPhotoWallDayCellView: View {
 
     private func blankCard(isToday: Bool) -> some View {
         RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .fill(Color(red: 0.071, green: 0.071, blue: 0.086))
+            .fill(Theme.boardBlank)
             .aspectRatio(100 / 118, contentMode: .fit)
             .overlay {
                 if isToday {
@@ -310,7 +310,7 @@ struct PendingPhotoWallDayCellView: View {
                 assetID: cell.coverAssetID,
                 thumbnails: thumbnails,
                 targetSize: thumbnailTargetSize,
-                cornerRadius: 8
+                cornerRadius: Theme.radiusSm
             )
             .padding(2)
         }
@@ -337,7 +337,6 @@ struct PendingPhotoWallPolaroidBoard: View {
     /// 相纸一次性错峰落位；之后滚动进出视口不再重播。
     @State private var hasSettled = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ObservedObject private var motion = PolaroidBoardMotion.shared
 
     private var board: PolaroidBoard {
         PolaroidBoardLayout.layout(
@@ -372,16 +371,7 @@ struct PendingPhotoWallPolaroidBoard: View {
                                     .allowsHitTesting(false)
                             }
                         }
-                        .offset(
-                            x: reduceMotion ? 0 : motion.swingX(hang: item.hang) * scale,
-                            y: reduceMotion ? 0 : motion.swingY(hang: item.hang) * scale
-                        )
-                        .rotationEffect(
-                            .degrees(
-                                Double(item.rotationDegrees)
-                                    + (reduceMotion ? 0 : Double(motion.swingRotation(hang: item.hang)))
-                            )
-                        )
+                        .rotationEffect(.degrees(Double(item.rotationDegrees)))
                         .opacity(reduceMotion || hasSettled ? 1 : 0)
                         .scaleEffect(reduceMotion || hasSettled ? 1 : 0.94)
                         .offset(y: reduceMotion || hasSettled ? 0 : -8)
@@ -403,15 +393,7 @@ struct PendingPhotoWallPolaroidBoard: View {
         .aspectRatio(PolaroidBoardLayout.boardWidth / max(board.height, 1), contentMode: .fit)
         .onAppear {
             isActivated = true
-            if !reduceMotion {
-                motion.retain()
-            }
             settleIfNeeded()
-        }
-        .onDisappear {
-            if !reduceMotion {
-                motion.release()
-            }
         }
     }
 
@@ -434,8 +416,8 @@ struct PendingPhotoWallPolaroidBoard: View {
             .fill(
                 LinearGradient(
                     colors: [
-                        Color(red: 0.110, green: 0.110, blue: 0.133),
-                        Color(red: 0.071, green: 0.071, blue: 0.086)
+                        Theme.boardSurfaceTop,
+                        Theme.boardSurfaceBottom
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -443,7 +425,7 @@ struct PendingPhotoWallPolaroidBoard: View {
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
+                    .stroke(Theme.hairline, lineWidth: Theme.stroke)
             }
             .shadow(color: Color.black.opacity(0.48), radius: 14, y: 10)
     }
@@ -552,7 +534,7 @@ struct PendingPhotoWallThumbnail: View {
         GeometryReader { proxy in
             let targetSize = resolvedTargetSize(for: proxy.size)
             ZStack {
-                Color(red: 0.886, green: 0.859, blue: 0.812)
+                Theme.boardThumbnailPlaceholder
 
                 if let image {
                     Image(uiImage: image)

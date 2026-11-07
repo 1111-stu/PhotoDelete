@@ -230,18 +230,25 @@ private extension PaywallView {
             .buttonStyle(.glass)
             .buttonBorderShape(.circle)
             .controlSize(.regular)
+            .frame(width: Theme.sizeTap, height: Theme.sizeTap)
+            .contentShape(Rectangle())
+            .accessibilityLabel(L10n.string("Close"))
             .accessibilityIdentifier("paywall-close-button")
+            .accessibilitySortPriority(2)
         } else {
             Button { dismiss() } label: {
                 Image(systemName: "xmark")
                     .font(PaywallDS.Font.calloutMedium)
                     .foregroundStyle(PaywallDS.Color.textPrimary)
                     .frame(width: 32, height: 32)
-                    .contentShape(Circle())
             }
             .buttonStyle(.plain)
             .background(Circle().fill(.ultraThinMaterial))
+            .frame(width: Theme.sizeTap, height: Theme.sizeTap)
+            .contentShape(Rectangle())
+            .accessibilityLabel(L10n.string("Close"))
             .accessibilityIdentifier("paywall-close-button")
+            .accessibilitySortPriority(2)
         }
     }
 }
@@ -260,6 +267,7 @@ private extension PaywallView {
                 Image(systemName: "crown.fill")
                     .font(PaywallDS.Font.title3)
                     .foregroundStyle(PaywallDS.Color.accent)
+                    .accessibilityHidden(true)
             }
 
             Text(L10n.string("Unlock the full timeline, compression, and similar-photo cleanup."))
@@ -281,12 +289,16 @@ private extension PaywallView {
             Link(L10n.string("Privacy Policy"), destination: AppConstants.privacyPolicyURL)
                 .accessibilityIdentifier("supporter-privacy-policy-link")
                 .font(PaywallDS.Font.caption)
-                .foregroundStyle(PaywallDS.Color.textTertiary)
+                .foregroundStyle(PaywallDS.Color.textSecondary)
+                .frame(minHeight: Theme.sizeTap)
+                .contentShape(Rectangle())
             pipeSeparator
             Link(L10n.string("Terms of Use"), destination: AppConstants.termsOfUseURL)
                 .accessibilityIdentifier("supporter-terms-of-use-link")
                 .font(PaywallDS.Font.caption)
-                .foregroundStyle(PaywallDS.Color.textTertiary)
+                .foregroundStyle(PaywallDS.Color.textSecondary)
+                .frame(minHeight: Theme.sizeTap)
+                .contentShape(Rectangle())
 
             Spacer()
         }
@@ -295,7 +307,8 @@ private extension PaywallView {
     var pipeSeparator: some View {
         Text("｜")
             .font(PaywallDS.Font.caption)
-            .foregroundStyle(PaywallDS.Color.textTertiary.opacity(0.6))
+            .foregroundStyle(PaywallDS.Color.textTertiary)
+            .accessibilityHidden(true)
             .padding(.horizontal, PaywallDS.Space.sm)
     }
 
@@ -303,7 +316,9 @@ private extension PaywallView {
         Button(action: action) {
             Text(title)
                 .font(PaywallDS.Font.caption)
-                .foregroundStyle(PaywallDS.Color.textTertiary)
+                .foregroundStyle(PaywallDS.Color.textSecondary)
+                .frame(minHeight: Theme.sizeTap)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(identifier)

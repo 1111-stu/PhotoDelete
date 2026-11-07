@@ -90,7 +90,7 @@ struct PendingPhotoWallView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Theme.space5)
                 .padding(.top, 8)
                 .padding(.bottom, 96)
             }
@@ -128,7 +128,7 @@ struct PendingPhotoWallView: View {
                 .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .top)))
             }
         }
-        .background(Theme.background.ignoresSafeArea())
+        .background(PocaScreenBackground())
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar(.visible, for: .navigationBar)

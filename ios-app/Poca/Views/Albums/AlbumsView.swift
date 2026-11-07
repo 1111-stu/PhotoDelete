@@ -36,8 +36,9 @@ private struct EmptyFavoritesSheet: View {
         VStack(spacing: 14) {
             Image(systemName: "heart.fill")
                 .font(.system(size: 30, weight: .semibold))
-                .foregroundStyle(Theme.coralGradientTop)
+                .foregroundStyle(Theme.favorite)
                 .padding(.top, 24)
+                .accessibilityHidden(true)
 
             Text(L10n.string("No Favorites Yet"))
                 .font(.system(size: 20, weight: .semibold))
@@ -63,7 +64,7 @@ private struct FavoritesEntryButton: View {
             systemName: "heart.fill",
             accessibilityLabel: L10n.string("Favorites"),
             accessibilityIdentifier: "album-favorites-entry",
-            iconColor: Theme.coralGradientTop,
+            iconColor: Theme.favorite,
             action: action
         )
     }
@@ -73,6 +74,7 @@ struct AlbumsView: View {
     @EnvironmentObject var dataManager: DataManager
     @EnvironmentObject private var router: MainTabRouter
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var searchText = ""
     @State private var activeSheet: AlbumSheet?
     @AppStorage(AppConstants.albumDisplayStyleKey) private var albumDisplayStyleValue = AlbumDisplayStyle.cover.rawValue
@@ -523,6 +525,7 @@ struct AlbumsView: View {
 
                 Text(progress > 0.01 ? L10n.percent(Int(progress * 100)) : L10n.string("Preparing"))
                     .font(.system(size: 13, weight: .semibold))
+                    .monospacedDigit()
                     .foregroundColor(Theme.tertiaryText)
             }
 
@@ -752,7 +755,7 @@ struct AlbumsView: View {
         guard let id = reorder.itemID,
               let from = displayedRows.firstIndex(where: { $0.id == id }) else { return }
 
-        withAnimation(.easeOut(duration: 0.22)) {
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.22)) {
             displayedRows = AlbumReorderGeometry.moving(displayedRows, from: from, to: target)
         }
         HapticManager.impact(.light)
@@ -827,7 +830,7 @@ struct AlbumsView: View {
         lastAutoScrollAt = now
 
         let id = displayedRows[targetIndex].id
-        withAnimation(.easeOut(duration: 0.22)) {
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.22)) {
             proxy.scrollTo(id, anchor: .center)
         }
     }
@@ -838,7 +841,7 @@ struct AlbumsView: View {
         let to = from + offset
         guard displayedRows.indices.contains(to) else { return }
 
-        withAnimation(.easeOut(duration: 0.22)) {
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.22)) {
             displayedRows.swapAt(from, to)
         }
         dataManager.saveCustomAlbumOrder(displayedRows.map(\.id))

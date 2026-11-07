@@ -113,9 +113,9 @@ struct PhotoSelectionLoadingCard: View {
 private struct PocaPressScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.94 : 1)
-            .opacity(configuration.isPressed ? 0.78 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+            .opacity(configuration.isPressed ? 0.94 : 1)
+            .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
     }
 }
 

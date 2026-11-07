@@ -115,7 +115,8 @@ private struct DeletionQueueScreen: View {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(alignment: .firstTextBaseline) {
                             Text(L10n.string("Selected \(selectedIDs.count) / \(assets.count)"))
-                            .font(.title3.weight(.bold))
+                                .font(.title3.weight(.bold))
+                                .monospacedDigit()
                                 .foregroundColor(Theme.primaryText)
                             Spacer()
                             Button(selectedIDs.count == assets.count ? L10n.string("Deselect All") : L10n.string("Select All")) {

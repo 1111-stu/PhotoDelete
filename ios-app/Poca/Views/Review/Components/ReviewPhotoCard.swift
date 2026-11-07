@@ -327,7 +327,6 @@ struct RealPhotoCard: View {
                 }
             }
             .frame(width: displaySize.width, height: displaySize.height)
-            .cornerRadius(Theme.radiusMd)
             .allowsHitTesting(false)
         }
     }

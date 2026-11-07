@@ -19,6 +19,7 @@ struct PaywallFeatureSection: View {
     let isPro: Bool
 
     @State private var isExpanded = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private struct Feature {
         let icon: String
@@ -98,7 +99,7 @@ struct PaywallFeatureSection: View {
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.7)
 
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+            withAnimation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.85)) {
                 isExpanded.toggle()
             }
         } label: {
@@ -110,8 +111,8 @@ struct PaywallFeatureSection: View {
                     .font(PaywallDS.Font.caption2Semibold)
             }
             .foregroundStyle(PaywallDS.Color.textSecondary)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, PaywallDS.Space.md)
+            .frame(maxWidth: .infinity, minHeight: Theme.sizeTap)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -144,6 +145,7 @@ struct PaywallFeatureSection: View {
             Image(systemName: "checkmark")
                 .font(PaywallFont.featureCheck)
                 .foregroundStyle(PaywallDS.Color.accent)
+                .accessibilityHidden(true)
         }
         .padding(.horizontal, PaywallDS.Space.xl)
         .padding(.vertical, PaywallDS.Space.lg)
@@ -161,6 +163,7 @@ struct PaywallPlanSection: View {
     let pricing: PaywallPricing
     @Binding var selectedType: PaywallPlanType
     let onSelect: (PaywallPlanType) -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(alignment: .leading, spacing: PaywallDS.Space.lg) {
@@ -196,12 +199,15 @@ struct PaywallPlanSection: View {
             .scaleEffect(isSelected ? 1 : 0.992)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text(plan.name))
+        .accessibilityValue(Text(display.priceText))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityIdentifier("paywall-plan-\(plan.type.accessibilitySlug)")
     }
 
     private func select(_ type: PaywallPlanType) {
         onSelect(type)
-        withAnimation(.spring(response: 0.28, dampingFraction: 0.80)) {
+        withAnimation(reduceMotion ? nil : .spring(response: 0.28, dampingFraction: 0.80)) {
             selectedType = type
         }
     }
@@ -248,6 +254,7 @@ struct PaywallPlanSection: View {
         VStack(alignment: .trailing, spacing: PaywallDS.Space.xxs) {
             Text(display.priceText)
                 .font(PaywallDS.Font.title2Bold)
+                .monospacedDigit()
                 .foregroundStyle(PaywallDS.Color.textPrimary)
 
             Text(plan.priceCaption)
@@ -368,7 +375,9 @@ struct PaywallFooter: View {
             .shadow(color: PaywallDS.Color.ctaButtonShadow, radius: 8, y: 3)
         }
         .buttonStyle(.plain)
+        .opacity(cta.isEnabled ? 1 : 0.5)
         .disabled(cta.isEnabled == false)
+        .accessibilityLabel(Text(cta.title))
         .accessibilityIdentifier("paywall-unlock-cta")
     }
 
@@ -377,6 +386,7 @@ struct PaywallFooter: View {
             Image(systemName: "lock.shield")
                 .font(PaywallDS.Font.caption2Semibold)
                 .foregroundStyle(PaywallDS.Color.textSecondary.opacity(0.9))
+                .accessibilityHidden(true)
 
             Text(L10n.string("Apple protected · secure payment"))
                 .font(PaywallDS.Font.caption2)

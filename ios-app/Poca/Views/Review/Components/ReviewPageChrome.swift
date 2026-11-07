@@ -191,10 +191,21 @@ struct ReviewSessionSummaryPanel: View {
             }
 
             HStack(spacing: 12) {
-                Label("\(deleteCount)", systemImage: "trash")
-                    .foregroundColor(Theme.destructive)
-                Label("\(favoriteCount)", systemImage: "heart")
-                    .foregroundColor(Theme.iconTint(for: "favorite"))
+                Label {
+                    Text(PocaCountFormat.plain(deleteCount))
+                        .monospacedDigit()
+                } icon: {
+                    Image(systemName: "trash")
+                }
+                .foregroundColor(Theme.destructive)
+
+                Label {
+                    Text(PocaCountFormat.plain(favoriteCount))
+                        .monospacedDigit()
+                } icon: {
+                    Image(systemName: "heart")
+                }
+                .foregroundColor(Theme.iconTint(for: "favorite"))
             }
             .font(.system(size: 13, weight: .semibold))
         }
