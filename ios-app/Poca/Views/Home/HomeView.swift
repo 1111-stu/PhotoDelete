@@ -242,7 +242,8 @@ struct HomeView: View {
             (
                 Text(AppConstants.appDisplayName)
                     .font(.system(size: 34, weight: .bold))
-                + Text(verbatim: " !")
+                // 串联 Text 时前导普通空格可能被折叠掉，用不换行空格保证留出一个空格。
+                + Text(verbatim: "\u{00A0}!")
                     .font(.system(size: 34, weight: .bold))
                     .italic()
             )

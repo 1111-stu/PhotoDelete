@@ -4951,6 +4951,7 @@
       }
     },
     "A series of simple, useful apps" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18758,6 +18759,7 @@
       }
     },
     "Each app solves one small pain point, with unlimited core features and no ads." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22587,6 +22589,7 @@
       }
     },
     "Independent apps that are focused, simple, and easy to use." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27467,6 +27470,7 @@
       }
     },
     "More Apps" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31368,6 +31372,7 @@
       }
     },
     "One Apps Studio" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31590,493 +31595,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "一次性解鎖完整時間列表、大檔案清理、圖片壓縮、影片壓縮、相似照片清理和主題切換。"
-          }
-        }
-      }
-    },
-    "Poca" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca"
-          }
-        }
-      }
-    },
-    "Poca does not use its own cloud service and never sends photos to a server." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "لا يستخدم Poca خدمة سحابية خاصة به ولا يرسل الصور إلى خادم أبدا."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca nutzt keinen eigenen Cloud-Dienst und sendet Fotos nie an einen Server."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca does not use its own cloud service and never sends photos to a server."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pocaは独自のクラウドサービスを使わず、写真をサーバーに送信することもありません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Poca不接入自己的云端服务，也不会把照片发到服务器。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca不接入自己的雲端服務，也不會把照片發到服務器。"
-          }
-        }
-      }
-    },
-    "Poca Feedback" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ملاحظات Poca"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca Feedback"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca Feedback"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pocaへのフィードバック"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Poca App 反馈"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca App 反饋"
-          }
-        }
-      }
-    },
-    "Poca follows the 01MVP approach: solve one real workflow first, then improve the experience and edges." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يتبع Poca نهج 01MVP: حل مسار عمل حقيقي أولا، ثم تحسين التجربة والتفاصيل تدريجيا."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca folgt dem 01MVP-Ansatz: erst einen echten Ablauf lösen, dann Erlebnis und Details verbessern."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca follows the 01MVP approach: solve one real workflow first, then improve the experience and edges."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pocaは01MVPの小さなプロダクト実践から生まれました。まず実際のワークフローを解決し、その後で体験と細部を整えています。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Poca来自 01MVP 的小产品实践：先把一个真实问题做顺，再逐步补上体验和边界。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca來自 01MVP 的小產品實踐：先把一個真實問題做順，再逐步補上體驗和邊界。"
-          }
-        }
-      }
-    },
-    "Poca is a free photo cleanup tool built to make deleting and sorting photos feel direct." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca أداة مجانية لتنظيف الصور، مصممة لجعل حذف الصور وفرزها مباشرا وسهلا."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca ist ein kostenloses Tool zum Aufräumen von Fotos, damit Löschen und Sortieren schnell und direkt geht."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca is a free photo cleanup tool built to make deleting and sorting photos feel direct."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pocaは、写真の削除や分類を迷わず行えるように作られた無料の写真整理ツールです。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Poca是一个免费的相册整理小工具，目标是把删照片、归类照片这件事做得足够直接。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca是一個免費的相冊整理小工具，目標是把刪照片、歸類照片這件事做得足夠直接。"
-          }
-        }
-      }
-    },
-    "Poca is not meant to decide for you. It helps you review faster and confirm with confidence." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca لا يقرر بدلا منك. إنه يساعدك على المراجعة أسرع والتأكيد بثقة."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca entscheidet nicht für dich. Es hilft dir, schneller zu prüfen und sicher zu bestätigen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca is not meant to decide for you. It helps you review faster and confirm with confidence."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pocaはあなたの代わりに決めるものではありません。より速く、安心して確認できるようにします。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Poca的核心不是替你决定，而是让你更快、更安心地完成判断。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca的核心不是替你決定，而是讓你更快、更安心地完成判斷。"
-          }
-        }
-      }
-    },
-    "Poca needs photo library access to manage albums." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يحتاج Poca إلى الوصول إلى مكتبة الصور لإدارة الألبومات."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca benötigt Zugriff auf deine Fotomediathek, um Alben zu verwalten."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca needs photo library access to manage albums."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca がアルバムを管理するには写真ライブラリへのアクセスが必要です。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "需要访问您的照片库来管理相册。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "需要訪問您的照片庫來管理相冊。"
-          }
-        }
-      }
-    },
-    "Poca needs photo library access to manage albums. %@" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يحتاج Poca إلى الوصول إلى مكتبة الصور لإدارة الألبومات. %@"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca benötigt Zugriff auf deine Fotomediathek, um Alben zu verwalten. %@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca needs photo library access to manage albums. %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca がアルバムを管理するには写真ライブラリへのアクセスが必要です。%@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "需要访问您的照片库来管理相册。%@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "需要訪問您的照片庫來管理相冊。%@"
-          }
-        }
-      }
-    },
-    "Poca needs photo library access to organize your albums. %@" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يحتاج Poca إلى إذن الوصول إلى مكتبة الصور لتنظيم ألبوماتك. %@"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca benötigt Zugriff auf die Fotomediathek, um deine Alben zu organisieren. %@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca needs photo library access to organize your albums. %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pocaでアルバムを整理するには写真ライブラリへのアクセスが必要です。%@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Poca需要照片库权限来整理相册。%@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca需要照片庫權限來整理相冊。%@"
-          }
-        }
-      }
-    },
-    "Poca Pro" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca Pro"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca Pro"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca Pro"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca Pro"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Poca Pro"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca Pro"
-          }
-        }
-      }
-    },
-    "Poca Supporter" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "داعم Poca"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca Supporter"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca Supporter"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pocaサポーター"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Poca支持者版"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca支持者版"
-          }
-        }
-      }
-    },
-    "Poca v%@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca v%@"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca v%@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca v%@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca v%@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Poca v%@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poca v%@"
           }
         }
       }
@@ -32551,6 +32069,7 @@
       }
     },
     "Opens the full app list" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36558,6 +36077,494 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "播放"
+          }
+        }
+      }
+    },
+    "Poca" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca"
+          }
+        }
+      }
+    },
+    "Poca does not use its own cloud service and never sends photos to a server." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا يستخدم Poca خدمة سحابية خاصة به ولا يرسل الصور إلى خادم أبدا."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca nutzt keinen eigenen Cloud-Dienst und sendet Fotos nie an einen Server."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca does not use its own cloud service and never sends photos to a server."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pocaは独自のクラウドサービスを使わず、写真をサーバーに送信することもありません。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Poca不接入自己的云端服务，也不会把照片发到服务器。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca不接入自己的雲端服務，也不會把照片發到服務器。"
+          }
+        }
+      }
+    },
+    "Poca Feedback" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ملاحظات Poca"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca Feedback"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca Feedback"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pocaへのフィードバック"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Poca App 反馈"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca App 反饋"
+          }
+        }
+      }
+    },
+    "Poca follows the 01MVP approach: solve one real workflow first, then improve the experience and edges." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يتبع Poca نهج 01MVP: حل مسار عمل حقيقي أولا، ثم تحسين التجربة والتفاصيل تدريجيا."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca folgt dem 01MVP-Ansatz: erst einen echten Ablauf lösen, dann Erlebnis und Details verbessern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca follows the 01MVP approach: solve one real workflow first, then improve the experience and edges."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pocaは01MVPの小さなプロダクト実践から生まれました。まず実際のワークフローを解決し、その後で体験と細部を整えています。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Poca来自 01MVP 的小产品实践：先把一个真实问题做顺，再逐步补上体验和边界。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca來自 01MVP 的小產品實踐：先把一個真實問題做順，再逐步補上體驗和邊界。"
+          }
+        }
+      }
+    },
+    "Poca is a free photo cleanup tool built to make deleting and sorting photos feel direct." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca أداة مجانية لتنظيف الصور، مصممة لجعل حذف الصور وفرزها مباشرا وسهلا."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca ist ein kostenloses Tool zum Aufräumen von Fotos, damit Löschen und Sortieren schnell und direkt geht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca is a free photo cleanup tool built to make deleting and sorting photos feel direct."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pocaは、写真の削除や分類を迷わず行えるように作られた無料の写真整理ツールです。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Poca是一个免费的相册整理小工具，目标是把删照片、归类照片这件事做得足够直接。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca是一個免費的相冊整理小工具，目標是把刪照片、歸類照片這件事做得足夠直接。"
+          }
+        }
+      }
+    },
+    "Poca is not meant to decide for you. It helps you review faster and confirm with confidence." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca لا يقرر بدلا منك. إنه يساعدك على المراجعة أسرع والتأكيد بثقة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca entscheidet nicht für dich. Es hilft dir, schneller zu prüfen und sicher zu bestätigen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca is not meant to decide for you. It helps you review faster and confirm with confidence."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pocaはあなたの代わりに決めるものではありません。より速く、安心して確認できるようにします。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Poca的核心不是替你决定，而是让你更快、更安心地完成判断。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca的核心不是替你決定，而是讓你更快、更安心地完成判斷。"
+          }
+        }
+      }
+    },
+    "Poca needs photo library access to manage albums." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحتاج Poca إلى الوصول إلى مكتبة الصور لإدارة الألبومات."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca benötigt Zugriff auf deine Fotomediathek, um Alben zu verwalten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca needs photo library access to manage albums."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca がアルバムを管理するには写真ライブラリへのアクセスが必要です。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "需要访问您的照片库来管理相册。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要訪問您的照片庫來管理相冊。"
+          }
+        }
+      }
+    },
+    "Poca needs photo library access to manage albums. %@" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحتاج Poca إلى الوصول إلى مكتبة الصور لإدارة الألبومات. %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca benötigt Zugriff auf deine Fotomediathek, um Alben zu verwalten. %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca needs photo library access to manage albums. %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca がアルバムを管理するには写真ライブラリへのアクセスが必要です。%@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "需要访问您的照片库来管理相册。%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要訪問您的照片庫來管理相冊。%@"
+          }
+        }
+      }
+    },
+    "Poca needs photo library access to organize your albums. %@" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحتاج Poca إلى إذن الوصول إلى مكتبة الصور لتنظيم ألبوماتك. %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca benötigt Zugriff auf die Fotomediathek, um deine Alben zu organisieren. %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca needs photo library access to organize your albums. %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pocaでアルバムを整理するには写真ライブラリへのアクセスが必要です。%@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Poca需要照片库权限来整理相册。%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca需要照片庫權限來整理相冊。%@"
+          }
+        }
+      }
+    },
+    "Poca Pro" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca Pro"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca Pro"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca Pro"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca Pro"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Poca Pro"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca Pro"
+          }
+        }
+      }
+    },
+    "Poca Supporter" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "داعم Poca"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca Supporter"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca Supporter"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pocaサポーター"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Poca支持者版"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca支持者版"
+          }
+        }
+      }
+    },
+    "Poca v%@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca v%@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca v%@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca v%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca v%@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Poca v%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poca v%@"
           }
         }
       }
@@ -55064,6 +55071,7 @@
       }
     },
     "View on the App Store" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -55312,6 +55320,7 @@
       }
     },
     "View product page" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -55577,6 +55586,7 @@
       }
     },
     "Visit OneApps.Studio" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -56208,6 +56218,7 @@
       }
     },
     "Write your feedback or suggestion here:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

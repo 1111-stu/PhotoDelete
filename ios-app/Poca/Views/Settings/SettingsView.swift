@@ -191,7 +191,8 @@ struct SettingsView: View {
                             .lineLimit(1)
 
                         Text(L10n.string("Too many tasks? Lighten the load with an Eisenhower Matrix, on Mac and iOS."))
-                            .settingsRowValue()
+                            .font(.system(size: 13, weight: .regular))
+                            .foregroundStyle(SettingsChrome.muted)
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -319,15 +320,9 @@ struct SettingsView: View {
 
     // MARK: - 版本信息
     private var versionInfo: some View {
-        VStack(spacing: 8) {
-            Text("\(AppConstants.appDisplayName) v\(AppConstants.displayVersion)")
-                .font(.subheadline)
-                .foregroundStyle(SettingsChrome.muted)
-
-            Text(L10n.string("Make photo cleanup simple"))
-                .font(.footnote)
-                .foregroundStyle(SettingsChrome.faint)
-        }
+        Text("\(AppConstants.appDisplayName) v\(AppConstants.version)")
+            .font(.subheadline)
+            .foregroundStyle(SettingsChrome.muted)
     }
 
     private var selectedLanguage: AppLanguage {
