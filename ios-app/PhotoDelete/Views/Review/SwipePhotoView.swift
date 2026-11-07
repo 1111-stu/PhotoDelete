@@ -62,6 +62,7 @@ struct SwipePhotoView: View {
     @State private var pendingSharePayload: PhotoSharePayload?
     @State private var showsAlbumTray = false
     @State private var albumTrayAsset: PHAsset?
+    @State private var dayWallTarget: DayWallTarget?
     @State private var filingAlbumID: String?
     @State private var needsSourceRefreshAfterAlbumTray = false
     /// 相册导轨正在被拖动/惯性滚动：切换照片不加动画，预加载推迟到停手。
@@ -354,6 +355,10 @@ struct SwipePhotoView: View {
                     .environmentObject(dataManager)
             }
         }
+        .fullScreenCover(item: $dayWallTarget, onDismiss: handleDayWallDismiss) { target in
+            DayPhotoWallView(day: target.day, sourceAssetID: target.sourceAssetID)
+                .environmentObject(dataManager)
+        }
         .onDisappear {
             stopInlineVideoPlayback()
             sharePreparationTask?.cancel()
@@ -494,6 +499,7 @@ struct SwipePhotoView: View {
                     .scaleEffect(showsAlbumTray && !reduceMotion ? 0.97 : 1)
                     .animation(.easeOut(duration: 0.22), value: showsAlbumTray)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .simultaneousGesture(dayWallPinchGesture)
                 } else if shouldShowInitialPreparingState {
                     centeredPhotoAreaPlaceholder(in: geometry, bottomReserve: placeholderBottomReserve) {
                         PhotoSelectionLoadingCard(
@@ -677,6 +683,12 @@ struct SwipePhotoView: View {
             .accessibilityAction(named: Text(L10n.string("Previous"))) {
                 browseToPreviousPhoto(reviewing: asset)
             }
+            .modifier(
+                DayWallAccessibilityAction(
+                    isEnabled: asset.creationDate != nil,
+                    action: openDayWallIfPossible
+                )
+            )
             .allowsHitTesting(isCurrent)
         }
     }
@@ -790,6 +802,16 @@ struct SwipePhotoView: View {
                 }
 
                 SidebarActionButton(
+                    icon: "calendar.day.timeline.left",
+                    title: L10n.string("Photos from this day"),
+                    color: Theme.accent
+                ) {
+                    openDayWallIfPossible()
+                }
+                .disabled(currentRealPhoto?.creationDate == nil)
+                .opacity(currentRealPhoto?.creationDate == nil ? 0.35 : 1)
+
+                SidebarActionButton(
                     icon: isCurrentPhotoFavorited ? "heart.slash" : "heart",
                     title: isCurrentPhotoFavorited ? L10n.string("Unfavorite") : L10n.string("Favorite"),
                     color: Theme.iconTint(for: "favorite")
@@ -845,9 +867,11 @@ struct SwipePhotoView: View {
             isFavorite: isCurrentPhotoFavorited,
             canPerformAction: canPerformPhotoAction,
             isPreparingShare: isPreparingShare,
+            canOpenDayWall: currentRealPhoto?.creationDate != nil,
             onShowDetails: { showingPhotoDetails = true },
             onUndo: handleUndoAction, onFavorite: handleFavoriteAction,
-            onShare: handleShareAction, onFinish: handleFinishAction
+            onShare: handleShareAction, onFinish: handleFinishAction,
+            onShowDayWall: openDayWallIfPossible
         )
     }
 
@@ -1303,6 +1327,50 @@ struct SwipePhotoView: View {
         session.currentIndex -= 1
     }
 
+    // MARK: - 回到那天
+
+    /// 双指捏合（捏小）回到当前照片所在的那一天。所有整理来源都可用。
+    private var dayWallPinchGesture: some Gesture {
+        MagnifyGesture(minimumScaleDelta: 0.02)
+            .onEnded { value in
+                guard value.magnification <= 0.86 else { return }
+                openDayWallIfPossible()
+            }
+    }
+
+    private func openDayWallIfPossible() {
+        guard !showsAlbumTray,
+              !showCompletionMessage,
+              !isCurrentPhotoBeingFiled,
+              let asset = currentRealPhoto,
+              let day = asset.creationDate else { return }
+
+        stopInlineVideoPlayback(rememberManualStopFor: asset)
+        HapticManager.impact(.light)
+        dayWallTarget = DayWallTarget(day: day, sourceAssetID: asset.localIdentifier)
+    }
+
+    private func handleDayWallDismiss() {
+        // 当前这张如果被点进垃圾桶，回来时落到下一张未处理的照片（任何来源都跳过垃圾桶里的）。
+        guard let current = currentRealPhoto, isAssetQueuedForDelete(current) else { return }
+
+        let start = session.currentIndex + 1
+        let nextIndex = session.photos.indices.first {
+            $0 >= start && !isAssetQueuedForDelete(session.photos[$0])
+        } ?? session.photos.indices.first {
+            !isAssetQueuedForDelete(session.photos[$0])
+        }
+
+        guard let nextIndex else {
+            presentRoundSummary()
+            return
+        }
+
+        setCurrentPhotoIndex(nextIndex, animated: false)
+        preloadUpcomingImages(from: nextIndex)
+        persistSessionProgressIfPossible()
+    }
+
     private func restorePhotoPosition(_ asset: PHAsset, preferredIndex: Int) {
         if isValidPhotoIndex(preferredIndex),
            session.photos[preferredIndex].localIdentifier == asset.localIdentifier {
@@ -1540,6 +1608,29 @@ struct SwipePhotoView: View {
         }
     }
 
+}
+
+private struct DayWallTarget: Identifiable {
+    let id = UUID()
+    let day: Date
+    let sourceAssetID: String
+}
+
+/// 日期墙入口在相册模式下不存在，VoiceOver 的自定义动作也要跟着只在随机整理里出现。
+private struct DayWallAccessibilityAction: ViewModifier {
+    let isEnabled: Bool
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content.accessibilityAction(
+                named: Text(L10n.string("Photos from this day")),
+                action
+            )
+        } else {
+            content
+        }
+    }
 }
 
 #Preview {

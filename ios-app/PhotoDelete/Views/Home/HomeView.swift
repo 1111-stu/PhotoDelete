@@ -164,6 +164,8 @@ struct HomeView: View {
     @AppStorage(AppConstants.randomReviewBatchSizeKey) private var randomReviewBatchSizeValue = PhotoRandomReviewBatchSize.defaultValue.rawValue
     @State private var showingRecentOrganized = false
     @State private var periodPickerScope: AdvancedTimeScope?
+    /// 大卡当前手动选中的照片；nil 时回落到最新一张。
+    @State private var heroOverrideAssetID: String?
 
     var body: some View {
         GeometryReader { geometry in
@@ -408,81 +410,128 @@ struct HomeView: View {
     }
 
     /// 照片墙入口：整张卡就是一张真实照片，信息压在底部。
+    /// 左下角信息区放「换一张」胶囊（占原日期位），主 CTA 独占右下，不再压照片。
     private var photoWallHeroCard: some View {
         let total = libraryStats.totalAssets
         let asset = heroPhotoAsset
-        let monthText = heroMonthText(for: asset)
 
-        return Button {
-            // 先进待整理照片墙；墙上再选月/日起滑。
-            router.push(SwipeViewDestination.pendingPhotoWall)
-        } label: {
-            HomeHeroPhoto(asset: asset, manager: dataManager.photoLibraryManager)
-                .frame(maxWidth: .infinity)
-                .frame(height: 240)
-                .overlay {
-                    LinearGradient(
-                        stops: [
-                            .init(color: .black.opacity(0.10), location: 0),
-                            .init(color: .clear, location: 0.34),
-                            .init(color: .black.opacity(0.55), location: 0.68),
-                            .init(color: .black.opacity(0.93), location: 1)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .allowsHitTesting(false)
-                }
-                .overlay(alignment: .bottom) {
-                    HStack(alignment: .bottom, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                                Text(PhotoDeleteCountFormat.plain(total))
-                                    .font(.system(size: 32, weight: .bold))
-                                    .monospacedDigit()
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
-
-                                Text(L10n.string("photos label"))
-                                    .font(.system(size: 11.5, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.72))
-                                    .lineLimit(1)
-                            }
-
-                            Text(monthText)
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.white.opacity(0.62))
-                        }
-
-                        Spacer(minLength: 8)
-
-                        HStack(spacing: 7) {
-                            Text(L10n.string("Start Review"))
-                                .font(.system(size: 12, weight: .bold))
-
-                            Image(systemName: "arrow.right")
-                                .font(.system(size: 12, weight: .bold))
-                        }
-                        .foregroundColor(Theme.onAccent)
-                        .padding(.horizontal, 14)
-                        .frame(height: 36)
-                        .background(Capsule(style: .continuous).fill(Theme.accent))
+        return ZStack(alignment: .bottom) {
+            Button {
+                // 先进待整理照片墙；墙上再选月/日起滑。
+                router.push(SwipeViewDestination.pendingPhotoWall)
+            } label: {
+                HomeHeroPhoto(asset: asset, manager: dataManager.photoLibraryManager)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 240)
+                    .overlay {
+                        LinearGradient(
+                            stops: [
+                                .init(color: .black.opacity(0.10), location: 0),
+                                .init(color: .clear, location: 0.34),
+                                .init(color: .black.opacity(0.55), location: 0.68),
+                                .init(color: .black.opacity(0.93), location: 1)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .allowsHitTesting(false)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 14)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
+                            .stroke(Color.white.opacity(0.12), lineWidth: Theme.stroke)
+                    )
+                    .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(L10n.string("Photo Wall"))
+            .accessibilityValue("\(PhotoDeleteCountFormat.plain(total)) \(L10n.string("photos label"))")
+            .accessibilityIdentifier("home-pending-review")
+
+            heroInfoBar(total: total)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 14)
+        }
+    }
+
+    /// 大卡底部信息条：左列数量 + 换一张，右侧主 CTA。
+    /// 数量与 CTA 只做视觉，点击穿透到整卡按钮；只有「换一张」是独立热区。
+    private func heroInfoBar(total: Int) -> some View {
+        HStack(alignment: .bottom, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    Text(PhotoDeleteCountFormat.plain(total))
+                        .font(.system(size: 26, weight: .bold))
+                        .monospacedDigit()
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.white, .white.opacity(0.78)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .shadow(color: .black.opacity(0.28), radius: 5, y: 1)
+                        .lineLimit(1)
+
+                    Text(L10n.string("photos label"))
+                        .font(.system(size: 12.5, weight: .medium))
+                        .foregroundColor(.white.opacity(0.74))
+                        .lineLimit(1)
                 }
-                .clipShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous)
-                        .stroke(Color.white.opacity(0.12), lineWidth: Theme.stroke)
-                )
-                .contentShape(RoundedRectangle(cornerRadius: Theme.radiusLg, style: .continuous))
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+
+                if dataManager.photoLibraryManager.allPhotos.count > 1 {
+                    shuffleHeroPhotoChip
+                }
+            }
+
+            Spacer(minLength: 8)
+
+            HStack(spacing: 7) {
+                Text(L10n.string("Start Review"))
+                    .font(.system(size: 12, weight: .bold))
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 12, weight: .bold))
+            }
+            .foregroundColor(Theme.onAccent)
+            .padding(.horizontal, 14)
+            .frame(height: 36)
+            .background(Capsule(style: .continuous).fill(Theme.accent))
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+
+    /// 「换一张」胶囊：视觉 36pt，热区补到 44pt。
+    private var shuffleHeroPhotoChip: some View {
+        Button {
+            shuffleHeroPhoto()
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "arrow.triangle.2.circlepath")
+                    .font(.system(size: 12, weight: .bold))
+
+                Text(L10n.string("Shuffle photo"))
+                    .font(.system(size: 11.5, weight: .semibold))
+                    .lineLimit(1)
+            }
+            .foregroundColor(.white.opacity(0.9))
+            .padding(.horizontal, 12)
+            .frame(height: 36)
+            .background(Capsule(style: .continuous).fill(Color.white.opacity(0.14)))
+            .overlay(
+                Capsule(style: .continuous)
+                    .stroke(Color.white.opacity(0.20), lineWidth: Theme.stroke)
+            )
+            .frame(height: 44)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(L10n.string("Photo Wall"))
-        .accessibilityValue("\(PhotoDeleteCountFormat.plain(total)) \(L10n.string("photos label")), \(monthText)")
-        .accessibilityIdentifier("home-pending-review")
+        .accessibilityLabel(L10n.string("Shuffle photo"))
+        .accessibilityIdentifier("home-hero-shuffle")
     }
 
     /// 随机整理入口：动作行，不是第四个浏览卡。
@@ -799,17 +848,40 @@ struct HomeView: View {
         return String(format: L10n.string("Up to %lld photos per round"), Int64(count))
     }
 
-    /// 首页主卡只取最新的一张照片：排除视频/录屏和截图。
+    /// 首页主卡默认取最新的一张照片：排除视频/录屏和截图。
+    /// 用户点「换一张」后跟随手动选中的那张；照片被删则回落到最新。
     /// 月份跟随这张照片；数量仍是全库总数。
     private var heroPhotoAsset: PHAsset? {
         let manager = dataManager.photoLibraryManager
-        return manager.allPhotos.first {
-            $0.mediaType == .image && !$0.isHidden && !manager.isScreenshot($0)
+        let allPhotos = manager.allPhotos
+
+        func isEligibleHeroAsset(_ asset: PHAsset) -> Bool {
+            asset.mediaType == .image && !asset.isHidden && !manager.isScreenshot(asset)
         }
+
+        if let heroOverrideAssetID,
+           let overridden = allPhotos.first(where: {
+               $0.localIdentifier == heroOverrideAssetID && isEligibleHeroAsset($0)
+           }) {
+            return overridden
+        }
+
+        return allPhotos.first(where: isEligibleHeroAsset)
     }
 
-    private func heroMonthText(for asset: PHAsset?) -> String {
-        (asset?.creationDate ?? Date()).formatted(.dateTime.year().month())
+    /// 在候选池里随机换一张，排除当前这张；候选只剩一张时保持不动。
+    private func shuffleHeroPhoto() {
+        let manager = dataManager.photoLibraryManager
+        let currentID = heroPhotoAsset?.localIdentifier
+        let candidates = manager.allPhotos.filter {
+            $0.mediaType == .image && !$0.isHidden && !manager.isScreenshot($0)
+        }
+        let pool = candidates.count > 1
+            ? candidates.filter { $0.localIdentifier != currentID }
+            : candidates
+
+        guard let next = pool.randomElement() else { return }
+        heroOverrideAssetID = next.localIdentifier
     }
 
     private func countText(_ count: Int?) -> String {
@@ -821,11 +893,13 @@ struct HomeView: View {
 
 // MARK: - 首页组件（对齐 home-prototype.html）
 
-/// 首页照片墙主卡：只加载一张最近照片，失败时退回石墨渐变。
+/// 首页照片墙主卡：只加载一张照片，失败时退回石墨渐变。
 private struct HomeHeroPhoto: View {
     let asset: PHAsset?
     let manager: PhotoLibraryManager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var image: UIImage?
+    @State private var renderID = 0
     @State private var requestID: PHImageRequestID?
 
     var body: some View {
@@ -840,6 +914,8 @@ private struct HomeHeroPhoto: View {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
+                    .id(renderID)
+                    .transition(.opacity)
             } else if asset == nil {
                 Image("PhotoWallIcon")
                     .resizable()
@@ -860,13 +936,24 @@ private struct HomeHeroPhoto: View {
         image = nil
         guard let asset else { return }
 
+        let targetID = asset.localIdentifier
         requestID = manager.loadFastThumbnail(
             for: asset,
             size: CGSize(width: 1_200, height: 900)
         ) { loaded in
-            guard let loaded else { return }
-            self.image = loaded
+            // 换图较快时，丢掉已经过期的回包。
+            guard let loaded, targetID == self.asset?.localIdentifier else { return }
             self.requestID = nil
+
+            let apply = {
+                self.image = loaded
+                self.renderID += 1
+            }
+            if reduceMotion {
+                apply()
+            } else {
+                withAnimation(.easeInOut(duration: 0.24), apply)
+            }
         }
     }
 

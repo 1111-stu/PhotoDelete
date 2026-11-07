@@ -207,19 +207,21 @@ struct ReviewActionToolbar: View {
     let isFavorite: Bool
     let canPerformAction: Bool
     let isPreparingShare: Bool
+    let canOpenDayWall: Bool
     let onShowDetails: () -> Void
     let onUndo: () -> Void
     let onFavorite: () -> Void
     let onShare: () -> Void
     let onFinish: () -> Void
+    let onShowDayWall: () -> Void
 
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             shareButton
 
-            // 中间胶囊固定承载三个高频动作：收藏 / 详情 / 撤回。
+            // 中间胶囊：收藏 / 详情 / 撤回 / 回到那天。
             Spacer(minLength: 0)
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 toolButton(
                     icon: isFavorite ? "heart.fill" : "heart",
                     label: isFavorite ? L10n.string("Unfavorite") : L10n.string("Favorite"),
@@ -234,6 +236,12 @@ struct ReviewActionToolbar: View {
                     icon: "arrow.uturn.backward",
                     label: L10n.string("Undo"),
                     action: onUndo
+                )
+                toolButton(
+                    icon: "calendar.day.timeline.left",
+                    label: L10n.string("Photos from this day"),
+                    isEnabled: canOpenDayWall,
+                    action: onShowDayWall
                 )
             }
             .padding(.horizontal, 8)
@@ -255,6 +263,7 @@ struct ReviewActionToolbar: View {
     private func toolButton(
         icon: String,
         label: String,
+        isEnabled: Bool = true,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
@@ -265,6 +274,8 @@ struct ReviewActionToolbar: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.35)
         .accessibilityLabel(label)
     }
 

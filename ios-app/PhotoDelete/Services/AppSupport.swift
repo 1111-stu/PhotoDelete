@@ -65,6 +65,7 @@ enum AppConstants {
     static let hasSeenAlbumShortcutHintKey = "photoDeleteHasSeenAlbumShortcutHintV2"
     static let hasSeenAlbumDownSwipeHintKey = "photoDeleteHasSeenAlbumDownSwipeHint"
     static let hasSeenDeleteButtonTipKey = "photoDeleteHasSeenDeleteButtonTip"
+    static let hasSeenDayWallHintKey = "photoDeleteHasSeenDayWallHint"
     static let reviewProgressByScopeKey = "photoDeleteReviewProgressByScope"
     static let shareCardTemplateKey = "photoDeleteShareCardTemplate"
     static let shareCardTicketPaletteKey = "photoDeleteShareCardTicketPalette"
