@@ -2,15 +2,18 @@ import SwiftUI
 
 /// 整理页的氛围底色：整屏铺一张当前照片的低分辨率模糊副本。
 /// 颜色来自照片本身、空间连续（顶部通常是天空/光源，底部是地面），
-/// 边缘和底部压暗以保护 chrome。切换照片时旧图保持不透明、新图淡入。
+/// 边缘和底部压暗以保护 chrome。切换照片时旧图保持不透明、新图淡入；
+/// 连续快速翻页时排到队列末尾，避免中途撤掉正在淡入的图层造成闪烁。
 struct ReviewAmbientBackground: View {
     let backdrop: PhotoAmbientBackdrop?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var displayed: PhotoAmbientBackdrop?
     @State private var incoming: PhotoAmbientBackdrop?
+    @State private var pending: PhotoAmbientBackdrop?
     @State private var incomingOpacity: Double = 1
-    @State private var promotionWorkItem: DispatchWorkItem?
+    @State private var isFading = false
 
     private static let fadeDuration: TimeInterval = 0.4
 
@@ -31,7 +34,6 @@ struct ReviewAmbientBackground: View {
         .allowsHitTesting(false)
         .onAppear { apply(backdrop, animated: false) }
         .onChange(of: backdrop?.assetID) { _, _ in apply(backdrop, animated: true) }
-        .onDisappear { promotionWorkItem?.cancel() }
     }
 
     private func imageLayer(_ backdrop: PhotoAmbientBackdrop) -> some View {
@@ -62,48 +64,57 @@ struct ReviewAmbientBackground: View {
     }
 
     private func apply(_ new: PhotoAmbientBackdrop?, animated: Bool) {
-        promotionWorkItem?.cancel()
-        promotionWorkItem = nil
-
         guard let new else {
-            displayed = nil
+            pending = nil
             incoming = nil
             incomingOpacity = 1
+            displayed = nil
+            isFading = false
             return
         }
-        guard new.assetID != incoming?.assetID else { return }
+        guard new.assetID != displayed?.assetID else { return }
 
         if !animated || reduceMotion {
-            displayed = new
+            pending = nil
             incoming = nil
             incomingOpacity = 1
+            displayed = new
+            isFading = false
             return
         }
 
-        // 旧底图保持不透明，新图以 0 透明度入树后淡入。
-        incoming = new
+        pending = new
+        startNextFadeIfNeeded()
+    }
+
+    private func startNextFadeIfNeeded() {
+        guard !isFading, let next = pending else { return }
+        pending = nil
+        guard next.assetID != displayed?.assetID else { return }
+
+        isFading = true
+        incoming = next
         incomingOpacity = 0
+
+        // 先让新层以 0 透明度上屏一帧，再开始淡入。
         DispatchQueue.main.async {
             withAnimation(.easeInOut(duration: Self.fadeDuration)) {
                 incomingOpacity = 1
+            } completion: {
+                guard incoming?.assetID == next.assetID else {
+                    isFading = false
+                    return
+                }
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    displayed = next
+                    incoming = nil
+                    incomingOpacity = 1
+                }
+                isFading = false
+                startNextFadeIfNeeded()
             }
         }
-
-        let targetID = new.assetID
-        let workItem = DispatchWorkItem { [self] in
-            guard incoming?.assetID == targetID else { return }
-            var transaction = Transaction()
-            transaction.disablesAnimations = true
-            withTransaction(transaction) {
-                displayed = new
-                incoming = nil
-                incomingOpacity = 1
-            }
-        }
-        promotionWorkItem = workItem
-        DispatchQueue.main.asyncAfter(
-            deadline: .now() + Self.fadeDuration + 0.02,
-            execute: workItem
-        )
     }
 }

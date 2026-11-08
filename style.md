@@ -386,7 +386,7 @@ The provided reference screens add useful composition patterns:
 - Use `PhotoDeleteScreenBackground()` on root pages (near-black gradient).
 - Use `reviewCanvas` (pure black) only for photo review/immersive editing.
 - Do not add decorative background gradients or glows outside the registered entry cards.
-- **Registered exception (2026-11-08):** the review canvas may carry a **photo-derived ambient backdrop** — a 64pt local thumbnail of the current photo, globally blurred and scaled to fill the screen. It keeps the photo's own spatial color distribution (sky/ceiling light at the top, ground/shadow at the bottom), so multiple hues stay coherent because they come from one scene. This is the industry-standard “blurred fill” pattern; do **not** replace it with a flat dominant-color tint or two separate radial color spots. It is photo color, not brand color; it never encodes state, never animates on its own, and crossfades only when the current photo changes. See §6.2 for geometry and §8.2 for motion.
+- **Registered exception (2026-11-08):** the review canvas may carry a **photo-derived ambient backdrop** — a 64pt local thumbnail of the current photo, globally blurred and scaled to fill the screen. It keeps the photo's own spatial color distribution (sky/ceiling light at the top, ground/shadow at the bottom), so multiple hues stay coherent because they come from one scene. This is the industry-standard “blurred fill” pattern; do **not** replace it with a flat dominant-color tint or two separate radial color spots. A highlight rolloff caps the white point at ~0.68 so white/icy photos stay soft instead of blowing out the chrome. It is photo color, not brand color; it never encodes state, never animates on its own, and crossfades only when the current photo changes. See §6.2 for geometry and §8.2 for motion.
 
 ### 6.2 Cards
 
@@ -616,7 +616,7 @@ Rules:
 | Fan reveal | ≈0.62s easeOut, staggered once (0 / 90 / 180ms) |
 | Sheet presentation | System spring; prototype reference ≈0.34s cubic-bezier(.22,.9,.28,1) |
 | Toast | 0.22s opacity + 0.30s transform; Reduce Motion = opacity only |
-| Review ambient backdrop | 0.4s crossfade when the current photo changes: old layer stays opaque, new layer fades 0→1; static otherwise; Reduce Motion = instant |
+| Review ambient backdrop | 0.4s crossfade when the current photo changes: old layer stays opaque, new layer fades 0→1, rapid changes are queued so an in-flight fade is never cut short; static otherwise; Reduce Motion = instant |
 | Random Review sheen | 7s loop: ~3s sweep, ~4s rest; 30fps; disabled for Reduce Motion |
 
 ### 8.3 Reduce Motion
