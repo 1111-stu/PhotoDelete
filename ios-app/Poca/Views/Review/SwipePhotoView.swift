@@ -67,10 +67,11 @@ struct SwipePhotoView: View {
     @State private var needsSourceRefreshAfterAlbumTray = false
     /// 相册导轨正在被拖动/惯性滚动：切换照片不加动画，预加载推迟到停手。
     @State private var isStripScrubbing = false
-    /// 当前照片取出的氛围色；nil 时画布保持纯黑。
-    @State private var ambientPalette: PhotoAmbientPalette?
-    @State private var ambientPaletteAssetID: String?
+    /// 当前照片的模糊铺底；nil 时画布保持纯黑。
+    @State private var ambientBackdrop: PhotoAmbientBackdrop?
+    @State private var ambientBackdropAssetID: String?
     @State private var ambientThumbnailRequestID: PHImageRequestID?
+    @State private var ambientPrefetchingAssetIDs: Set<String> = []
 
     private static let countFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -250,7 +251,7 @@ struct SwipePhotoView: View {
     private var pendingFavoriteCount: Int { dataManager.favoriteCandidates.count }
 
     private var ambientBackgroundLayer: some View {
-        ReviewAmbientBackground(palette: ambientPalette)
+        ReviewAmbientBackground(backdrop: ambientBackdrop)
     }
 
     private var ambientSourceAssetID: String? {
@@ -400,7 +401,7 @@ struct SwipePhotoView: View {
             )
             dataManager.photoLibraryManager.cancelSwipePreviewPreloads()
             preloadedAssets.removeAll()
-            cancelAmbientPaletteLoad()
+            cancelAmbientBackdropLoad()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
             // 处理内存警告
@@ -420,10 +421,10 @@ struct SwipePhotoView: View {
             if refreshSelectedAlbumState() {
                 initializeSessionIfNeeded()
             }
-            scheduleAmbientPaletteLoad(for: currentRealPhoto)
+            scheduleAmbientBackdropLoad(for: currentRealPhoto)
         }
         .onChange(of: ambientSourceAssetID) { _, _ in
-            scheduleAmbientPaletteLoad(for: currentRealPhoto)
+            scheduleAmbientBackdropLoad(for: currentRealPhoto)
         }
         .onChange(of: albumStateRefreshToken) { _ in
             refreshSelectedAlbumState()
@@ -1194,7 +1195,32 @@ struct SwipePhotoView: View {
             size: swipeImageTargetSize,
             maxCount: 3
         )
+        prefetchAmbientBackdrops(for: Array(upcomingPhotos.dropFirst().prefix(2)))
         preloadedAssets = upcomingPhotos
+    }
+
+    /// 提前把下两张的模糊底图算好，切换照片时氛围色能和卡片滑动同时开始淡入。
+    private func prefetchAmbientBackdrops(for assets: [PHAsset]) {
+        for asset in assets {
+            let assetID = asset.localIdentifier
+            guard PhotoAmbientBackdropCache.shared.backdrop(for: assetID) == nil,
+                  !ambientPrefetchingAssetIDs.contains(assetID) else { continue }
+
+            ambientPrefetchingAssetIDs.insert(assetID)
+            _ = dataManager.photoLibraryManager.loadFastThumbnail(
+                for: asset,
+                size: CGSize(width: 64, height: 64),
+                contentMode: .aspectFit
+            ) { image in
+                ambientPrefetchingAssetIDs.remove(assetID)
+                guard let image,
+                      let blurred = PhotoAmbientBackdropRenderer.make(from: image)
+                else { return }
+                PhotoAmbientBackdropCache.shared.store(
+                    PhotoAmbientBackdrop(assetID: assetID, image: blurred)
+                )
+            }
+        }
     }
 
     private var swipeImageTargetSize: CGSize {
@@ -1202,48 +1228,49 @@ struct SwipePhotoView: View {
         return CGSize(width: 380 * scale, height: 520 * scale)
     }
 
-    // MARK: - 氛围色
+    // MARK: - 氛围底色
 
-    private func scheduleAmbientPaletteLoad(for asset: PHAsset?) {
+    private func scheduleAmbientBackdropLoad(for asset: PHAsset?) {
         guard let asset else {
-            cancelAmbientPaletteLoad()
-            ambientPalette = nil
-            ambientPaletteAssetID = nil
+            cancelAmbientBackdropLoad()
+            ambientBackdrop = nil
+            ambientBackdropAssetID = nil
             return
         }
 
         let assetID = asset.localIdentifier
-        if ambientPalette?.assetID == assetID { return }
-        if ambientPaletteAssetID == assetID {
-            if let cached = PhotoAmbientPaletteCache.shared.palette(for: assetID) {
-                ambientPalette = cached
+        if ambientBackdrop?.assetID == assetID { return }
+        if ambientBackdropAssetID == assetID {
+            if let cached = PhotoAmbientBackdropCache.shared.backdrop(for: assetID) {
+                ambientBackdrop = cached
             }
             return
         }
 
-        cancelAmbientPaletteLoad()
-        ambientPaletteAssetID = assetID
-        if let cached = PhotoAmbientPaletteCache.shared.palette(for: assetID) {
-            ambientPalette = cached
+        cancelAmbientBackdropLoad()
+        ambientBackdropAssetID = assetID
+        if let cached = PhotoAmbientBackdropCache.shared.backdrop(for: assetID) {
+            ambientBackdrop = cached
             return
         }
-        // 48pt 本地缩略图，不下载 iCloud 原图；像素量很小，直接在主线程取色。
+        // 64pt 本地缩略图，不下载 iCloud 原图；低分辨率高斯模糊后放大铺满全屏。
         ambientThumbnailRequestID = dataManager.photoLibraryManager.loadFastThumbnail(
             for: asset,
-            size: CGSize(width: 48, height: 48),
+            size: CGSize(width: 64, height: 64),
             contentMode: .aspectFit
         ) { image in
-            guard ambientPaletteAssetID == assetID else { return }
+            guard ambientBackdropAssetID == assetID else { return }
             ambientThumbnailRequestID = nil
             guard let image,
-                  let palette = PhotoAmbientColorExtractor.palette(from: image, assetID: assetID)
+                  let blurred = PhotoAmbientBackdropRenderer.make(from: image)
             else { return }
-            PhotoAmbientPaletteCache.shared.store(palette)
-            ambientPalette = palette
+            let backdrop = PhotoAmbientBackdrop(assetID: assetID, image: blurred)
+            PhotoAmbientBackdropCache.shared.store(backdrop)
+            ambientBackdrop = backdrop
         }
     }
 
-    private func cancelAmbientPaletteLoad() {
+    private func cancelAmbientBackdropLoad() {
         if let ambientThumbnailRequestID {
             dataManager.photoLibraryManager.cancelImageRequest(ambientThumbnailRequestID)
             self.ambientThumbnailRequestID = nil

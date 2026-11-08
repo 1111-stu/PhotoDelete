@@ -1,81 +1,109 @@
 import SwiftUI
 
-/// 整理页的氛围底色：照片主色铺成两层静态径向渐变，纯黑仍是基底。
-/// 只在切换照片时淡入，不做呼吸/漂移（style.md：Static is static）。
+/// 整理页的氛围底色：整屏铺一张当前照片的低分辨率模糊副本。
+/// 颜色来自照片本身、空间连续（顶部通常是天空/光源，底部是地面），
+/// 边缘和底部压暗以保护 chrome。切换照片时旧图保持不透明、新图淡入。
 struct ReviewAmbientBackground: View {
-    let palette: PhotoAmbientPalette?
+    let backdrop: PhotoAmbientBackdrop?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var displayed: PhotoAmbientBackdrop?
+    @State private var incoming: PhotoAmbientBackdrop?
+    @State private var incomingOpacity: Double = 1
+    @State private var promotionWorkItem: DispatchWorkItem?
+
+    private static let fadeDuration: TimeInterval = 0.4
 
     var body: some View {
         ZStack {
             Theme.reviewCanvas
 
-            if let palette {
-                glow(palette)
-                    .id(palette.assetID)
-                    .transition(.opacity)
+            if let displayed {
+                imageLayer(displayed)
+            }
+
+            if let incoming {
+                imageLayer(incoming)
+                    .opacity(incomingOpacity)
             }
         }
         .ignoresSafeArea()
         .allowsHitTesting(false)
-        .animation(
-            reduceMotion ? nil : .easeOut(duration: 0.45),
-            value: palette?.assetID
+        .onAppear { apply(backdrop, animated: false) }
+        .onChange(of: backdrop?.assetID) { _, _ in apply(backdrop, animated: true) }
+        .onDisappear { promotionWorkItem?.cancel() }
+    }
+
+    private func imageLayer(_ backdrop: PhotoAmbientBackdrop) -> some View {
+        GeometryReader { geometry in
+            Image(uiImage: backdrop.image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+                .opacity(0.94)
+        }
+        .overlay { chromeScrim }
+        .accessibilityHidden(true)
+    }
+
+    /// 顶部（页头/状态栏）和底部（工具条）压暗；中段保持照片本身的颜色。
+    private var chromeScrim: some View {
+        LinearGradient(
+            stops: [
+                .init(color: .black.opacity(0.26), location: 0),
+                .init(color: .clear, location: 0.14),
+                .init(color: .clear, location: 0.74),
+                .init(color: .black.opacity(0.30), location: 1)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
         )
     }
 
-    private func glow(_ palette: PhotoAmbientPalette) -> some View {
-        GeometryReader { geometry in
-            let width = geometry.size.width
-            let height = geometry.size.height
-            let longSide = max(width, height)
+    private func apply(_ new: PhotoAmbientBackdrop?, animated: Bool) {
+        promotionWorkItem?.cancel()
+        promotionWorkItem = nil
 
-            ZStack {
-                Ellipse()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                palette.top.opacity(0.58),
-                                palette.top.opacity(0)
-                            ],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: longSide * 0.46
-                        )
-                    )
-                    .frame(width: width * 1.5, height: height * 0.62)
-                    .position(x: width / 2, y: height * 0.10)
-                    .blur(radius: 54)
+        guard let new else {
+            displayed = nil
+            incoming = nil
+            incomingOpacity = 1
+            return
+        }
+        guard new.assetID != incoming?.assetID else { return }
 
-                Ellipse()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                palette.bottom.opacity(0.40),
-                                palette.bottom.opacity(0)
-                            ],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: longSide * 0.42
-                        )
-                    )
-                    .frame(width: width * 1.6, height: height * 0.45)
-                    .position(x: width / 2, y: height * 0.98)
-                    .blur(radius: 60)
+        if !animated || reduceMotion {
+            displayed = new
+            incoming = nil
+            incomingOpacity = 1
+            return
+        }
 
-                // 顶部与底部各压一点黑，保证页头白字和玻璃按钮的对比度。
-                LinearGradient(
-                    stops: [
-                        .init(color: .black.opacity(0.16), location: 0),
-                        .init(color: .clear, location: 0.30),
-                        .init(color: .clear, location: 0.68),
-                        .init(color: .black.opacity(0.30), location: 1)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+        // 旧底图保持不透明，新图以 0 透明度入树后淡入。
+        incoming = new
+        incomingOpacity = 0
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: Self.fadeDuration)) {
+                incomingOpacity = 1
             }
         }
+
+        let targetID = new.assetID
+        let workItem = DispatchWorkItem { [self] in
+            guard incoming?.assetID == targetID else { return }
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                displayed = new
+                incoming = nil
+                incomingOpacity = 1
+            }
+        }
+        promotionWorkItem = workItem
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + Self.fadeDuration + 0.02,
+            execute: workItem
+        )
     }
 }

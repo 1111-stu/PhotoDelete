@@ -331,28 +331,32 @@ struct PocaTests {
         #expect(ReviewPhotoCardSizing.cardSize(assetAspectRatio: .nan, in: slot) == slot)
     }
 
-    @Test func ambientPaletteSamplesTopAndBottomRegions() async throws {
+    @Test func ambientBackdropDownsamplesAndPreservesTopBottomColors() async throws {
         let image = makeSolidImage(
-            size: CGSize(width: 40, height: 120),
+            size: CGSize(width: 400, height: 400),
             fills: [
-                (CGRect(x: 0, y: 0, width: 40, height: 60), UIColor(red: 0.10, green: 0.45, blue: 0.95, alpha: 1)),
-                (CGRect(x: 0, y: 60, width: 40, height: 60), UIColor(red: 0.15, green: 0.60, blue: 0.15, alpha: 1))
+                (CGRect(x: 0, y: 0, width: 400, height: 200), UIColor(red: 0.10, green: 0.45, blue: 0.95, alpha: 1)),
+                (CGRect(x: 0, y: 200, width: 400, height: 200), UIColor(red: 0.15, green: 0.60, blue: 0.15, alpha: 1))
             ]
         )
-        let palette = try #require(PhotoAmbientColorExtractor.palette(from: image, assetID: "test"))
-        let top = try #require(rgbComponents(of: palette.top))
-        let bottom = try #require(rgbComponents(of: palette.bottom))
+        let backdrop = try #require(PhotoAmbientBackdropRenderer.make(from: image))
+        #expect(backdrop.size.width <= 64)
+        #expect(backdrop.size.height <= 64)
 
+        let top = try #require(sampledPixel(of: backdrop, relativeX: 0.5, relativeY: 0.15))
+        let bottom = try #require(sampledPixel(of: backdrop, relativeX: 0.5, relativeY: 0.85))
         #expect(top.b > top.r)
         #expect(bottom.g > bottom.b)
     }
 
-    @Test func ambientPaletteSkipsNeutralPhotos() async throws {
-        let gray = makeSolidImage(
-            size: CGSize(width: 40, height: 40),
-            fills: [(CGRect(x: 0, y: 0, width: 40, height: 40), UIColor(white: 0.5, alpha: 1))]
+    @Test func ambientBackdropCapsSampleSizeForTallPhotos() async throws {
+        let tall = makeSolidImage(
+            size: CGSize(width: 100, height: 400),
+            fills: [(CGRect(x: 0, y: 0, width: 100, height: 400), UIColor(red: 0.20, green: 0.50, blue: 0.80, alpha: 1))]
         )
-        #expect(PhotoAmbientColorExtractor.palette(from: gray, assetID: "gray") == nil)
+        let backdrop = try #require(PhotoAmbientBackdropRenderer.make(from: tall))
+        #expect(backdrop.size.height <= 64)
+        #expect(backdrop.size.width < backdrop.size.height)
     }
 
     @Test func photoAssetMetadataFormatterUsesReadableFallbacks() async throws {
@@ -3788,6 +3792,40 @@ struct PocaTests {
         var a: CGFloat = 0
         guard UIColor(color).getRed(&r, green: &g, blue: &b, alpha: &a) else { return nil }
         return (Double(r), Double(g), Double(b))
+    }
+
+    private func sampledPixel(
+        of image: UIImage,
+        relativeX: CGFloat,
+        relativeY: CGFloat
+    ) -> (r: Double, g: Double, b: Double)? {
+        guard let cgImage = image.cgImage else { return nil }
+        let width = cgImage.width
+        let height = cgImage.height
+        guard width > 0, height > 0 else { return nil }
+
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        guard let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else {
+            return nil
+        }
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        let x = min(max(Int(CGFloat(width) * relativeX), 0), width - 1)
+        let y = min(max(Int(CGFloat(height) * relativeY), 0), height - 1)
+        let index = (y * width + x) * 4
+        return (
+            Double(pixels[index]) / 255,
+            Double(pixels[index + 1]) / 255,
+            Double(pixels[index + 2]) / 255
+        )
     }
 
     private func whiteContrast(_ rgb: (r: Double, g: Double, b: Double)) -> Double {
