@@ -148,6 +148,9 @@ struct PendingPhotoWallView: View {
         .onChange(of: dataManager.cleanupStatsRevision) {
             rebuildSnapshot(preferredYear: selectedYear)
         }
+        .onChange(of: dataManager.libraryDispositionCounts) {
+            rebuildSnapshot(preferredYear: selectedYear)
+        }
         .onReceive(dataManager.photoLibraryManager.$allPhotos) { _ in
             rebuildSnapshot(preferredYear: selectedYear)
         }
@@ -315,10 +318,14 @@ struct PendingPhotoWallView: View {
     }
 
     /// 全库扫描放到后台；主线程只接结果，避免切年/回墙时卡顿。
+    /// 墙面是「待整理」入口，只铺 pending 照片；已完成和垃圾桶不出现。
     private func rebuildSnapshot(preferredYear: Int) {
         rebuildGeneration += 1
         let generation = rebuildGeneration
-        let photos = dataManager.photoLibraryManager.allPhotos
+        let disposition = dataManager.makeDispositionSnapshot()
+        let photos = dataManager.photoLibraryManager.allPhotos.filter {
+            disposition.disposition(for: $0) == .pending
+        }
 
         Task.detached(priority: .userInitiated) {
             let built = PendingPhotoWallBuilder.build(

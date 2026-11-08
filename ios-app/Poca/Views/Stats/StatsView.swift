@@ -82,11 +82,11 @@ private struct StatsScreen: View {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(L10n.string("Reviewed"))
+                        Text(L10n.string("To review"))
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Theme.secondaryText)
 
-                        Text(PocaCountFormat.plain(stats.organizedAssets))
+                        Text(PocaCountFormat.plain(stats.pendingAssets))
                             .font(.system(size: 42, weight: .bold))
                             .monospacedDigit()
                             .foregroundColor(Theme.primaryText)
@@ -98,20 +98,16 @@ private struct StatsScreen: View {
                         Text(L10n.string("\(stats.totalAssets) photos in total"))
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Theme.secondaryText)
-
-                        Text(organizedProgressText(for: stats))
-                            .font(.system(size: 17, weight: .semibold))
-                            .monospacedDigit()
-                            .foregroundColor(Theme.primaryText)
                     }
                 }
 
-                // 中性进度条：琥珀不用于「已完成」状态（style.md §2.3）。
-                ProgressView(value: organizedProgress(for: stats))
-                    .progressViewStyle(LinearProgressViewStyle(tint: Theme.primaryText.opacity(0.55)))
-                    .frame(height: 6)
-                    .clipShape(Capsule(style: .continuous))
+                HStack {
+                    stateMetric(title: L10n.string("Reviewed"), value: stats.completedAssets)
+                    Spacer()
+                    stateMetric(title: L10n.string("Trash"), value: stats.stagedAssets)
+                }
 
+                // 账本口径：只统计已提交删除，不含垃圾桶暂存。
                 HStack {
                     Text(L10n.string("Deleted content: about \(stats.formattedSpaceSaved)"))
                     Spacer()
@@ -125,13 +121,16 @@ private struct StatsScreen: View {
         }
     }
 
-    private func organizedProgress(for stats: AdvancedLibraryStats) -> Double {
-        guard stats.totalAssets > 0 else { return 0 }
-        return min(max(Double(stats.organizedAssets) / Double(stats.totalAssets), 0), 1)
-    }
-
-    private func organizedProgressText(for stats: AdvancedLibraryStats) -> String {
-        L10n.percent(Int((organizedProgress(for: stats) * 100).rounded()))
+    private func stateMetric(title: String, value: Int) -> some View {
+        HStack(spacing: 6) {
+            Text(title)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(Theme.secondaryText)
+            Text(PocaCountFormat.plain(value))
+                .font(.system(size: 14, weight: .semibold))
+                .monospacedDigit()
+                .foregroundColor(Theme.primaryText)
+        }
     }
 
     // MARK: - 清理历史（按月分组，合并原「月度统计 + 清理历史」）

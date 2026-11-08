@@ -121,6 +121,7 @@ private final class AssetQuerySubscription {
         let changes: [AnyPublisher<Void, Never>] = [
             dataManager.$assetLibraryRevision.dropFirst().map { _ in () }.eraseToAnyPublisher(),
             dataManager.$reviewedAssetIDs.dropFirst().map { _ in () }.eraseToAnyPublisher(),
+            dataManager.photoLibraryManager.$favorites.dropFirst().map { _ in () }.eraseToAnyPublisher(),
             dataManager.$systemAlbums.dropFirst().map { _ in () }.eraseToAnyPublisher(),
             dataManager.$userAlbums.dropFirst().map { _ in () }.eraseToAnyPublisher(),
             dataManager.$albumMemberAssetIDs.dropFirst().map { _ in () }.eraseToAnyPublisher(),
@@ -173,7 +174,7 @@ private final class AssetQuerySubscription {
             assetsByID[$0.key]?.modificationDate == $0.value.version &&
                 assetsByID[$0.key] != nil && $0.value.state.knownSizeMB != nil
         }
-        let reviewed = dataManager.reviewedAssetIDs
+        let reviewed = dataManager.completedAssetIDsForReview
         metadata = currentAssets.map { asset in
             let size: AssetQuerySizeState
             if let cached = dataManager.cachedAssetFileSizeEstimate(for: asset), cached.isReliable {

@@ -202,7 +202,8 @@ struct AdvancedView: View {
             allPhotoCount: dataManager.photoLibraryManager.allPhotos.count,
             screenshotCount: dataManager.photoLibraryManager.screenshots.count,
             videoCount: dataManager.photoLibraryManager.videos.count,
-            reviewedCount: dataManager.reviewedAssetIDs.count,
+            completedCount: dataManager.libraryDispositionCounts.completed,
+            pendingCount: dataManager.libraryDispositionCounts.pending,
             deleteCandidateCount: dataManager.deleteCandidates.count,
             favoriteCandidateCount: dataManager.favoriteCandidates.count,
             cleanupStatsRevision: dataManager.cleanupStatsRevision,
@@ -470,7 +471,9 @@ struct AdvancedView: View {
                     assetCount: assetCount,
                     screenshotCount: max(assetCount / 5, 0),
                     videoCount: max(assetCount / 16, 0),
-                    reviewedCount: reviewedCount,
+                    pendingCount: max(assetCount - reviewedCount, 0),
+                    stagedCount: 0,
+                    completedCount: reviewedCount,
                     estimatedSizeMB: demoEstimatedSizeMB(for: scope, assetCount: assetCount)
                 )
             )
@@ -623,7 +626,8 @@ private struct AdvancedDashboardRefreshKey: Equatable {
     let allPhotoCount: Int
     let screenshotCount: Int
     let videoCount: Int
-    let reviewedCount: Int
+    let completedCount: Int
+    let pendingCount: Int
     let deleteCandidateCount: Int
     let favoriteCandidateCount: Int
     let cleanupStatsRevision: UUID
@@ -738,7 +742,7 @@ private struct AdvancedPeriodProgressCard: View {
 
                     Text(String(
                         format: L10n.string("%lld/%lld items organized"),
-                        Int64(summary.reviewedCount),
+                        Int64(summary.completedCount),
                         Int64(summary.assetCount)
                     ))
                         .font(.system(size: 12, weight: .regular))

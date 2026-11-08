@@ -122,11 +122,23 @@ struct SwipePhotoView: View {
     }
 
     private var filteredRealPhotos: [PHAsset] {
-        source.photos(
+        let photos = source.photos(
             dataManager: dataManager, activeAlbumInfo: activeAlbumInfo,
             randomSeed: randomReviewSeed, hideFiled: randomReviewHideFiledPhotos,
             batchSizeValue: randomReviewBatchSizeValue, sortOrderValue: reviewSortOrderValue
         )
+        guard showsOnlyPendingPhotos else { return photos }
+        return photos.filter { dataManager.disposition(for: $0) == .pending }
+    }
+
+    /// 整理队列只收「待整理」；相册浏览、收藏分类、显式 includeAll 范围保持原来源。
+    /// 相册页的「整理」入口按待整理收，旧相册照片才能继续被清理。
+    private var showsOnlyPendingPhotos: Bool {
+        if randomReviewScope != nil { return false }
+        if let explicitReviewScope {
+            return explicitReviewScope.reviewedPolicy == .skipPreviouslyReviewed
+        }
+        return selectedCategory != .favorites
     }
 
     private var usesChronologicalReviewOrder: Bool { source.usesChronologicalOrder }
@@ -414,6 +426,9 @@ struct SwipePhotoView: View {
         .onChange(of: dataManager.photoLibraryManager.favorites.count) { _ in
             guard selectedCategory == .favorites || activeAlbumInfo?.type == .favorites else { return }
             refreshSessionForSourceChangeIfNeeded(force: true)
+        }
+        .onChange(of: dataManager.deleteCandidates.map(\.localIdentifier)) { _ in
+            reconcileSessionReviewedStateWithTrash()
         }
         .onChange(of: dataManager.hasLoadedAlbumMembership) { _ in
             initializeSessionIfNeeded()
@@ -706,14 +721,9 @@ struct SwipePhotoView: View {
         return pages
     }
 
-    /// 相册整理和随机整理：已加入待删除的照片不再参与自动/手动翻页。
-    private var skipsQueuedDeletesDuringBrowse: Bool {
-        randomReviewScope != nil || isAlbumMode
-    }
-
     private func horizontalNeighborIndex(step: Int) -> Int? {
         let isExcluded: (Int) -> Bool = { index in
-            skipsQueuedDeletesDuringBrowse && isAssetQueuedForDelete(session.photos[index])
+            isAssetQueuedForDelete(session.photos[index])
         }
         if step < 0 {
             return PhotoRandomReviewNavigationPolicy.previousIndex(
@@ -1117,9 +1127,10 @@ struct SwipePhotoView: View {
     private func refreshSessionPhotos(_ photos: [PHAsset]? = nil) {
         showCompletionMessage = session.refresh(
             photos: photos ?? filteredRealPhotos,
-            persistedReviewedIDs: dataManager.reviewedAssetIDs,
+            persistedReviewedIDs: dataManager.completedAssetIDsForReview,
+            // 收藏本身就是完成信号；收藏分类要能继续浏览收藏照片做清理，不能按“已完成”跳过。
             usesPersistedReviewedState: explicitReviewScope?.usesPersistedReviewedState(hasAlbumContext: isAlbumMode)
-                ?? (!isAlbumMode && !isRandomMemoriesMode),
+                ?? (!isAlbumMode && !isRandomMemoriesMode && selectedCategory != .favorites),
             preservesSessionReviewedState: didInitializeSession,
             savedAssetIdentifier: (reviewStartFromDay == nil && reviewStartFromAssetID == nil)
                 ? restoredSessionProgressAssetID
@@ -1296,11 +1307,8 @@ struct SwipePhotoView: View {
         guard !session.photos.isEmpty else { return }
 
         stopInlineVideoPlayback()
-        // 自动「下一张」也要跳过已加入待删除的存量项（不只是本轮刚加的）：
-        // 相册模式不读持久化的已整理状态，垃圾桶里的旧照片不在 reviewedIDs 里。
-        let queuedIdentifiers: Set<String> = skipsQueuedDeletesDuringBrowse
-            ? Set(dataManager.deleteCandidates.map(\.localIdentifier))
-            : []
+        // 所有来源都跳过垃圾桶里的照片：待确认不在待整理的浏览队列里。
+        let queuedIdentifiers = Set(dataManager.deleteCandidates.map(\.localIdentifier))
         let isExcluded: (Int) -> Bool = { index in
             guard session.assetIdentifiers.indices.contains(index) else { return false }
             return queuedIdentifiers.contains(session.assetIdentifiers[index])
@@ -1419,6 +1427,20 @@ struct SwipePhotoView: View {
 
     private func isValidPhotoIndex(_ index: Int) -> Bool {
         return index >= 0 && index < session.photos.count
+    }
+
+    /// 从垃圾桶移出的照片回到本轮：撤掉仅因暂存产生的会话已处理标记。
+    private func reconcileSessionReviewedStateWithTrash() {
+        let stagedIDs = Set(dataManager.deleteCandidates.map(\.localIdentifier))
+        let completedIDs = dataManager.reviewedAssetIDs
+        let restoredIDs = session.reviewedIDs.filter { identifier in
+            !stagedIDs.contains(identifier)
+                && !completedIDs.contains(identifier)
+                && !actions.albumFilingAssetIDs.contains(identifier)
+                && !actions.recentlyFiledAlbumAssetIDs.contains(identifier)
+        }
+        guard !restoredIDs.isEmpty else { return }
+        session.reviewedIDs.subtract(restoredIDs)
     }
 
     private func isAssetQueuedForDelete(_ asset: PHAsset) -> Bool {

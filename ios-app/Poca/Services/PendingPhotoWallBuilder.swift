@@ -102,7 +102,7 @@ enum PendingPhotoWallBuilder {
         var libraryPhotoCount = 0
 
         // newest-first：同日最新的非截屏做封面，见 `DayBucket`。
-        // 墙面只按拍摄时间铺照片，不读整理进度。
+        // 调用方负责只传入 pending 照片；这里只按拍摄时间铺墙。
         for asset in photos {
             guard let creationDate = asset.creationDate else { continue }
             let dayStart = calendar.startOfDay(for: creationDate)

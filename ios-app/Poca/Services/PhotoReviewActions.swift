@@ -42,7 +42,8 @@ private enum PhotoReviewActionRecord {
     case favorite(
         PHAsset,
         originalIndex: Int,
-        previousStatus: Bool
+        previousStatus: Bool,
+        wasReviewed: Bool
     )
     case fileToAlbum(
         PHAsset,
@@ -94,7 +95,7 @@ final class PhotoReviewActions: ObservableObject {
     var favoriteActionCount: Int {
         var changes: [String: (initial: Bool, current: Bool)] = [:]
         for action in actionHistory {
-            guard case .favorite(let asset, _, let previousStatus) = action else { continue }
+            guard case .favorite(let asset, _, let previousStatus, _) = action else { continue }
             let id = asset.localIdentifier
             let target = !previousStatus
             if let existing = changes[id] {
@@ -143,7 +144,7 @@ final class PhotoReviewActions: ObservableObject {
         let originalIndex = session.currentIndex
         let wasReviewed = dataManager.isReviewed(asset)
         let wasSessionReviewed = session.reviewedIDs.contains(asset.localIdentifier)
-        _ = dataManager.markReviewed(asset)
+        // 入垃圾桶只是「待确认」，不写完成账本。
         session.reviewedIDs.insert(asset.localIdentifier)
         dataManager.addToDeleteCandidates(asset)
         actionHistory.append(.delete(
@@ -212,6 +213,7 @@ final class PhotoReviewActions: ObservableObject {
         let previousStatus = effectiveFavoriteStatus(for: asset, dataManager: dataManager)
         guard previousStatus != targetStatus else { return }
         let originalIndex = session.currentIndex
+        let wasReviewed = dataManager.isReviewed(asset)
 
         if targetStatus, dataManager.isInDeleteCandidates(asset) {
             _ = cancelDelete(asset, at: originalIndex, dataManager: dataManager, session: session)
@@ -226,7 +228,8 @@ final class PhotoReviewActions: ObservableObject {
                 self.actionHistory.append(.favorite(
                     asset,
                     originalIndex: originalIndex,
-                    previousStatus: previousStatus
+                    previousStatus: previousStatus,
+                    wasReviewed: wasReviewed
                 ))
                 self.events.send(.haptic(.success))
                 self.events.send(.feedback(
@@ -299,7 +302,7 @@ final class PhotoReviewActions: ObservableObject {
 
         let wasSessionReviewed = session.reviewedIDs.contains(assetID)
         let wasReviewed = dataManager.isReviewed(asset)
-        _ = dataManager.markReviewed(asset)
+        // 入册的完成状态由「用户相册成员」实时信号派生，不写持久化完成账本。
         session.reviewedIDs.insert(assetID)
         actionHistory.append(.fileToAlbum(
             asset,
@@ -314,6 +317,10 @@ final class PhotoReviewActions: ObservableObject {
 
         dataManager.addPhotoToAlbum(asset, album: collection) { success, didInsert in
             self.albumFilingAssetIDs.remove(assetID)
+            if success {
+                // 在 Poca 内明确入册，才写入完成信号；系统里本来就在相册不算。
+                dataManager.markCompletedAssets([assetID])
+            }
 
             if success, didInsert {
                 if self.silentAlbumFilingUndoKeys.remove(filingKey) != nil {
@@ -568,11 +575,12 @@ final class PhotoReviewActions: ObservableObject {
             ))
             events.send(.restorePosition(asset: asset, preferredIndex: originalIndex, refreshSource: false))
 
-        case .favorite(let asset, let originalIndex, let previousStatus):
+        case .favorite(let asset, let originalIndex, let previousStatus, let wasReviewed):
             favoriteMutationTargets[asset.localIdentifier] = previousStatus
             dataManager.setPhotoFavoriteImmediately(asset, isFavorite: previousStatus) { success in
                 self.favoriteMutationTargets.removeValue(forKey: asset.localIdentifier)
                 if success {
+                    dataManager.restoreReviewedState(asset, wasReviewed: wasReviewed)
                     self.finishUndo()
                     self.events.send(.haptic(.success))
                     self.events.send(.feedback(

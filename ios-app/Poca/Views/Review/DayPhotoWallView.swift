@@ -291,7 +291,7 @@ struct DayPhotoWallView: View {
             _ = poppingIDs.insert(id)
         }
 
-        dataManager.addToDeleteCandidates([asset], markAsReviewed: true)
+        dataManager.addToDeleteCandidates([asset])
 
         // 等碎纸屑飞完再让这一列补位。
         let delay: TimeInterval = reduceMotion ? 0.16 : 0.45

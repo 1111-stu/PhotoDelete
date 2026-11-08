@@ -304,6 +304,7 @@ class DataManager: ObservableObject {
     @Published private(set) var imageCompressionJob = AdvancedImageCompressionJobState()
     @Published private(set) var videoCompressionJob = AdvancedVideoCompressionJobState()
     @Published private(set) var reviewedAssetIDs: Set<String> = []
+    @Published private(set) var libraryDispositionCounts = PhotoDispositionCounts()
     @Published private(set) var recentOrganizedPhotoRecords: [RecentOrganizedPhotoRecord] = []
     @Published private(set) var periodSummariesByScope: [AdvancedTimeScope: [PhotoPeriodSummary]] = [:]
     @Published private(set) var isLoadingPeriodSummaries = false
@@ -381,6 +382,7 @@ class DataManager: ObservableObject {
         let timeGroups: [TimeGroupInfo]
         let historicalTodayPhotos: [PHAsset]
         let historicalTodayReferenceDay: Date
+        let dispositionCounts: PhotoDispositionCounts
     }
 
     private struct LocationGroupBuildResult {
@@ -397,12 +399,10 @@ class DataManager: ObservableObject {
         let firstPhotoID: String?
         let lastPhotoID: String?
         let assetLocationSignature: UInt64
-        let reviewedCount: Int
-        let reviewedAssetSignature: UInt64
-        let deleteCandidateCount: Int
-        let deleteCandidateSignature: UInt64
-        let favoriteCandidateCount: Int
-        let favoriteCandidateSignature: UInt64
+        let completedCount: Int
+        let completedAssetSignature: UInt64
+        let stagedCount: Int
+        let stagedAssetSignature: UInt64
         let cachedTitleCount: Int
         let titleLocaleIdentifier: String
     }
@@ -427,19 +427,28 @@ class DataManager: ObservableObject {
         var photoCount = 0
         var screenshotCount = 0
         var videoCount = 0
-        var reviewedCount = 0
+        var pendingCount = 0
+        var stagedCount = 0
+        var completedCount = 0
         var estimatedSizeMB: Double = 0
 
         mutating func add(
             asset: PHAsset,
             isScreenshot: Bool,
-            isReviewed: Bool,
+            disposition: PhotoDisposition,
             estimatedSizeMB: Double
         ) {
             photoCount += 1
             screenshotCount += isScreenshot ? 1 : 0
             videoCount += asset.mediaType == .video ? 1 : 0
-            reviewedCount += isReviewed ? 1 : 0
+            switch disposition {
+            case .pending:
+                pendingCount += 1
+            case .staged:
+                stagedCount += 1
+            case .completed:
+                completedCount += 1
+            }
             self.estimatedSizeMB += estimatedSizeMB
         }
     }
@@ -663,25 +672,20 @@ class DataManager: ObservableObject {
     // MARK: - 真实照片操作
     // MARK: - 候选库操作（新的删除逻辑）- 线程安全版本
     func addToDeleteCandidates(_ asset: PHAsset) {
-        addToDeleteCandidates([asset], markAsReviewed: false)
+        addToDeleteCandidates([asset])
     }
 
-    func addToDeleteCandidates(_ assets: [PHAsset], markAsReviewed: Bool = true) {
+    /// 入垃圾桶只改变状态（待整理 → 待确认），不写完成账本。
+    func addToDeleteCandidates(_ assets: [PHAsset]) {
         var seenAssetIDs: Set<String> = []
         let uniqueAssets = assets.filter {
             seenAssetIDs.insert($0.localIdentifier).inserted
         }
         guard !uniqueAssets.isEmpty else { return }
 
-        let assetIDs = Set(uniqueAssets.map(\.localIdentifier))
         favoriteCandidates.subtract(uniqueAssets)
         deleteCandidates.formUnion(uniqueAssets)
-
-        if markAsReviewed {
-            reviewedAssetIDs.formUnion(assetIDs)
-            scheduleReviewedAssetIDsSave()
-            scheduleProgressRefresh()
-        }
+        scheduleProgressRefresh(delay: 0)
 
         let organizedAt = Date()
         let records = uniqueAssets.map {
@@ -709,6 +713,7 @@ class DataManager: ObservableObject {
             removeRecentOrganizedPhotoRecord(for: asset)
         }
         schedulePendingCandidateIDsSave()
+        scheduleProgressRefresh(delay: 0)
         scheduleLocationGroupsRefreshIfLoaded()
         updateStats()
     }
@@ -756,6 +761,9 @@ class DataManager: ObservableObject {
                     asset,
                     action: isFavorite ? .favorited : .unfavorited
                 )
+                if isFavorite {
+                    self.markCompletedAssets([asset.localIdentifier])
+                }
             }
             completion(success)
         }
@@ -974,6 +982,7 @@ class DataManager: ObservableObject {
         ) != nil else { return }
 
         videoCompressionHistoryRevision = UUID()
+        markCompletedAssets(Set(items.compactMap(\.createdAssetIdentifier)))
     }
 
     func recordImageCompressionSession(
@@ -994,6 +1003,7 @@ class DataManager: ObservableObject {
         ) != nil else { return }
 
         imageCompressionHistoryRevision = UUID()
+        markCompletedAssets(Set(items.compactMap(\.createdAssetIdentifier)))
     }
 
     func markVideoCompressionOriginalsDeleted(assetIdentifiers: Set<String>) {
@@ -1335,8 +1345,20 @@ class DataManager: ObservableObject {
         deleteCandidates.removeAll()
         favoriteCandidates.removeAll()
         clearPendingCandidateIDs()
+        scheduleProgressRefresh(delay: 0)
         scheduleLocationGroupsRefreshIfLoaded()
         updateStats()
+    }
+
+    /// 持久化完成信号：压缩生成的新照片、未来的显式保留。收藏/相册不写这里。
+    func markCompletedAssets(_ assetIdentifiers: Set<String>) {
+        guard !assetIdentifiers.isEmpty else { return }
+        let newIdentifiers = assetIdentifiers.subtracting(reviewedAssetIDs)
+        guard !newIdentifiers.isEmpty else { return }
+        reviewedAssetIDs.formUnion(newIdentifiers)
+        scheduleReviewedAssetIDsSave()
+        scheduleProgressRefresh(delay: 0)
+        scheduleLocationGroupsRefreshIfLoaded()
     }
 
     @discardableResult
@@ -1368,6 +1390,37 @@ class DataManager: ObservableObject {
         assets.reduce(0) { count, asset in
             count + (reviewedAssetIDs.contains(asset.localIdentifier) ? 1 : 0)
         }
+    }
+
+    /// 三态判定的唯一入口：完成信号只来自 Poca 内的明确保留动作，
+    /// 系统相册成员、系统收藏标记不构成完成。草稿说明见 docs/review-state-model.md。
+    func disposition(for asset: PHAsset) -> PhotoDisposition {
+        PhotoDisposition.resolve(
+            assetIdentifier: asset.localIdentifier,
+            isStaged: deleteCandidates.contains(asset),
+            persistentCompletedIDs: reviewedAssetIDs
+        )
+    }
+
+    func makeDispositionSnapshot() -> PhotoDispositionSnapshot {
+        PhotoDispositionSnapshot(
+            stagedIDs: Set(deleteCandidates.map(\.localIdentifier)),
+            persistentCompletedIDs: reviewedAssetIDs
+        )
+    }
+
+    /// 给整理会话用：需要跳过的「已完成」集合。暂存单独由会话的排除逻辑处理。
+    var completedAssetIDsForReview: Set<String> {
+        reviewedAssetIDs
+    }
+
+    func dispositionCounts(in assets: [PHAsset]) -> PhotoDispositionCounts {
+        let snapshot = makeDispositionSnapshot()
+        var counts = PhotoDispositionCounts()
+        for asset in assets {
+            counts.add(snapshot.disposition(for: asset))
+        }
+        return counts
     }
 
     func recordRecentOrganizedPhoto(
@@ -1442,16 +1495,12 @@ class DataManager: ObservableObject {
             guard let self, self.progressRefreshGeneration == generation else { return }
 
             let photos = self.photoLibraryManager.allPhotos
-            let reviewedAssetIDs = self.reviewedAssetIDs
-            let deleteCandidateIDs = Set(self.deleteCandidates.map(\.localIdentifier))
-            let favoriteCandidateIDs = Set(self.favoriteCandidates.map(\.localIdentifier))
+            let dispositionSnapshot = self.makeDispositionSnapshot()
 
             DispatchQueue.global(qos: .utility).async { [weak self] in
                 let result = Self.buildTimeGroupData(
                     photos: photos,
-                    reviewedAssetIDs: reviewedAssetIDs,
-                    deleteCandidateIDs: deleteCandidateIDs,
-                    favoriteCandidateIDs: favoriteCandidateIDs
+                    dispositionSnapshot: dispositionSnapshot
                 )
 
                 DispatchQueue.main.async {
@@ -1461,6 +1510,7 @@ class DataManager: ObservableObject {
                     self.historicalTodayCache = result.historicalTodayPhotos
                     self.historicalTodayCacheReferenceDay = result.historicalTodayReferenceDay
                     self.historicalTodayPhotoCount = result.historicalTodayPhotos.count
+                    self.libraryDispositionCounts = result.dispositionCounts
                     if !self.periodSummariesByScope.isEmpty {
                         self.refreshPhotoPeriodSummaries(for: Array(self.periodSummariesByScope.keys))
                     }
@@ -1626,11 +1676,13 @@ class DataManager: ObservableObject {
         excludingFiledPhotos: Bool = true,
         limit: Int = PhotoRandomReviewBatchSize.defaultValue.rawValue
     ) -> [PHAsset] {
+        // 收藏本身就是「已完成」，收藏范围不能再按已完成排除，否则永远抽不到照片。
+        let shouldExcludeFiled = excludingFiledPhotos && scope != .favorites
         let sourcePhotos = getPhotosForRandomReviewScope(scope).filter { asset in
-            !excludingFiledPhotos || !albumMemberAssetIDs.contains(asset.localIdentifier)
+            !shouldExcludeFiled || !albumMemberAssetIDs.contains(asset.localIdentifier)
         }
         let sourceIDs = sourcePhotos.map(\.localIdentifier)
-        let reviewedAndPendingIDs = randomReviewExcludedIdentifiers()
+        let reviewedAndPendingIDs = randomReviewExcludedIdentifiers(excludingCompleted: scope != .favorites)
         let resolvedIDs = PhotoRandomReviewPlanner.plannedIdentifiers(
             from: sourceIDs,
             excluding: reviewedAndPendingIDs,
@@ -1641,14 +1693,13 @@ class DataManager: ObservableObject {
         return Self.assets(in: sourcePhotos, preserving: resolvedIDs)
     }
 
-    private func randomReviewExcludedIdentifiers() -> Set<String> {
-        reviewedAssetIDs
-            .union(randomReviewPendingOperationIdentifiers())
-    }
-
-    private func randomReviewPendingOperationIdentifiers() -> Set<String> {
-        Set(deleteCandidates.map(\.localIdentifier))
-            .union(favoriteCandidates.map(\.localIdentifier))
+    private func randomReviewExcludedIdentifiers(excludingCompleted: Bool = true) -> Set<String> {
+        let snapshot = makeDispositionSnapshot()
+        var identifiers = snapshot.stagedIDs
+        if excludingCompleted {
+            identifiers.formUnion(snapshot.persistentCompletedIDs)
+        }
+        return identifiers
     }
 
     func albumTitles(for asset: PHAsset) -> [String] {
@@ -1666,15 +1717,15 @@ class DataManager: ObservableObject {
 
     func makeSettingsStatsSummary() -> AdvancedLibraryStats {
         let cleanupSummary = cleanupStatsStore.summary
-        let reviewedCount = min(reviewedAssetIDs.count, photoLibraryManager.allPhotos.count)
+        let counts = dispositionCounts(in: photoLibraryManager.allPhotos)
 
         return AdvancedLibraryStats(
             totalAssets: photoLibraryManager.totalPhotosCount,
-            reviewedAssets: reviewedCount,
+            pendingAssets: counts.pending,
+            stagedAssets: counts.staged,
+            completedAssets: counts.completed,
             deletedAssets: cleanupSummary.deletedPhotos,
-            organizedAssets: max(reviewedCount, cleanupSummary.organizedPhotos),
             estimatedSpaceSavedMB: cleanupSummary.estimatedSpaceSavedMB,
-            pendingDeleteAssets: deleteCandidates.count,
             storageSnapshot: Self.currentDeviceStorageSnapshot()
         )
     }
@@ -1794,9 +1845,7 @@ class DataManager: ObservableObject {
         Self.makePhotoPeriodSummariesByScope(
             photos: photoLibraryManager.allPhotos,
             screenshotIDs: Set(photoLibraryManager.screenshots.map(\.localIdentifier)),
-            reviewedIDs: reviewedAssetIDs,
-            deleteCandidateIDs: Set(deleteCandidates.map(\.localIdentifier)),
-            favoriteCandidateIDs: Set(favoriteCandidates.map(\.localIdentifier)),
+            dispositionSnapshot: makeDispositionSnapshot(),
             scopes: [scope],
             calendar: calendar
         )[scope] ?? []
@@ -1808,9 +1857,7 @@ class DataManager: ObservableObject {
         Self.makePhotoPeriodSummariesByScope(
             photos: photoLibraryManager.allPhotos,
             screenshotIDs: Set(photoLibraryManager.screenshots.map(\.localIdentifier)),
-            reviewedIDs: reviewedAssetIDs,
-            deleteCandidateIDs: Set(deleteCandidates.map(\.localIdentifier)),
-            favoriteCandidateIDs: Set(favoriteCandidates.map(\.localIdentifier)),
+            dispositionSnapshot: makeDispositionSnapshot(),
             scopes: AdvancedTimeScope.allCases,
             calendar: calendar
         )
@@ -1838,18 +1885,14 @@ class DataManager: ObservableObject {
         let generation = periodSummaryRefreshGeneration
         let photos = photoLibraryManager.allPhotos
         let screenshotIDs = Set(photoLibraryManager.screenshots.map(\.localIdentifier))
-        let reviewedIDs = reviewedAssetIDs
-        let deleteCandidateIDs = Set(deleteCandidates.map(\.localIdentifier))
-        let favoriteCandidateIDs = Set(favoriteCandidates.map(\.localIdentifier))
+        let dispositionSnapshot = makeDispositionSnapshot()
         isLoadingPeriodSummaries = true
 
         DispatchQueue.global(qos: .utility).async { [weak self] in
             let summaries = Self.makePhotoPeriodSummariesByScope(
                 photos: photos,
                 screenshotIDs: screenshotIDs,
-                reviewedIDs: reviewedIDs,
-                deleteCandidateIDs: deleteCandidateIDs,
-                favoriteCandidateIDs: favoriteCandidateIDs,
+                dispositionSnapshot: dispositionSnapshot,
                 scopes: requestedScopes,
                 calendar: calendar
             )
@@ -1869,9 +1912,7 @@ class DataManager: ObservableObject {
     private static func makePhotoPeriodSummariesByScope(
         photos: [PHAsset],
         screenshotIDs: Set<String>,
-        reviewedIDs: Set<String>,
-        deleteCandidateIDs: Set<String>,
-        favoriteCandidateIDs: Set<String>,
+        dispositionSnapshot: PhotoDispositionSnapshot,
         scopes: [AdvancedTimeScope],
         calendar: Calendar
     ) -> [AdvancedTimeScope: [PhotoPeriodSummary]] {
@@ -1883,10 +1924,7 @@ class DataManager: ObservableObject {
         for asset in photos {
             guard let creationDate = asset.creationDate else { continue }
             let identifier = asset.localIdentifier
-            let isReviewed = reviewedIDs.contains(identifier) ||
-                deleteCandidateIDs.contains(identifier) ||
-                favoriteCandidateIDs.contains(identifier) ||
-                asset.isFavorite
+            let disposition = dispositionSnapshot.disposition(forIdentifier: identifier)
             let isScreenshot = screenshotIDs.contains(identifier)
             let estimatedSize = AssetSizeHeuristic.estimateMB(for: asset)
 
@@ -1896,7 +1934,7 @@ class DataManager: ObservableObject {
                 accumulator.add(
                     asset: asset,
                     isScreenshot: isScreenshot,
-                    isReviewed: isReviewed,
+                    disposition: disposition,
                     estimatedSizeMB: estimatedSize
                 )
                 bucketsByScope[scope]?[interval.start] = accumulator
@@ -1928,7 +1966,9 @@ class DataManager: ObservableObject {
                 assetCount: accumulator.photoCount,
                 screenshotCount: accumulator.screenshotCount,
                 videoCount: accumulator.videoCount,
-                reviewedCount: accumulator.reviewedCount,
+                pendingCount: accumulator.pendingCount,
+                stagedCount: accumulator.stagedCount,
+                completedCount: accumulator.completedCount,
                 estimatedSizeMB: accumulator.estimatedSizeMB
             )
         }
@@ -2601,9 +2641,7 @@ class DataManager: ObservableObject {
         }
 
         let photos = photoLibraryManager.allPhotos
-        let reviewedIDs = reviewedAssetIDs
-        let deleteCandidateIDs = Set(deleteCandidates.map(\.localIdentifier))
-        let favoriteCandidateIDs = Set(favoriteCandidates.map(\.localIdentifier))
+        let dispositionSnapshot = makeDispositionSnapshot()
         let titleLocaleIdentifier = Self.currentLocationTitleLocaleIdentifier()
         let titleCache = locationTitleCacheStore.titleCache(localeIdentifier: titleLocaleIdentifier)
         let signature = LocationGroupBuildSignature(
@@ -2611,12 +2649,10 @@ class DataManager: ObservableObject {
             firstPhotoID: photos.first?.localIdentifier,
             lastPhotoID: photos.last?.localIdentifier,
             assetLocationSignature: Self.locationAssetSignature(for: photos),
-            reviewedCount: reviewedIDs.count,
-            reviewedAssetSignature: Self.identifierSignature(reviewedIDs),
-            deleteCandidateCount: deleteCandidateIDs.count,
-            deleteCandidateSignature: Self.identifierSignature(deleteCandidateIDs),
-            favoriteCandidateCount: favoriteCandidateIDs.count,
-            favoriteCandidateSignature: Self.identifierSignature(favoriteCandidateIDs),
+            completedCount: dispositionSnapshot.persistentCompletedIDs.count,
+            completedAssetSignature: Self.identifierSignature(dispositionSnapshot.persistentCompletedIDs),
+            stagedCount: dispositionSnapshot.stagedIDs.count,
+            stagedAssetSignature: Self.identifierSignature(dispositionSnapshot.stagedIDs),
             cachedTitleCount: titleCache.count,
             titleLocaleIdentifier: titleLocaleIdentifier
         )
@@ -2638,9 +2674,7 @@ class DataManager: ObservableObject {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             let result = Self.buildLocationGroupData(
                 photos: photos,
-                reviewedAssetIDs: reviewedIDs,
-                deleteCandidateIDs: deleteCandidateIDs,
-                favoriteCandidateIDs: favoriteCandidateIDs,
+                dispositionSnapshot: dispositionSnapshot,
                 locationTitleCache: titleCache
             )
 
@@ -2804,9 +2838,7 @@ class DataManager: ObservableObject {
                     )
                     let result = Self.buildLocationGroupData(
                         photos: self.photoLibraryManager.allPhotos,
-                        reviewedAssetIDs: self.reviewedAssetIDs,
-                        deleteCandidateIDs: Set(self.deleteCandidates.map(\.localIdentifier)),
-                        favoriteCandidateIDs: Set(self.favoriteCandidates.map(\.localIdentifier)),
+                        dispositionSnapshot: self.makeDispositionSnapshot(),
                         locationTitleCache: self.locationTitleCacheStore.titleCache(localeIdentifier: localeIdentifier)
                     )
                     self.locationGroupCache = result.cache
@@ -2849,17 +2881,17 @@ class DataManager: ObservableObject {
 
     private static func buildTimeGroupData(
         photos: [PHAsset],
-        reviewedAssetIDs: Set<String>,
-        deleteCandidateIDs: Set<String>,
-        favoriteCandidateIDs: Set<String>,
+        dispositionSnapshot: PhotoDispositionSnapshot,
         now: Date = Date(),
         calendar: Calendar = .current
     ) -> TimeGroupBuildResult {
         var cache: [TimeGroup: [PHAsset]] = [:]
         var historicalTodayPhotos: [PHAsset] = []
+        var dispositionCounts = PhotoDispositionCounts()
         let historicalTodayReferenceDay = calendar.startOfDay(for: now)
 
         for asset in photos {
+            dispositionCounts.add(dispositionSnapshot.disposition(forIdentifier: asset.localIdentifier))
             guard let creationDate = asset.creationDate else { continue }
             let group = TimeGroupResolver.group(for: creationDate, now: now, calendar: calendar)
             cache[group, default: []].append(asset)
@@ -2875,19 +2907,15 @@ class DataManager: ObservableObject {
                 return TimeGroupInfo(timeGroup: timeGroup, photosCount: 0, progress: 0)
             }
 
-            let organizedCount = groupPhotos.reduce(0) { count, asset in
-                let identifier = asset.localIdentifier
-                let isOrganized = reviewedAssetIDs.contains(identifier) ||
-                    deleteCandidateIDs.contains(identifier) ||
-                    favoriteCandidateIDs.contains(identifier) ||
-                    asset.isFavorite
-                return count + (isOrganized ? 1 : 0)
+            let completedCount = groupPhotos.reduce(0) { count, asset in
+                let isCompleted = dispositionSnapshot.disposition(forIdentifier: asset.localIdentifier) == .completed
+                return count + (isCompleted ? 1 : 0)
             }
 
             return TimeGroupInfo(
                 timeGroup: timeGroup,
                 photosCount: groupPhotos.count,
-                progress: Double(organizedCount) / Double(groupPhotos.count)
+                progress: Double(completedCount) / Double(groupPhotos.count)
             )
         }
 
@@ -2895,7 +2923,8 @@ class DataManager: ObservableObject {
             cache: cache,
             timeGroups: timeGroups,
             historicalTodayPhotos: sortedByNewestFirst(historicalTodayPhotos),
-            historicalTodayReferenceDay: historicalTodayReferenceDay
+            historicalTodayReferenceDay: historicalTodayReferenceDay,
+            dispositionCounts: dispositionCounts
         )
     }
 
@@ -2925,17 +2954,12 @@ class DataManager: ObservableObject {
 
     private static func buildLocationGroupData(
         photos: [PHAsset],
-        reviewedAssetIDs: Set<String>,
-        deleteCandidateIDs: Set<String>,
-        favoriteCandidateIDs: Set<String>,
+        dispositionSnapshot: PhotoDispositionSnapshot,
         locationTitleCache: [String: PhotoLocationResolvedTitle] = [:]
     ) -> LocationGroupBuildResult {
         let records = photos.map { asset in
             let identifier = asset.localIdentifier
-            let isOrganized = reviewedAssetIDs.contains(identifier) ||
-                deleteCandidateIDs.contains(identifier) ||
-                favoriteCandidateIDs.contains(identifier) ||
-                asset.isFavorite
+            let isOrganized = dispositionSnapshot.disposition(forIdentifier: identifier) == .completed
             return PhotoLocationAssetRecord(
                 identifier: identifier,
                 location: asset.location,
@@ -3579,6 +3603,7 @@ class DataManager: ObservableObject {
         albumMemberAssetIDs = Set(albumMembershipCountsByAssetID.keys)
         hasLoadedAlbumMembership = true
         refreshUnclassifiedPhotosCount()
+        scheduleProgressRefresh(delay: 0)
     }
 
     private func resetAlbumMembershipState() {
@@ -3591,6 +3616,7 @@ class DataManager: ObservableObject {
         albumMemberAssetIDs = []
         albumTitlesByAssetID = [:]
         hasLoadedAlbumMembership = false
+        scheduleProgressRefresh(delay: 0)
         if scanWasInFlight {
             // Keep the single-flight lock held until the stale worker publishes
             // its completion. A subsequent refresh will queue behind it rather
@@ -3620,6 +3646,7 @@ class DataManager: ObservableObject {
         if hasLoadedAlbumMembership, previousCount == 0 {
             unclassifiedPhotosCount = max(unclassifiedPhotosCount - 1, 0)
         }
+        scheduleProgressRefresh()
     }
 
     private func recordAlbumMembershipRemoved(for assetIdentifiers: [String], albumTitle: String? = nil) {
@@ -3642,6 +3669,7 @@ class DataManager: ObservableObject {
         albumMembershipCountsByAssetID = updated.counts
         albumTitlesByAssetID = updated.titles
         albumMemberAssetIDs = updated.memberIDs
+        scheduleProgressRefresh()
     }
 
     private func saveAlbumSnapshot() {

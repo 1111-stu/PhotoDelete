@@ -1445,7 +1445,9 @@ struct PocaTests {
             assetCount: 10,
             screenshotCount: 2,
             videoCount: 1,
-            reviewedCount: 14,
+            pendingCount: 0,
+            stagedCount: 0,
+            completedCount: 14,
             estimatedSizeMB: 128
         )
 
@@ -1846,7 +1848,7 @@ struct PocaTests {
         let summary = dm.makeSettingsStatsSummary()
 
         #expect(summary.deletedAssets == 2)
-        #expect(summary.organizedAssets == 4)
+        #expect(summary.completedAssets + summary.pendingAssets + summary.stagedAssets == summary.totalAssets)
         #expect(summary.estimatedSpaceSavedMB == 6)
         #expect(summary.formattedSpaceSaved == "6.3 MB")
     }
@@ -1979,6 +1981,81 @@ struct PocaTests {
 
         dm.restoreReviewedState(asset, wasReviewed: wasReviewed)
         #expect(!dm.isReviewed(asset))
+    }
+
+    @Test func photoDispositionResolutionIsMutuallyExclusive() async throws {
+        let completedIDs: Set<String> = ["compressed"]
+
+        #expect(PhotoDisposition.resolve(
+            assetIdentifier: "plain",
+            isStaged: false,
+            persistentCompletedIDs: completedIDs
+        ) == .pending)
+
+        // 暂存优先：即使已经完成，只要进了垃圾桶也先算待确认。
+        #expect(PhotoDisposition.resolve(
+            assetIdentifier: "compressed",
+            isStaged: true,
+            persistentCompletedIDs: completedIDs
+        ) == .staged)
+
+        #expect(PhotoDisposition.resolve(
+            assetIdentifier: "compressed",
+            isStaged: false,
+            persistentCompletedIDs: completedIDs
+        ) == .completed)
+
+        // 系统收藏、系统相册成员不再参与判定：没有 Poca 内保留动作就是待整理。
+        #expect(PhotoDisposition.resolve(
+            assetIdentifier: "system-favorite-or-album-photo",
+            isStaged: false,
+            persistentCompletedIDs: completedIDs
+        ) == .pending)
+    }
+
+    @Test func photoDispositionSnapshotCountsAreExhaustive() async throws {
+        let snapshot = PhotoDispositionSnapshot(
+            stagedIDs: ["staged"],
+            persistentCompletedIDs: ["compressed"]
+        )
+
+        var counts = PhotoDispositionCounts()
+        for identifier in ["staged", "compressed", "favorite", "album", "plain"] {
+            counts.add(snapshot.disposition(forIdentifier: identifier))
+        }
+
+        #expect(counts.pending == 3)
+        #expect(counts.staged == 1)
+        #expect(counts.completed == 1)
+        #expect(counts.pending + counts.staged + counts.completed == 5)
+    }
+
+    @Test func addingToTrashDoesNotMarkAssetCompleted() async throws {
+        guard let asset = fetchFirstAsset() else { return }
+        UserDefaults.standard.removeObject(forKey: AppConstants.reviewedAssetIDsKey)
+        let dm = DataManager()
+
+        dm.addToDeleteCandidates(asset)
+        #expect(dm.deleteCandidates.contains(asset))
+        #expect(!dm.isReviewed(asset))
+        #expect(dm.disposition(for: asset) == .staged)
+
+        dm.removeFromDeleteCandidates(asset)
+        #expect(!dm.deleteCandidates.contains(asset))
+        #expect(dm.disposition(for: asset) != .staged)
+        #expect(!dm.isReviewed(asset))
+    }
+
+    @Test func removingFromTrashKeepsPreExistingCompletedSignal() async throws {
+        guard let asset = fetchFirstAsset() else { return }
+        UserDefaults.standard.removeObject(forKey: AppConstants.reviewedAssetIDsKey)
+        let dm = DataManager()
+
+        dm.markReviewed(asset)
+        dm.addToDeleteCandidates(asset)
+        dm.removeFromDeleteCandidates(asset)
+
+        #expect(dm.isReviewed(asset))
     }
 
     @Test func favoriteLookupIndexTracksPublishedFavorites() async throws {
@@ -3607,7 +3684,9 @@ struct PocaTests {
             assetCount: assetCount,
             screenshotCount: 0,
             videoCount: 0,
-            reviewedCount: reviewedCount,
+            pendingCount: max(assetCount - reviewedCount, 0),
+            stagedCount: 0,
+            completedCount: reviewedCount,
             estimatedSizeMB: 0
         )
     }

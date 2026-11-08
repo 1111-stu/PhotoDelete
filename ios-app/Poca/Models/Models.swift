@@ -556,7 +556,9 @@ struct PhotoPeriodSummary: Identifiable, Equatable {
     let assetCount: Int
     let screenshotCount: Int
     let videoCount: Int
-    let reviewedCount: Int
+    let pendingCount: Int
+    let stagedCount: Int
+    let completedCount: Int
     let estimatedSizeMB: Double
 
     var id: String {
@@ -564,13 +566,15 @@ struct PhotoPeriodSummary: Identifiable, Equatable {
         return "\(scope.rawValue)-\(start)"
     }
 
+    /// 库内完成度：已完成 / 当前库照片。只给旧的高级页使用，主入口用计数。
     var progress: Double {
         guard assetCount > 0 else { return 0 }
-        return min(Double(reviewedCount) / Double(assetCount), 1)
+        return min(Double(completedCount) / Double(assetCount), 1)
     }
 
+    /// 主数字：还需要用户做决定的照片数。
     var remainingCount: Int {
-        max(assetCount - reviewedCount, 0)
+        pendingCount
     }
 
     var formattedEstimatedSize: String {
@@ -590,7 +594,9 @@ struct PhotoPeriodSummary: Identifiable, Equatable {
             assetCount: 0,
             screenshotCount: 0,
             videoCount: 0,
-            reviewedCount: 0,
+            pendingCount: 0,
+            stagedCount: 0,
+            completedCount: 0,
             estimatedSizeMB: 0
         )
     }
@@ -675,11 +681,12 @@ struct SpecialCleanupSizeSummary: Equatable {
 
 struct AdvancedLibraryStats: Equatable {
     let totalAssets: Int
-    let reviewedAssets: Int
+    let pendingAssets: Int
+    let stagedAssets: Int
+    let completedAssets: Int
+    /// 账本口径：累计已提交删除，不含垃圾桶暂存。
     let deletedAssets: Int
-    let organizedAssets: Int
     let estimatedSpaceSavedMB: Double
-    let pendingDeleteAssets: Int
     let storageSnapshot: DeviceStorageSnapshot
 
     var formattedSpaceSaved: String {
@@ -741,11 +748,11 @@ struct AdvancedLibrarySnapshot: Equatable {
         return AdvancedLibrarySnapshot(
             stats: AdvancedLibraryStats(
                 totalAssets: 8_426,
-                reviewedAssets: 2_184,
+                pendingAssets: 5_986,
+                stagedAssets: 37,
+                completedAssets: 2_403,
                 deletedAssets: 642,
-                organizedAssets: 2_184,
                 estimatedSpaceSavedMB: 4_860,
-                pendingDeleteAssets: 37,
                 storageSnapshot: DeviceStorageSnapshot(totalBytes: 256 * 1_073_741_824, freeBytes: 42 * 1_073_741_824)
             ),
             daySummaries: summaries,

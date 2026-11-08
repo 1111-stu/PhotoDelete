@@ -345,7 +345,7 @@ struct SettingsView: View {
     }
 
     private var localDataSubtitle: String {
-        let reviewedCount = dataManager.reviewedAssetIDs.count
+        let reviewedCount = dataManager.makeSettingsStatsSummary().completedAssets
         let pendingCount = dataManager.deleteCandidates.count + dataManager.favoriteCandidates.count
         if reviewedCount > 0 {
             return L10n.string("\(compactPhotoCount(reviewedCount)) reviewed")
