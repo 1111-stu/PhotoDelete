@@ -38,7 +38,13 @@ enum PhotoAmbientBackdropRenderer {
     private static let sampleSide: CGFloat = 64
     private static let blurSigma: Double = 8
 
-    private static let context = CIContext(options: [.workingColorSpace: NSNull()])
+    /// 固定 sRGB 工作空间：色阶曲线按“屏幕看到的编码值”计算，白点 0.68 就是 0.68，
+    /// 不会被线性空间二次转换后变亮或变暗。
+    private static let outputColorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
+    private static let context = CIContext(options: [
+        .workingColorSpace: outputColorSpace,
+        .outputColorSpace: outputColorSpace
+    ])
 
     /// 先把方向应用到缩略图，再做低分辨率高斯模糊；放大后自然成为柔和色场。
     static func make(from image: UIImage) -> UIImage? {
@@ -49,8 +55,53 @@ enum PhotoAmbientBackdropRenderer {
             .clampedToExtent()
             .applyingGaussianBlur(sigma: blurSigma)
             .cropped(to: source.extent)
-        guard let cgImage = context.createCGImage(blurred, from: source.extent) else { return nil }
-        return UIImage(cgImage: cgImage)
+        guard let cgImage = context.createCGImage(
+            blurred,
+            from: source.extent,
+            format: .RGBA8,
+            colorSpace: outputColorSpace
+        ) else { return nil }
+        guard let toned = applyHighlightRolloff(to: cgImage) else { return nil }
+        return UIImage(cgImage: toned)
+    }
+
+    /// 保留中间调，只把高光滚降：白点压到 0.68，白色/冰雪照片不会在背景上发亮刺眼。
+    /// 这是明度处理，不是色相偏移——转色相只会让白色发脏。
+    ///
+    /// 直接在 sRGB 编码值上做逐通道查表，避免 Core Image 色彩空间转换把曲线结果二次线性化。
+    private static func applyHighlightRolloff(to cgImage: CGImage) -> CGImage? {
+        let width = cgImage.width
+        let height = cgImage.height
+        guard width > 0, height > 0 else { return nil }
+
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        guard let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: outputColorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else {
+            return nil
+        }
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        var lookup = [UInt8](repeating: 0, count: 256)
+        for index in 0..<256 {
+            let value = Double(index) / 255
+            let mapped = value * (1 - 0.32 * value * value)
+            lookup[index] = UInt8((mapped * 255).rounded())
+        }
+
+        for index in stride(from: 0, to: pixels.count, by: 4) {
+            pixels[index] = lookup[Int(pixels[index])]
+            pixels[index + 1] = lookup[Int(pixels[index + 1])]
+            pixels[index + 2] = lookup[Int(pixels[index + 2])]
+        }
+
+        return context.makeImage()
     }
 
     private static func normalizedSample(from image: UIImage) -> UIImage? {

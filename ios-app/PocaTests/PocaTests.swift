@@ -349,6 +349,58 @@ struct PocaTests {
         #expect(bottom.g > bottom.b)
     }
 
+    @Test func ambientBackdropCompressesBrightHighlights() async throws {
+        let white = makeSolidImage(
+            size: CGSize(width: 200, height: 200),
+            fills: [(CGRect(x: 0, y: 0, width: 200, height: 200), UIColor.white)]
+        )
+        let backdrop = try #require(PhotoAmbientBackdropRenderer.make(from: white))
+        let center = try #require(sampledPixel(of: backdrop, relativeX: 0.5, relativeY: 0.5))
+
+        // 纯白照片的背景应被压到柔和的浅灰，而不是接近 1.0 的刺眼白色。
+        #expect(center.r < 0.75)
+        #expect(center.g < 0.75)
+        #expect(center.b < 0.75)
+        #expect(center.r > 0.55)
+    }
+
+    @Test func debugToneCurveIsolation() async throws {
+        let space = CGColorSpace(name: CGColorSpace.sRGB)!
+        let context = CIContext(options: [.workingColorSpace: space, .outputColorSpace: space])
+        func sample(_ ci: CIImage) throws -> (r: Double, g: Double, b: Double) {
+            let cg = try #require(context.createCGImage(ci, from: ci.extent, format: .RGBA8, colorSpace: space))
+            return try #require(sampledPixel(of: UIImage(cgImage: cg), relativeX: 0.5, relativeY: 0.5))
+        }
+        let rect = CGRect(x: 0, y: 0, width: 64, height: 64)
+        let curve = CIFilter.toneCurve()
+        curve.point0 = CGPoint(x: 0, y: 0)
+        curve.point1 = CGPoint(x: 0.25, y: 0.22)
+        curve.point2 = CGPoint(x: 0.5, y: 0.42)
+        curve.point3 = CGPoint(x: 0.75, y: 0.58)
+        curve.point4 = CGPoint(x: 1, y: 0.68)
+
+        for value in [0.2, 0.4, 0.5, 0.6, 0.8, 1.0] {
+            let input = CIImage(color: CIColor(red: value, green: value, blue: value)).cropped(to: rect)
+            curve.inputImage = input
+            print("DEBUG curve input \(value) ->", try sample(curve.outputImage!))
+        }
+
+        let white = CIImage(color: CIColor(red: 1, green: 1, blue: 1)).cropped(to: rect)
+        let blurred = white.clampedToExtent().applyingGaussianBlur(sigma: 8).cropped(to: rect)
+        print("DEBUG blur white ->", try sample(blurred))
+    }
+
+    @Test func debugBackdropColorSpaceAndValue() async throws {
+        let white = makeSolidImage(
+            size: CGSize(width: 200, height: 200),
+            fills: [(CGRect(x: 0, y: 0, width: 200, height: 200), UIColor.white)]
+        )
+        let backdrop = try #require(PhotoAmbientBackdropRenderer.make(from: white))
+        print("DEBUG colorspace:", backdrop.cgImage?.colorSpace?.name as Any)
+        let center = try #require(sampledPixel(of: backdrop, relativeX: 0.5, relativeY: 0.5))
+        print("DEBUG center:", center)
+    }
+
     @Test func ambientBackdropCapsSampleSizeForTallPhotos() async throws {
         let tall = makeSolidImage(
             size: CGSize(width: 100, height: 400),
