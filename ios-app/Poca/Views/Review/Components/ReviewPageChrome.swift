@@ -48,7 +48,7 @@ struct ReviewNavigationHeader: View {
         .padding(.horizontal, Theme.space5)
         .padding(.top, 16)
         .padding(.bottom, 12)
-        .background(Theme.reviewCanvas)
+        // 不铺不透明底色：照片氛围色要能一直透到状态栏附近。
     }
 }
 

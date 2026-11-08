@@ -2279,7 +2279,12 @@ class PhotoLibraryManager: NSObject, ObservableObject {
     }
 
     @discardableResult
-    func loadFastThumbnail(for asset: PHAsset, size: CGSize, completion: @escaping (UIImage?) -> Void) -> PHImageRequestID? {
+    func loadFastThumbnail(
+        for asset: PHAsset,
+        size: CGSize,
+        contentMode: PHImageContentMode = .aspectFill,
+        completion: @escaping (UIImage?) -> Void
+    ) -> PHImageRequestID? {
         let cacheKey = imageCacheKey(for: asset, purpose: "thumb", size: size)
 
         if let cachedImage = imageCache.object(forKey: cacheKey) {
@@ -2295,7 +2300,7 @@ class PhotoLibraryManager: NSObject, ObservableObject {
         return imageManager.requestImage(
             for: asset,
             targetSize: size,
-            contentMode: .aspectFill,
+            contentMode: contentMode,
             options: options
         ) { [weak self] image, info in
             DispatchQueue.main.async {

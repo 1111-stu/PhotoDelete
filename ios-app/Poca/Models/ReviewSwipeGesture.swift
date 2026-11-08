@@ -47,6 +47,18 @@ enum ReviewSwipeDirection {
 }
 
 
+/// 整理页卡片尺寸：槽位固定（手势区/翻页步长依赖它），卡片在槽位里按照片自身比例缩放。
+enum ReviewPhotoCardSizing {
+    static func cardSize(assetAspectRatio ratio: CGFloat, in slot: CGSize) -> CGSize {
+        guard slot.width > 0, slot.height > 0, ratio.isFinite, ratio > 0 else { return slot }
+        let heightAtFullWidth = slot.width / ratio
+        if heightAtFullWidth <= slot.height {
+            return CGSize(width: slot.width, height: heightAtFullWidth)
+        }
+        return CGSize(width: slot.height * ratio, height: slot.height)
+    }
+}
+
 enum ReviewSwipeGesture {
     static func dragAxis(for translation: CGSize) -> ReviewDragAxis {
         abs(translation.width) >= abs(translation.height) ? .horizontal : .vertical

@@ -223,18 +223,21 @@ struct RealPhotoCard: View {
         // 照片、视频、实况照片都统一裁到卡片圆角轮廓，避免直角顶出描边。
         .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            Theme.reviewPhotoStroke,
-                            Theme.reviewPhotoStrokeFade
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: Theme.stroke
-                )
+            // 满血照片不再压白描边（亮照片上会像一圈 halation）；只在占位/加载态保留轮廓。
+            if image == nil, !isVideoPlaying, livePhoto == nil {
+                RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Theme.reviewPhotoStroke,
+                                Theme.reviewPhotoStrokeFade
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: Theme.stroke
+                    )
+            }
         }
         .frame(width: displaySize.width, height: displaySize.height)
         .accessibilityElement(children: .ignore)

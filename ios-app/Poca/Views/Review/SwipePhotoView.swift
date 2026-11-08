@@ -67,6 +67,10 @@ struct SwipePhotoView: View {
     @State private var needsSourceRefreshAfterAlbumTray = false
     /// 相册导轨正在被拖动/惯性滚动：切换照片不加动画，预加载推迟到停手。
     @State private var isStripScrubbing = false
+    /// 当前照片取出的氛围色；nil 时画布保持纯黑。
+    @State private var ambientPalette: PhotoAmbientPalette?
+    @State private var ambientPaletteAssetID: String?
+    @State private var ambientThumbnailRequestID: PHImageRequestID?
 
     private static let countFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -245,95 +249,107 @@ struct SwipePhotoView: View {
     private var pendingDeleteCount: Int { dataManager.deleteCandidates.count }
     private var pendingFavoriteCount: Int { dataManager.favoriteCandidates.count }
 
+    private var ambientBackgroundLayer: some View {
+        ReviewAmbientBackground(palette: ambientPalette)
+    }
+
+    private var ambientSourceAssetID: String? {
+        currentRealPhoto?.localIdentifier
+    }
+
+    @ViewBuilder
+    private func reviewLayout(in geometry: GeometryProxy) -> some View {
+        let usesSidebar = PocaAdaptiveLayout.prefersReviewSidebar(
+            in: geometry.size,
+            horizontalSizeClass: horizontalSizeClass
+        )
+        let sidebarWidth = PocaAdaptiveLayout.reviewSidebarWidth(totalWidth: geometry.size.width)
+        let primaryWidth = geometry.size.width - sidebarWidth
+
+        ZStack(alignment: .bottom) {
+            if usesSidebar {
+                HStack(spacing: 0) {
+                    VStack(spacing: 0) {
+                        navigationHeader
+                        photoArea
+                    }
+                    .frame(width: primaryWidth)
+
+                    landscapeSidebar
+                        .frame(width: sidebarWidth, height: geometry.size.height)
+                }
+                .accessibilityHidden(showsAlbumTray)
+            } else {
+                VStack(spacing: 0) {
+                    navigationHeader
+                    photoArea
+                    bottomControls
+                }
+                .accessibilityHidden(showsAlbumTray)
+            }
+
+            if showsAlbumTray {
+                Theme.trayScrim
+                    .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture { closeAlbumTray() }
+                    .accessibilityHidden(true)
+                    .transition(.opacity)
+
+                ReviewAlbumTray(
+                    albums: dataManager.getUserAlbumsSortedByCustomOrder(),
+                    isLoading: dataManager.isLoadingAlbums,
+                    isFiling: isAlbumTrayFiling,
+                    filingAlbumID: filingAlbumID,
+                    onSelect: fileCurrentTrayPhoto(to:),
+                    onClose: closeAlbumTray
+                )
+                .frame(
+                    maxWidth: ReviewAlbumTrayLayout.maxWidth,
+                    alignment: .leading
+                )
+                .padding(.leading, ReviewAlbumTrayLayout.sideMargin)
+                .padding(
+                    .trailing,
+                    usesSidebar
+                        ? sidebarWidth + ReviewAlbumTrayLayout.sideMargin
+                        : ReviewAlbumTrayLayout.sideMargin
+                )
+                .padding(.bottom, ReviewAlbumTrayLayout.bottomMargin)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .transition(
+                    reduceMotion
+                        ? .opacity
+                        : .move(edge: .bottom).combined(with: .opacity)
+                )
+            }
+
+            // 统一 Toast：始终固定在页头，托盘打开时也不下移。
+            if let feedbackToast {
+                PocaToastView(toast: feedbackToast) {
+                    handleUndoAction()
+                }
+                .frame(maxWidth: 420)
+                .padding(.horizontal, Theme.space5)
+                .padding(.trailing, usesSidebar ? sidebarWidth : 0)
+                .allowsHitTesting(feedbackToast.showsUndo)
+                .padding(.top, Theme.space16)
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity,
+                    alignment: .top
+                )
+                .transition(PocaToastTiming.transition(reduceMotion: reduceMotion, edge: .top))
+            }
+        }
+    }
+
     var body: some View {
         ZStack {
-            Theme.reviewCanvas
-                .ignoresSafeArea()
+            ambientBackgroundLayer
 
             GeometryReader { geometry in
-                let usesSidebar = PocaAdaptiveLayout.prefersReviewSidebar(
-                    in: geometry.size,
-                    horizontalSizeClass: horizontalSizeClass
-                )
-                let sidebarWidth = PocaAdaptiveLayout.reviewSidebarWidth(totalWidth: geometry.size.width)
-                let primaryWidth = geometry.size.width - sidebarWidth
-
-                ZStack(alignment: .bottom) {
-                    if usesSidebar {
-                        HStack(spacing: 0) {
-                            VStack(spacing: 0) {
-                                navigationHeader
-                                photoArea
-                            }
-                            .frame(width: primaryWidth)
-
-                            landscapeSidebar
-                                .frame(width: sidebarWidth, height: geometry.size.height)
-                        }
-                        .accessibilityHidden(showsAlbumTray)
-                    } else {
-                        VStack(spacing: 0) {
-                            navigationHeader
-                            photoArea
-                            bottomControls
-                        }
-                        .accessibilityHidden(showsAlbumTray)
-                    }
-
-                    if showsAlbumTray {
-                        Theme.trayScrim
-                            .ignoresSafeArea()
-                            .contentShape(Rectangle())
-                            .onTapGesture { closeAlbumTray() }
-                            .accessibilityHidden(true)
-                            .transition(.opacity)
-
-                        ReviewAlbumTray(
-                            albums: dataManager.getUserAlbumsSortedByCustomOrder(),
-                            isLoading: dataManager.isLoadingAlbums,
-                            isFiling: isAlbumTrayFiling,
-                            filingAlbumID: filingAlbumID,
-                            onSelect: fileCurrentTrayPhoto(to:),
-                            onClose: closeAlbumTray
-                        )
-                        .frame(
-                            maxWidth: ReviewAlbumTrayLayout.maxWidth,
-                            alignment: .leading
-                        )
-                        .padding(.leading, ReviewAlbumTrayLayout.sideMargin)
-                        .padding(
-                            .trailing,
-                            usesSidebar
-                                ? sidebarWidth + ReviewAlbumTrayLayout.sideMargin
-                                : ReviewAlbumTrayLayout.sideMargin
-                        )
-                        .padding(.bottom, ReviewAlbumTrayLayout.bottomMargin)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .transition(
-                            reduceMotion
-                                ? .opacity
-                                : .move(edge: .bottom).combined(with: .opacity)
-                        )
-                    }
-
-                    // 统一 Toast：始终固定在页头，托盘打开时也不下移。
-                    if let feedbackToast {
-                        PocaToastView(toast: feedbackToast) {
-                            handleUndoAction()
-                        }
-                        .frame(maxWidth: 420)
-                        .padding(.horizontal, Theme.space5)
-                        .padding(.trailing, usesSidebar ? sidebarWidth : 0)
-                        .allowsHitTesting(feedbackToast.showsUndo)
-                        .padding(.top, Theme.space16)
-                        .frame(
-                            maxWidth: .infinity,
-                            maxHeight: .infinity,
-                            alignment: .top
-                        )
-                        .transition(PocaToastTiming.transition(reduceMotion: reduceMotion, edge: .top))
-                    }
-                }
+                reviewLayout(in: geometry)
             }
 
             if showCompletionMessage {
@@ -384,6 +400,7 @@ struct SwipePhotoView: View {
             )
             dataManager.photoLibraryManager.cancelSwipePreviewPreloads()
             preloadedAssets.removeAll()
+            cancelAmbientPaletteLoad()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
             // 处理内存警告
@@ -403,6 +420,10 @@ struct SwipePhotoView: View {
             if refreshSelectedAlbumState() {
                 initializeSessionIfNeeded()
             }
+            scheduleAmbientPaletteLoad(for: currentRealPhoto)
+        }
+        .onChange(of: ambientSourceAssetID) { _, _ in
+            scheduleAmbientPaletteLoad(for: currentRealPhoto)
         }
         .onChange(of: albumStateRefreshToken) { _ in
             refreshSelectedAlbumState()
@@ -606,13 +627,16 @@ struct SwipePhotoView: View {
     }
 
     private func cardPhotoArea(asset: PHAsset, in containerSize: CGSize) -> some View {
-        let cardSize = photoCardSize(in: containerSize)
-        // 卡片 + 元数据小字作为一个整体居中：小字始终贴在卡片下方，而不是钉在区域底部。
+        // slot 固定：手势区、翻页步长、日期行都依赖它；每张照片在 slot 里按自身比例居中。
+        let slotSize = photoCardSlotSize(in: containerSize)
+        let currentCardSize = photoCardSize(for: asset, in: containerSize)
+        // 日期行固定在 slot 底部，不跟卡片高度变化。
         return VStack(spacing: 6) {
             ReviewPhotoPager(
                 pages: horizontalPageEntries(),
                 currentID: asset.localIdentifier,
-                cardSize: cardSize,
+                slotSize: slotSize,
+                contentCardSize: currentCardSize,
                 pageStride: containerSize.width,
                 canDelete: canPerformPhotoAction(.delete),
                 isVideoPlaying: shouldPlayVideo(for: asset),
@@ -627,9 +651,13 @@ struct SwipePhotoView: View {
                 onDelete: handleDeleteAction,
                 onFile: openAlbumTray
             ) { photo, isCurrent in
-                reviewPhotoCard(asset: photo, cardSize: cardSize, isCurrent: isCurrent)
+                reviewPhotoCard(
+                    asset: photo,
+                    cardSize: photoCardSize(for: photo, in: containerSize),
+                    isCurrent: isCurrent
+                )
             }
-            .frame(height: cardSize.height)
+            .frame(height: slotSize.height)
             .zIndex(1)
 
             ReviewPhotoDetailLine(asset: asset)
@@ -1174,7 +1202,56 @@ struct SwipePhotoView: View {
         return CGSize(width: 380 * scale, height: 520 * scale)
     }
 
-    private func photoCardSize(in containerSize: CGSize) -> CGSize {
+    // MARK: - 氛围色
+
+    private func scheduleAmbientPaletteLoad(for asset: PHAsset?) {
+        guard let asset else {
+            cancelAmbientPaletteLoad()
+            ambientPalette = nil
+            ambientPaletteAssetID = nil
+            return
+        }
+
+        let assetID = asset.localIdentifier
+        if ambientPalette?.assetID == assetID { return }
+        if ambientPaletteAssetID == assetID {
+            if let cached = PhotoAmbientPaletteCache.shared.palette(for: assetID) {
+                ambientPalette = cached
+            }
+            return
+        }
+
+        cancelAmbientPaletteLoad()
+        ambientPaletteAssetID = assetID
+        if let cached = PhotoAmbientPaletteCache.shared.palette(for: assetID) {
+            ambientPalette = cached
+            return
+        }
+        // 48pt 本地缩略图，不下载 iCloud 原图；像素量很小，直接在主线程取色。
+        ambientThumbnailRequestID = dataManager.photoLibraryManager.loadFastThumbnail(
+            for: asset,
+            size: CGSize(width: 48, height: 48),
+            contentMode: .aspectFit
+        ) { image in
+            guard ambientPaletteAssetID == assetID else { return }
+            ambientThumbnailRequestID = nil
+            guard let image,
+                  let palette = PhotoAmbientColorExtractor.palette(from: image, assetID: assetID)
+            else { return }
+            PhotoAmbientPaletteCache.shared.store(palette)
+            ambientPalette = palette
+        }
+    }
+
+    private func cancelAmbientPaletteLoad() {
+        if let ambientThumbnailRequestID {
+            dataManager.photoLibraryManager.cancelImageRequest(ambientThumbnailRequestID)
+            self.ambientThumbnailRequestID = nil
+        }
+    }
+
+    /// 固定槽位：手势识别、翻页步长和日期行都以它为准，不随照片比例变化。
+    private func photoCardSlotSize(in containerSize: CGSize) -> CGSize {
         // 两侧留出页面边距；翻页步长仍是整页宽，卡片之间因此有可见间隔。
         let availableWidth = max(containerSize.width - Theme.space5 * 2, 180)
         let availableHeight = max(containerSize.height - 132, 220)
@@ -1185,6 +1262,14 @@ struct SwipePhotoView: View {
         let width = availableWidth
         let height = min(availableHeight, maxSize.height)
         return CGSize(width: width, height: height)
+    }
+
+    /// 单张照片的可见卡片尺寸：在槽位内按照片原始比例缩放，不裁切、不留灰边。
+    private func photoCardSize(for asset: PHAsset, in containerSize: CGSize) -> CGSize {
+        let slotSize = photoCardSlotSize(in: containerSize)
+        guard asset.pixelWidth > 0, asset.pixelHeight > 0 else { return slotSize }
+        let ratio = CGFloat(asset.pixelWidth) / CGFloat(asset.pixelHeight)
+        return ReviewPhotoCardSizing.cardSize(assetAspectRatio: ratio, in: slotSize)
     }
 
     private func imageTargetSize(for displaySize: CGSize) -> CGSize {

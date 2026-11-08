@@ -11,7 +11,10 @@ struct ReviewHorizontalPage: Identifiable {
 struct ReviewPhotoPager<Content: View>: View {
     let pages: [ReviewHorizontalPage]
     let currentID: String
-    let cardSize: CGSize
+    /// 手势与翻页的固定容器。卡片本身按照片比例在其中居中。
+    let slotSize: CGSize
+    /// 当前这张卡片在 slot 内的实际尺寸（视频进度条热区要贴住的底边）。
+    let contentCardSize: CGSize
     let pageStride: CGFloat
     let canDelete: Bool
     let isVideoPlaying: Bool
@@ -53,7 +56,7 @@ struct ReviewPhotoPager<Content: View>: View {
                     .zIndex(page.offset == 0 ? 1 : 0)
             }
         }
-        .frame(width: cardSize.width, height: cardSize.height)
+        .frame(width: slotSize.width, height: slotSize.height)
         .contentShape(Rectangle())
         // Photos move inside this viewport; measurements and scrubber hit regions do not.
         .coordinateSpace(name: ReviewSwipeMotion.coordinateSpace)
@@ -74,9 +77,15 @@ struct ReviewPhotoPager<Content: View>: View {
     }
 
     private func isScrubberGesture(_ value: DragGesture.Value) -> Bool {
-        InlineVideoScrubGestureRegion.contains(
-            startLocation: value.startLocation,
-            cardSize: cardSize,
+        // 卡片在 slot 里垂直居中：把起点换算到「卡片自身坐标系」再判断底部进度条热区。
+        let cardTop = max((slotSize.height - contentCardSize.height) / 2, 0)
+        let locationInCard = CGPoint(
+            x: value.startLocation.x,
+            y: value.startLocation.y - cardTop
+        )
+        return InlineVideoScrubGestureRegion.contains(
+            startLocation: locationInCard,
+            cardSize: contentCardSize,
             isVideoPlaying: isVideoPlaying,
             reservedBottomHeight: ReviewSwipeMotion.inlineVideoScrubberReservedHeight
         )

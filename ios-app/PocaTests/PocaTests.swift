@@ -305,6 +305,56 @@ struct PocaTests {
         #expect(whiteContrast(rgb) >= 4.49)
     }
 
+    @Test func reviewPhotoCardFitsAssetAspectInsideFixedSlot() async throws {
+        let slot = CGSize(width: 360, height: 500)
+
+        // 3:4 竖图：受宽度限制，高度按比例。
+        let portrait = ReviewPhotoCardSizing.cardSize(assetAspectRatio: 3.0 / 4.0, in: slot)
+        #expect(abs(portrait.width - 360) < 0.01)
+        #expect(abs(portrait.height - 480) < 0.01)
+
+        // 4:3 横图：同样占满宽度，但变矮。
+        let landscape = ReviewPhotoCardSizing.cardSize(assetAspectRatio: 4.0 / 3.0, in: slot)
+        #expect(abs(landscape.width - 360) < 0.01)
+        #expect(abs(landscape.height - 270) < 0.01)
+
+        // 9:19.5 长截图：受高度限制，左右留白。
+        let tall = ReviewPhotoCardSizing.cardSize(assetAspectRatio: 9.0 / 19.5, in: slot)
+        #expect(abs(tall.height - 500) < 0.01)
+        #expect(tall.width < slot.width)
+    }
+
+    @Test func reviewPhotoCardFallsBackToSlotForInvalidRatio() async throws {
+        let slot = CGSize(width: 360, height: 500)
+        #expect(ReviewPhotoCardSizing.cardSize(assetAspectRatio: 0, in: slot) == slot)
+        #expect(ReviewPhotoCardSizing.cardSize(assetAspectRatio: -1, in: slot) == slot)
+        #expect(ReviewPhotoCardSizing.cardSize(assetAspectRatio: .nan, in: slot) == slot)
+    }
+
+    @Test func ambientPaletteSamplesTopAndBottomRegions() async throws {
+        let image = makeSolidImage(
+            size: CGSize(width: 40, height: 120),
+            fills: [
+                (CGRect(x: 0, y: 0, width: 40, height: 60), UIColor(red: 0.10, green: 0.45, blue: 0.95, alpha: 1)),
+                (CGRect(x: 0, y: 60, width: 40, height: 60), UIColor(red: 0.15, green: 0.60, blue: 0.15, alpha: 1))
+            ]
+        )
+        let palette = try #require(PhotoAmbientColorExtractor.palette(from: image, assetID: "test"))
+        let top = try #require(rgbComponents(of: palette.top))
+        let bottom = try #require(rgbComponents(of: palette.bottom))
+
+        #expect(top.b > top.r)
+        #expect(bottom.g > bottom.b)
+    }
+
+    @Test func ambientPaletteSkipsNeutralPhotos() async throws {
+        let gray = makeSolidImage(
+            size: CGSize(width: 40, height: 40),
+            fills: [(CGRect(x: 0, y: 0, width: 40, height: 40), UIColor(white: 0.5, alpha: 1))]
+        )
+        #expect(PhotoAmbientColorExtractor.palette(from: gray, assetID: "gray") == nil)
+    }
+
     @Test func photoAssetMetadataFormatterUsesReadableFallbacks() async throws {
         #expect(PhotoAssetMetadataFormatter.shortCaptureDate(for: nil) == L10n.string("Capture time unknown"))
         #expect(PhotoAssetMetadataFormatter.detailCaptureDate(for: nil) == L10n.string("No capture time saved"))

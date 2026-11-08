@@ -1494,6 +1494,11 @@ class DataManager: ObservableObject {
         let workItem = DispatchWorkItem { [weak self] in
             guard let self, self.progressRefreshGeneration == generation else { return }
 
+            // 周期卡先刷新，不等时间组重建完成。
+            if !self.periodSummariesByScope.isEmpty {
+                self.refreshPhotoPeriodSummaries(for: Array(self.periodSummariesByScope.keys))
+            }
+
             let photos = self.photoLibraryManager.allPhotos
             let dispositionSnapshot = self.makeDispositionSnapshot()
 
@@ -1511,9 +1516,6 @@ class DataManager: ObservableObject {
                     self.historicalTodayCacheReferenceDay = result.historicalTodayReferenceDay
                     self.historicalTodayPhotoCount = result.historicalTodayPhotos.count
                     self.libraryDispositionCounts = result.dispositionCounts
-                    if !self.periodSummariesByScope.isEmpty {
-                        self.refreshPhotoPeriodSummaries(for: Array(self.periodSummariesByScope.keys))
-                    }
                 }
             }
         }
