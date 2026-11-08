@@ -47,8 +47,8 @@ private struct MinimalFrameCard: View {
 
             metaBlock
                 .padding(.leading, 68)
-                .padding(.trailing, 62)
-                .padding(.bottom, 72)
+                .padding(.trailing, 68)
+                .padding(.bottom, 88)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
         }
     }
@@ -66,48 +66,59 @@ private struct MinimalFrameCard: View {
         }
     }
 
-    @ViewBuilder
     private var metaBlock: some View {
         let showLoc = meta.displaysLocation
         let showDate = meta.displaysDate
+        let hasPrimary = showLoc || showDate
 
-        VStack(alignment: .leading, spacing: 0) {
+        return VStack(alignment: .leading, spacing: 0) {
             if showDate && showLoc {
                 Text(meta.dateFull)
-                    .font(.system(size: 42, weight: .regular))
+                    .font(.system(size: 34, weight: .regular))
+                    .tracking(0.2)
                     .foregroundStyle(muted)
-                    .padding(.bottom, 52)
+                    .padding(.bottom, 30)
             }
 
             HStack(alignment: .firstTextBaseline, spacing: 24) {
                 if showLoc {
-                    Text(meta.location)
-                        .font(.system(size: 68, weight: .semibold))
-                        .foregroundStyle(ink)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Spacer(minLength: 8)
-                    Text(meta.signature)
-                        .font(.system(size: 37, weight: .semibold))
-                        .foregroundStyle(ink)
+                    primaryLine(meta.location, size: 48)
                 } else if showDate {
-                    Text(meta.dateFull)
-                        .font(.system(size: 68, weight: .semibold))
-                        .foregroundStyle(ink)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Spacer(minLength: 8)
-                    Text(meta.signature)
-                        .font(.system(size: 37, weight: .semibold))
-                        .foregroundStyle(ink)
+                    // 日期单独成行时退为灰字说明，品牌成为版面的锚点。
+                    primaryLine(
+                        meta.dateFull,
+                        size: 44,
+                        color: muted,
+                        weight: .regular
+                    )
                 } else {
                     Spacer(minLength: 0)
-                    Text(meta.signature)
-                        .font(.system(size: 37, weight: .semibold))
-                        .foregroundStyle(ink)
                 }
+
+                if hasPrimary {
+                    Spacer(minLength: 8)
+                }
+
+                Text(meta.signature)
+                    .font(.system(size: 46, weight: .semibold))
+                    .tracking(0.4)
+                    .foregroundStyle(ink)
             }
         }
+    }
+
+    private func primaryLine(
+        _ text: String,
+        size: CGFloat,
+        color: Color? = nil,
+        weight: Font.Weight = .semibold
+    ) -> some View {
+        Text(text)
+            .font(.system(size: size, weight: weight))
+            .tracking(-0.5)
+            .foregroundStyle(color ?? ink)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
     }
 }
 
@@ -129,6 +140,16 @@ private struct TicketStubCard: View {
 
             ticketBody
                 .frame(width: ticketW, height: ticketH)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            // 整张卡的右下角落款；站名回落成品牌时隐藏，避免同一张卡出现两次 Poca。
+            if meta.displaysDate || meta.displaysLocation {
+                Text(meta.signature)
+                    .font(.custom("SnellRoundhand", size: 44))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .padding(.trailing, 68)
+                    .padding(.bottom, 72)
+            }
         }
     }
 
@@ -188,33 +209,22 @@ private struct TicketStubCard: View {
     }
 
     private var stubBand: some View {
-        // Prototype absolute tops: full stub → kicker 30 / name 64;
-        // no-loc or no-date → hide YEAR/DATE + rule, lift block to 100 / 132
-        // (visually centered in the 275pt stub without fighting the barcode plate).
+        // kicker + 站名作为一个组，在点线上方（或整条票根）垂直居中；
+        // 组随行数自然上下移动，不会出现 kicker 留在顶部、站名单独下沉的断层。
         let showsColumns = meta.ticketShowsDateColumns
-        let kickerTop: CGFloat = showsColumns ? 30 : 100
-        let nameTop: CGFloat = showsColumns ? 64 : 132
         // Barcode plate left edge = ticketW - 63 - 107; keep ~20pt air gap.
-        let textMaxWidth: CGFloat = ticketW - 57 - (63 + 107 + 20)
+        let textMaxWidth: CGFloat = ticketW - 58 - (63 + 107 + 20)
 
         return ZStack(alignment: .topLeading) {
             palette.stub
 
-            Text("NEXT STATION")
-                .font(.system(size: 21, weight: .medium))
-                .tracking(1.7)
-                .foregroundStyle(ticketInk)
-                .padding(.leading, 59)
-                .padding(.top, kickerTop)
-
-            Text(meta.ticketStationName)
-                .font(.system(size: 36, weight: .bold))
-                .foregroundStyle(ticketInk)
-                .lineLimit(2)
-                .minimumScaleFactor(0.75)
-                .frame(width: textMaxWidth, alignment: .leading)
-                .padding(.leading, 57)
-                .padding(.top, nameTop)
+            stationGroup
+                .frame(
+                    width: textMaxWidth,
+                    height: showsColumns ? 182 : 275,
+                    alignment: .leading
+                )
+                .padding(.leading, 58)
 
             if showsColumns {
                 Path { path in
@@ -226,32 +236,47 @@ private struct TicketStubCard: View {
                     style: StrokeStyle(lineWidth: 2, dash: [2, 4])
                 )
                 .frame(width: 400, height: 2)
-                .padding(.leading, 59)
-                .padding(.top, 167)
+                .padding(.leading, 58)
+                .padding(.top, 182)
 
                 HStack(alignment: .top, spacing: 66) {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("YEAR")
-                            .font(.system(size: 18, weight: .medium))
-                            .tracking(2.2)
-                            .foregroundStyle(ticketInk)
+                            .font(.system(size: 16, weight: .medium))
+                            .tracking(2.4)
+                            .foregroundStyle(ticketInk.opacity(0.72))
                         Text(meta.dateYear)
-                            .font(.system(size: 29, weight: .bold))
+                            .font(.system(size: 28, weight: .bold))
                             .foregroundStyle(ticketInk)
                     }
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("DATE")
-                            .font(.system(size: 18, weight: .medium))
-                            .tracking(2.2)
-                            .foregroundStyle(ticketInk)
+                            .font(.system(size: 16, weight: .medium))
+                            .tracking(2.4)
+                            .foregroundStyle(ticketInk.opacity(0.72))
                         Text(meta.dateMonthDay)
-                            .font(.system(size: 29, weight: .bold))
+                            .font(.system(size: 28, weight: .bold))
                             .foregroundStyle(ticketInk)
                     }
                 }
-                .padding(.leading, 59)
-                .padding(.top, 193)
+                .padding(.leading, 58)
+                .padding(.top, 206)
             }
+        }
+    }
+
+    private var stationGroup: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("NEXT STATION")
+                .font(.system(size: 20, weight: .medium))
+                .tracking(1.8)
+                .foregroundStyle(ticketInk.opacity(0.72))
+
+            Text(meta.ticketStationName)
+                .font(.system(size: 40, weight: .bold))
+                .foregroundStyle(ticketInk)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
         }
     }
 

@@ -113,7 +113,7 @@ struct ShareCardMeta: Equatable {
             location: locationTitle ?? "",
             signature: AppConstants.appDisplayName,
             barcodeSeed: barcodeSeed,
-            colorworkTitle: "Color Walk",
+            colorworkTitle: "Poca Color",
             blockColor: blockColor
         )
     }

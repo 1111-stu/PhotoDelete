@@ -131,19 +131,19 @@ struct ShareCardPreviewSheet: View {
     }
 
     private var originalPreview: some View {
-        ZStack {
-            Theme.surface
+        Group {
             if let previewImage {
                 Image(uiImage: previewImage)
                     .resizable()
                     .scaledToFit()
+                    // 预览圆角只是 sheet 里的观感；分享出去的仍是未裁切、未加圆角的原文件。
                     .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSm, style: .continuous))
             } else {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: Theme.secondaryText))
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd, style: .continuous))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var pageIndicator: some View {

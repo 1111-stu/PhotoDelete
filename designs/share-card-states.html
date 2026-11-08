@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poca · 分享卡当前版本 · 四种状态</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --canvas:#0a0a0d;--ink:#f5f5f7;--muted:#8b8b94;--line:#ffffff12;
+  --paper:#f4f5f7;--paper-ink:#0d0e10;--paper-muted:#6a6a70;
+  --ticket-ink:#16110f;--mat:#855143;--stub:#b87d6d;
+}
+html{background:var(--canvas)}
+body{
+  margin:0;background:var(--canvas);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+.wrap{max-width:1400px;margin:0 auto;padding:52px 28px 80px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.eyebrow{margin:0 0 10px;font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+h1{margin:0;font-size:24px;line-height:1.2;letter-spacing:-.01em;font-weight:600}
+header p{margin:0;font-size:12px;color:var(--muted)}
+
+.template{margin-top:42px}
+.template-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.letter{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;background:#ffffff10;border:1px solid var(--line);font-size:11px;font-weight:700;color:var(--ink)}
+.template-head h2{margin:0;font-size:14px;font-weight:600;letter-spacing:.01em}
+.template-head span{font-size:11px;color:var(--muted);margin-left:2px}
+
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,408px));justify-content:center;gap:24px}
+figure{margin:0}
+.slot{
+  position:relative;margin:0 auto;border-radius:7px;overflow:hidden;background:#1a1a1f;
+  width:calc(1200px * var(--s));height:calc(var(--h) * var(--s));
+  box-shadow:0 18px 44px rgba(0,0,0,.42);
+}
+.card{position:absolute;top:0;left:0;transform-origin:top left;transform:scale(var(--s));overflow:hidden}
+.card img{display:block;width:100%;height:100%;object-fit:cover}
+figcaption{margin-top:10px;text-align:center;font-size:12px;line-height:1.4;color:var(--muted)}
+
+/* A · 极简相框 */
+.ca{width:1200px;height:1840px;background:var(--paper);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif}
+.ca-photo{position:absolute;left:42px;top:42px;width:1116px;height:1488px;border-radius:4px;overflow:hidden;background:#202024}
+.ca-meta{position:absolute;left:68px;right:68px;bottom:88px}
+.ca-caption{margin:0 0 30px;font-size:34px;line-height:1.2;font-weight:400;color:var(--paper-muted);font-variant-numeric:tabular-nums;letter-spacing:.2px}
+.ca-row{display:flex;align-items:baseline;gap:24px}
+.ca-primary{margin:0;flex:1 1 auto;min-width:0;font-size:48px;line-height:1.2;font-weight:600;color:var(--paper-ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ca-brand{margin:0;flex:none;font-size:46px;line-height:1.2;font-weight:600;color:var(--paper-ink);letter-spacing:.4px}
+.ca.state-none .ca-row{justify-content:flex-end}
+.ca.date-44 .ca-primary{font-size:44px;font-weight:400;color:var(--paper-muted)}
+
+/* B · 邮票票根 */
+.cb{width:1200px;height:1600px;background:var(--mat);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif;position:relative}
+.font-script{font-family:"Snell Roundhand","Savoye LET","Brush Script MT",cursive;font-size:44px;font-weight:500}
+.cb-brand{position:absolute;right:68px;bottom:72px;margin:0;line-height:1;color:#ffffffe6}
+.cb.hide-brand .cb-brand{display:none}
+.ticket{position:absolute;left:259.5px;top:224.5px;width:681px;height:1151px}
+.ticket-clip{position:absolute;inset:0;border-radius:48px;overflow:hidden;background:#fff}
+.t-photo{position:absolute;left:21px;top:21px;width:639px;height:826px;border-radius:19px;overflow:hidden;background:#e8e8ea}
+.t-photo img{width:100%;height:100%;object-fit:cover}
+.t-stub{position:absolute;left:0;right:0;top:876px;bottom:0;background:var(--stub)}
+.t-station-block{position:absolute;left:58px;top:0;width:433px;height:182px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.cb.no-cols .t-station-block{height:275px}
+.t-kicker{position:absolute;left:58px;top:24px;margin:0;font-size:20px;line-height:1.2;font-weight:500;letter-spacing:.09em;color:var(--ticket-ink);opacity:.72}
+.t-name{position:absolute;left:58px;top:52px;margin:0;width:433px;height:120px;display:flex;align-items:center;font-size:40px;line-height:1.19;font-weight:700;color:var(--ticket-ink);letter-spacing:-.01em}
+.t-station-block .t-kicker{position:static;left:auto;top:auto;margin:0 0 8px}
+.t-station-block .t-name{position:static;left:auto;top:auto;width:100%;height:auto;display:block;font-size:40px;line-height:1.19}
+.t-rule{position:absolute;left:58px;top:182px;width:400px;border-top:2px dotted rgba(22,17,15,.5)}
+.t-cols{position:absolute;left:58px;top:206px;display:flex;gap:66px}
+.t-lab{margin:0 0 6px;font-size:16px;line-height:1.2;font-weight:500;letter-spacing:.14em;color:var(--ticket-ink);opacity:.72}
+.t-val{margin:0;font-size:28px;line-height:1.2;font-weight:700;color:var(--ticket-ink);font-variant-numeric:tabular-nums}
+.cb.no-cols .t-rule,.cb.no-cols .t-cols{display:none}
+.t-seam{position:absolute;left:0;right:0;top:876px;height:2.5px;background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.5) 0 7px,transparent 7px 12px)}
+.t-notch{position:absolute;top:876px;width:40px;height:40px;border-radius:50%;background:var(--mat);transform:translateY(-50%)}
+.t-notch.l{left:-20px}
+.t-notch.r{right:-20px}
+.t-barcode{position:absolute;right:63px;top:898px;width:107px;height:235px;border-radius:9px;background:#fff;overflow:hidden}
+.bc-rot{position:absolute;top:0;left:0;width:235px;height:107px;transform-origin:top left;transform:translateX(107px) rotate(90deg)}
+.bc-bars{position:absolute;left:3px;right:3px;top:7px;height:62px;
+  background-image:repeating-linear-gradient(90deg,
+    #000 0 8px,transparent 8px 11px,#000 11px 13px,transparent 13px 19px,#000 19px 26px,transparent 26px 29px,
+    #000 29px 31px,transparent 31px 37px,#000 37px 46px,transparent 46px 49px,#000 49px 51px,transparent 51px 57px,
+    #000 57px 62px,transparent 62px 66px)}
+.bc-num{position:absolute;left:8px;right:8px;bottom:7px;height:31px;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;font-family:"SF Mono",Menlo,"Courier New",monospace;font-size:15.5px;font-weight:700;color:#111;letter-spacing:.02em}
+
+/* C · Colorwork */
+.cc{width:1200px;height:1600px;background:#101014;position:relative;font-family:"American Typewriter",Georgia,serif}
+.c-block{position:absolute;left:0;right:0;top:0;height:800px;background:#314b01;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff}
+.c-title{margin:0;font-family:"AmericanTypewriter-CondensedBold","American Typewriter",Georgia,serif;font-size:48px;line-height:1.1;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.c-date{margin:17px 0 0;font-family:"AmericanTypewriter-Condensed","American Typewriter",Georgia,serif;font-size:28px;line-height:1.2}
+.c-loc{margin:7px 0 0;font-family:"AmericanTypewriter-Condensed","American Typewriter",Georgia,serif;font-size:25px;line-height:1.2;opacity:.88}
+.c-photo{position:absolute;left:0;right:0;top:800px;height:800px;overflow:hidden}
+.c-photo img{width:100%;height:100%;object-fit:cover}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:minmax(0,408px)}
+}
+@media(max-width:680px){
+  .wrap{padding:32px 18px 56px}
+  .grid{grid-template-columns:1fr}
+  .slot{--s:.28!important}
+  header{display:block}
+  header p{margin-top:10px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">POCA · SHARE CARDS</p>
+      <h1>当前版本 · 四种状态</h1>
+    </div>
+    <p>日期 × 地点</p>
+  </header>
+
+  <!-- A -->
+  <section class="template">
+    <div class="template-head"><span class="letter">A</span><h2>极简相框</h2></div>
+    <div class="grid">
+      <figure>
+        <div class="slot" style="--s:.34;--h:1840px">
+          <div class="card ca">
+            <div class="ca-photo"><img src="assets/share-review-barcelona.jpg" alt=""></div>
+            <div class="ca-meta">
+              <p class="ca-caption">2026年10月7日</p>
+              <div class="ca-row"><p class="ca-primary">巴塞罗那·海岸</p><p class="ca-brand">Poca</p></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>日期 + 地点</figcaption>
+      </figure>
+
+      <figure>
+        <div class="slot" style="--s:.34;--h:1840px">
+          <div class="card ca date-44">
+            <div class="ca-photo"><img src="assets/share-review-barcelona.jpg" alt=""></div>
+            <div class="ca-meta">
+              <div class="ca-row"><p class="ca-primary">2026年10月7日</p><p class="ca-brand">Poca</p></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>仅日期</figcaption>
+      </figure>
+
+      <figure>
+        <div class="slot" style="--s:.34;--h:1840px">
+          <div class="card ca">
+            <div class="ca-photo"><img src="assets/share-review-barcelona.jpg" alt=""></div>
+            <div class="ca-meta">
+              <div class="ca-row"><p class="ca-primary">巴塞罗那·海岸</p><p class="ca-brand">Poca</p></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>仅地点</figcaption>
+      </figure>
+
+      <figure>
+        <div class="slot" style="--s:.34;--h:1840px">
+          <div class="card ca state-none">
+            <div class="ca-photo"><img src="assets/share-review-barcelona.jpg" alt=""></div>
+            <div class="ca-meta">
+              <div class="ca-row"><p class="ca-brand">Poca</p></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>两者皆无</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- B -->
+  <section class="template">
+    <div class="template-head"><span class="letter">B</span><h2>邮票票根</h2></div>
+    <div class="grid">
+      <figure>
+        <div class="slot" style="--s:.34;--h:1600px">
+          <div class="card cb">
+            <p class="cb-brand font-script">Poca</p>
+            <div class="ticket">
+              <div class="ticket-clip">
+                <div class="t-photo"><img src="assets/share-review-window.jpg" alt=""></div>
+                <div class="t-stub">
+                  <div class="t-station-block">
+                    <p class="t-kicker">NEXT STATION</p>
+                    <p class="t-name">东京·羽田</p>
+                  </div>
+                  <div class="t-rule"></div>
+                  <div class="t-cols">
+                    <div><p class="t-lab">YEAR</p><p class="t-val">2026</p></div>
+                    <div><p class="t-lab">DATE</p><p class="t-val">10.07</p></div>
+                  </div>
+                </div>
+                <div class="t-seam"></div>
+                <div class="t-barcode"><div class="bc-rot"><div class="bc-bars"></div><div class="bc-num">280737511998403216577</div></div></div>
+              </div>
+              <span class="t-notch l"></span>
+              <span class="t-notch r"></span>
+            </div>
+          </div>
+        </div>
+        <figcaption>日期 + 地点</figcaption>
+      </figure>
+
+      <figure>
+        <div class="slot" style="--s:.34;--h:1600px">
+          <div class="card cb no-cols">
+            <p class="cb-brand font-script">Poca</p>
+            <div class="ticket">
+              <div class="ticket-clip">
+                <div class="t-photo"><img src="assets/share-review-window.jpg" alt=""></div>
+                <div class="t-stub">
+                  <div class="t-station-block">
+                    <p class="t-kicker">NEXT STATION</p>
+                    <p class="t-name">2026.10.07</p>
+                  </div>
+                </div>
+                <div class="t-seam"></div>
+                <div class="t-barcode"><div class="bc-rot"><div class="bc-bars"></div><div class="bc-num">280737511998403216577</div></div></div>
+              </div>
+              <span class="t-notch l"></span>
+              <span class="t-notch r"></span>
+            </div>
+          </div>
+        </div>
+        <figcaption>仅日期</figcaption>
+      </figure>
+
+      <figure>
+        <div class="slot" style="--s:.34;--h:1600px">
+          <div class="card cb no-cols">
+            <p class="cb-brand font-script">Poca</p>
+            <div class="ticket">
+              <div class="ticket-clip">
+                <div class="t-photo"><img src="assets/share-review-window.jpg" alt=""></div>
+                <div class="t-stub">
+                  <div class="t-station-block">
+                    <p class="t-kicker">NEXT STATION</p>
+                    <p class="t-name">东京·羽田</p>
+                  </div>
+                </div>
+                <div class="t-seam"></div>
+                <div class="t-barcode"><div class="bc-rot"><div class="bc-bars"></div><div class="bc-num">280737511998403216577</div></div></div>
+              </div>
+              <span class="t-notch l"></span>
+              <span class="t-notch r"></span>
+            </div>
+          </div>
+        </div>
+        <figcaption>仅地点</figcaption>
+      </figure>
+
+      <figure>
+        <div class="slot" style="--s:.34;--h:1600px">
+          <div class="card cb no-cols hide-brand">
+            <div class="ticket">
+              <div class="ticket-clip">
+                <div class="t-photo"><img src="assets/share-review-window.jpg" alt=""></div>
+                <div class="t-stub">
+                  <div class="t-station-block">
+                    <p class="t-kicker">NEXT STATION</p>
+                    <p class="t-name">Poca</p>
+                  </div>
+                </div>
+                <div class="t-seam"></div>
+                <div class="t-barcode"><div class="bc-rot"><div class="bc-bars"></div><div class="bc-num">280737511998403216577</div></div></div>
+              </div>
+              <span class="t-notch l"></span>
+              <span class="t-notch r"></span>
+            </div>
+          </div>
+        </div>
+        <figcaption>两者皆无</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- C -->
+  <section class="template">
+    <div class="template-head"><span class="letter">C</span><h2>Colorwork</h2></div>
+    <div class="grid">
+      <figure>
+        <div class="slot" style="--s:.34;--h:1600px">
+          <div class="card cc">
+            <div class="c-block">
+              <p class="c-title">POCA COLOR</p>
+              <p class="c-date">October 7, 2026</p>
+              <p class="c-loc">巴塞罗那·海岸</p>
+            </div>
+            <div class="c-photo"><img src="assets/share-review-barcelona.jpg" alt=""></div>
+          </div>
+        </div>
+        <figcaption>日期 + 地点</figcaption>
+      </figure>
+
+      <figure>
+        <div class="slot" style="--s:.34;--h:1600px">
+          <div class="card cc">
+            <div class="c-block">
+              <p class="c-title">POCA COLOR</p>
+              <p class="c-date">October 7, 2026</p>
+            </div>
+            <div class="c-photo"><img src="assets/share-review-barcelona.jpg" alt=""></div>
+          </div>
+        </div>
+        <figcaption>仅日期</figcaption>
+      </figure>
+
+      <figure>
+        <div class="slot" style="--s:.34;--h:1600px">
+          <div class="card cc">
+            <div class="c-block">
+              <p class="c-title">POCA COLOR</p>
+              <p class="c-loc">巴塞罗那·海岸</p>
+            </div>
+            <div class="c-photo"><img src="assets/share-review-barcelona.jpg" alt=""></div>
+          </div>
+        </div>
+        <figcaption>仅地点</figcaption>
+      </figure>
+
+      <figure>
+        <div class="slot" style="--s:.34;--h:1600px">
+          <div class="card cc">
+            <div class="c-block">
+              <p class="c-title">POCA COLOR</p>
+            </div>
+            <div class="c-photo"><img src="assets/share-review-barcelona.jpg" alt=""></div>
+          </div>
+        </div>
+        <figcaption>两者皆无</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+</body>
+</html>

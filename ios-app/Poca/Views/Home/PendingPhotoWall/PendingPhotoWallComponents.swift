@@ -337,6 +337,7 @@ struct PendingPhotoWallPolaroidBoard: View {
     /// 相纸一次性错峰落位；之后滚动进出视口不再重播。
     @State private var hasSettled = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ObservedObject private var motion = PolaroidBoardMotion.shared
 
     private var board: PolaroidBoard {
         PolaroidBoardLayout.layout(
@@ -371,7 +372,16 @@ struct PendingPhotoWallPolaroidBoard: View {
                                     .allowsHitTesting(false)
                             }
                         }
-                        .rotationEffect(.degrees(Double(item.rotationDegrees)))
+                        .offset(
+                            x: reduceMotion ? 0 : motion.swingX(hang: item.hang) * scale,
+                            y: reduceMotion ? 0 : motion.swingY(hang: item.hang) * scale
+                        )
+                        .rotationEffect(
+                            .degrees(
+                                Double(item.rotationDegrees)
+                                    + (reduceMotion ? 0 : Double(motion.swingRotation(hang: item.hang)))
+                            )
+                        )
                         .opacity(reduceMotion || hasSettled ? 1 : 0)
                         .scaleEffect(reduceMotion || hasSettled ? 1 : 0.94)
                         .offset(y: reduceMotion || hasSettled ? 0 : -8)
@@ -393,7 +403,15 @@ struct PendingPhotoWallPolaroidBoard: View {
         .aspectRatio(PolaroidBoardLayout.boardWidth / max(board.height, 1), contentMode: .fit)
         .onAppear {
             isActivated = true
+            if !reduceMotion {
+                motion.retain()
+            }
             settleIfNeeded()
+        }
+        .onDisappear {
+            if !reduceMotion {
+                motion.release()
+            }
         }
     }
 
