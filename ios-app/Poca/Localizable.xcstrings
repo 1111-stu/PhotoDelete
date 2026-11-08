@@ -12800,6 +12800,7 @@
       }
     },
     "Colorwork" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36121,6 +36122,9 @@
           }
         }
       }
+    },
+    "Poca Color" : {
+
     },
     "Poca does not use its own cloud service and never sends photos to a server." : {
       "localizations" : {

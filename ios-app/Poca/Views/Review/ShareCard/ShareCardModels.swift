@@ -15,7 +15,7 @@ enum ShareCardTemplate: String, CaseIterable, Identifiable {
         switch self {
         case .minimalFrame: return L10n.string("Minimal Frame")
         case .ticketStub: return L10n.string("Ticket Stub")
-        case .colorwork: return L10n.string("Colorwork")
+        case .colorwork: return L10n.string("Poca Color")
         case .original: return L10n.string("Original Photo")
         }
     }
@@ -80,6 +80,28 @@ struct ShareCardMeta: Equatable {
     var displaysDate: Bool { hasDate && showDate }
     var displaysLocation: Bool { hasLocation && showLocation }
 
+    // 分享卡是英文排版的对外物料：日期不跟随 App 语言，避免出现「2026年.05/30」这类混排。
+    private static let englishFullDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.setLocalizedDateFormatFromTemplate("yMMMMd")
+        return formatter
+    }()
+
+    private static let ticketYearFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy"
+        return formatter
+    }()
+
+    private static let ticketMonthDayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "MM.dd"
+        return formatter
+    }()
+
     /// 票根站名：地点 → 日期 → 品牌签名。
     var ticketStationName: String {
         if displaysLocation { return location }
@@ -107,9 +129,9 @@ struct ShareCardMeta: Equatable {
             hasLocation: hasLocation,
             showDate: showDate,
             showLocation: showLocation,
-            dateFull: AppDateFormatter.string(from: date, template: "yMMMd"),
-            dateYear: AppDateFormatter.string(from: date, template: "yyyy"),
-            dateMonthDay: AppDateFormatter.string(from: date, template: "MM.dd"),
+            dateFull: Self.englishFullDateFormatter.string(from: date),
+            dateYear: Self.ticketYearFormatter.string(from: date),
+            dateMonthDay: Self.ticketMonthDayFormatter.string(from: date),
             location: locationTitle ?? "",
             signature: AppConstants.appDisplayName,
             barcodeSeed: barcodeSeed,
@@ -125,6 +147,7 @@ enum ShareCardColorExtraction {
     private typealias HSL = (h: Double, s: Double, l: Double)
 
     /// 取整张照片的主色（4-bit 量化直方图峰值），而不是全图色相平均。
+    /// 0.20 饱和度门槛避免大片灰米色桌面/墙面在票数上赢过真正有色的主体；
     /// 主色与白色文字对比不足（< 4.5:1）时只压暗明度，色相和饱和度保持照片原样。
     static func blockColor(from image: UIImage?) -> Color {
         guard let image, let cgImage = image.cgImage else { return fallbackBlock }
@@ -169,7 +192,7 @@ enum ShareCardColorExtraction {
             let b = Double(pixels[i + 2]) / 255
             let hsl = rgbToHSL(r, g, b)
             if !relaxed {
-                guard hsl.s >= 0.12, hsl.l >= 0.05, hsl.l <= 0.95 else { continue }
+                guard hsl.s >= 0.20, hsl.l >= 0.05, hsl.l <= 0.95 else { continue }
             }
             let key = (Int(pixels[i] >> 4) << 8)
                 | (Int(pixels[i + 1] >> 4) << 4)

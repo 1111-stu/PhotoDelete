@@ -281,6 +281,19 @@ struct PocaTests {
         #expect(rgb.g > rgb.b)
     }
 
+    @Test func shareCardBlockColorIgnoresLargeLowSaturationBackground() async throws {
+        // 80% 灰米色桌面 + 20% 饱和蓝：主色应取蓝，而不是把桌面压暗成灰橄榄。
+        let image = makeSolidImage(
+            size: CGSize(width: 80, height: 80),
+            fills: [
+                (CGRect(x: 0, y: 0, width: 64, height: 80), UIColor(red: 0.467, green: 0.443, blue: 0.357, alpha: 1)),
+                (CGRect(x: 64, y: 0, width: 16, height: 80), UIColor(red: 0.10, green: 0.25, blue: 0.85, alpha: 1))
+            ]
+        )
+        let rgb = try #require(rgbComponents(of: ShareCardColorExtraction.blockColor(from: image)))
+        #expect(rgb.b > rgb.r)
+    }
+
     @Test func shareCardBlockColorKeepsWhiteTextReadable() async throws {
         // 浅蓝主色：保留蓝色相，但明度压暗到白字对比度 ≥ 4.5:1。
         let image = makeSolidImage(

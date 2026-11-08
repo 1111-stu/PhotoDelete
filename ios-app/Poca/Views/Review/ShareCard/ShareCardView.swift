@@ -408,7 +408,7 @@ private struct ColorworkCard: View {
                     meta.blockColor
                     VStack(spacing: 0) {
                         Text(meta.colorworkTitle)
-                            .font(.custom("AmericanTypewriter-CondensedBold", size: 48))
+                            .font(.custom("AmericanTypewriter-CondensedBold", size: 56))
                             .tracking(2.4)
                             .textCase(.uppercase)
                             .foregroundStyle(.white)
@@ -416,17 +416,17 @@ private struct ColorworkCard: View {
 
                         if meta.displaysDate {
                             Text(meta.dateFull)
-                                .font(.custom("AmericanTypewriter-Condensed", size: 28))
+                                .font(.custom("AmericanTypewriter-Condensed", size: 32))
                                 .foregroundStyle(.white)
-                                .padding(.top, 17)
+                                .padding(.top, 20)
                                 .multilineTextAlignment(.center)
                         }
 
                         if meta.displaysLocation {
                             Text(meta.location)
-                                .font(.custom("AmericanTypewriter-Condensed", size: 25))
+                                .font(.custom("AmericanTypewriter-Condensed", size: 28))
                                 .foregroundStyle(.white.opacity(0.88))
-                                .padding(.top, 7)
+                                .padding(.top, 8)
                                 .multilineTextAlignment(.center)
                         }
                     }
