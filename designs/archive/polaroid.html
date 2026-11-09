@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poca · 归档探索 · 拍立得堆</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0a0a0d;--bg2:#08080a;--ink:#f5f5f7;--ink2:rgba(255,255,255,.62);--ink3:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.09);
+}
+html{background:var(--bg)}
+body{
+  margin:0;min-height:100vh;color:var(--ink);
+  background:radial-gradient(1100px 700px at 50% -12%,rgba(255,255,255,.05),transparent 62%),linear-gradient(180deg,var(--bg),var(--bg2));
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:56px 32px 80px}
+.crumb{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin-bottom:18px}
+.crumb a{color:var(--ink3);text-decoration:none}
+.crumb a:hover{color:var(--ink)}
+.crumb .sep{opacity:.4}
+h1{margin:0;font-size:38px;line-height:1.1;letter-spacing:-.035em;font-weight:700}
+.lede{max-width:700px;margin:14px 0 0;font-size:13.5px;line-height:1.8;color:var(--ink2)}
+
+.stage{display:grid;grid-template-columns:300px auto;gap:64px;align-items:start;margin-top:44px;justify-content:center}
+@media (max-width:840px){.stage{grid-template-columns:1fr;justify-items:center;gap:36px}.notes{max-width:420px}}
+.notes{padding-top:8px}
+.note-block{padding:20px 0;border-top:1px solid var(--line)}
+.note-block:first-child{border-top:0;padding-top:0}
+.note-block h3{margin:0 0 8px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.note-block p{margin:0;font-size:12.5px;line-height:1.8;color:var(--ink2)}
+.note-block p + p{margin-top:8px}
+.note-block b{color:var(--ink);font-weight:600}
+.notes ul{margin:0;padding:0;list-style:none}
+.notes li{display:flex;gap:10px;font-size:12px;line-height:1.65;color:var(--ink2);padding:5px 0}
+.notes li::before{content:"—";color:var(--ink3);flex:none}
+
+.phone{position:relative;width:414px;height:868px;border-radius:68px;padding:12px;
+  background:linear-gradient(155deg,#3d3d45,#0d0d11 26%,#191920 55%,#0c0c10);
+  box-shadow:0 44px 110px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.06)}
+.screen{position:relative;width:390px;height:844px;border-radius:57px;overflow:hidden;background:#0c0c0f;isolation:isolate}
+.status{position:relative;z-index:40;height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 8px;color:#fff}
+.status .time{font-size:14px;font-weight:600}
+.status .icons{display:flex;align-items:center;gap:5px;opacity:.95}
+.status svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.9);z-index:80;transform:translateX(-50%)}
+.grain{position:absolute;inset:0;z-index:75;pointer-events:none;opacity:.045;mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.6'/></svg>")}
+
+.table{position:absolute;inset:54px 0 0;display:flex;flex-direction:column;
+  background:
+    radial-gradient(90% 62% at 46% 30%,rgba(255,228,190,.13),transparent 62%),
+    radial-gradient(120% 80% at 50% 108%,rgba(0,0,0,.85),transparent 60%),
+    #0d0d10}
+.app-head{position:relative;z-index:30;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex:none}
+.circle{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);color:#fff}
+.title{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.counter{min-width:56px;text-align:right;font-family:"Courier New",monospace;font-size:10px;letter-spacing:.12em;color:var(--ink3);font-variant-numeric:tabular-nums}
+
+.stack-zone{position:relative;flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.watermark{position:absolute;right:16px;bottom:26%;font-size:92px;line-height:1;font-weight:700;letter-spacing:-.06em;color:rgba(255,255,255,.028);pointer-events:none;font-variant-numeric:tabular-nums}
+.pile{position:relative;width:270px;height:322px;touch-action:none}
+.pile::after{content:"";position:absolute;left:6%;right:6%;bottom:-26px;height:54px;border-radius:50%;background:rgba(0,0,0,.55);filter:blur(20px);z-index:0}
+.pol{
+  position:absolute;inset:0;background:#f7f4ed;border-radius:3px;padding:14px 14px 0;
+  box-shadow:0 18px 34px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.5) inset;
+  transform-origin:50% 72%;
+  transition:transform .5s cubic-bezier(.2,.9,.25,1),opacity .3s ease,box-shadow .3s ease;
+  cursor:grab;user-select:none;-webkit-user-select:none;
+  will-change:transform;
+}
+.pol.grabbing{cursor:grabbing;transition:none}
+.pol.armed{box-shadow:0 30px 56px rgba(0,0,0,.62),0 1px 0 rgba(255,255,255,.5) inset}
+.pol .photo{position:relative;width:100%;aspect-ratio:1;overflow:hidden;background:#d8d3c8;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.pol .photo img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.pol .date{position:absolute;right:16px;bottom:15px;font-family:"Courier New",monospace;font-size:8.5px;letter-spacing:.06em;color:#9b9588;font-variant-numeric:tabular-nums}
+.pol .tape{position:absolute;top:-9px;left:50%;width:76px;height:20px;margin-left:-38px;border-radius:1px;transform:rotate(-5deg);opacity:.72;box-shadow:0 1px 2px rgba(0,0,0,.22)}
+.tape.ochre{background:linear-gradient(180deg,#e0b371,#c99753)}
+.tape.mint{background:linear-gradient(180deg,#a9cbb4,#8ab49a)}
+.tape.rose{background:linear-gradient(180deg,#e3aca6,#cd8f88)}
+
+.hint-zone{flex:none;padding:0 0 30px;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;z-index:20}
+.hint-pill{display:inline-flex;align-items:center;gap:9px;font-size:10px;letter-spacing:.04em;color:var(--ink2);
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:8px 14px;border-radius:999px;backdrop-filter:blur(10px)}
+.hint-pill svg{opacity:.75}
+.restart{display:none;border:0;border-radius:999px;background:#f5f5f7;color:#08080a;font-size:12px;font-weight:600;font-family:inherit;padding:11px 20px;cursor:pointer}
+
+.done{position:absolute;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;
+  background:radial-gradient(70% 50% at 50% 40%,rgba(255,255,255,.05),transparent 70%)}
+.done.show{display:flex}
+.done .k{font-family:"Courier New",monospace;font-size:8.5px;letter-spacing:.22em;color:var(--ink3)}
+.done h3{margin:16px 0 0;font-family:"Songti SC","STSong",serif;font-size:34px;font-weight:600;letter-spacing:.02em}
+.done p{margin:12px 0 0;font-size:12px;line-height:1.8;color:var(--ink2)}
+.done .rz{margin-top:26px;border:0;border-radius:999px;background:#f5f5f7;color:#08080a;font-size:13px;font-weight:600;font-family:inherit;padding:12px 24px;cursor:pointer}
+.done .rz:active{transform:scale(.97)}
+
+footer{margin-top:52px;display:flex;justify-content:space-between;gap:20px;font-size:11px;color:var(--ink3);border-top:1px solid var(--line);padding-top:20px}
+footer a{color:var(--ink2);text-decoration:none}
+footer a:hover{color:var(--ink)}
+@media (prefers-reduced-motion: reduce){.pol{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">
+    <a href="../index.html">相册回顾 · 三种呈现</a><span class="sep">/</span><span>归档探索 · 早期方向</span>
+  </div>
+  <h1>拍立得堆</h1>
+  <p class="lede">一叠刚洗出来的拍立得。滑开最上面一张，下一张自己落到手边——用最接近实体照片的手感，把浏览变成一次翻牌。</p>
+
+  <div class="stage">
+    <aside class="notes">
+      <div class="note-block">
+        <h3>隐喻</h3>
+        <p>刚显影的一叠即时相纸：白边、平顶光、一点点胶带。画面保持干净，只在白边角落留一行日期。没有网格，只有「这一张」和它下面压着的那一张。</p>
+        <p><b>适合：</b>生活流相册、宠物、朋友聚会——任何不需要严肃叙事的照片。</p>
+      </div>
+      <div class="note-block">
+        <h3>交互</h3>
+        <ul>
+          <li>按住最上面一张，任意方向拖动</li>
+          <li>拖过 ~90px 松手 → 丢掉，下一张落上来</li>
+          <li>没拖够 → 弹回原位</li>
+          <li>看完 10 张出现结束页，可重看</li>
+        </ul>
+      </div>
+      <div class="note-block">
+        <h3>为什么好</h3>
+        <p>它是四种里唯一有「触感」的：拖拽、惯性、纸的倾斜。回顾不一定要严肃，也可以像在桌上摊开一叠照片。</p>
+      </div>
+      <div class="note-block">
+        <h3>细节</h3>
+        <ul>
+          <li>每张的倾角和胶带颜色固定</li>
+          <li>白边不写批注，只在右下打一行日期</li>
+          <li>桌面有柔和顶光和一粒粒纸面噪点</li>
+        </ul>
+      </div>
+    </aside>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="status">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="#fff"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="#fff"><path d="M8 10.5 5.9 8.4a3 3 0 0 1 4.2 0L8 10.5Zm0-4.3a5.6 5.6 0 0 0-4 1.6L2.6 6.4a7.7 7.7 0 0 1 10.8 0l-1.4 1.4a5.6 5.6 0 0 0-4-1.6Zm0-3.4a9 9 0 0 0-6.4 2.6L.2 4.1a11.1 11.1 0 0 1 15.6 0l-1.4 1.3A9 9 0 0 0 8 2.8Z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#fff" opacity=".45"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"/><path d="M23 4.2v3.6c.9-.3 1.4-1 1.4-1.8s-.5-1.5-1.4-1.8Z" fill="#fff" opacity=".5"/></svg>
+          </span>
+        </div>
+
+        <div class="table">
+          <div class="app-head">
+            <span class="circle" aria-hidden="true">
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8.5 1.5 2 8l6.5 6.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="title">夏日切片</span>
+            <span class="counter" id="counter">01 / 10</span>
+          </div>
+
+          <div class="stack-zone">
+            <div class="watermark">2025</div>
+            <div class="pile" id="pile"></div>
+            <div class="done" id="done">
+              <div class="k">END OF THE PILE</div>
+              <h3>看完了</h3>
+              <p>十天的光，都被你翻过一遍了。</p>
+              <button class="rz" id="restart">再看一遍</button>
+            </div>
+          </div>
+
+          <div class="hint-zone">
+            <div class="hint-pill" id="hint">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 12V2M7 2 3 6M7 2l4 4" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" transform="rotate(45 7 7)"/></svg>
+              按住拖开 · 松手丢掉
+            </div>
+          </div>
+        </div>
+
+        <div class="grain"></div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>设计探索稿 · 非最终视觉规范</span>
+    <a href="../index.html">返回当前方案总览</a>
+  </footer>
+</div>
+
+<script>
+const photos = [
+  {src:'../assets/album/07-plane.jpg', date:'08.09', pos:'50% 50%', tilt:-2.4, tape:'ochre'},
+  {src:'../assets/album/03-beach.jpg', date:'08.10', pos:'50% 55%', tilt:1.8, tape:'mint'},
+  {src:'../assets/album/08-pool.jpg', date:'08.10', pos:'50% 60%', tilt:2.7, tape:'rose'},
+  {src:'../assets/album/01-cove.jpg', date:'08.11', pos:'50% 45%', tilt:-1.6, tape:'mint'},
+  {src:'../assets/album/05-road.jpg', date:'08.12', pos:'50% 50%', tilt:-2.9, tape:'ochre'},
+  {src:'../assets/album/04-lake.jpg', date:'08.13', pos:'50% 55%', tilt:2.2, tape:'rose'},
+  {src:'../assets/album/02-kyoto.jpg', date:'08.14', pos:'50% 50%', tilt:-2.1, tape:'mint'},
+  {src:'../assets/album/06-food.jpg', date:'08.15', pos:'50% 55%', tilt:1.4, tape:'ochre'},
+  {src:'../assets/album/10-cat-gray.jpg', date:'08.16', pos:'50% 40%', tilt:-1.9, tape:'rose'},
+  {src:'../assets/album/09-cat-orange.jpg', date:'08.16', pos:'50% 45%', tilt:2.5, tape:'ochre'}
+];
+
+const pile = document.getElementById('pile');
+const counter = document.getElementById('counter');
+const done = document.getElementById('done');
+const hint = document.getElementById('hint');
+let current = 0;
+
+const cards = photos.map((p, i) => {
+  const el = document.createElement('article');
+  el.className = 'pol';
+  el.innerHTML = `
+    <span class="tape ${p.tape}"></span>
+    <div class="photo"><img src="${p.src}" alt="" style="object-position:${p.pos}"></div>
+    <div class="date">${p.date}</div>`;
+  el.dataset.i = i;
+  pile.appendChild(el);
+  return el;
+});
+
+function layout(){
+  cards.forEach((el, i) => {
+    const depth = i - current;
+    if (depth < 0 || depth > 2){
+      el.style.display = 'none';
+      return;
+    }
+    el.style.display = '';
+    const p = photos[i];
+    const tilt = depth === 0 ? p.tilt : (depth === 1 ? 3.6 : -5.4);
+    const y = depth * 11;
+    const x = depth === 1 ? -7 : depth === 2 ? 8 : 0;
+    const scale = 1 - depth * 0.038;
+    el.style.zIndex = String(100 - depth);
+    el.style.opacity = depth === 0 ? '1' : (depth === 1 ? '0.94' : '0.78');
+    el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${tilt}deg) scale(${scale})`;
+    el.style.cursor = depth === 0 ? 'grab' : 'default';
+  });
+  counter.textContent = `${String(Math.min(current + 1, photos.length)).padStart(2,'0')} / ${String(photos.length).padStart(2,'0')}`;
+  const finished = current >= photos.length;
+  done.classList.toggle('show', finished);
+  hint.style.display = finished ? 'none' : '';
+}
+layout();
+
+let drag = null;
+
+function topCard(){
+  return current < photos.length ? cards[current] : null;
+}
+
+pile.addEventListener('pointerdown', e => {
+  const card = e.target.closest('.pol');
+  if (!card || Number(card.dataset.i) !== current) return;
+  e.preventDefault();
+  card.setPointerCapture(e.pointerId);
+  card.classList.add('grabbing');
+  drag = {
+    card,
+    id: e.pointerId,
+    x0: e.clientX,
+    y0: e.clientY,
+    dx: 0,
+    dy: 0,
+    tilt: photos[current].tilt
+  };
+});
+
+pile.addEventListener('pointermove', e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  drag.dx = e.clientX - drag.x0;
+  drag.dy = e.clientY - drag.y0;
+  const dist = Math.hypot(drag.dx, drag.dy);
+  drag.card.classList.toggle('armed', dist > 70);
+  drag.card.style.transform = `translate3d(${drag.dx}px, ${drag.dy}px, 0) rotate(${drag.tilt + drag.dx * 0.045}deg)`;
+});
+
+function endDrag(e){
+  if (!drag || e.pointerId !== drag.id) return;
+  const {card, dx, dy, tilt} = drag;
+  const dist = Math.hypot(dx, dy);
+  card.classList.remove('grabbing','armed');
+  drag = null;
+
+  if (dist > 90){
+    const dir = dx >= 0 ? 1 : -1;
+    card.style.transition = 'transform .34s cubic-bezier(.4,0,.7,.2), opacity .3s ease';
+    card.style.transform = `translate3d(${dir * 440}px, ${dy - 80}px, 0) rotate(${tilt + dir * 28}deg)`;
+    card.style.opacity = '0';
+    window.setTimeout(() => {
+      current += 1;
+      card.style.transition = '';
+      layout();
+    }, 330);
+  } else {
+    card.style.transform = '';
+    layout();
+  }
+}
+pile.addEventListener('pointerup', endDrag);
+pile.addEventListener('pointercancel', endDrag);
+
+document.getElementById('restart').addEventListener('click', () => {
+  current = 0;
+  cards.forEach(c => {
+    c.style.transition = 'none';
+    c.style.opacity = '';
+    c.style.transform = '';
+    c.style.display = '';
+  });
+  layout();
+  requestAnimationFrame(() => {
+    cards.forEach(c => { c.style.transition = ''; });
+  });
+});
+</script>
+</body>
+</html>

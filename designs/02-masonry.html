@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poca · 相册回顾 02 · 错落瀑布</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0a0a0d;--bg2:#08080a;--ink:#f5f5f7;--ink2:rgba(255,255,255,.62);--ink3:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.09);
+}
+html{background:var(--bg)}
+body{
+  margin:0;min-height:100vh;color:var(--ink);
+  background:radial-gradient(1100px 700px at 50% -12%,rgba(255,255,255,.05),transparent 62%),linear-gradient(180deg,var(--bg),var(--bg2));
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:56px 32px 80px}
+.crumb{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin-bottom:18px}
+.crumb a{color:var(--ink3);text-decoration:none}
+.crumb a:hover{color:var(--ink)}
+.crumb .sep{opacity:.4}
+h1{margin:0;font-size:38px;line-height:1.1;letter-spacing:-.035em;font-weight:700}
+.lede{max-width:700px;margin:14px 0 0;font-size:13.5px;line-height:1.8;color:var(--ink2)}
+
+.stage{display:grid;grid-template-columns:300px auto;gap:64px;align-items:start;margin-top:44px;justify-content:center}
+@media (max-width:840px){.stage{grid-template-columns:1fr;justify-items:center;gap:36px}.notes{max-width:420px}}
+.notes{padding-top:8px}
+.note-block{padding:20px 0;border-top:1px solid var(--line)}
+.note-block:first-child{border-top:0;padding-top:0}
+.note-block h3{margin:0 0 8px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.note-block p{margin:0;font-size:12.5px;line-height:1.8;color:var(--ink2)}
+.note-block p + p{margin-top:8px}
+.note-block b{color:var(--ink);font-weight:600}
+.notes ul{margin:0;padding:0;list-style:none}
+.notes li{display:flex;gap:10px;font-size:12px;line-height:1.65;color:var(--ink2);padding:5px 0}
+.notes li::before{content:"—";color:var(--ink3);flex:none}
+
+.phone{position:relative;width:414px;height:868px;border-radius:68px;padding:12px;
+  background:linear-gradient(155deg,#3d3d45,#0d0d11 26%,#191920 55%,#0c0c10);
+  box-shadow:0 44px 110px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.06)}
+.screen{position:relative;width:390px;height:844px;border-radius:57px;overflow:hidden;background:#08080a;isolation:isolate}
+.status{position:relative;z-index:40;height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 8px;color:#fff}
+.status .time{font-size:14px;font-weight:600}
+.status .icons{display:flex;align-items:center;gap:5px;opacity:.95}
+.status svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.9);z-index:80;transform:translateX(-50%)}
+
+.feed{position:absolute;inset:54px 0 0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:#08080a}
+.feed::-webkit-scrollbar{display:none}
+.topbar{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,rgba(8,8,10,.96),rgba(8,8,10,.78) 72%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.topbar-row{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.circle{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff}
+.ttl{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.progress{height:1.5px;width:0;background:rgba(255,255,255,.55);transition:width .1s linear}
+
+.scroll-meta{padding:14px 17px 10px;font-family:"Courier New",monospace;font-size:8px;letter-spacing:.18em;color:var(--ink3)}
+
+.masonry{display:flex;gap:5px;padding:0 16px 56px;align-items:flex-start}
+.col{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+.col:nth-child(1){margin-top:0}
+.col:nth-child(2){margin-top:42px}
+.col:nth-child(3){margin-top:16px}
+.tile{position:relative;width:100%;border-radius:8px;overflow:hidden;background:#15151a;padding:0;border:0;cursor:pointer;
+  box-shadow:inset 0 0 0 .5px rgba(255,255,255,.07);transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+.tile img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.tile:hover img,.tile:active img{transform:scale(1.035)}
+.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.06),transparent 40%);pointer-events:none}
+
+/* lightbox */
+.lightbox{position:absolute;inset:0;z-index:60;background:rgba(4,4,6,.84);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  display:flex;flex-direction:column;justify-content:center;padding:40px 20px 46px;opacity:0;pointer-events:none;transition:opacity .26s ease}
+.lightbox.on{opacity:1;pointer-events:auto}
+.lightbox img{width:100%;max-height:600px;object-fit:contain;border-radius:6px;box-shadow:0 34px 80px rgba(0,0,0,.7)}
+.lb-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px}
+.lb-date{font-family:"Courier New",monospace;font-size:9.5px;letter-spacing:.14em;color:rgba(255,255,255,.5)}
+.lb-close{width:34px;height:34px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;font-size:16px;line-height:1;cursor:pointer}
+
+footer{margin-top:52px;display:flex;justify-content:space-between;gap:20px;font-size:11px;color:var(--ink3);border-top:1px solid var(--line);padding-top:20px}
+footer a{color:var(--ink2);text-decoration:none}
+footer a:hover{color:var(--ink)}
+@media (prefers-reduced-motion: reduce){.tile img,.tile,.lightbox{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">
+    <a href="index.html">相册回顾 · 三种呈现</a><span class="sep">/</span><span>视觉设计稿 02 / 03</span>
+  </div>
+  <h1>错落瀑布</h1>
+  <p class="lede">三列瀑布流，三列的起点互相错开，照片按自己的比例落在不同的高度。没有日期标题，没有图注，只有连续滚动的画面本身。</p>
+
+  <div class="stage">
+    <aside class="notes">
+      <div class="note-block">
+        <h3>隐喻</h3>
+        <p>把照片摊在桌面上，按视觉重量自然落下：竖幅占得高一点，横幅短一点，三列各自流动。像一面一直往下长的照片墙。</p>
+        <p><b>适合：</b>张数多、想快速扫一遍、不需要叙事顺序的相册。</p>
+      </div>
+      <div class="note-block">
+        <h3>交互</h3>
+        <ul>
+          <li>纵向滚动，三列独立错落</li>
+          <li>轻点任意一张 → 看完整照片</li>
+          <li>顶部细线显示整册浏览进度</li>
+        </ul>
+      </div>
+      <div class="note-block">
+        <h3>为什么不是网格</h3>
+        <p>等宽方块把不同比例的照片裁成同一种节奏。瀑布流保留每张照片自己的高度，三列错开之后，视线会自然地斜向游走，而不是一行一行扫。</p>
+        <p>示例把同一组 10 张照片重复排布，只为演示长滚动的密度。</p>
+      </div>
+      <div class="note-block">
+        <h3>文字克制</h3>
+        <p>整页只有标题、时间范围和轻点后的一行日期；没有批注、没有地点、没有分类。照片本身承担全部内容。</p>
+      </div>
+    </aside>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="status">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="#fff"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="#fff"><path d="M8 10.5 5.9 8.4a3 3 0 0 1 4.2 0L8 10.5Zm0-4.3a5.6 5.6 0 0 0-4 1.6L2.6 6.4a7.7 7.7 0 0 1 10.8 0l-1.4 1.4a5.6 5.6 0 0 0-4-1.6Zm0-3.4a9 9 0 0 0-6.4 2.6L.2 4.1a11.1 11.1 0 0 1 15.6 0l-1.4 1.3A9 9 0 0 0 8 2.8Z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#fff" opacity=".45"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"/><path d="M23 4.2v3.6c.9-.3 1.4-1 1.4-1.8s-.5-1.5-1.4-1.8Z" fill="#fff" opacity=".5"/></svg>
+          </span>
+        </div>
+
+        <div class="feed" id="feed">
+          <div class="topbar">
+            <div class="topbar-row">
+              <span class="circle" aria-hidden="true">
+                <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8.5 1.5 2 8l6.5 6.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="ttl">夏日切片</span>
+              <span class="circle" aria-hidden="true">
+                <svg width="16" height="14" viewBox="0 0 16 14" fill="#fff"><rect x="0" y="1" width="4" height="5" rx="1"/><rect x="6" y="1" width="4" height="8" rx="1"/><rect x="12" y="1" width="4" height="3" rx="1"/><rect x="0" y="8" width="4" height="5" rx="1"/><rect x="6" y="11" width="4" height="2" rx="1"/><rect x="12" y="6" width="4" height="7" rx="1"/></svg>
+              </span>
+            </div>
+            <div class="progress" id="progress"></div>
+          </div>
+
+          <div class="scroll-meta">AUG 2025</div>
+          <div class="masonry" id="masonry"></div>
+        </div>
+
+        <div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+          <img id="lbImg" src="" alt="">
+          <div class="lb-foot">
+            <span class="lb-date" id="lbDate"></span>
+            <button class="lb-close" id="lbClose" aria-label="关闭">×</button>
+          </div>
+        </div>
+
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>设计探索稿 · 非最终视觉规范</span>
+    <a href="index.html">返回总览，查看另外 2 套</a>
+  </footer>
+</div>
+
+<script>
+const photos = [
+  {src:'assets/album/07-plane.jpg', date:'AUG 09 · 19:42', pos:'50% 50%'},
+  {src:'assets/album/03-beach.jpg', date:'AUG 10 · 10:06', pos:'50% 55%'},
+  {src:'assets/album/08-pool.jpg', date:'AUG 10 · 16:28', pos:'50% 60%'},
+  {src:'assets/album/01-cove.jpg', date:'AUG 11 · 15:14', pos:'50% 45%'},
+  {src:'assets/album/05-road.jpg', date:'AUG 12 · 19:05', pos:'50% 50%'},
+  {src:'assets/album/04-lake.jpg', date:'AUG 13 · 06:40', pos:'50% 55%'},
+  {src:'assets/album/02-kyoto.jpg', date:'AUG 14 · 20:17', pos:'50% 50%'},
+  {src:'assets/album/06-food.jpg', date:'AUG 15 · 13:22', pos:'50% 55%'},
+  {src:'assets/album/10-cat-gray.jpg', date:'AUG 16 · 09:03', pos:'50% 40%'},
+  {src:'assets/album/09-cat-orange.jpg', date:'AUG 16 · 09:11', pos:'50% 45%'}
+];
+
+// 30 帧：同一册照片重复排布以演示长滚动；3 列各自错开起点。
+const columns = [
+  [[0,252,'50% 50%'],[3,196,'50% 38%'],[1,308,'50% 50%'],[4,220,'50% 55%'],[6,268,'50% 45%'],[7,184,'50% 50%'],[5,240,'50% 50%'],[8,300,'50% 35%'],[2,210,'50% 55%'],[1,236,'50% 40%']],
+  [[2,184,'50% 45%'],[5,286,'50% 52%'],[0,204,'50% 45%'],[8,318,'50% 32%'],[3,192,'50% 50%'],[4,252,'50% 52%'],[9,176,'50% 42%'],[1,264,'50% 48%'],[6,228,'50% 42%'],[3,274,'50% 42%']],
+  [[4,304,'50% 55%'],[6,222,'50% 50%'],[2,174,'50% 40%'],[0,260,'50% 55%'],[7,212,'50% 45%'],[5,292,'50% 45%'],[3,238,'50% 45%'],[8,190,'50% 38%'],[9,286,'50% 40%'],[7,204,'50% 55%']]
+];
+
+const masonry = document.getElementById('masonry');
+columns.forEach((tiles, ci) => {
+  const col = document.createElement('div');
+  col.className = 'col';
+  tiles.forEach(([pi, h, pos]) => {
+    const p = photos[pi];
+    const b = document.createElement('button');
+    b.className = 'tile';
+    b.style.height = h + 'px';
+    b.innerHTML = `<img src="${p.src}" alt="" style="object-position:${pos}">`;
+    b.addEventListener('click', () => open(pi));
+    col.appendChild(b);
+  });
+  masonry.appendChild(col);
+});
+
+const feed = document.getElementById('feed');
+const progress = document.getElementById('progress');
+feed.addEventListener('scroll', () => {
+  const max = feed.scrollHeight - feed.clientHeight;
+  progress.style.width = max > 0 ? `${(feed.scrollTop / max) * 100}%` : '0%';
+}, {passive:true});
+
+const lb = document.getElementById('lightbox');
+const lbImg = document.getElementById('lbImg');
+const lbDate = document.getElementById('lbDate');
+function open(i){
+  const p = photos[i];
+  lbImg.src = p.src;
+  lbDate.textContent = p.date;
+  lb.classList.add('on');
+}
+function close(){ lb.classList.remove('on'); }
+document.getElementById('lbClose').addEventListener('click', e => { e.stopPropagation(); close(); });
+lb.addEventListener('click', e => { if (e.target === lb) close(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+</script>
+</body>
+</html>

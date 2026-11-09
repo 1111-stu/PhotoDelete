@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poca · 相册回顾 · 归档方向</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0a0a0d;--bg2:#08080a;--ink:#f5f5f7;--ink2:rgba(255,255,255,.62);--ink3:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.09);--card:#141419;
+}
+html{background:var(--bg)}
+body{
+  margin:0;min-height:100vh;color:var(--ink);
+  background:radial-gradient(1100px 700px at 50% -12%,rgba(255,255,255,.05),transparent 62%),linear-gradient(180deg,var(--bg),var(--bg2));
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px;margin:0 auto;padding:64px 32px 88px}
+.crumb{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin-bottom:18px}
+.crumb a{color:var(--ink3);text-decoration:none}
+.crumb a:hover{color:var(--ink)}
+.crumb .sep{opacity:.4}
+h1{margin:0;font-size:38px;line-height:1.1;letter-spacing:-.035em;font-weight:700}
+.lede{max-width:600px;margin:14px 0 0;font-size:13.5px;line-height:1.8;color:var(--ink2)}
+.list{margin-top:38px;border:1px solid var(--line);border-radius:20px;background:var(--card);overflow:hidden}
+.row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 22px;text-decoration:none;color:inherit;border-top:1px solid var(--line);transition:background .2s}
+.row:first-child{border-top:0}
+.row:hover{background:rgba(255,255,255,.035)}
+.row .l{}
+.row h2{margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.row p{margin:5px 0 0;font-size:11.5px;line-height:1.6;color:var(--ink2)}
+.row .go{flex:none;font-size:11px;letter-spacing:.06em;color:var(--ink3)}
+.row:hover .go{color:var(--ink)}
+.note{margin-top:26px;font-size:11px;line-height:1.8;color:var(--ink3)}
+.note a{color:var(--ink2);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.14);padding-bottom:2px}
+.note a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">
+    <a href="../index.html">相册回顾 · 三种呈现</a><span class="sep">/</span><span>归档探索</span>
+  </div>
+  <h1>早期方向</h1>
+  <p class="lede">这些方向都试过，但最终不作为相册详情页的默认长浏览：翻页、印样、编辑跨页偏叙事和信息密度，拍立得堆需要反复拖拽。先留档。</p>
+
+  <div class="list">
+    <a class="row" href="flip-book.html">
+      <div>
+        <h2>翻页相册</h2>
+        <p>一页一张，3D 翻页；需要用户有耐心逐页读。</p>
+      </div>
+      <span class="go">打开 ↗</span>
+    </a>
+    <a class="row" href="contact-sheet.html">
+      <div>
+        <h2>暗房印样</h2>
+        <p>接触印样 + 手写批注 + 红蜡笔圈选，偏审片而不是浏览。</p>
+      </div>
+      <span class="go">打开 ↗</span>
+    </a>
+    <a class="row" href="editorial.html">
+      <div>
+        <h2>编辑跨页</h2>
+        <p>杂志式图片散文，需要图注和版面叙事支撑。</p>
+      </div>
+      <span class="go">打开 ↗</span>
+    </a>
+    <a class="row" href="polaroid.html">
+      <div>
+        <h2>拍立得堆</h2>
+        <p>一叠可以拖开的拍立得；有手感，但一次只看一张，不适合长浏览。</p>
+      </div>
+      <span class="go">打开 ↗</span>
+    </a>
+  </div>
+
+  <p class="note"><a href="../index.html">返回当前方案总览</a></p>
+</div>
+</body>
+</html>

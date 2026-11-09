@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poca · 相册回顾 03 · 暗房印样</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0a0a0d;--bg2:#08080a;--ink:#f5f5f7;--ink2:rgba(255,255,255,.62);--ink3:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.09);
+  --paper:#ebe6da;--paper-ink:#2a2822;--paper-muted:#7c776b;
+  --red:#cd4130;--ink-blue:#3c4c6e;
+}
+html{background:var(--bg)}
+body{
+  margin:0;min-height:100vh;color:var(--ink);
+  background:radial-gradient(1100px 700px at 50% -12%,rgba(255,255,255,.05),transparent 62%),linear-gradient(180deg,var(--bg),var(--bg2));
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:56px 32px 80px}
+.crumb{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin-bottom:18px}
+.crumb a{color:var(--ink3);text-decoration:none}
+.crumb a:hover{color:var(--ink)}
+.crumb .sep{opacity:.4}
+h1{margin:0;font-size:38px;line-height:1.1;letter-spacing:-.035em;font-weight:700}
+.lede{max-width:700px;margin:14px 0 0;font-size:13.5px;line-height:1.8;color:var(--ink2)}
+
+.stage{display:grid;grid-template-columns:300px auto;gap:64px;align-items:start;margin-top:44px;justify-content:center}
+@media (max-width:840px){.stage{grid-template-columns:1fr;justify-items:center;gap:36px}.notes{max-width:420px}}
+.notes{padding-top:8px}
+.note-block{padding:20px 0;border-top:1px solid var(--line)}
+.note-block:first-child{border-top:0;padding-top:0}
+.note-block h3{margin:0 0 8px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.note-block p{margin:0;font-size:12.5px;line-height:1.8;color:var(--ink2)}
+.note-block p + p{margin-top:8px}
+.note-block b{color:var(--ink);font-weight:600}
+.notes ul{margin:0;padding:0;list-style:none}
+.notes li{display:flex;gap:10px;font-size:12px;line-height:1.65;color:var(--ink2);padding:5px 0}
+.notes li::before{content:"—";color:var(--ink3);flex:none}
+
+.phone{position:relative;width:414px;height:868px;border-radius:68px;padding:12px;
+  background:linear-gradient(155deg,#3d3d45,#0d0d11 26%,#191920 55%,#0c0c10);
+  box-shadow:0 44px 110px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.06)}
+.screen{position:relative;width:390px;height:844px;border-radius:57px;overflow:hidden;background:#09090b;isolation:isolate}
+.status{position:relative;z-index:40;height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 8px;color:#fff}
+.status .time{font-size:14px;font-weight:600}
+.status .icons{display:flex;align-items:center;gap:5px;opacity:.95}
+.status svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.9);z-index:80;transform:translateX(-50%)}
+
+.table{position:absolute;inset:54px 0 0;display:flex;flex-direction:column;
+  background:
+    radial-gradient(80% 55% at 50% 34%,rgba(255,232,200,.14),transparent 68%),
+    radial-gradient(120% 80% at 50% 110%,rgba(0,0,0,.8),transparent 62%),
+    #0b0b0d}
+.app-head{position:relative;z-index:30;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex:none}
+.circle{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);color:#fff}
+.title{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.head-meta{min-width:56px;text-align:right;font-family:"Courier New",monospace;font-size:9px;letter-spacing:.1em;color:var(--ink3)}
+
+.sheet-zone{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 12px 0}
+.sheet{width:100%;background:var(--paper);border-radius:2px;transform:rotate(-.7deg);
+  box-shadow:0 30px 60px rgba(0,0,0,.62),0 2px 0 rgba(255,255,255,.12) inset;
+  padding:16px 16px 12px;position:relative}
+.sheet::after{content:"";position:absolute;inset:0;border-radius:2px;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23p)' opacity='.7'/></svg>")}
+.sheet-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  font-size:7.5px;letter-spacing:.16em;font-weight:700;color:#514d44;text-transform:uppercase}
+.sheet-rule{height:1px;background:rgba(40,38,32,.18);margin:10px 0 9px}
+.range{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.range .r{font-family:"Bradley Hand","Noteworthy",cursive;font-size:15px;color:var(--ink-blue);transform:rotate(-1.4deg)}
+.range .n{font-family:"Courier New",monospace;font-size:7px;letter-spacing:.12em;color:#8b8577}
+.note{margin:9px 0 2px;font-family:"Bradley Hand","Noteworthy",cursive;font-size:12.5px;color:var(--red);transform:rotate(-1.2deg);opacity:.9}
+
+.grid-wrap{position:relative;margin-top:9px}
+.cells{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 9px}
+.cell{display:block;position:relative;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.cell .mark{position:absolute;left:-7%;top:-12%;width:114%;height:106%;pointer-events:none;overflow:visible}
+.cell .mark ellipse{fill:none;stroke:var(--red);stroke-width:1.6;vector-effect:non-scaling-stroke;stroke-linecap:round;opacity:.84}
+.cell .mark ellipse.two{stroke-width:1;opacity:.4}
+.cell .im{position:relative;display:block;aspect-ratio:3/2;background:#17150f;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.cell .im img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.92) contrast(1.03);transition:filter .25s,transform .4s}
+.cell:hover .im img{filter:saturate(1.05) contrast(1.05) brightness(1.04);transform:scale(1.02)}
+.cell .fn{display:flex;justify-content:space-between;margin-top:3px;font-family:"Courier New",monospace;font-size:5.5px;letter-spacing:.1em;color:#8b8577}
+.cell.blank .im{background:rgba(60,56,46,.07);box-shadow:inset 0 0 0 1px rgba(40,38,32,.12);display:grid;place-items:center;color:#a9a294;font-size:10px}
+.cell.blank{cursor:default}
+
+
+.sheet-foot{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:12px;
+  font-family:"Courier New",monospace;font-size:6.5px;letter-spacing:.14em;color:#8b8577}
+.sheet-foot b{font-weight:700;color:#5a554a}
+
+.hint{position:absolute;left:0;right:0;bottom:24px;z-index:10;text-align:center}
+.hint span{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.04em;color:var(--ink2);
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:7px 13px;border-radius:999px;backdrop-filter:blur(10px)}
+.hint i{width:5px;height:5px;border-radius:50%;background:var(--red);opacity:.8}
+
+/* loupe */
+.loupe{position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:26px 20px;
+  background:rgba(5,5,7,.74);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  opacity:0;pointer-events:none;transition:opacity .26s ease}
+.loupe.on{opacity:1;pointer-events:auto}
+.loupe-card{width:100%;max-width:336px;background:#141419;border:1px solid rgba(255,255,255,.11);border-radius:20px;padding:14px;
+  box-shadow:0 34px 80px rgba(0,0,0,.7);transform:translateY(14px);transition:transform .3s cubic-bezier(.2,.8,.25,1)}
+.loupe.on .loupe-card{transform:translateY(0)}
+.loupe-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.loupe-top .k{font-family:"Courier New",monospace;font-size:9px;letter-spacing:.14em;color:rgba(255,255,255,.45)}
+.close{width:30px;height:30px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#fff;font-size:15px;line-height:1;cursor:pointer}
+.mount{background:#f4f1e8;padding:7px;border-radius:2px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+.mount img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;background:#ddd}
+.lb-date{margin-top:14px;font-family:"Courier New",monospace;font-size:9px;letter-spacing:.12em;color:rgba(255,255,255,.42)}
+.lb-cap{margin-top:7px;font-size:18px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.lb-place{margin-top:5px;font-size:11.5px;color:var(--ink2)}
+.lb-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.09)}
+.lb-meta div span{display:block;font-size:8.5px;letter-spacing:.14em;color:rgba(255,255,255,.34);text-transform:uppercase;margin-bottom:4px}
+.lb-meta div b{font-size:11.5px;font-weight:500;color:rgba(255,255,255,.78);font-family:"Courier New",monospace;letter-spacing:.02em}
+
+footer{margin-top:52px;display:flex;justify-content:space-between;gap:20px;font-size:11px;color:var(--ink3);border-top:1px solid var(--line);padding-top:20px}
+footer a{color:var(--ink2);text-decoration:none}
+footer a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">
+    <a href="../index.html">相册回顾 · 三种呈现</a><span class="sep">/</span><span>归档探索 · 早期方向</span>
+  </div>
+  <h1>暗房印样</h1>
+  <p class="lede">一张印样纸，12 个帧位，10 张照片。它像摄影师工作台上的校对稿：有帧号、有手写批注，也有一张被红蜡笔圈住的「这张」。</p>
+
+  <div class="stage">
+    <aside class="notes">
+      <div class="note-block">
+        <h3>隐喻</h3>
+        <p>刚放大的接触印样（contact sheet）：相纸、帧号、蓝色圆珠笔、红色蜡笔。照片不是「内容卡片」，而是「物料」。</p>
+        <p><b>适合：</b>摄影爱好者、需要挑片/收藏的相册、想保留一点不完美手迹的人。</p>
+      </div>
+      <div class="note-block">
+        <h3>交互</h3>
+        <ul>
+          <li>轻点任意一格 → 抬起一张放大镜卡片</li>
+          <li>点背景或 × 放下放大镜</li>
+          <li>红圈标记的「keep」是静态批注，不参与排序</li>
+        </ul>
+      </div>
+      <div class="note-block">
+        <h3>为什么不是网格</h3>
+        <p>信息密度和网格接近，但叙事完全不同：网格是「文件管理」，印样是「一整套已经拍完、可以开始挑选的底片」。纸张、帧号、批注让浏览变成审片。</p>
+      </div>
+      <div class="note-block">
+        <h3>信息层级</h3>
+        <ul>
+          <li>纸面：日期区间、卷号、帧号</li>
+          <li>手迹：保留意见，只出现一次</li>
+          <li>放大镜：单张的完整观看</li>
+        </ul>
+      </div>
+    </aside>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="status">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="#fff"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="#fff"><path d="M8 10.5 5.9 8.4a3 3 0 0 1 4.2 0L8 10.5Zm0-4.3a5.6 5.6 0 0 0-4 1.6L2.6 6.4a7.7 7.7 0 0 1 10.8 0l-1.4 1.4a5.6 5.6 0 0 0-4-1.6Zm0-3.4a9 9 0 0 0-6.4 2.6L.2 4.1a11.1 11.1 0 0 1 15.6 0l-1.4 1.3A9 9 0 0 0 8 2.8Z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#fff" opacity=".45"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"/><path d="M23 4.2v3.6c.9-.3 1.4-1 1.4-1.8s-.5-1.5-1.4-1.8Z" fill="#fff" opacity=".5"/></svg>
+          </span>
+        </div>
+
+        <div class="table">
+          <div class="app-head">
+            <span class="circle" aria-hidden="true">
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8.5 1.5 2 8l6.5 6.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="title">夏日切片</span>
+            <span class="head-meta">ROLL 02</span>
+          </div>
+
+          <div class="sheet-zone">
+            <div class="sheet">
+              <div class="sheet-head">
+                <span>Summer Cuts · Roll 02</span>
+                <span>Aug 2025</span>
+              </div>
+              <div class="sheet-rule"></div>
+              <div class="range">
+                <span class="r">8.9 → 8.16</span>
+                <span class="n">400TX · 12 POSES</span>
+              </div>
+              <div class="note">keep the 8.12 sunset</div>
+
+              <div class="grid-wrap">
+                <div class="cells" id="cells"></div>
+              </div>
+
+              <div class="sheet-foot">
+                <span><b>POCA LAB</b> · DEVELOPED 08.17</span>
+                <span>10 / 12 FRAMES</span>
+              </div>
+            </div>
+
+            <div class="hint"><span><i></i>轻点一格，拿起放大镜</span></div>
+          </div>
+        </div>
+
+        <div class="loupe" id="loupe" role="dialog" aria-modal="true">
+          <div class="loupe-card">
+            <div class="loupe-top">
+              <span class="k" id="lbFrame">FRAME 05</span>
+              <button class="close" id="lbClose" aria-label="关闭">×</button>
+            </div>
+            <div class="mount"><img id="lbImg" src="" alt=""></div>
+            <div class="lb-date" id="lbDate"></div>
+            <div class="lb-cap" id="lbCap"></div>
+            <div class="lb-place" id="lbPlace"></div>
+            <div class="lb-meta">
+              <div><span>Frame</span><b id="mFrame"></b></div>
+              <div><span>Time</span><b id="mTime"></b></div>
+              <div><span>Lens</span><b>35mm · f/2.8</b></div>
+              <div><span>Place</span><b id="mPlace"></b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>设计探索稿 · 非最终视觉规范</span>
+    <a href="../index.html">返回当前方案总览</a>
+  </footer>
+</div>
+
+<script>
+const photos = [
+  {src:'../assets/album/07-plane.jpg', date:'AUG 09 2025', cap:'云层之上', place:'成都 → 帕尔马', time:'19:42', pos:'50% 50%'},
+  {src:'../assets/album/03-beach.jpg', date:'AUG 10 2025', cap:'小船停在一棵椰子树下', place:'卡拉菲格拉 · 海滩', time:'10:06', pos:'50% 55%'},
+  {src:'../assets/album/08-pool.jpg', date:'AUG 10 2025', cap:'回酒店的路', place:'卡拉菲格拉', time:'16:28', pos:'50% 60%'},
+  {src:'../assets/album/01-cove.jpg', date:'AUG 11 2025', cap:'午后的海湾', place:'卡拉菲格拉 · 小巷', time:'15:14', pos:'50% 45%'},
+  {src:'../assets/album/05-road.jpg', date:'AUG 12 2025', cap:'公路一直向西', place:'亚利桑那 · 89A', time:'19:05', pos:'50% 50%'},
+  {src:'../assets/album/04-lake.jpg', date:'AUG 13 2025', cap:'早上六点四十的湖', place:'班夫 · 梦莲湖', time:'06:40', pos:'50% 55%'},
+  {src:'../assets/album/02-kyoto.jpg', date:'AUG 14 2025', cap:'雨后的巷子', place:'京都 · 祇园', time:'20:17', pos:'50% 50%'},
+  {src:'../assets/album/06-food.jpg', date:'AUG 15 2025', cap:'路边的一顿午餐', place:'圣塔菲 · 市集', time:'13:22', pos:'50% 55%'},
+  {src:'../assets/album/10-cat-gray.jpg', date:'AUG 16 2025', cap:'它等了我们一周', place:'回家', time:'09:03', pos:'50% 40%'},
+  {src:'../assets/album/09-cat-orange.jpg', date:'AUG 16 2025', cap:'晒到太阳的位置', place:'回家', time:'09:11', pos:'50% 45%'}
+];
+
+const cells = document.getElementById('cells');
+photos.forEach((p, i) => {
+  const b = document.createElement('button');
+  b.className = 'cell';
+  b.innerHTML = `<span class="im"><img src="${p.src}" alt="${p.cap}" style="object-position:${p.pos}"></span>
+                 <span class="fn"><span>${String(i + 1).padStart(2,'0')}</span><span>${p.time}</span></span>
+                 ${i === 4 ? `<svg class="mark" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                   <ellipse cx="50" cy="50" rx="45" ry="57" transform="rotate(-4 50 50)"/>
+                   <ellipse class="two" cx="52" cy="53" rx="48" ry="61" transform="rotate(-2 52 53)"/>
+                 </svg>` : ''}`;
+  b.addEventListener('click', () => open(i));
+  cells.appendChild(b);
+});
+// 两个空帧，保持印样 12 格
+for (let i = 10; i < 12; i++) {
+  const d = document.createElement('div');
+  d.className = 'cell blank';
+  d.innerHTML = `<span class="im">—</span><span class="fn"><span>${i + 1}</span><span>—</span></span>`;
+  cells.appendChild(d);
+}
+
+const loupe = document.getElementById('loupe');
+const lbImg = document.getElementById('lbImg');
+function open(i){
+  const p = photos[i];
+  lbImg.src = p.src;
+  lbImg.style.objectPosition = p.pos;
+  document.getElementById('lbFrame').textContent = `FRAME ${String(i + 1).padStart(2,'0')}`;
+  document.getElementById('lbDate').textContent = p.date;
+  document.getElementById('lbCap').textContent = p.cap;
+  document.getElementById('lbPlace').textContent = p.place;
+  document.getElementById('mFrame').textContent = `${String(i + 1).padStart(2,'0')} / 12`;
+  document.getElementById('mTime').textContent = p.time;
+  document.getElementById('mPlace').textContent = p.place;
+  loupe.classList.add('on');
+}
+function close(){ loupe.classList.remove('on'); }
+document.getElementById('lbClose').addEventListener('click', e => { e.stopPropagation(); close(); });
+loupe.addEventListener('click', e => { if (e.target === loupe) close(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+</script>
+</body>
+</html>

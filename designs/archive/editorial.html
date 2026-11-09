@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poca · 相册回顾 04 · 编辑跨页</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0a0a0d;--bg2:#08080a;--ink:#f5f5f7;--ink2:rgba(255,255,255,.62);--ink3:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.09);
+}
+html{background:var(--bg)}
+body{
+  margin:0;min-height:100vh;color:var(--ink);
+  background:radial-gradient(1100px 700px at 50% -12%,rgba(255,255,255,.05),transparent 62%),linear-gradient(180deg,var(--bg),var(--bg2));
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:56px 32px 80px}
+.crumb{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin-bottom:18px}
+.crumb a{color:var(--ink3);text-decoration:none}
+.crumb a:hover{color:var(--ink)}
+.crumb .sep{opacity:.4}
+h1{margin:0;font-size:38px;line-height:1.1;letter-spacing:-.035em;font-weight:700}
+.lede{max-width:700px;margin:14px 0 0;font-size:13.5px;line-height:1.8;color:var(--ink2)}
+
+.stage{display:grid;grid-template-columns:300px auto;gap:64px;align-items:start;margin-top:44px;justify-content:center}
+@media (max-width:840px){.stage{grid-template-columns:1fr;justify-items:center;gap:36px}.notes{max-width:420px}}
+.notes{padding-top:8px}
+.note-block{padding:20px 0;border-top:1px solid var(--line)}
+.note-block:first-child{border-top:0;padding-top:0}
+.note-block h3{margin:0 0 8px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.note-block p{margin:0;font-size:12.5px;line-height:1.8;color:var(--ink2)}
+.note-block p + p{margin-top:8px}
+.note-block b{color:var(--ink);font-weight:600}
+.notes ul{margin:0;padding:0;list-style:none}
+.notes li{display:flex;gap:10px;font-size:12px;line-height:1.65;color:var(--ink2);padding:5px 0}
+.notes li::before{content:"—";color:var(--ink3);flex:none}
+
+.phone{position:relative;width:414px;height:868px;border-radius:68px;padding:12px;
+  background:linear-gradient(155deg,#3d3d45,#0d0d11 26%,#191920 55%,#0c0c10);
+  box-shadow:0 44px 110px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.06)}
+.screen{position:relative;width:390px;height:844px;border-radius:57px;overflow:hidden;background:#08080a;isolation:isolate}
+.status{position:relative;z-index:40;height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 8px;color:#fff}
+.status .time{font-size:14px;font-weight:600}
+.status .icons{display:flex;align-items:center;gap:5px;opacity:.95}
+.status svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.9);z-index:80;transform:translateX(-50%)}
+
+.mag{position:absolute;inset:54px 0 0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:#08080a}
+.mag::-webkit-scrollbar{display:none}
+
+.topbar{position:sticky;top:0;z-index:30;height:54px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;background:linear-gradient(180deg,rgba(8,8,10,.94),rgba(8,8,10,.72) 70%,transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.circle{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff}
+.topbar .ttl{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.progress{position:absolute;left:0;bottom:0;height:1.5px;background:rgba(255,255,255,.55);width:0;transition:width .1s linear}
+
+.content{padding:0 24px 70px}
+.eyebrow{font-family:"Courier New",monospace;font-size:8.5px;letter-spacing:.2em;color:var(--ink3);text-transform:uppercase}
+.intro{padding-top:18px}
+.intro h2{margin:14px 0 0;font-size:44px;line-height:1.05;letter-spacing:-.045em;font-weight:700}
+.intro .sub{margin-top:14px;font-size:10.5px;letter-spacing:.04em;color:var(--ink3);font-variant-numeric:tabular-nums}
+.intro .rule{height:1px;background:rgba(255,255,255,.14);margin:22px 0 0}
+
+.hero{margin:22px -24px 0;position:relative}
+.hero img{display:block;width:100%;height:420px;object-fit:cover}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 62%,rgba(8,8,10,.75))}
+.hero .overlay{position:absolute;left:24px;right:24px;bottom:18px;z-index:2}
+.hero .overlay .k{font-family:"Courier New",monospace;font-size:8px;letter-spacing:.18em;color:rgba(255,255,255,.6)}
+.hero .overlay .t{margin-top:6px;font-family:"Songti SC","STSong",serif;font-size:19px;line-height:1.5;color:#fff}
+
+.marker{display:flex;align-items:flex-end;gap:12px;margin:38px 0 16px}
+.marker .d{font-size:52px;line-height:.82;font-weight:700;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
+.marker .d em{font-style:normal;color:rgba(255,255,255,.28)}
+.marker .wk{font-family:"Courier New",monospace;font-size:8px;letter-spacing:.16em;color:var(--ink3);padding-bottom:4px}
+.marker .ln{flex:1;height:1px;background:rgba(255,255,255,.12);margin-bottom:7px}
+
+.ph{border-radius:3px;overflow:hidden;background:#15151a}
+.ph img{display:block;width:100%;height:100%;object-fit:cover}
+.cap{margin-top:9px}
+.cap .pk{font-family:"Courier New",monospace;font-size:8px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase}
+.cap .ct{margin-top:5px;font-family:"Songti SC","STSong",serif;font-size:13px;line-height:1.65;color:rgba(255,255,255,.72)}
+
+.duo{display:flex;align-items:flex-start;gap:6px}
+.duo .a{width:61%}
+.duo .b{width:39%;margin-top:52px}
+.duo .a .ph{height:268px}
+.duo .b .ph{height:180px}
+
+.full{margin:26px -24px 0}
+.full .ph{border-radius:0;height:300px}
+.full .cap{margin:10px 24px 0}
+
+.trio{display:grid;grid-template-columns:1fr;gap:22px}
+
+.pull{margin:34px 0 30px;padding-left:16px;border-left:2px solid rgba(255,255,255,.85)}
+.pull p{margin:0;font-family:"Songti SC","STSong",serif;font-size:20px;line-height:1.65;color:rgba(255,255,255,.92);letter-spacing:.01em}
+.pull span{display:block;margin-top:10px;font-family:"Courier New",monospace;font-size:8px;letter-spacing:.16em;color:var(--ink3)}
+
+.wide .ph{height:236px}
+.small-offset{width:72%;margin:20px 0 0 auto}
+.small-offset .ph{height:180px}
+
+.ending{margin-top:44px;padding-top:24px;border-top:1px solid rgba(255,255,255,.12)}
+.ending .k{font-family:"Courier New",monospace;font-size:8px;letter-spacing:.2em;color:var(--ink3)}
+.ending h3{margin:14px 0 0;font-size:25px;font-weight:700;letter-spacing:-.02em}
+.ending p{margin:10px 0 0;font-family:"Songti SC","STSong",serif;font-size:13px;line-height:1.8;color:var(--ink2)}
+.end-cta{display:inline-flex;align-items:center;gap:8px;margin-top:22px;background:#f5f5f7;color:#08080a;border:0;border-radius:999px;padding:12px 20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer}
+.end-cta:active{transform:scale(.98)}
+.colophon{display:flex;justify-content:space-between;gap:12px;margin-top:34px;font-family:"Courier New",monospace;font-size:7.5px;letter-spacing:.14em;color:rgba(255,255,255,.28)}
+
+footer{margin-top:52px;display:flex;justify-content:space-between;gap:20px;font-size:11px;color:var(--ink3);border-top:1px solid var(--line);padding-top:20px}
+footer a{color:var(--ink2);text-decoration:none}
+footer a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">
+    <a href="../index.html">相册回顾 · 三种呈现</a><span class="sep">/</span><span>归档探索 · 早期方向</span>
+  </div>
+  <h1>编辑跨页</h1>
+  <p class="lede">把相册排成一篇图片散文。日期是章节号，照片是段落，宋体图注是旁白——用版面的呼吸感代替网格的均匀。</p>
+
+  <div class="stage">
+    <aside class="notes">
+      <div class="note-block">
+        <h3>隐喻</h3>
+        <p>一本旅行杂志的跨页。大日期、满幅照片、不对称双图、细线和小号等宽字。没有卡片，没有圆角容器，照片直接落在黑色版面上。</p>
+        <p><b>适合：</b>想「讲述」而不是「陈列」的相册；年度/旅程回顾。</p>
+      </div>
+      <div class="note-block">
+        <h3>阅读方式</h3>
+        <ul>
+          <li>纵向滚动，10 张照片分成 6 个段落</li>
+          <li>顶部细线是滚动进度</li>
+          <li>大日期作为章节号，后缀降到 28% 白</li>
+        </ul>
+      </div>
+      <div class="note-block">
+        <h3>为什么好</h3>
+        <p>网格里每张照片权重相同；版面可以给一张照片 420px，给另一张 180px。回顾本来就不是平均的——有些瞬间就是更重要。</p>
+      </div>
+      <div class="note-block">
+        <h3>字排</h3>
+        <p>标题用 SF 44 / 700 负字距；图注用宋体 13；日期用等宽 8pt 拉开字距。三种声音，各管一件事。</p>
+      </div>
+    </aside>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="status">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="#fff"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="#fff"><path d="M8 10.5 5.9 8.4a3 3 0 0 1 4.2 0L8 10.5Zm0-4.3a5.6 5.6 0 0 0-4 1.6L2.6 6.4a7.7 7.7 0 0 1 10.8 0l-1.4 1.4a5.6 5.6 0 0 0-4-1.6Zm0-3.4a9 9 0 0 0-6.4 2.6L.2 4.1a11.1 11.1 0 0 1 15.6 0l-1.4 1.3A9 9 0 0 0 8 2.8Z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#fff" opacity=".45"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"/><path d="M23 4.2v3.6c.9-.3 1.4-1 1.4-1.8s-.5-1.5-1.4-1.8Z" fill="#fff" opacity=".5"/></svg>
+          </span>
+        </div>
+
+        <div class="mag" id="mag">
+          <div class="topbar">
+            <span class="circle" aria-hidden="true">
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8.5 1.5 2 8l6.5 6.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="ttl">夏日切片</span>
+            <span class="circle" aria-hidden="true" style="width:38px;height:38px">
+              <svg width="15" height="4" viewBox="0 0 15 4" fill="#fff"><circle cx="2" cy="2" r="1.6"/><circle cx="7.5" cy="2" r="1.6"/><circle cx="13" cy="2" r="1.6"/></svg>
+            </span>
+            <div class="progress" id="progress"></div>
+          </div>
+
+          <div class="content">
+            <div class="intro">
+              <div class="eyebrow">Album 07 · Summer 2025</div>
+              <h2>长日<br>将尽</h2>
+              <div class="sub">10 张照片 · 2025.08.09 — 08.16</div>
+              <div class="rule"></div>
+            </div>
+
+            <div class="hero">
+              <img src="../assets/album/07-plane.jpg" alt="云层上的日落">
+              <div class="overlay">
+                <div class="k">AUG 09 · 19:42</div>
+                <div class="t">云层之上，日落比地面晚七分钟。</div>
+              </div>
+            </div>
+
+            <div class="marker"><span class="d">08<em>.10</em></span><span class="wk">SUNDAY</span><span class="ln"></span></div>
+            <div class="duo">
+              <div class="a">
+                <div class="ph" style="height:268px"><img src="../assets/album/01-cove.jpg" alt="海湾" style="object-position:50% 45%"></div>
+                <div class="cap"><div class="pk">Cala Figuera</div><div class="ct">午后的海湾。石阶一直下到水里，巷子尽头是松树。</div></div>
+              </div>
+              <div class="b">
+                <div class="ph" style="height:180px"><img src="../assets/album/03-beach.jpg" alt="海滩小船" style="object-position:50% 55%"></div>
+                <div class="cap"><div class="pk">10:06</div><div class="ct">找到一只没有主人的船。</div></div>
+              </div>
+            </div>
+
+            <div class="pull">
+              <p>有些日子不需要计划，<br>只需要把窗打开。</p>
+              <span>MALLORCA · AFTERNOON</span>
+            </div>
+
+            <div class="marker"><span class="d">08<em>.12</em></span><span class="wk">TUESDAY</span><span class="ln"></span></div>
+            <div class="full">
+              <div class="ph"><img src="../assets/album/05-road.jpg" alt="公路日落"></div>
+              <div class="cap"><div class="pk">Arizona · US 89A</div><div class="ct">公路一直向西。七点零五分，山被照成了锈红色。</div></div>
+            </div>
+
+            <div class="marker"><span class="d">08<em>.13</em></span><span class="wk">WEDNESDAY</span><span class="ln"></span></div>
+            <div class="wide">
+              <div class="ph"><img src="../assets/album/04-lake.jpg" alt="梦莲湖"></div>
+              <div class="cap"><div class="pk">Moraine Lake · 06:40</div><div class="ct">六点四十，湖面还没有风。只有一条独木舟先醒了。</div></div>
+            </div>
+            <div class="small-offset">
+              <div class="ph"><img src="../assets/album/08-pool.jpg" alt="回酒店的路" style="object-position:50% 60%"></div>
+              <div class="cap"><div class="pk">On the way back</div><div class="ct">回酒店的路上，刚好赶上最后一段光。</div></div>
+            </div>
+
+            <div class="marker"><span class="d">08<em>.14</em></span><span class="wk">THURSDAY</span><span class="ln"></span></div>
+            <div class="wide">
+              <div class="ph"><img src="../assets/album/02-kyoto.jpg" alt="京都夜巷"></div>
+              <div class="cap"><div class="pk">Kyoto · Gion</div><div class="ct">雨刚停。巷子把灯都留在了地上。</div></div>
+            </div>
+            <div class="small-offset">
+              <div class="ph"><img src="../assets/album/06-food.jpg" alt="路边午餐" style="object-position:50% 55%"></div>
+              <div class="cap"><div class="pk">Santa Fe · 13:22</div><div class="ct">在路边吃到的午餐。番茄比地图更红。</div></div>
+            </div>
+
+            <div class="marker"><span class="d">08<em>.16</em></span><span class="wk">SATURDAY</span><span class="ln"></span></div>
+            <div class="duo">
+              <div class="a">
+                <div class="ph" style="height:240px"><img src="../assets/album/10-cat-gray.jpg" alt="窗边的猫" style="object-position:50% 40%"></div>
+                <div class="cap"><div class="pk">Home · 09:03</div><div class="ct">它等了我们一周。</div></div>
+              </div>
+              <div class="b">
+                <div class="ph" style="height:240px"><img src="../assets/album/09-cat-orange.jpg" alt="床上的猫" style="object-position:50% 45%"></div>
+                <div class="cap"><div class="pk">09:11</div><div class="ct">晒到太阳的位置。</div></div>
+              </div>
+            </div>
+
+            <div class="ending">
+              <div class="k">THE END · 10 FRAMES</div>
+              <h3>十天，十张照片。</h3>
+              <p>夏天被折进这一页里。下次翻开的时候，希望还记得那天的风。</p>
+              <button class="end-cta">回到相册
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6.5 2.5 10 6l-3.5 3.5" stroke="#08080a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="colophon"><span>POCA · SUMMER CUTS</span><span>PAGE 01 / 01</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>设计探索稿 · 非最终视觉规范</span>
+    <a href="../index.html">返回当前方案总览</a>
+  </footer>
+</div>
+
+<script>
+const mag = document.getElementById('mag');
+const progress = document.getElementById('progress');
+mag.addEventListener('scroll', () => {
+  const max = mag.scrollHeight - mag.clientHeight;
+  progress.style.width = max > 0 ? `${(mag.scrollTop / max) * 100}%` : '0%';
+}, {passive:true});
+</script>
+</body>
+</html>

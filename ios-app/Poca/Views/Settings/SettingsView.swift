@@ -580,7 +580,8 @@ struct RandomReviewBatchSizeSettingRow: View {
                             .fontWeight(.semibold)
                             .opacity(size == selectedSize ? 1 : 0)
                     }
-                    .padding(.trailing, 8)
+                    .padding(.trailing, 4)
+                    .frame(width: 190, alignment: .leading)
                 }
             }
         } label: {

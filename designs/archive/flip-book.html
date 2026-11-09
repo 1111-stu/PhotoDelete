@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poca · 相册回顾 02 · 翻页相册</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0a0a0d;--bg2:#08080a;--ink:#f5f5f7;--ink2:rgba(255,255,255,.62);--ink3:rgba(255,255,255,.38);
+  --line:rgba(255,255,255,.09);
+  --paper:#f3efe5;--paper2:#e4ded0;--paper-ink:#19181c;--paper-muted:#8b8578;--vermilion:#c34a32;
+}
+html{background:var(--bg)}
+body{
+  margin:0;min-height:100vh;color:var(--ink);
+  background:radial-gradient(1100px 700px at 50% -12%,rgba(255,255,255,.05),transparent 62%),linear-gradient(180deg,var(--bg),var(--bg2));
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:56px 32px 80px}
+.crumb{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin-bottom:18px}
+.crumb a{color:var(--ink3);text-decoration:none;transition:.2s}
+.crumb a:hover{color:var(--ink)}
+.crumb .sep{opacity:.4}
+h1{margin:0;font-size:38px;line-height:1.1;letter-spacing:-.035em;font-weight:700}
+.lede{max-width:700px;margin:14px 0 0;font-size:13.5px;line-height:1.8;color:var(--ink2)}
+
+.stage{display:grid;grid-template-columns:300px auto;gap:64px;align-items:start;margin-top:44px;justify-content:center}
+@media (max-width:840px){.stage{grid-template-columns:1fr;justify-items:center;gap:36px}.notes{max-width:420px}}
+.notes{padding-top:8px}
+.note-block{padding:20px 0;border-top:1px solid var(--line)}
+.note-block:first-child{border-top:0;padding-top:0}
+.note-block h3{margin:0 0 8px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.note-block p{margin:0;font-size:12.5px;line-height:1.8;color:var(--ink2)}
+.note-block p + p{margin-top:8px}
+.note-block b{color:var(--ink);font-weight:600}
+.notes ul{margin:0;padding:0;list-style:none}
+.notes li{display:flex;gap:10px;font-size:12px;line-height:1.65;color:var(--ink2);padding:5px 0}
+.notes li::before{content:"—";color:var(--ink3);flex:none}
+
+.phone{position:relative;width:414px;height:868px;border-radius:68px;padding:12px;
+  background:linear-gradient(155deg,#3d3d45,#0d0d11 26%,#191920 55%,#0c0c10);
+  box-shadow:0 44px 110px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.06)}
+.screen{position:relative;width:390px;height:844px;border-radius:57px;overflow:hidden;background:#0b0b0e;isolation:isolate}
+.status{position:relative;z-index:40;height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 8px;color:#fff}
+.status .time{font-size:14px;font-weight:600}
+.status .icons{display:flex;align-items:center;gap:5px;opacity:.95}
+.status svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.92);z-index:80;transform:translateX(-50%)}
+.grain{position:absolute;inset:0;z-index:75;pointer-events:none;opacity:.035;mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.6'/></svg>")}
+
+.room{position:absolute;inset:54px 0 0;display:flex;flex-direction:column;
+  background:
+    radial-gradient(120% 80% at 38% 8%,rgba(255,235,205,.11),transparent 55%),
+    radial-gradient(100% 70% at 60% 100%,rgba(0,0,0,.7),transparent 70%),
+    #0d0d10}
+.app-head{position:relative;z-index:30;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.circle{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);color:#fff}
+.circle svg{display:block}
+.title{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.counter{min-width:56px;text-align:right;font-family:"Courier New",monospace;font-size:10px;letter-spacing:.12em;color:var(--ink2)}
+
+.book-zone{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:10px}
+.book{position:relative;width:326px;height:486px;perspective:1800px;perspective-origin:50% 42%;cursor:pointer;user-select:none;-webkit-user-select:none}
+.deck{position:absolute;inset:0;border-radius:4px;background:var(--paper2);box-shadow:0 26px 50px rgba(0,0,0,.55)}
+.deck.one{transform:translate(4px,5px) rotate(.7deg)}
+.deck.two{transform:translate(8px,10px) rotate(1.4deg);background:#d4cdbd}
+.sheet{position:absolute;inset:0;border-radius:4px;background:var(--paper);overflow:hidden;
+  transform-origin:left center;transform:rotateY(0deg);
+  transition:transform .9s cubic-bezier(.25,.8,.25,1),box-shadow .9s cubic-bezier(.25,.8,.25,1);
+  box-shadow:0 18px 38px rgba(0,0,0,.5),inset 0 0 0 1px rgba(0,0,0,.05);
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:transform}
+.sheet::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23p)' opacity='.7'/></svg>")}
+.sheet.flipped{transform:rotateY(-172deg);box-shadow:0 34px 60px rgba(0,0,0,.35);pointer-events:none}
+.sheet.flipped::before{content:"";position:absolute;inset:0;background:#000;opacity:.14;z-index:5}
+
+.page{position:absolute;inset:0;padding:16px;display:flex;flex-direction:column}
+.page-photo{position:relative;flex:none;height:330px;overflow:hidden;background:#ddd;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.page-photo img{display:block;width:100%;height:100%;object-fit:cover}
+.page-info{padding:18px 6px 0}
+.p-date{font-size:9px;letter-spacing:.2em;color:var(--paper-muted);font-weight:600;font-variant-numeric:tabular-nums}
+.p-cap{margin-top:9px;font-family:"Songti SC","STSong",serif;font-size:19px;font-weight:600;letter-spacing:.01em;color:var(--paper-ink);line-height:1.35}
+.p-place{margin-top:6px;font-size:10.5px;color:var(--paper-muted)}
+.p-no{position:absolute;right:18px;bottom:14px;font-family:"Courier New",monospace;font-size:9px;letter-spacing:.1em;color:#a9a294}
+
+.cover{position:absolute;inset:0;padding:30px 28px;display:flex;flex-direction:column}
+.cover .kicker{font-size:8px;letter-spacing:.24em;color:var(--paper-muted);font-weight:600}
+.cover h2{margin:22px 0 0;font-family:"Songti SC","STSong",serif;font-size:40px;line-height:1.1;letter-spacing:.02em;font-weight:600;color:var(--paper-ink)}
+.cover .en{margin-top:12px;font-size:9px;letter-spacing:.32em;color:var(--paper-muted);font-weight:600}
+.cover .rule{width:40px;height:2px;background:var(--vermilion);margin:22px 0}
+.cover .sub{font-size:10.5px;line-height:1.9;color:#6f6a5f}
+.cover .cover-photo{margin-top:auto;height:150px;overflow:hidden;border-radius:2px;position:relative}
+.cover .cover-photo img{width:100%;height:100%;object-fit:cover}
+.cover .cover-cap{margin-top:9px;font-size:8px;letter-spacing:.18em;color:var(--paper-muted);text-align:right}
+
+.end-page{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px;text-align:center;background:var(--paper);border-radius:4px;box-shadow:0 18px 38px rgba(0,0,0,.5);z-index:1}
+.end-page .end-k{font-size:9px;letter-spacing:.22em;color:var(--paper-muted);font-weight:600}
+.end-page h3{margin:18px 0 0;font-family:"Songti SC","STSong",serif;font-size:30px;font-weight:600;color:var(--paper-ink)}
+.end-page p{margin:12px 0 0;font-size:11.5px;line-height:1.8;color:#77705f}
+.restart{margin-top:26px;border:0;border-radius:999px;background:var(--paper-ink);color:var(--paper);font-size:13px;font-weight:600;padding:12px 24px;cursor:pointer;font-family:inherit}
+.restart:active{transform:scale(.97)}
+
+.flip-hint{position:relative;z-index:20;padding:14px 0 30px;text-align:center}
+.flip-hint span{display:inline-flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.04em;color:var(--ink2)}
+.flip-hint i{width:1px;height:12px;background:rgba(255,255,255,.14)}
+.flip-hint b{font-weight:500;color:var(--ink2)}
+
+footer{margin-top:52px;display:flex;justify-content:space-between;gap:20px;font-size:11px;color:var(--ink3);border-top:1px solid var(--line);padding-top:20px}
+footer a{color:var(--ink2);text-decoration:none}
+footer a:hover{color:var(--ink)}
+@media (prefers-reduced-motion: reduce){.sheet{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">
+    <a href="../index.html">相册回顾 · 三种呈现</a><span class="sep">/</span><span>归档探索 · 早期方向</span>
+  </div>
+  <h1>翻页相册</h1>
+  <p class="lede">把相册做成一本真正可以翻的小书：一页一张照片，一次只看一件事。翻页的动作本身就是回顾的节奏。</p>
+
+  <div class="stage">
+    <aside class="notes">
+      <div class="note-block">
+        <h3>隐喻</h3>
+        <p>印厂刚装订好的照片书。米白书纸、窄边距、宋体图注，页码在右下角。不是「浏览列表」，而是「读一本书」。</p>
+        <p><b>适合：</b>有叙事线的相册、年度回顾、送人的小册子。</p>
+      </div>
+      <div class="note-block">
+        <h3>交互</h3>
+        <ul>
+          <li>点右半边 → 翻到下一页</li>
+          <li>点左半边 → 翻回上一页</li>
+          <li>3D 翻页，纸背转到 90° 后让出下一张</li>
+          <li>翻完 10 张出现封底，可重看</li>
+        </ul>
+      </div>
+      <div class="note-block">
+        <h3>为什么好</h3>
+        <p>一页一张强制了注意力：不会被缩略图带走，也不会在网格里快速划过。适合「慢慢看」的场景。</p>
+      </div>
+      <div class="note-block">
+        <h3>节奏</h3>
+        <p>封面 → 10 个日子 → 封底。日期用 9pt 字距拉开的西文，中文图注用宋体，页码和书脊标记用等宽字。</p>
+      </div>
+    </aside>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="status">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="#fff"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="#fff"><path d="M8 10.5 5.9 8.4a3 3 0 0 1 4.2 0L8 10.5Zm0-4.3a5.6 5.6 0 0 0-4 1.6L2.6 6.4a7.7 7.7 0 0 1 10.8 0l-1.4 1.4a5.6 5.6 0 0 0-4-1.6Zm0-3.4a9 9 0 0 0-6.4 2.6L.2 4.1a11.1 11.1 0 0 1 15.6 0l-1.4 1.3A9 9 0 0 0 8 2.8Z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#fff" opacity=".45"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"/><path d="M23 4.2v3.6c.9-.3 1.4-1 1.4-1.8s-.5-1.5-1.4-1.8Z" fill="#fff" opacity=".5"/></svg>
+          </span>
+        </div>
+
+        <div class="room">
+          <div class="app-head">
+            <span class="circle" aria-hidden="true">
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8.5 1.5 2 8l6.5 6.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="title">夏日切片</span>
+            <span class="counter" id="counter">01 / 11</span>
+          </div>
+
+          <div class="book-zone">
+            <div class="book" id="book">
+              <div class="deck two"></div>
+              <div class="deck one"></div>
+            </div>
+          </div>
+
+          <div class="flip-hint">
+            <span id="flipHint"><b>左半边</b> 上一页 <i></i> <b>右半边</b> 下一页</span>
+          </div>
+        </div>
+
+        <div class="grain"></div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>设计探索稿 · 非最终视觉规范</span>
+    <a href="../index.html">返回当前方案总览</a>
+  </footer>
+</div>
+
+<script>
+const photos = [
+  {src:'../assets/album/07-plane.jpg', date:'AUG 09 2025 · 19:42', cap:'云层之上', place:'成都 → 帕尔马', pos:'50% 50%'},
+  {src:'../assets/album/03-beach.jpg', date:'AUG 10 2025 · 10:06', cap:'小船停在一棵椰子树下', place:'卡拉菲格拉 · 海滩', pos:'50% 55%'},
+  {src:'../assets/album/08-pool.jpg', date:'AUG 10 2025 · 16:28', cap:'回酒店的路', place:'卡拉菲格拉', pos:'50% 60%'},
+  {src:'../assets/album/01-cove.jpg', date:'AUG 11 2025 · 15:14', cap:'午后的海湾', place:'卡拉菲格拉 · 小巷', pos:'50% 45%'},
+  {src:'../assets/album/05-road.jpg', date:'AUG 12 2025 · 19:05', cap:'公路一直向西', place:'亚利桑那 · 89A', pos:'50% 50%'},
+  {src:'../assets/album/04-lake.jpg', date:'AUG 13 2025 · 06:40', cap:'早上六点四十的湖', place:'班夫 · 梦莲湖', pos:'50% 55%'},
+  {src:'../assets/album/02-kyoto.jpg', date:'AUG 14 2025 · 20:17', cap:'雨后的巷子', place:'京都 · 祇园', pos:'50% 50%'},
+  {src:'../assets/album/06-food.jpg', date:'AUG 15 2025 · 13:22', cap:'路边的一顿午餐', place:'圣塔菲 · 市集', pos:'50% 55%'},
+  {src:'../assets/album/10-cat-gray.jpg', date:'AUG 16 2025 · 09:03', cap:'它等了我们一周', place:'回家', pos:'50% 40%'},
+  {src:'../assets/album/09-cat-orange.jpg', date:'AUG 16 2025 · 09:11', cap:'晒到太阳的位置', place:'回家', pos:'50% 45%'}
+];
+
+const book = document.getElementById('book');
+const counter = document.getElementById('counter');
+
+// 封面
+const cover = document.createElement('article');
+cover.className = 'sheet';
+cover.innerHTML = `
+  <div class="cover">
+    <div class="kicker">POCA PRESS · 2025</div>
+    <h2>夏日<br>切片</h2>
+    <div class="en">SUMMER CUTS</div>
+    <div class="rule"></div>
+    <div class="sub">十天的光，十个瞬间。<br>2025.08.09 — 08.16</div>
+    <div class="cover-photo"><img src="../assets/album/07-plane.jpg" alt="封面照片" style="object-position:50% 50%"></div>
+    <div class="cover-cap">TEN DAYS · TEN FRAMES</div>
+  </div>`;
+book.appendChild(cover);
+
+// 内页
+photos.forEach((p, i) => {
+  const s = document.createElement('article');
+  s.className = 'sheet';
+  s.innerHTML = `
+    <div class="page">
+      <div class="page-photo"><img src="${p.src}" alt="${p.cap}" style="object-position:${p.pos}"></div>
+      <div class="page-info">
+        <div class="p-date">${p.date}</div>
+        <div class="p-cap">${p.cap}</div>
+        <div class="p-place">${p.place}</div>
+      </div>
+      <div class="p-no">${String(i + 2).padStart(2,'0')}</div>
+    </div>`;
+  book.appendChild(s);
+});
+
+// 封底
+const end = document.createElement('article');
+end.className = 'end-page';
+end.innerHTML = `
+  <div class="end-k">THE END · 2025</div>
+  <h3>看完了</h3>
+  <p>十天，十张照片。<br>下次见，夏天。</p>
+  <button class="restart" id="restart">再看一遍</button>`;
+book.appendChild(end);
+
+const sheets = [...book.querySelectorAll('.sheet')];
+sheets.forEach((s, i) => { s.style.zIndex = String(200 - i); s.dataset.i = i; });
+let shown = 0;             // 已翻过的页数
+const total = sheets.length;
+
+function paint(){
+  counter.textContent = `${String(Math.min(shown + 1, total)).padStart(2,'0')} / ${String(total).padStart(2,'0')}`;
+  document.getElementById('flipHint').innerHTML = shown >= total
+    ? '看完了 · 点左半边可以翻回去'
+    : '<b>左半边</b> 上一页 <i></i> <b>右半边</b> 下一页';
+}
+paint();
+
+function forward(){
+  if (shown >= total) return;
+  sheets[shown].classList.add('flipped');
+  shown++;
+  paint();
+}
+function back(){
+  if (shown <= 0) return;
+  shown--;
+  sheets[shown].classList.remove('flipped');
+  paint();
+}
+
+book.addEventListener('click', e => {
+  if (e.target.closest('#restart')){
+    e.stopPropagation();
+    sheets.forEach(s => s.classList.remove('flipped'));
+    shown = 0;
+    paint();
+    return;
+  }
+  const r = book.getBoundingClientRect();
+  if (e.clientX - r.left < r.width * 0.34) back();
+  else forward();
+});
+</script>
+</body>
+</html>
