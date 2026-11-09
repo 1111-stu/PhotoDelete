@@ -616,7 +616,7 @@ Rules:
 | Fan reveal | ≈0.62s easeOut, staggered once (0 / 90 / 180ms) |
 | Sheet presentation | System spring; prototype reference ≈0.34s cubic-bezier(.22,.9,.28,1) |
 | Toast | 0.22s opacity + 0.30s transform; Reduce Motion = opacity only |
-| Review ambient backdrop | 0.4s crossfade when the current photo changes: old layer stays opaque, new layer fades 0→1, rapid changes are queued so an in-flight fade is never cut short; static otherwise; Reduce Motion = instant |
+| Review ambient backdrop | 0.6s crossfade when the current photo changes: old layer stays opaque, new layer fades 0→1, rapid changes are queued so an in-flight fade is never cut short; static otherwise; Reduce Motion = instant |
 | Random Review sheen | 7s loop: ~3s sweep, ~4s rest; 30fps; disabled for Reduce Motion |
 
 ### 8.3 Reduce Motion

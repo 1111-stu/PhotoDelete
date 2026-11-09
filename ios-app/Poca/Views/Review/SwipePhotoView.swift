@@ -684,7 +684,8 @@ struct SwipePhotoView: View {
                 memoryCaption: memoryCaption(for: asset),
                 metadataSummary: metadataSummary(for: asset),
                 displaySize: cardSize,
-                targetSize: imageTargetSize(for: cardSize),
+                // 与预加载使用同一尺寸，命中 imageCache 后不会先出缩略图再跳成高清图。
+                targetSize: swipeImageTargetSize,
                 playbackControlsRevealToken: inlineVideoControlsRevealToken,
                 onStopVideoPlayback: {
                     stopInlineVideoPlayback(rememberManualStopFor: asset)
@@ -1297,11 +1298,6 @@ struct SwipePhotoView: View {
         guard asset.pixelWidth > 0, asset.pixelHeight > 0 else { return slotSize }
         let ratio = CGFloat(asset.pixelWidth) / CGFloat(asset.pixelHeight)
         return ReviewPhotoCardSizing.cardSize(assetAspectRatio: ratio, in: slotSize)
-    }
-
-    private func imageTargetSize(for displaySize: CGSize) -> CGSize {
-        let scale = displayScale
-        return CGSize(width: displaySize.width * scale, height: displaySize.height * scale)
     }
 
     private func handleShareAction() {

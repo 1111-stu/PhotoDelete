@@ -572,10 +572,15 @@ struct RandomReviewBatchSizeSettingRow: View {
                 Button {
                     selectedValue = size.rawValue
                 } label: {
-                    Label(
-                        size.title,
-                        systemImage: size == selectedSize ? "checkmark" : "photo.stack"
-                    )
+                    HStack(spacing: 10) {
+                        Image(systemName: "photo.stack")
+                        Text(size.title)
+                        Spacer(minLength: 24)
+                        Image(systemName: "checkmark")
+                            .fontWeight(.semibold)
+                            .opacity(size == selectedSize ? 1 : 0)
+                    }
+                    .padding(.trailing, 8)
                 }
             }
         } label: {
