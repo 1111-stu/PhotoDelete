@@ -677,7 +677,7 @@ struct PocaTests {
     }
 
     @Test func appStoreReviewURLTargetsPocaReviewPage() async throws {
-        #expect(AppConstants.appStoreID == "6779493280")
+        #expect(AppConstants.appStoreID == "6833490876")
         #expect(AppConstants.appStoreReviewURL.absoluteString.contains(AppConstants.appStoreID))
         #expect(AppConstants.appStoreReviewURL.absoluteString.contains("action=write-review"))
         #expect(AppConstants.appStoreProductURL.absoluteString.contains(AppConstants.appStoreID))
@@ -689,9 +689,9 @@ struct PocaTests {
     @Test func subscriptionTypesMapToTheConfiguredStoreKitProducts() async throws {
         let types = SubscriptionManager.SubscriptionType.allCases
 
-        #expect(SubscriptionManager.SubscriptionType.monthly.productID == "com.01mvp.photodelete.pro.monthly")
-        #expect(SubscriptionManager.SubscriptionType.yearly.productID == "com.01mvp.photodelete.pro.annual")
-        #expect(SubscriptionManager.SubscriptionType.lifetime.productID == "com.01mvp.photodelete.supporter.stats")
+        #expect(SubscriptionManager.SubscriptionType.monthly.productID == "io.xion.poca.subscription.monthly")
+        #expect(SubscriptionManager.SubscriptionType.yearly.productID == "io.xion.poca.subscription.yearly")
+        #expect(SubscriptionManager.SubscriptionType.lifetime.productID == "io.xion.poca.pro")
         // 商品 ID 只从 AppConstants 取，且三档互不相同——防止字面量在多处漂移
         #expect(Set(types.map(\.productID)).count == types.count)
         #expect(AppConstants.supporterProductIDs == Set(types.map(\.productID)))
@@ -752,7 +752,7 @@ struct PocaTests {
 
         #expect(annual["displayPrice"] as? String == "9.90")
         #expect(annual["recurringSubscriptionPeriod"] as? String == "P1Y")
-        #expect(monthly["displayPrice"] as? String == "2.99")
+        #expect(monthly["displayPrice"] as? String == "6.00")
         #expect(monthly["recurringSubscriptionPeriod"] as? String == "P1M")
 
         // 年订的 7 天免费试用：缺这段 isTrialEligible 永远为 false，试用 CTA 不会出现

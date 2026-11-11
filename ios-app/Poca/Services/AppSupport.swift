@@ -25,9 +25,9 @@ enum AppConstants {
     }
 
     static let feedbackEmail = "2981451773@qq.com"
-    static let appStoreID = "6779493280"
-    static let appStoreProductURL = URL(string: "https://apps.apple.com/app/id6779493280")!
-    static let appStoreReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id6779493280?action=write-review")!
+    static let appStoreID = "6833490876"
+    static let appStoreProductURL = URL(string: "https://apps.apple.com/app/id6833490876")!
+    static let appStoreReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id6833490876?action=write-review")!
     static let doFirstAppStoreURL = URL(string: "https://apps.apple.com/app/id6755933357")!
     static var privacyPolicyURL: URL {
         let path = AppLanguage.current.usesChineseText ? "privacy/" : "en/privacy/"
@@ -35,8 +35,8 @@ enum AppConstants {
     }
     static let termsOfUseURL = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
     static let technicalAppName = "Poca"
-    static let zhHansAppStoreName = "Poca"
-    static let enAppStoreName = "Poca"
+    static let zhHansAppStoreName = "Poca - Photo Cleanup"
+    static let enAppStoreName = "Poca - Photo Cleanup"
     static var appDisplayName: String {
         L10n.string("Poca")
     }
@@ -76,9 +76,9 @@ enum AppConstants {
     /// 「回到那天」入口开关：第一版先隐藏，后续视觉/交互优化后再打开。
     static let dayWallEnabled = false
     static let achievementsEnabled = false
-    static let supporterMonthlyProductID = "com.01mvp.photodelete.pro.monthly"
-    static let supporterAnnualProductID = "com.01mvp.photodelete.pro.annual"
-    static let supporterLifetimeProductID = "com.01mvp.photodelete.supporter.stats"
+    static let supporterMonthlyProductID = "io.xion.poca.subscription.monthly"
+    static let supporterAnnualProductID = "io.xion.poca.subscription.yearly"
+    static let supporterLifetimeProductID = "io.xion.poca.pro"
     static let supporterProductIDs: Set<String> = [
         supporterMonthlyProductID,
         supporterAnnualProductID,

@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Poca Paywall · Quiet Keep</title>
+<style>
+  :root {
+    --bg: #0a0a0d;
+    --bg-2: #070709;
+    --ink: #f4f4f6;
+    --muted: rgba(255,255,255,.58);
+    --faint: rgba(255,255,255,.32);
+    --line: rgba(255,255,255,.08);
+    --accent: #f5c25f;
+    --accent-ink: #1c1305;
+    --surface: #111114;
+    --radius: 28px;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+      "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: radial-gradient(120% 80% at 50% 0%, #14141a 0%, var(--bg) 48%, var(--bg-2) 100%);
+    color: var(--ink);
+    font-family: var(--font);
+    min-height: 100%;
+  }
+
+  body {
+    padding: 48px 24px 80px;
+  }
+
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+    justify-content: space-between;
+    align-items: end;
+    margin-bottom: 36px;
+  }
+
+  .eyebrow {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -.03em;
+    line-height: 1.05;
+  }
+
+  .lede {
+    max-width: 420px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .stage-wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .phone {
+    width: min(100%, 420px);
+    margin: 0 auto;
+    padding: 18px;
+    border-radius: 40px;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border: 1px solid var(--line);
+    box-shadow: 0 40px 80px rgba(0,0,0,.45);
+  }
+
+  .stage {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #000;
+    border: 1px solid rgba(255,255,255,.07);
+    box-shadow: 0 24px 48px rgba(0,0,0,.5);
+    touch-action: pan-y;
+    user-select: none;
+  }
+
+  .slides {
+    position: absolute;
+    inset: 0;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: scale(.985);
+    transition: opacity .42s cubic-bezier(.22,1,.36,1), transform .42s cubic-bezier(.22,1,.36,1);
+    pointer-events: none;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  .visual {
+    position: absolute;
+    inset: 0;
+  }
+
+  .scrim,
+  .copy {
+    display: none;
+  }
+
+  .dots {
+    position: absolute;
+    left: 0; right: 0; bottom: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    z-index: 3;
+    height: 28px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(255,255,255,.26);
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .dot[aria-current="true"] {
+    background: #fff;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .nav button {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.04);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 10px 16px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .nav button:hover {
+    background: rgba(255,255,255,.08);
+  }
+
+  .meta {
+    text-align: center;
+    margin-top: 12px;
+    color: var(--faint);
+    font-size: 12px;
+    letter-spacing: .02em;
+  }
+
+  /* ---------- Slide 01 · Cover-flow fan (fig.2) ---------- */
+  /* 稿里不是「只有第一张亮」：邻卡本身也亮，层级靠大小/轻微景深/软阴影。 */
+  .fan {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .fan-stage {
+    position: relative;
+    width: 94%;
+    height: 70%;
+    margin-top: -10%;
+  }
+
+  .fan-stage::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 6%;
+    width: 60%;
+    height: 72%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at 50% 30%,
+      rgba(255,255,255,.16) 0%,
+      rgba(255,255,255,.05) 40%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .fan-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32%;
+    aspect-ratio: 3 / 4;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1a1a1e;
+    box-shadow: 0 14px 28px rgba(0,0,0,.42);
+    transform-origin: center center;
+  }
+
+  .fan-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .fan-card.l2 {
+    z-index: 1;
+    transform: translate(-158%, -48%) rotate(-10deg) scale(.78);
+    opacity: .88;
+    filter: blur(1px) brightness(.88);
+  }
+
+  .fan-card.l1 {
+    z-index: 2;
+    transform: translate(-94%, -52%) rotate(-5.5deg) scale(.92);
+    opacity: 1;
+    filter: none;
+    box-shadow: 0 16px 30px rgba(0,0,0,.38);
+  }
+
+  .fan-card.hero {
+    z-index: 4;
+    width: 34%;
+    transform: translate(-50%, -56%) rotate(0deg) scale(1);
+    opacity: 1;
+    filter: none;
+    box-shadow:
+      0 26px 44px rgba(0,0,0,.55),
+      0 0 0 1px rgba(255,255,255,.16),
+      0 -10px 32px rgba(255,255,255,.1);
+  }
+
+  .fan-card.r1 {
+    z-index: 2;
+    transform: translate(-6%, -52%) rotate(5.5deg) scale(.92);
+    opacity: 1;
+    filter: none;
+    box-shadow: 0 16px 30px rgba(0,0,0,.38);
+  }
+
+  .fan-card.r2 {
+    z-index: 1;
+    transform: translate(58%, -48%) rotate(10deg) scale(.78);
+    opacity: .88;
+    filter: blur(1px) brightness(.88);
+  }
+
+  /* ---------- Slide 02 · Quiet slider ---------- */
+  .slider {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 12%;
+    padding-bottom: 8%;
+  }
+
+  .ticks {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 34px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ticks span {
+    color: rgba(255,255,255,.28);
+    font-size: 22px;
+    font-weight: 650;
+    letter-spacing: -.03em;
+  }
+
+  .ticks .hot {
+    color: var(--ink);
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -.04em;
+  }
+
+  .track {
+    position: relative;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.2);
+  }
+
+  .track .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    /* 停在 100：四档均分 0 / 33 / 67 / 100 */
+    width: 66.666%;
+    border-radius: inherit;
+    background: var(--accent);
+  }
+
+  .thumb {
+    position: absolute;
+    left: 66.666%;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 6px rgba(245,194,95,.18), 0 8px 20px rgba(0,0,0,.35);
+  }
+
+  /* ---------- Slide 03 · Keep + similar stack ---------- */
+  .similar {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .dup-scene {
+    position: relative;
+    width: 78%;
+    height: 68%;
+    margin-top: -10%;
+  }
+
+  .dup-keep {
+    position: absolute;
+    left: 6%;
+    top: 4%;
+    width: 48%;
+    aspect-ratio: 3 / 4;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #161618;
+    z-index: 3;
+    box-shadow:
+      0 22px 40px rgba(0,0,0,.5),
+      0 0 0 1px rgba(255,255,255,.08);
+  }
+
+  .dup-keep img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 46% 40%;
+    display: block;
+  }
+
+  .dup-keep .keep-badge {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: .02em;
+  }
+
+  .dup-keep .keep-badge i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent-ink);
+    opacity: .55;
+  }
+
+  .dup-stack {
+    position: absolute;
+    right: 4%;
+    top: 14%;
+    width: 38%;
+    aspect-ratio: 3 / 4;
+    z-index: 2;
+  }
+
+  .dup-stack .sheet {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #161618;
+    box-shadow: 0 14px 28px rgba(0,0,0,.42);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  .dup-stack .sheet img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .dup-stack .s3 {
+    transform: translate(18px, 16px) rotate(8deg) scale(.88);
+    opacity: .28;
+    filter: saturate(.7) brightness(.75);
+    z-index: 0;
+  }
+
+  .dup-stack .s3 img { object-position: 72% 38%; }
+
+  .dup-stack .s2 {
+    transform: translate(10px, 8px) rotate(4deg) scale(.94);
+    opacity: .5;
+    filter: saturate(.78) brightness(.84);
+    z-index: 1;
+  }
+
+  .dup-stack .s2 img { object-position: 64% 48%; }
+
+  .dup-stack .s1 {
+    transform: translate(0, 0) rotate(1.5deg);
+    opacity: .88;
+    filter: brightness(.93) saturate(.9);
+    z-index: 2;
+  }
+
+  .dup-stack .s1 img { object-position: 58% 54%; }
+
+  .dup-stack .count {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    z-index: 4;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: rgba(12,12,14,.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,.12);
+    color: rgba(255,255,255,.88);
+    font-size: 10px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Slide 04 · Date wall thumbnail ---------- */
+  .board {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .date-wall {
+    width: 90%;
+    margin-top: -6%;
+    padding: 12px 10px 10px;
+    border-radius: 20px;
+    background: #050505;
+    border: 1px solid rgba(255,255,255,.06);
+    box-shadow: 0 28px 50px rgba(0,0,0,.5);
+  }
+
+  .date-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 7px;
+    padding: 0 2px;
+  }
+
+  .date-head .month {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+  }
+
+  .date-head .hint {
+    color: rgba(255,255,255,.34);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+    color: rgba(255,255,255,.28);
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: .02em;
+    text-align: center;
+  }
+
+  .days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .day {
+    aspect-ratio: 100 / 118;
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .day.blank {
+    background: rgba(255,255,255,.045);
+  }
+
+  .day.photo {
+    background: #efe8da;
+    box-shadow: 0 1px 2px rgba(0,0,0,.35);
+    padding: 1.5px;
+  }
+
+  .day.photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6.5px;
+    display: block;
+  }
+
+  .day.t1 { transform: rotate(-1.1deg); }
+  .day.t2 { transform: rotate(.7deg); }
+  .day.t3 { transform: rotate(-.5deg); }
+  .day.t4 { transform: rotate(1deg); }
+
+  /* ---------- Slide 05 · Three share templates ---------- */
+  .share {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .share-stage {
+    position: relative;
+    width: 88%;
+    height: 72%;
+    margin-top: -8%;
+  }
+
+  /*
+   * Shared stage size for all three styles.
+   * Hierarchy = z-index + slight yaw only — never a taller/wider center.
+   */
+  .tpl {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 34%;
+    aspect-ratio: 1200 / 1600;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 18px 36px rgba(0,0,0,.5);
+    transform-origin: center center;
+    container-type: inline-size;
+  }
+
+  .tpl img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /*
+   * Left · Ticket Stub — mirrors ShareCardView.TicketStubCard (1200×1600)
+   * date-only: station = "yyyy.MM.dd", no YEAR/DATE columns, Poca on mat.
+   */
+  .tpl.ticket {
+    z-index: 2;
+    background: #855143; /* Clay mat */
+    container-type: size;
+    container-name: ticket-card;
+    transform: translate(-128%, -50%) rotate(-5deg);
+  }
+
+  /* white ticket 681×1151 centered on 1200×1600 */
+  .tpl.ticket .body {
+    position: absolute;
+    left: 21.625%;
+    top: 14.03%;
+    width: 56.75%;
+    height: 71.94%;
+    background: #fff;
+    border-radius: 7.05%; /* 48/681 */
+    overflow: visible;
+    container-type: size;
+    container-name: ticket-body;
+  }
+
+  .tpl.ticket .body-clip {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+  }
+
+  /* mat-colored punch holes at seam (same trick as Swift Circles) */
+  .tpl.ticket .notch {
+    position: absolute;
+    width: 5.87%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #855143;
+    top: 76.11%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+  }
+
+  .tpl.ticket .notch.l { left: 0; }
+  .tpl.ticket .notch.r { left: 100%; }
+
+  /* photo 639×826 @ (21,21) */
+  .tpl.ticket .shot {
+    position: absolute;
+    left: 3.08%;
+    top: 1.82%;
+    width: 93.83%;
+    height: 71.76%;
+    border-radius: 2.79%;
+    overflow: hidden;
+    background: #e6e6e6;
+  }
+
+  /* stub band from seamY 876 → bottom, stub color Clay */
+  .tpl.ticket .stub {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 76.11%;
+    bottom: 0;
+    background: #b87d6d;
+  }
+
+  .tpl.ticket .perforation {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 76.11%;
+    border-top: max(1px, 0.22cqh) dashed rgba(0,0,0,.5);
+  }
+
+  /* date-only: NEXT STATION + "2026.10.07", vertically in stub */
+  .tpl.ticket .station {
+    position: absolute;
+    left: 8.5%;
+    top: 78%;
+    width: 58%;
+    color: #16110f;
+  }
+
+  .tpl.ticket .station .eyebrow {
+    font-size: 2.94cqw; /* 20/681 of ticket body */
+    font-weight: 500;
+    letter-spacing: .09em;
+    opacity: .72;
+  }
+
+  .tpl.ticket .station .name {
+    margin-top: 0.7cqh;
+    font-size: 5.87cqw; /* 40/681 of ticket body */
+    font-weight: 700;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+
+  /* barcode plate 107×235 @ (511, 898), bars rotated 90° */
+  .tpl.ticket .barcode {
+    position: absolute;
+    left: 75%;
+    top: 78%;
+    width: 15.7%;
+    height: 20.4%;
+    background: #fff;
+    border-radius: 8%;
+    overflow: hidden;
+  }
+
+  .tpl.ticket .barcode .bars {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    width: 220%;
+    height: 45%;
+    display: flex;
+    align-items: stretch;
+    gap: 1.5%;
+    padding: 6% 2%;
+    transform: rotate(90deg);
+    transform-origin: top left;
+  }
+
+  .tpl.ticket .barcode .bars i {
+    flex: 0 0 auto;
+    width: 4%;
+    background: #111;
+  }
+
+  .tpl.ticket .barcode .bars i:nth-child(odd) { width: 2.5%; }
+  .tpl.ticket .barcode .bars i:nth-child(3n) { width: 6%; }
+  .tpl.ticket .barcode .bars i:nth-child(5n) { width: 3%; }
+
+  .tpl.ticket .barcode .digits {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4%;
+    text-align: center;
+    font-size: 1.8cqw;
+    font-family: ui-monospace, Menlo, monospace;
+    font-weight: 700;
+    color: #121212;
+    letter-spacing: -.02em;
+    transform: rotate(90deg);
+    white-space: nowrap;
+    opacity: .0; /* too small at preview; bars carry the cue */
+  }
+
+  /* signature on mat, bottom-trailing — only when date/location shown */
+  .tpl.ticket .sign {
+    position: absolute;
+    right: 5.7%;
+    bottom: 4.5%;
+    color: rgba(255,255,255,.9);
+    font-family: "Snell Roundhand", "Segoe Script", "Apple Chancery", cursive;
+    font-size: 3.67cqw; /* 44/1200 of card */
+    line-height: 1;
+  }
+
+  /*
+   * Center · Minimal Frame — 对齐 PaywallSections 缩略标准（190×291）
+   * 外圈 padding 7、照片贴 meta、date-only 一行：灰日期 + Poca
+   * 字号按卡宽 cqw，避免固定 px 在缩略里爆炸或裁切
+   */
+  .tpl.minimal {
+    z-index: 4;
+    width: 36%;
+    aspect-ratio: 190 / 291;
+    background: #f4f5f7;
+    transform: translate(-50%, -50%);
+    padding: 3.68%; /* 7/190 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .tpl.minimal .shot {
+    position: static;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    height: auto;
+    border-radius: 0.8cqw;
+    overflow: hidden;
+  }
+
+  .tpl.minimal .meta {
+    position: static;
+    flex: 0 0 auto;
+    padding: 4.7% 1.6% 1%; /* ~9 top / ~3 side on 190 */
+    color: #0d0e10;
+  }
+
+  .tpl.minimal .meta .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 3.2cqw;
+    min-width: 0;
+  }
+
+  .tpl.minimal .meta .date {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 3.67cqw; /* ≈5.2–7 @ paywall thumb */
+    font-weight: 400;
+    letter-spacing: .02em;
+    color: #6a6a70;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.15;
+  }
+
+  .tpl.minimal .meta .brand {
+    flex: 0 0 auto;
+    font-size: 3.74cqw; /* ≈7.1/190 */
+    font-weight: 600;
+    letter-spacing: .02em;
+    line-height: 1.15;
+  }
+
+  /* Right · Poca Color — 1200×1600，色块/照片各 800 */
+  .tpl.color {
+    z-index: 2;
+    background: #101014;
+    transform: translate(28%, -50%) rotate(5deg);
+    display: flex;
+    flex-direction: column;
+    container-type: inline-size;
+    container-name: color-card;
+  }
+
+  .tpl.color .block {
+    flex: 0 0 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 4cqw;
+    background: #2f4a3c;
+    color: #fff;
+  }
+
+  .tpl.color .block .title {
+    font-family: "American Typewriter", "Courier New", monospace;
+    font-weight: 700;
+    font-size: 4.667cqw; /* 56/1200 */
+    letter-spacing: .2cqw; /* 2.4/1200 */
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .tpl.color .block .date {
+    margin-top: 1.667cqw; /* 20/1200 */
+    font-family: "American Typewriter", "Courier New", monospace;
+    font-size: 2.667cqw; /* 32/1200 */
+    line-height: 1.15;
+  }
+
+  .tpl.color .shot {
+    flex: 0 0 50%;
+    min-height: 0;
+  }
+
+  /* ---------- Strip of all five ---------- */
+  .gallery {
+    margin-top: 56px;
+  }
+
+  .gallery h3 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 16px;
+  }
+
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(140px, 1fr));
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .thumb-card {
+    appearance: none;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+  }
+
+  .thumb-card .mini {
+    aspect-ratio: 4 / 3;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: #000;
+    position: relative;
+  }
+
+  .thumb-card[aria-current="true"] .mini {
+    border-color: rgba(245,194,95,.55);
+    box-shadow: 0 0 0 1px rgba(245,194,95,.25);
+  }
+
+  .thumb-card .mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: .85;
+  }
+
+  .thumb-card .label {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .thumb-card[aria-current="true"] .label {
+    color: var(--ink);
+  }
+
+  .notes {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+
+  .note {
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--line);
+  }
+
+  .note strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .note span {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 720px) {
+    body { padding: 28px 16px 64px; }
+    .strip { grid-template-columns: repeat(5, 160px); }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="eyebrow">Direction mock · Quiet Keep</div>
+        <h1>Paywall carousel<br />Apple-quiet, photo-first</h1>
+      </div>
+      <p class="lede">
+        不再用 Polaroid + 胶带堆密度。每张 slide 只留一个安静隐喻：
+        留下的、对比的、网格的、探出的。先定方向，再动 Swift。
+      </p>
+    </header>
+
+    <div class="stage-wrap">
+      <div class="phone">
+        <div class="stage" id="stage" aria-roledescription="carousel">
+          <div class="slides">
+
+            <!-- 01 -->
+            <section class="slide active" data-i="0" aria-label="Unlimited cleanup">
+              <div class="visual fan">
+                <div class="fan-stage">
+                  <div class="fan-card l2">
+                    <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallCatOrange.imageset/photo.jpg" alt="" />
+                  </div>
+                  <div class="fan-card l1">
+                    <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallPool.imageset/photo.jpg" alt="" />
+                  </div>
+                  <div class="fan-card r2">
+                    <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallFood.imageset/photo.jpg" alt="" />
+                  </div>
+                  <div class="fan-card r1">
+                    <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" />
+                  </div>
+                  <div class="fan-card hero">
+                    <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallBeach.imageset/photo.jpg" alt="" />
+                  </div>
+                </div>
+              </div>
+              <div class="scrim"></div>
+              <div class="copy">
+                <h2>Unlimited cleanup</h2>
+                <p>Free clears 100 a day. Pro has no limit.</p>
+              </div>
+            </section>
+
+            <!-- 02 -->
+            <section class="slide" data-i="1" aria-label="Random Review">
+              <div class="visual slider">
+                <div class="ticks">
+                  <span>20</span>
+                  <span>50</span>
+                  <span class="hot">100</span>
+                  <span>200</span>
+                </div>
+                <div class="track">
+                  <div class="fill"></div>
+                  <div class="thumb"></div>
+                </div>
+              </div>
+              <div class="scrim"></div>
+              <div class="copy">
+                <h2>Random Review</h2>
+                <p>200 per round, up from 20.</p>
+              </div>
+            </section>
+
+            <!-- 03 -->
+            <section class="slide" data-i="2" aria-label="Similar & duplicates">
+              <div class="visual similar">
+                <div class="dup-scene">
+                  <div class="dup-keep">
+                    <span class="keep-badge"><i></i>Keep</span>
+                    <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" />
+                  </div>
+                  <div class="dup-stack" aria-label="3 similar">
+                    <div class="sheet s3">
+                      <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" />
+                    </div>
+                    <div class="sheet s2">
+                      <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" />
+                    </div>
+                    <div class="sheet s1">
+                      <span class="count">3</span>
+                      <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="scrim"></div>
+              <div class="copy">
+                <h2>Similar & duplicates</h2>
+                <p>Keep the best. Clear the rest.</p>
+              </div>
+            </section>
+
+            <!-- 04 -->
+            <section class="slide" data-i="3" aria-label="Photo wall & history">
+              <div class="visual board">
+                <div class="date-wall">
+                  <div class="weekdays">
+                    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                  </div>
+                  <div class="days">
+                    <div class="day blank"></div>
+                    <div class="day blank"></div>
+                    <div class="day photo t1"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallPlane.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t2"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallBeach.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t3"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallPool.imageset/photo.jpg" alt="" /></div>
+                    <div class="day blank"></div>
+                    <div class="day photo t4"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" /></div>
+
+                    <div class="day photo t1"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallCatOrange.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t2"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallFood.imageset/photo.jpg" alt="" /></div>
+                    <div class="day blank"></div>
+                    <div class="day photo t3"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallCove.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t4"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallCatGray.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t1"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallShareBarcelona.imageset/photo.jpg" alt="" /></div>
+                    <div class="day blank"></div>
+
+                    <div class="day photo t2"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallBeach.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t3"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t4"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallPool.imageset/photo.jpg" alt="" /></div>
+                    <div class="day blank"></div>
+                    <div class="day photo t1"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallPlane.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t2"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallCatOrange.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t3"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallFood.imageset/photo.jpg" alt="" /></div>
+
+                    <div class="day blank"></div>
+                    <div class="day photo t4"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallCove.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t1"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallShareBarcelona.imageset/photo.jpg" alt="" /></div>
+                    <div class="day photo t2"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallBeach.imageset/photo.jpg" alt="" /></div>
+                    <div class="day blank"></div>
+                    <div class="day photo t3"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" /></div>
+                    <div class="day blank"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="scrim"></div>
+              <div class="copy">
+                <h2>Photo wall & history</h2>
+                <p>Revisit every photo left from each cleanup.</p>
+              </div>
+            </section>
+
+            <!-- 05 -->
+            <section class="slide" data-i="4" aria-label="Share card styles">
+              <div class="visual share">
+                <div class="share-stage">
+                  <!-- Ticket Stub · date-only (station = yyyy.MM.dd, no YEAR/DATE cols) -->
+                  <div class="tpl ticket" aria-label="Ticket Stub">
+                    <div class="body">
+                      <div class="body-clip">
+                        <div class="shot">
+                          <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallPlane.imageset/photo.jpg" alt="" />
+                        </div>
+                        <div class="stub"></div>
+                        <div class="perforation"></div>
+                        <div class="station">
+                          <div class="eyebrow">NEXT STATION</div>
+                          <div class="name">2026.10.07</div>
+                        </div>
+                        <div class="barcode" aria-hidden="true">
+                          <div class="bars">
+                            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                          </div>
+                        </div>
+                      </div>
+                      <span class="notch l"></span>
+                      <span class="notch r"></span>
+                    </div>
+                    <div class="sign">Poca</div>
+                  </div>
+
+                  <!-- Minimal Frame · date only -->
+                  <div class="tpl minimal" aria-label="Minimal Frame">
+                    <div class="shot">
+                      <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallPool.imageset/photo.jpg" alt="" />
+                    </div>
+                    <div class="meta">
+                      <div class="row">
+                        <span class="date">October 7, 2026</span>
+                        <span class="brand">Poca</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Poca Color · date only -->
+                  <div class="tpl color" aria-label="Poca Color">
+                    <div class="block">
+                      <div class="title">POCA COLOR</div>
+                      <div class="date">October 7, 2026</div>
+                    </div>
+                    <div class="shot">
+                      <img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="scrim"></div>
+              <div class="copy">
+                <h2>Share card styles</h2>
+                <p>Minimal Frame, Ticket Stub, Poca Color — date on every style.</p>
+              </div>
+            </section>
+          </div>
+
+          <div class="dots" id="dots" role="tablist" aria-label="Slides"></div>
+        </div>
+
+        <div class="nav">
+          <button type="button" id="prev">← Prev</button>
+          <button type="button" id="next">Next →</button>
+        </div>
+        <div class="meta" id="meta">01 / 05 · Unlimited cleanup</div>
+      </div>
+    </div>
+
+    <section class="gallery">
+      <h3>All five · click to jump</h3>
+      <div class="strip" id="strip">
+        <button class="thumb-card" data-jump="0" aria-current="true">
+          <div class="mini"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallBeach.imageset/photo.jpg" alt="" /></div>
+          <div class="label">01 Keep</div>
+        </button>
+        <button class="thumb-card" data-jump="1">
+          <div class="mini" style="display:grid;place-items:center;color:#f4f4f6;font-size:28px;font-weight:700;letter-spacing:-.04em">200</div>
+          <div class="label">02 Quiet 200</div>
+        </button>
+        <button class="thumb-card" data-jump="2">
+          <div class="mini"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallLake.imageset/photo.jpg" alt="" /></div>
+          <div class="label">03 Keep + Stack</div>
+        </button>
+        <button class="thumb-card" data-jump="3">
+          <div class="mini"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallCatOrange.imageset/photo.jpg" alt="" /></div>
+          <div class="label">04 Date Wall</div>
+        </button>
+        <button class="thumb-card" data-jump="4">
+          <div class="mini"><img src="../ios-app/Poca/Assets.xcassets/Paywall/PaywallPool.imageset/photo.jpg" alt="" /></div>
+          <div class="label">05 Three Styles</div>
+        </button>
+      </div>
+    </section>
+
+    <section class="notes">
+      <div class="note">
+        <strong>Similar 怎么读</strong>
+        <span>一张留下 + 一叠待审。无中间桥，角标小字 3 即可。</span>
+      </div>
+      <div class="note">
+        <strong>Photo Wall 选日期视图</strong>
+        <span>直接缩略产品日期页：奶油纸框 + 空日格 + 周标。相纸墙太吵，不适合 paywall 一眼传达。</span>
+      </div>
+      <div class="note">
+        <strong>签名</strong>
+        <span>清完之后的安静 —— 照片少、留白多、隐喻一次看懂。</span>
+      </div>
+    </section>
+  </div>
+
+<script>
+  const titles = [
+    "Unlimited cleanup",
+    "Random Review",
+    "Similar & duplicates",
+    "Photo wall & history",
+    "Share card styles"
+  ];
+
+  const slides = [...document.querySelectorAll(".slide")];
+  const dots = document.getElementById("dots");
+  const meta = document.getElementById("meta");
+  const strip = document.getElementById("strip");
+  let index = 0;
+
+  slides.forEach((_, i) => {
+    const b = document.createElement("button");
+    b.className = "dot";
+    b.type = "button";
+    b.setAttribute("aria-label", `Go to slide ${i + 1}`);
+    if (i === 0) b.setAttribute("aria-current", "true");
+    b.addEventListener("click", () => go(i));
+    dots.appendChild(b);
+  });
+
+  function go(i) {
+    index = (i + slides.length) % slides.length;
+    slides.forEach((s, n) => s.classList.toggle("active", n === index));
+    [...dots.children].forEach((d, n) => {
+      if (n === index) d.setAttribute("aria-current", "true");
+      else d.removeAttribute("aria-current");
+    });
+    [...strip.children].forEach((c, n) => {
+      if (n === index) c.setAttribute("aria-current", "true");
+      else c.removeAttribute("aria-current");
+    });
+    meta.textContent = `${String(index + 1).padStart(2, "0")} / 05 · ${titles[index]}`;
+  }
+
+  document.getElementById("prev").onclick = () => go(index - 1);
+  document.getElementById("next").onclick = () => go(index + 1);
+  strip.querySelectorAll("[data-jump]").forEach((el) => {
+    el.addEventListener("click", () => go(+el.dataset.jump));
+  });
+
+  // swipe
+  const stage = document.getElementById("stage");
+  let x0 = null;
+  stage.addEventListener("pointerdown", (e) => { x0 = e.clientX; });
+  stage.addEventListener("pointerup", (e) => {
+    if (x0 == null) return;
+    const dx = e.clientX - x0;
+    x0 = null;
+    if (Math.abs(dx) < 42) return;
+    go(index + (dx < 0 ? 1 : -1));
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") go(index + 1);
+    if (e.key === "ArrowLeft") go(index - 1);
+  });
+
+  const boot = new URLSearchParams(location.search).get("slide");
+  if (boot != null && !Number.isNaN(+boot)) go(+boot);
+</script>
+</body>
+</html>

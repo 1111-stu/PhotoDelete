@@ -25,8 +25,8 @@ struct PendingDeletionView: View {
                 selectedIDs.remove(asset.localIdentifier)
             },
             onPrimaryAction: { showingBatchConfirm = true },
-            secondaryTitle: L10n.string("Remove selected from deletion"),
-            primaryTitle: L10n.string("Delete Selected"),
+            secondaryTitle: L10n.string("Remove"),
+            primaryTitle: L10n.string("Delete"),
             secondarySystemImage: "arrow.uturn.backward",
             primarySystemImage: "trash.fill",
             primaryRequiresSelection: true,
@@ -67,8 +67,8 @@ struct TrashBinView: View {
                 selectedIDs.remove(asset.localIdentifier)
             },
             onPrimaryAction: { showingBatchConfirm = true },
-            secondaryTitle: L10n.string("Remove selected from deletion"),
-            primaryTitle: L10n.string("Delete Selected"),
+            secondaryTitle: L10n.string("Remove"),
+            primaryTitle: L10n.string("Delete"),
             secondarySystemImage: "arrow.uturn.backward",
             primarySystemImage: "trash.fill",
             primaryRequiresSelection: true,

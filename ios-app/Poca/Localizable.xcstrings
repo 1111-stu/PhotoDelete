@@ -4492,6 +4492,9 @@
         }
       }
     },
+    "3" : {
+
+    },
     "3-Day Free Trial" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4817,7 +4820,7 @@
         }
       }
     },
-    "2026" : {
+    "2026.10.07" : {
 
     },
     "2400 px" : {
@@ -17912,46 +17915,6 @@
         }
       }
     },
-    "Delete Selected" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "حذف المحدد"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgewählte löschen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Selected"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選択項目を削除"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "删除选中"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除所選"
-          }
-        }
-      }
-    },
     "Delete selected photos?" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -20031,6 +19994,7 @@
       }
     },
     "Every duplicate group and every special category." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -24164,7 +24128,6 @@
       }
     },
     "Keep the best shot, clear the rest" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -41086,6 +41049,46 @@
         }
       }
     },
+    "Remove" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إزالة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entfernen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外す"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "移出"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移出"
+          }
+        }
+      }
+    },
     "Remove from album, not delete" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -41164,46 +41167,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "從本次批量操作中移除"
-          }
-        }
-      }
-    },
-    "Remove selected from deletion" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "إزالة العناصر المحددة من الحذف"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgewählte von der Löschung ausschließen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remove selected from deletion"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選択項目を削除対象から外す"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移出待删除"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移出待刪除"
           }
         }
       }
@@ -42135,7 +42098,6 @@
       }
     },
     "Revisit every photo left from each cleanup." : {
-      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -42176,6 +42138,7 @@
       }
     },
     "Revisit every photo you kept, month by month." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -55071,6 +55034,7 @@
       }
     },
     "unlocks every category" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -58518,12 +58482,6 @@
           }
         }
       }
-    },
-    "东京·羽田" : {
-
-    },
-    "巴塞罗那·海岸" : {
-
     }
   },
   "version" : "1.2"
