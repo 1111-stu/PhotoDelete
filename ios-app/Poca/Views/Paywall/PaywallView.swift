@@ -20,12 +20,11 @@ struct PaywallView: View {
     @State private var localErrorMessage: String?
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack {
             backdrop
             scrollContent
-            closeButton.padding(PaywallLayout.closeButtonInset)
         }
-        // 付费页自带配色体系：把 tint 固定成樱粉，否则玻璃关闭按钮会继承全局琥珀 tint
+        // 付费页自带配色体系：把 tint 固定成琥珀，链接与玻璃控件统一
         .tint(PaywallDS.Color.accent)
         // 作为导航栈里的整页呈现，隐藏系统导航栏；TabBar 由 tab 根导航出口统一隐藏
         .toolbar(.hidden, for: .navigationBar)
@@ -36,7 +35,7 @@ struct PaywallView: View {
             await subscriptionManager.fetchProducts()
             syncSelectedPlanWithCurrentEntitlement()
         }
-        .onChange(of: subscriptionManager.currentSubscriptionType) { _ in
+        .onChange(of: subscriptionManager.currentSubscriptionType) { _, _ in
             syncSelectedPlanWithCurrentEntitlement()
         }
     }
@@ -89,30 +88,81 @@ private extension PaywallView {
 
 private extension PaywallView {
 
+    var topBar: some View {
+        HStack(alignment: .center, spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text("Poca")
+                Text("Pro")
+                Text("!").italic()
+            }
+            .font(PaywallDS.Font.brand)
+            .tracking(-0.6)
+            .foregroundStyle(PaywallDS.Color.textPrimary)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Poca Pro"))
+
+            Spacer(minLength: 0)
+
+            closeButton
+        }
+        .padding(.top, 8)
+    }
+
+    var closeButton: some View {
+        Button { dismiss() } label: {
+            Image(systemName: "xmark")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(PaywallDS.Color.textPrimary)
+                .frame(width: 36, height: 36)
+                .background(Circle().fill(Color.white.opacity(0.055)))
+                .overlay(Circle().stroke(Color.white.opacity(0.08), lineWidth: 1))
+                .frame(width: Theme.sizeTap, height: Theme.sizeTap)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(L10n.string("Close")))
+        .accessibilityIdentifier("paywall-close-button")
+        .accessibilitySortPriority(2)
+    }
+
     var scrollContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
-                heroSection
-                    .padding(.top, PaywallDS.Space.heroTop)
+                topBar
 
-                PaywallFeatureSection(isPro: subscriptionManager.isPro)
-                    .padding(.top, PaywallDS.Space.lg)
+                PaywallBenefitCarousel()
+                    .padding(.top, 16)
 
                 if shouldHidePurchaseUI == false {
+                    Text(L10n.string("Choose your plan"))
+                        .font(.system(size: 15, weight: .semibold))
+                        .tracking(-0.1)
+                        .foregroundStyle(PaywallDS.Color.textPrimary.opacity(0.72))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityAddTraits(.isHeader)
+                        .padding(.top, 24)
+
                     PaywallPlanSection(
                         plans: visiblePlans,
                         pricing: pricing,
                         selectedType: $selectedPlanType,
+                        isTrialEligible: subscriptionManager.isStoreReady && subscriptionManager.isTrialEligible,
+                        trialDayCount: subscriptionManager.trialDayCount,
                         onSelect: handlePlanSelected
                     )
-                    .padding(.top, PaywallDS.Space.sectionGap)
+                    // 让 SKU 横排铺到屏幕边缘，内容再用 contentMargins 收回 20pt，
+                    // 这样两侧是系统滚边模糊，而不是在正文留白处硬切。
+                    .padding(.horizontal, -PaywallLayout.pageHorizontalPadding)
+                    .padding(.top, 12)
                 }
 
-                linksSection
-                    .padding(.top, PaywallDS.Space.sectionGapSmall)
+                legalRow
+                    .padding(.top, 8)
             }
             .padding(.horizontal, PaywallLayout.pageHorizontalPadding)
             .padding(.bottom, PaywallLayout.contentBottomPadding)
+            .frame(maxWidth: 470)
+            .frame(maxWidth: .infinity)
         }
         // 把 Footer 挂进底部安全区，ScrollView 会自动让出对应高度，
         // 不必手工估算一个占位块——Footer 变高（如出现错误提示）时也不会遮住正文
@@ -132,11 +182,7 @@ private extension PaywallView {
     }
 
     /// 玻璃卡下方那条底部安全区不能裸奔：滚动内容会从卡片下缘一路露到屏幕底部。
-    /// 用画布色渐显盖住——**必须是灵活视图 + ignoresSafeArea**（本仓滑动页 / 进阶页底栏同款做法）：
-    /// 一旦先固定 frame 高度，safeAreaInset 内容就停在安全区边界，遮不住下面那条。
-    ///
-    /// 渐变铺满「整个底栏 + 安全区」，所以不能让它线性渐隐——那会把玻璃卡下半段也压暗。
-    /// 用显式 stop 把过渡压在最后三成（≈ 安全区 + 玻璃卡内边距），卡片主体保持通透。
+    /// 用画布色渐显盖住——必须是灵活视图 + ignoresSafeArea，固定高度会停在安全区边界。
     var bottomScrim: some View {
         LinearGradient(
             stops: [
@@ -161,13 +207,15 @@ private extension PaywallView {
         let isCTALoading = isStoreReady == false || subscriptionManager.isLoading
         let isTrialEligible = isStoreReady && subscriptionManager.isTrialEligible
         let title = isStoreReady
-            ? pricing.ctaTitle(for: type, isTrialEligible: isTrialEligible, trialDayCount: subscriptionManager.trialDayCount)
+            ? pricing.purchaseTitle(
+                for: type,
+                isTrialEligible: isTrialEligible,
+                trialDayCount: subscriptionManager.trialDayCount
+            )
             : ""
-        let subline = isStoreReady ? pricing.ctaSubline(for: type, isTrialEligible: isTrialEligible) : nil
 
         return PaywallFooter.CTA(
             title: title,
-            subline: subline,
             isLoading: isCTALoading,
             isEnabled: isCTALoading == false && canPurchase(type),
             action: handlePurchase
@@ -183,145 +231,80 @@ private extension PaywallView {
     }
 }
 
+// MARK: - Legal Row
+
+private extension PaywallView {
+
+    var legalRow: some View {
+        HStack(spacing: 8) {
+            Link(L10n.string("Privacy Policy"), destination: AppConstants.privacyPolicyURL)
+                .foregroundStyle(PaywallDS.Color.textSecondary)
+                .frame(minHeight: Theme.sizeTap)
+                .contentShape(Rectangle())
+                .accessibilityIdentifier("supporter-privacy-policy-link")
+
+            separator
+
+            Link(L10n.string("Terms of Use"), destination: AppConstants.termsOfUseURL)
+                .foregroundStyle(PaywallDS.Color.textSecondary)
+                .frame(minHeight: Theme.sizeTap)
+                .contentShape(Rectangle())
+                .accessibilityIdentifier("supporter-terms-of-use-link")
+
+            separator
+
+            Button(action: handleRestore) {
+                Text(L10n.string("Restore Purchases"))
+                    .foregroundStyle(PaywallDS.Color.textSecondary)
+                    .frame(minHeight: Theme.sizeTap)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("paywall-restore-button")
+        }
+        .font(PaywallDS.Font.legal)
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .frame(maxWidth: .infinity)
+    }
+
+    var separator: some View {
+        Text("·")
+            .font(PaywallDS.Font.legal)
+            .foregroundStyle(PaywallDS.Color.textTertiary)
+            .accessibilityHidden(true)
+    }
+}
+
 // MARK: - Backdrop
 
 private extension PaywallView {
 
-    /// 背景整体不参与命中测试，滚动手势不会被点阵截断
+    /// 背景整体不参与命中测试，滚动手势不会被背景截断
     var backdrop: some View {
         ZStack {
-            PaywallDS.Color.pageBackground
-            dotGrid
+            LinearGradient(
+                colors: [PaywallDS.Color.pageBackground, PaywallDS.Color.pageBackgroundBottom],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            RadialGradient(
+                colors: [Color.white.opacity(0.075), .clear],
+                center: UnitPoint(x: 0.5, y: -0.08),
+                startRadius: 0,
+                endRadius: 520
+            )
+
+            RadialGradient(
+                colors: [PaywallDS.Color.accent.opacity(0.05), .clear],
+                center: UnitPoint(x: 0.1, y: -0.06),
+                startRadius: 0,
+                endRadius: 420
+            )
         }
         .ignoresSafeArea()
         .allowsHitTesting(false)
-    }
-
-    /// 细点阵纹理（冷灰点）：无限画板质感的数字画布
-    var dotGrid: some View {
-        Canvas { context, size in
-            let spacing: CGFloat = 24
-            let dot: CGFloat = 2.4
-            var x = spacing / 2
-            while x < size.width {
-                var y = spacing / 2
-                while y < size.height {
-                    context.fill(
-                        Path(ellipseIn: CGRect(x: x, y: y, width: dot, height: dot)),
-                        with: .color(PaywallDS.Color.dot)
-                    )
-                    y += spacing
-                }
-                x += spacing
-            }
-        }
-    }
-
-    @ViewBuilder
-    var closeButton: some View {
-        // glassEffect 挂在 Button label 内时 hit 区会缩成 glyph，表现为点了没反应，
-        // 因此必须走原生 .glass buttonStyle
-        if #available(iOS 26.0, *) {
-            Button { dismiss() } label: {
-                Image(systemName: "xmark")
-                    .font(PaywallDS.Font.calloutMedium)
-                    .frame(width: 32, height: 32)
-            }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.circle)
-            .controlSize(.regular)
-            .frame(width: Theme.sizeTap, height: Theme.sizeTap)
-            .contentShape(Rectangle())
-            .accessibilityLabel(L10n.string("Close"))
-            .accessibilityIdentifier("paywall-close-button")
-            .accessibilitySortPriority(2)
-        } else {
-            Button { dismiss() } label: {
-                Image(systemName: "xmark")
-                    .font(PaywallDS.Font.calloutMedium)
-                    .foregroundStyle(PaywallDS.Color.textPrimary)
-                    .frame(width: 32, height: 32)
-            }
-            .buttonStyle(.plain)
-            .background(Circle().fill(.ultraThinMaterial))
-            .frame(width: Theme.sizeTap, height: Theme.sizeTap)
-            .contentShape(Rectangle())
-            .accessibilityLabel(L10n.string("Close"))
-            .accessibilityIdentifier("paywall-close-button")
-            .accessibilitySortPriority(2)
-        }
-    }
-}
-
-// MARK: - Hero / Links
-
-private extension PaywallView {
-
-    var heroSection: some View {
-        VStack(spacing: PaywallDS.Space.xs) {
-            HStack(spacing: PaywallDS.Space.sm) {
-                Text(L10n.string("Poca Pro"))
-                    .font(PaywallFont.heroTitle)
-                    .foregroundStyle(PaywallDS.Color.textPrimary)
-
-                Image(systemName: "crown.fill")
-                    .font(PaywallDS.Font.title3)
-                    .foregroundStyle(PaywallDS.Color.accent)
-                    .accessibilityHidden(true)
-            }
-
-            Text(L10n.string("Unlock the full timeline, compression, and similar-photo cleanup."))
-                .font(PaywallFont.heroSubtitle)
-                .foregroundStyle(PaywallDS.Color.textSecondary)
-                .multilineTextAlignment(.center)
-                .lineSpacing(PaywallDS.Space.xs)
-        }
-        .padding(.horizontal, PaywallDS.Space.sm)
-        .padding(.bottom, PaywallDS.Space.xs)
-    }
-
-    var linksSection: some View {
-        HStack(spacing: 0) {
-            Spacer()
-
-            linkButton(L10n.string("Restore Purchases"), identifier: "paywall-restore-button", action: handleRestore)
-            pipeSeparator
-            Link(L10n.string("Privacy Policy"), destination: AppConstants.privacyPolicyURL)
-                .accessibilityIdentifier("supporter-privacy-policy-link")
-                .font(PaywallDS.Font.caption)
-                .foregroundStyle(PaywallDS.Color.textSecondary)
-                .frame(minHeight: Theme.sizeTap)
-                .contentShape(Rectangle())
-            pipeSeparator
-            Link(L10n.string("Terms of Use"), destination: AppConstants.termsOfUseURL)
-                .accessibilityIdentifier("supporter-terms-of-use-link")
-                .font(PaywallDS.Font.caption)
-                .foregroundStyle(PaywallDS.Color.textSecondary)
-                .frame(minHeight: Theme.sizeTap)
-                .contentShape(Rectangle())
-
-            Spacer()
-        }
-    }
-
-    var pipeSeparator: some View {
-        Text("｜")
-            .font(PaywallDS.Font.caption)
-            .foregroundStyle(PaywallDS.Color.textTertiary)
-            .accessibilityHidden(true)
-            .padding(.horizontal, PaywallDS.Space.sm)
-    }
-
-    func linkButton(_ title: String, identifier: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(PaywallDS.Font.caption)
-                .foregroundStyle(PaywallDS.Color.textSecondary)
-                .frame(minHeight: Theme.sizeTap)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(identifier)
     }
 }
 

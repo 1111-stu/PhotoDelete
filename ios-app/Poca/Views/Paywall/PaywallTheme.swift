@@ -4,108 +4,99 @@ import SwiftUI
 import UIKit
 #endif
 
-// Paywall 专属设计语言：冷调画布 + 墨色主导 + 单一樱粉点缀。
+// Paywall 设计语言：暖黑画布 + 单一琥珀。
 //
-// 这是 style.md「暖黑画布 + 单一琥珀行动色」的**有意例外**——付费页换一套材质语言来拉开
-// 「产品内」与「购买决策」的语境差异，token 只在本目录使用，不要外扩到全局样式层。
-// 视觉基准：eisenhower-matrix-app 的 Views/Paywall（dark 模式），本文件是其 token 的等价物。
+// 与 App 的视觉层保持一致：照片是主角，UI 只是黑底上的材质与光。
+// token 只在本目录使用，不要外扩到全局样式层。
 
 enum PaywallDS {
 
     // MARK: - Color
 
     enum Color {
-        /// 页面画布：冷调蓝黑（无限画板感的数字画布）
+        /// 页面画布：暖黑
         static let pageBackground = resolve(
-            light: (242 / 255, 244 / 255, 246 / 255),
-            dark: (18 / 255, 23 / 255, 34 / 255)
+            light: (245 / 255, 242 / 255, 234 / 255),
+            dark: (10 / 255, 10 / 255, 13 / 255)
         )
 
-        /// 背景细点阵纹理。深色下用 5% 白点，浅色下是实心冷灰点。
-        static let dot = resolve(
-            light: (224 / 255, 229 / 255, 236 / 255),
-            dark: (1, 1, 1),
-            lightOpacity: 1,
-            darkOpacity: 0.05
+        /// 画布底部，比顶部再压暗一档
+        static let pageBackgroundBottom = resolve(
+            light: (236 / 255, 231 / 255, 220 / 255),
+            dark: (7 / 255, 7 / 255, 9 / 255)
         )
 
-        /// 全页唯一彩色点缀：樱花粉。选中描边 / radio 圆点 / 徽章共用。
+        /// 全页唯一彩色点缀：琥珀。选中态、徽章、轮播数字共用。
         static let accent = resolve(
-            light: (238 / 255, 157 / 255, 184 / 255),
-            dark: (240 / 255, 170 / 255, 200 / 255)
+            light: (216 / 255, 154 / 255, 46 / 255),
+            dark: (245 / 255, 194 / 255, 95 / 255)
         )
+
+        /// 琥珀的深端，用于徽章与进度渐变
+        static let accentDeep = resolve(
+            light: (190 / 255, 128 / 255, 26 / 255),
+            dark: (230 / 255, 162 / 255, 58 / 255)
+        )
+
+        /// 琥珀底上的墨色字
+        static let onAccent = SwiftUI.Color(red: 28 / 255, green: 19 / 255, blue: 5 / 255)
 
         static let textPrimary = resolve(
-            light: (17 / 255, 17 / 255, 17 / 255),
-            dark: (245 / 255, 245 / 255, 245 / 255)
+            light: (23 / 255, 23 / 255, 26 / 255),
+            dark: (244 / 255, 244 / 255, 246 / 255)
         )
 
         static let textSecondary = resolve(
-            light: (102 / 255, 107 / 255, 115 / 255),
-            dark: (163 / 255, 168 / 255, 175 / 255)
-        )
-
-        /// 三级文本（已带透明度）：分区路标、链接
-        static let textTertiary = resolve(
-            light: (102 / 255, 107 / 255, 115 / 255),
-            dark: (163 / 255, 168 / 255, 175 / 255),
-            lightOpacity: 0.82,
-            darkOpacity: 0.72
-        )
-
-        /// 主表面：功能清单卡、未选中套餐卡的填充（深色下纯黑）
-        static let surfacePrimary = resolve(light: (1, 1, 1), dark: (0, 0, 0))
-
-        /// 图标底板
-        static let iconBackground = resolve(
-            light: (0, 0, 0),
+            light: (107 / 255, 100 / 255, 89 / 255),
             dark: (1, 1, 1),
-            lightOpacity: 0.04,
-            darkOpacity: 0.08
+            darkOpacity: 0.58
+        )
+
+        /// 三级文本（法务、圆点、次要说明）
+        static let textTertiary = resolve(
+            light: (138 / 255, 131 / 255, 120 / 255),
+            dark: (1, 1, 1),
+            darkOpacity: 0.32
+        )
+
+        /// 主表面：权益页卡片、弹层容器
+        static let surfacePrimary = resolve(
+            light: (1, 1, 1),
+            dark: (17 / 255, 17 / 255, 20 / 255)
         )
 
         /// 细边框、发丝分割线
         static let borderSubtle = resolve(
             light: (0, 0, 0),
             dark: (1, 1, 1),
-            lightOpacity: 0.078,
-            darkOpacity: 0.12
+            lightOpacity: 0.08,
+            darkOpacity: 0.09
         )
 
         // MARK: 套餐卡
 
-        static let skuCardFill = surfacePrimary
-        static let skuCardBorder = borderSubtle
+        /// 未选中卡片的上下渐变
+        static let planCardFillTop = SwiftUI.Color.white.opacity(0.055)
+        static let planCardFillBottom = SwiftUI.Color.white.opacity(0.018)
+        static let planCardBorder = SwiftUI.Color.white.opacity(0.09)
 
-        /// 选中套餐卡填充。深色下的提亮必须用**不透明**颜色：
-        /// 半透明白（如 white 0.05）会让点阵透上来，选中卡比未选中卡更"虚"，层级倒挂。
-        static let selectedSKUCardFill = resolve(
-            light: (1, 1, 1),
-            dark: (30 / 255, 34 / 255, 46 / 255)
-        )
-
-        static let selectedSKUCardDot = accent
+        /// 选中卡片：烟灰玻璃。三段都是不透明色，避免黑底透上来把卡片压虚。
+        static let planSelectedTop = SwiftUI.Color(red: 74 / 255, green: 76 / 255, blue: 82 / 255).opacity(0.66)
+        static let planSelectedMid = SwiftUI.Color(red: 44 / 255, green: 46 / 255, blue: 52 / 255).opacity(0.72)
+        static let planSelectedBottom = SwiftUI.Color(red: 30 / 255, green: 32 / 255, blue: 38 / 255).opacity(0.78)
+        static let planSelectedBorder = SwiftUI.Color.white.opacity(0.32)
+        static let planSelectedHighlight = SwiftUI.Color.white.opacity(0.18)
+        static let planSelectedTopInner = SwiftUI.Color.white.opacity(0.25)
+        static let planSelectedBottomInner = SwiftUI.Color.black.opacity(0.2)
+        static let planCardShadow = SwiftUI.Color.black.opacity(0.32)
 
         static let recommendedBadgeFill = accent
-
-        /// 粉底配墨色字，强对比，与 CTA 的墨色呼应
-        static let recommendedBadgeText = resolve(
-            light: (17 / 255, 17 / 255, 17 / 255),
-            dark: (17 / 255, 17 / 255, 17 / 255)
-        )
-
-        /// 评论引导里的星标金。这是本页除樱粉外的第二个点缀色，
-        /// 只允许用在星形上，不要扩散到按钮或徽章。
-        static let accentGold = resolve(
-            light: (244 / 255, 188 / 255, 35 / 255),
-            dark: (255 / 255, 232 / 255, 126 / 255)
-        )
+        /// 琥珀底配墨色字
+        static let recommendedBadgeText = onAccent
 
         // MARK: 虹彩（设置页 Pro 入口材质）
 
         /// 中低饱和的暖虹彩色，只服务 `ProEntryBanner` 的玻璃珠、2pt 描边和外圈光晕。
-        /// 暖色（粉/蜜桃/珊瑚）配薄荷做冷色阴影，比粉→紫→绿更像抛光珍珠；
-        /// 不要提高饱和度去做 RGB 灯带。
         static let iridescentPink = SwiftUI.Color(red: 242 / 255, green: 169 / 255, blue: 198 / 255)
         static let iridescentPeach = SwiftUI.Color(red: 244 / 255, green: 210 / 255, blue: 188 / 255)
         static let iridescentCoral = SwiftUI.Color(red: 239 / 255, green: 158 / 255, blue: 144 / 255)
@@ -113,23 +104,26 @@ enum PaywallDS {
 
         // MARK: CTA
 
-        /// 深色下反色为白底墨字
-        static let ctaButtonFill = resolve(light: (17 / 255, 17 / 255, 17 / 255), dark: (1, 1, 1))
-        static let ctaButtonText = resolve(light: (1, 1, 1), dark: (17 / 255, 17 / 255, 17 / 255))
-
+        /// 深色下是奶油纸底墨字；浅色下反色
+        static let ctaButtonFill = resolve(
+            light: (23 / 255, 23 / 255, 26 / 255),
+            dark: (247 / 255, 243 / 255, 233 / 255)
+        )
+        static let ctaButtonText = resolve(
+            light: (255 / 255, 248 / 255, 232 / 255),
+            dark: (27 / 255, 20 / 255, 6 / 255)
+        )
         static let ctaButtonBorder = resolve(
             light: (0, 0, 0),
             dark: (1, 1, 1),
-            lightOpacity: 0.16,
-            darkOpacity: 0.22
+            lightOpacity: 0.1,
+            darkOpacity: 0.6
         )
-
-        /// 深色下加重，才能与提亮后的按钮填充拉开层次
         static let ctaButtonShadow = resolve(
             light: (0, 0, 0),
             dark: (0, 0, 0),
-            lightOpacity: 0.12,
-            darkOpacity: 0.18
+            lightOpacity: 0.16,
+            darkOpacity: 0.28
         )
 
         // MARK: 底栏玻璃卡（iOS 26 以下降级为 material）
@@ -138,14 +132,14 @@ enum PaywallDS {
             light: (1, 1, 1),
             dark: (1, 1, 1),
             lightOpacity: 0.6,
-            darkOpacity: 0.12
+            darkOpacity: 0.18
         )
 
         static let glassFallbackShadow = resolve(
             light: (0, 0, 0),
             dark: (0, 0, 0),
             lightOpacity: 0.08,
-            darkOpacity: 0.30
+            darkOpacity: 0.5
         )
 
         static let errorText = SwiftUI.Color.red
@@ -154,36 +148,41 @@ enum PaywallDS {
     // MARK: - Gradient
 
     enum Gradient {
-        /// 设置页 Pro 入口的虹彩环：粉 → 蜜桃 → 薄荷 → 珊瑚 → 粉。
-        /// 各站透明度故意不等（0.95 / 0.5 / 0.9 …），让环上出现“受光”和“背光”段，
-        /// 读起来像抛光金属边，而不是一圈均匀的 RGB 灯带。
-        /// 起始角 220° 把最亮的粉段放在左上，和玻璃珠的高光同一个光源——
-        /// 整张卡只被一盏灯照亮，这是它不像“彩色贴纸”的关键。
-        static var iridescent: AngularGradient {
-            AngularGradient(
+        /// 选中套餐卡：左上受光的烟灰玻璃
+        static var planSelectedFill: LinearGradient {
+            LinearGradient(
                 stops: [
-                    .init(color: PaywallDS.Color.iridescentPink.opacity(0.95), location: 0.00),
-                    .init(color: PaywallDS.Color.iridescentPeach.opacity(0.50), location: 0.20),
-                    .init(color: PaywallDS.Color.iridescentMint.opacity(0.90), location: 0.42),
-                    .init(color: PaywallDS.Color.iridescentCoral.opacity(0.88), location: 0.68),
-                    .init(color: PaywallDS.Color.iridescentPink.opacity(0.95), location: 1.00)
+                    .init(color: Color.planSelectedTop, location: 0),
+                    .init(color: Color.planSelectedMid, location: 0.55),
+                    .init(color: Color.planSelectedBottom, location: 1)
                 ],
-                center: .center,
-                angle: .degrees(220)
+                startPoint: .top,
+                endPoint: .bottom
             )
         }
 
-        /// 选中套餐卡描边与 radio 指示器共用：樱花粉 → 奶油蜜桃 → 薄荷。
-        /// 中间站必须走暖色区——粉→薄荷直插会穿过低饱和灰色区，过渡带发灰。
-        static var selectedCardBorder: LinearGradient {
-            LinearGradient(
-                colors: [
-                    resolve(light: (246 / 255, 183 / 255, 208 / 255), dark: (240 / 255, 170 / 255, 200 / 255)),
-                    resolve(light: (250 / 255, 224 / 255, 205 / 255), dark: (235 / 255, 205 / 255, 190 / 255)),
-                    resolve(light: (169 / 255, 229 / 255, 206 / 255), dark: (140 / 255, 210 / 255, 190 / 255))
+        static var planSelectedSheen: RadialGradient {
+            RadialGradient(
+                colors: [Color.planSelectedHighlight, .clear],
+                center: UnitPoint(x: 0.18, y: 0),
+                startRadius: 0,
+                endRadius: 260
+            )
+        }
+
+        /// 设置页 Pro 入口的虹彩环：粉 → 蜜桃 → 薄荷 → 珊瑚 → 粉。
+        /// 各站透明度故意不等（0.95 / 0.5 / 0.9 …），让环上出现“受光”和“背光”段。
+        static var iridescent: AngularGradient {
+            AngularGradient(
+                stops: [
+                    .init(color: Color.iridescentPink.opacity(0.95), location: 0.00),
+                    .init(color: Color.iridescentPeach.opacity(0.50), location: 0.20),
+                    .init(color: Color.iridescentMint.opacity(0.90), location: 0.42),
+                    .init(color: Color.iridescentCoral.opacity(0.88), location: 0.68),
+                    .init(color: Color.iridescentPink.opacity(0.95), location: 1.00)
                 ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                center: .center,
+                angle: .degrees(220)
             )
         }
     }
@@ -198,7 +197,6 @@ enum PaywallDS {
         static let lg: CGFloat = 12
         static let xl: CGFloat = 16
         static let xxl: CGFloat = 24
-        static let heroTop: CGFloat = 28
         static let sectionGap: CGFloat = 24
         static let sectionGapSmall: CGFloat = 16
     }
@@ -211,6 +209,7 @@ enum PaywallDS {
         static let card: CGFloat = 16
         static let listContainer: CGFloat = 16
         static let floatingCard: CGFloat = 22
+        static let carousel: CGFloat = 28
     }
 
     // MARK: - Stroke
@@ -218,14 +217,27 @@ enum PaywallDS {
     enum Stroke {
         static let hairline: CGFloat = 0.5
         static let border: CGFloat = 1
-        static let radioUnselected: CGFloat = 1.5
-        static let radioSelected: CGFloat = 1.8
-        static let selectedCard: CGFloat = 3
     }
 
     // MARK: - Font
 
     enum Font {
+        static let brand = SwiftUI.Font.system(size: 22, weight: .bold)
+        static let carouselTitle = SwiftUI.Font.system(size: 20, weight: .bold)
+        static let carouselBody = SwiftUI.Font.system(size: 12.5, weight: .regular)
+        static let slideStat = SwiftUI.Font.system(size: 34, weight: .bold)
+        static let slideCaption = SwiftUI.Font.system(size: 10, weight: .regular)
+
+        static let skuName = SwiftUI.Font.system(size: 13, weight: .semibold)
+        static let skuPrice = SwiftUI.Font.system(size: 30, weight: .bold)
+        static let skuUnit = SwiftUI.Font.system(size: 12, weight: .medium)
+        static let skuTrial = SwiftUI.Font.system(size: 10.5, weight: .regular)
+        static let skuNote = SwiftUI.Font.system(size: 10, weight: .regular)
+        static let badge = SwiftUI.Font.system(size: 10, weight: .bold)
+        static let legal = SwiftUI.Font.system(size: 10.5, weight: .regular)
+        static let cta = SwiftUI.Font.system(size: 16, weight: .semibold)
+        static let trust = SwiftUI.Font.system(size: 11, weight: .regular)
+
         static let title3 = SwiftUI.Font.system(size: 18, weight: .semibold)
         static let title2Bold = SwiftUI.Font.system(size: 20, weight: .bold, design: .rounded)
 
@@ -246,35 +258,26 @@ enum PaywallDS {
     }
 }
 
-// MARK: - Paywall 专属排版
-
-/// Georgia 衬线只留给 hero 标题（稀缺才显高级）；分区路标统一 14 rounded medium，
-/// 圆润弱化层级，只起"路标"作用，不与卡片内容竞争。
-enum PaywallFont {
-    static let heroTitle = Font.custom("Georgia", size: 26).weight(.bold)
-    static let heroSubtitle = Font.system(size: 12, weight: .semibold)
-    static let sectionTitle = Font.system(size: 14, weight: .medium, design: .rounded)
-    static let planValueNote = Font.system(size: 11)
-    static let featureCheck = Font.system(size: 13, weight: .semibold)
-}
+// MARK: - Layout
 
 enum PaywallLayout {
     /// 页面内容横向留白
-    static let pageHorizontalPadding = PaywallDS.Space.xxl
+    static let pageHorizontalPadding: CGFloat = 20
+
+    /// 顶栏横向留白
+    static let topBarHorizontalPadding: CGFloat = 18
 
     /// 玻璃卡内部横向留白：比页面留白略宽松，让 CTA 不贴边
     static let footerCardHorizontalPadding: CGFloat = 20
 
     /// 正文末尾收尾留白。底栏高度由 safeAreaInset 自动让位，这里只负责呼吸区
-    static let contentBottomPadding: CGFloat = 36
-
-    static let closeButtonInset = EdgeInsets(top: 10, leading: 0, bottom: 0, trailing: PaywallDS.Space.xl)
+    static let contentBottomPadding: CGFloat = 24
 }
 
 // MARK: - 玻璃底
 
 /// 底栏悬浮卡的玻璃底：iOS 26 用真 Liquid Glass，更低版本降级为 material。
-/// 只有底栏在用——内容卡用不透明填充，避免半透明叠在冷灰画布上发灰。
+/// 只有底栏在用——内容卡用不透明填充，避免半透明叠在暖黑画布上发灰。
 private struct PaywallGlassCard: ViewModifier {
     let radius: CGFloat
 
@@ -288,7 +291,7 @@ private struct PaywallGlassCard: ViewModifier {
                 shape
                     .fill(.ultraThinMaterial)
                     .overlay(shape.stroke(PaywallDS.Color.glassFallbackBorder, lineWidth: PaywallDS.Stroke.hairline))
-                    .shadow(color: PaywallDS.Color.glassFallbackShadow, radius: 16, y: 6)
+                    .shadow(color: PaywallDS.Color.glassFallbackShadow, radius: 24, y: 12)
             )
         }
     }

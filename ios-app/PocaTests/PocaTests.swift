@@ -920,6 +920,51 @@ struct PocaTests {
         #expect(pricing.product(for: .lifetime) == nil)
     }
 
+    @MainActor
+    @Test func planCardCopyReflectsTrialAndBilling() async throws {
+        let pricing = makePaywallPricing()
+
+        #expect(
+            pricing.planTrialText(for: .yearly, isTrialEligible: true, trialDayCount: 7)
+                == L10n.string("Try 7 days free")
+        )
+        #expect(
+            pricing.planNoteText(for: .yearly, isTrialEligible: true)
+                == L10n.string("Trial ends, then renews automatically. Cancel anytime.")
+        )
+
+        #expect(
+            pricing.planTrialText(for: .monthly, isTrialEligible: false, trialDayCount: nil)
+                == L10n.string("Billed monthly")
+        )
+        #expect(
+            pricing.planNoteText(for: .monthly, isTrialEligible: false)
+                == L10n.string("Renews automatically. Cancel anytime.")
+        )
+
+        #expect(
+            pricing.planTrialText(for: .lifetime, isTrialEligible: false, trialDayCount: nil)
+                == L10n.string("Permanent buyout")
+        )
+        #expect(
+            pricing.planNoteText(for: .lifetime, isTrialEligible: false)
+                == L10n.string("Pay once. Yours forever.")
+        )
+
+        #expect(
+            pricing.purchaseTitle(for: .yearly, isTrialEligible: true, trialDayCount: 7)
+                == L10n.string("Try 7 days free")
+        )
+        #expect(
+            pricing.purchaseTitle(for: .monthly, isTrialEligible: false, trialDayCount: nil)
+                == L10n.string("Subscribe monthly")
+        )
+        #expect(
+            pricing.purchaseTitle(for: .lifetime, isTrialEligible: false, trialDayCount: nil)
+                == L10n.string("Unlock Lifetime Pro")
+        )
+    }
+
     @Test func savingsBadgeKeepsTheLiteralPercentEscaped() async throws {
         // xcstrings 的 key 与译文都必须写 %%——key 少了查不到译文，value 少了会把 % 吞掉
         let badge = String(format: L10n.string("SAVE %lld%%"), 37)

@@ -250,6 +250,17 @@ final class SubscriptionManager: ObservableObject {
 
         do {
             let storeProducts = try await Product.products(for: Set(SubscriptionType.allCases.map(\.productID)))
+            #if DEBUG
+            let requestedIDs = Set(SubscriptionType.allCases.map(\.productID))
+            let loadedIDs = Set(storeProducts.map(\.id))
+            print(
+                "[Store] loaded:",
+                storeProducts.map { "\($0.id)=\($0.displayPrice)" }.joined(separator: ", "),
+                "| missing:",
+                requestedIDs.subtracting(loadedIDs).sorted().joined(separator: ", ")
+            )
+            #endif
+
             guard !storeProducts.isEmpty else {
                 products = []
                 isTrialEligible = false

@@ -24,9 +24,9 @@ struct PaywallPlan: Identifiable {
     var id: PaywallPlanType { type }
 
     static let all: [PaywallPlan] = [
-        PaywallPlan(type: .yearly, name: L10n.string("Yearly"), priceCaption: L10n.string("/ year")),
-        PaywallPlan(type: .monthly, name: L10n.string("Monthly"), priceCaption: L10n.string("/ month")),
-        PaywallPlan(type: .lifetime, name: L10n.string("Lifetime"), priceCaption: L10n.string("Lifetime"))
+        PaywallPlan(type: .yearly, name: L10n.string("Yearly plan"), priceCaption: L10n.string("/ year")),
+        PaywallPlan(type: .monthly, name: L10n.string("Monthly membership"), priceCaption: L10n.string("/ month")),
+        PaywallPlan(type: .lifetime, name: L10n.string("Lifetime unlock"), priceCaption: L10n.string("Lifetime"))
     ]
 }
 
@@ -95,7 +95,52 @@ struct PaywallPricing {
         }
     }
 
+    // MARK: 套餐卡
+
+    /// 套餐卡的第二行：试用态说试用，其余说计费方式。
+    func planTrialText(
+        for type: PaywallPlanType,
+        isTrialEligible: Bool,
+        trialDayCount: Int?
+    ) -> String {
+        if isTrialOffer(for: type, isTrialEligible: isTrialEligible) {
+            return ctaTitle(for: type, isTrialEligible: isTrialEligible, trialDayCount: trialDayCount)
+        }
+
+        return display(for: type).subtitleText ?? display(for: type).priceText
+    }
+
+    /// 套餐卡底部说明：覆盖自动续订与取消，买断则说明一次付费。
+    func planNoteText(for type: PaywallPlanType, isTrialEligible: Bool) -> String {
+        if isTrialOffer(for: type, isTrialEligible: isTrialEligible) {
+            return L10n.string("Trial ends, then renews automatically. Cancel anytime.")
+        }
+
+        switch type {
+        case .monthly, .yearly:
+            return L10n.string("Renews automatically. Cancel anytime.")
+        case .lifetime:
+            return L10n.string("Pay once. Yours forever.")
+        }
+    }
+
     // MARK: CTA
+
+    /// 底栏主按钮：试用态沿用 `ctaTitle`，其余套餐给出明确的动作。
+    func purchaseTitle(
+        for type: PaywallPlanType,
+        isTrialEligible: Bool,
+        trialDayCount: Int?
+    ) -> String {
+        switch type {
+        case .yearly:
+            return ctaTitle(for: type, isTrialEligible: isTrialEligible, trialDayCount: trialDayCount)
+        case .monthly:
+            return L10n.string("Subscribe monthly")
+        case .lifetime:
+            return L10n.string("Unlock Lifetime Pro")
+        }
+    }
 
     /// CTA 主文案。试用只挂年订，且要求当前 Apple ID 在订阅组内仍有 intro 资格：
     /// 只判断产品带 offer 是不够的，已用掉 intro 的用户会被误导。
