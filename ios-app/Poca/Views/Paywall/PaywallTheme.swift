@@ -1,12 +1,10 @@
 import SwiftUI
 
-#if canImport(UIKit)
-import UIKit
-#endif
-
 // Paywall 设计语言：暖黑画布 + 单一琥珀。
 //
 // 与 App 的视觉层保持一致：照片是主角，UI 只是黑底上的材质与光。
+// App 全局强制暗色（PocaApp.preferredColorScheme(.dark)），这里只保留暗色 token，
+// 不再维护不可达的 light 分支。
 // token 只在本目录使用，不要外扩到全局样式层。
 
 enum PaywallDS {
@@ -15,63 +13,32 @@ enum PaywallDS {
 
     enum Color {
         /// 页面画布：暖黑
-        static let pageBackground = resolve(
-            light: (245 / 255, 242 / 255, 234 / 255),
-            dark: (10 / 255, 10 / 255, 13 / 255)
-        )
+        static let pageBackground = SwiftUI.Color(red: 10 / 255, green: 10 / 255, blue: 13 / 255)
 
         /// 画布底部，比顶部再压暗一档
-        static let pageBackgroundBottom = resolve(
-            light: (236 / 255, 231 / 255, 220 / 255),
-            dark: (7 / 255, 7 / 255, 9 / 255)
-        )
+        static let pageBackgroundBottom = SwiftUI.Color(red: 7 / 255, green: 7 / 255, blue: 9 / 255)
 
         /// 全页唯一彩色点缀：琥珀。选中态、徽章、轮播数字共用。
-        static let accent = resolve(
-            light: (216 / 255, 154 / 255, 46 / 255),
-            dark: (245 / 255, 194 / 255, 95 / 255)
-        )
+        static let accent = SwiftUI.Color(red: 245 / 255, green: 194 / 255, blue: 95 / 255)
 
         /// 琥珀的深端，用于徽章与进度渐变
-        static let accentDeep = resolve(
-            light: (190 / 255, 128 / 255, 26 / 255),
-            dark: (230 / 255, 162 / 255, 58 / 255)
-        )
+        static let accentDeep = SwiftUI.Color(red: 230 / 255, green: 162 / 255, blue: 58 / 255)
 
         /// 琥珀底上的墨色字
         static let onAccent = SwiftUI.Color(red: 28 / 255, green: 19 / 255, blue: 5 / 255)
 
-        static let textPrimary = resolve(
-            light: (23 / 255, 23 / 255, 26 / 255),
-            dark: (244 / 255, 244 / 255, 246 / 255)
-        )
+        static let textPrimary = SwiftUI.Color(red: 244 / 255, green: 244 / 255, blue: 246 / 255)
 
-        static let textSecondary = resolve(
-            light: (107 / 255, 100 / 255, 89 / 255),
-            dark: (1, 1, 1),
-            darkOpacity: 0.58
-        )
+        static let textSecondary = SwiftUI.Color.white.opacity(0.58)
 
         /// 三级文本（法务、圆点、次要说明）
-        static let textTertiary = resolve(
-            light: (138 / 255, 131 / 255, 120 / 255),
-            dark: (1, 1, 1),
-            darkOpacity: 0.32
-        )
+        static let textTertiary = SwiftUI.Color.white.opacity(0.32)
 
         /// 主表面：权益页卡片、弹层容器
-        static let surfacePrimary = resolve(
-            light: (1, 1, 1),
-            dark: (17 / 255, 17 / 255, 20 / 255)
-        )
+        static let surfacePrimary = SwiftUI.Color(red: 17 / 255, green: 17 / 255, blue: 20 / 255)
 
         /// 细边框、发丝分割线
-        static let borderSubtle = resolve(
-            light: (0, 0, 0),
-            dark: (1, 1, 1),
-            lightOpacity: 0.08,
-            darkOpacity: 0.09
-        )
+        static let borderSubtle = SwiftUI.Color.white.opacity(0.09)
 
         // MARK: 套餐卡
 
@@ -81,6 +48,7 @@ enum PaywallDS {
         static let planCardBorder = SwiftUI.Color.white.opacity(0.09)
 
         /// 选中卡片：烟灰玻璃。三段都是不透明色，避免黑底透上来把卡片压虚。
+        /// 保持冷灰的高级感，不要为了统一暖黑画布而调成暖灰。
         static let planSelectedTop = SwiftUI.Color(red: 74 / 255, green: 76 / 255, blue: 82 / 255).opacity(0.66)
         static let planSelectedMid = SwiftUI.Color(red: 44 / 255, green: 46 / 255, blue: 52 / 255).opacity(0.72)
         static let planSelectedBottom = SwiftUI.Color(red: 30 / 255, green: 32 / 255, blue: 38 / 255).opacity(0.78)
@@ -104,43 +72,16 @@ enum PaywallDS {
 
         // MARK: CTA
 
-        /// 深色下是奶油纸底墨字；浅色下反色
-        static let ctaButtonFill = resolve(
-            light: (23 / 255, 23 / 255, 26 / 255),
-            dark: (247 / 255, 243 / 255, 233 / 255)
-        )
-        static let ctaButtonText = resolve(
-            light: (255 / 255, 248 / 255, 232 / 255),
-            dark: (27 / 255, 20 / 255, 6 / 255)
-        )
-        static let ctaButtonBorder = resolve(
-            light: (0, 0, 0),
-            dark: (1, 1, 1),
-            lightOpacity: 0.1,
-            darkOpacity: 0.6
-        )
-        static let ctaButtonShadow = resolve(
-            light: (0, 0, 0),
-            dark: (0, 0, 0),
-            lightOpacity: 0.16,
-            darkOpacity: 0.28
-        )
+        /// 奶油纸底墨字
+        static let ctaButtonFill = SwiftUI.Color(red: 247 / 255, green: 243 / 255, blue: 233 / 255)
+        static let ctaButtonText = SwiftUI.Color(red: 27 / 255, green: 20 / 255, blue: 6 / 255)
+        static let ctaButtonBorder = SwiftUI.Color.white.opacity(0.6)
+        static let ctaButtonShadow = SwiftUI.Color.black.opacity(0.28)
 
         // MARK: 底栏玻璃卡（iOS 26 以下降级为 material）
 
-        static let glassFallbackBorder = resolve(
-            light: (1, 1, 1),
-            dark: (1, 1, 1),
-            lightOpacity: 0.6,
-            darkOpacity: 0.18
-        )
-
-        static let glassFallbackShadow = resolve(
-            light: (0, 0, 0),
-            dark: (0, 0, 0),
-            lightOpacity: 0.08,
-            darkOpacity: 0.5
-        )
+        static let glassFallbackBorder = SwiftUI.Color.white.opacity(0.18)
+        static let glassFallbackShadow = SwiftUI.Color.black.opacity(0.5)
 
         static let errorText = SwiftUI.Color.red
     }
@@ -221,40 +162,27 @@ enum PaywallDS {
 
     // MARK: - Font
 
+    /// 全部走系统文字样式，跟随 Dynamic Type。
+    /// 轮播画布里的字号是画布内固定值（随卡片等比缩放），不放这里。
     enum Font {
-        static let brand = SwiftUI.Font.system(size: 22, weight: .bold)
-        static let carouselTitle = SwiftUI.Font.system(size: 20, weight: .bold)
-        static let carouselBody = SwiftUI.Font.system(size: 12.5, weight: .regular)
-        static let slideStat = SwiftUI.Font.system(size: 34, weight: .bold)
-        static let slideCaption = SwiftUI.Font.system(size: 10, weight: .regular)
+        static let skuName = SwiftUI.Font.system(.footnote).weight(.semibold)
+        static let skuPrice = SwiftUI.Font.system(.title).weight(.bold)
+        static let skuUnit = SwiftUI.Font.system(.caption).weight(.medium)
+        static let skuTrial = SwiftUI.Font.system(.caption2)
+        static let skuNote = SwiftUI.Font.system(.caption2)
+        static let badge = SwiftUI.Font.system(.caption2).weight(.bold)
+        static let legal = SwiftUI.Font.system(.caption2)
+        static let cta = SwiftUI.Font.system(.callout).weight(.semibold)
+        static let trust = SwiftUI.Font.system(.caption2)
 
-        static let skuName = SwiftUI.Font.system(size: 13, weight: .semibold)
-        static let skuPrice = SwiftUI.Font.system(size: 30, weight: .bold)
-        static let skuUnit = SwiftUI.Font.system(size: 12, weight: .medium)
-        static let skuTrial = SwiftUI.Font.system(size: 10.5, weight: .regular)
-        static let skuNote = SwiftUI.Font.system(size: 10, weight: .regular)
-        static let badge = SwiftUI.Font.system(size: 10, weight: .bold)
-        static let legal = SwiftUI.Font.system(size: 10.5, weight: .regular)
-        static let cta = SwiftUI.Font.system(size: 16, weight: .semibold)
-        static let trust = SwiftUI.Font.system(size: 11, weight: .regular)
+        static let calloutSemibold = SwiftUI.Font.system(.callout).weight(.semibold)
 
-        static let title3 = SwiftUI.Font.system(size: 18, weight: .semibold)
-        static let title2Bold = SwiftUI.Font.system(size: 20, weight: .bold, design: .rounded)
+        static let caption = SwiftUI.Font.system(.caption)
+        static let captionMedium = SwiftUI.Font.system(.caption).weight(.medium)
+        static let captionSemibold = SwiftUI.Font.system(.caption).weight(.semibold)
 
-        static let bodySemibold = SwiftUI.Font.system(size: 16, weight: .semibold)
-
-        static let calloutMedium = SwiftUI.Font.system(size: 15, weight: .medium)
-        static let calloutSemibold = SwiftUI.Font.system(size: 15, weight: .semibold)
-
-        static let caption = SwiftUI.Font.system(size: 12, weight: .regular)
-        static let captionMedium = SwiftUI.Font.system(size: 12, weight: .medium)
-        static let captionSemibold = SwiftUI.Font.system(size: 12, weight: .semibold)
-        static let captionBold = SwiftUI.Font.system(size: 12, weight: .bold)
-
-        static let caption2 = SwiftUI.Font.system(size: 10, weight: .regular)
-        static let caption2Medium = SwiftUI.Font.system(size: 10, weight: .medium)
-        static let caption2Semibold = SwiftUI.Font.system(size: 10, weight: .semibold)
-        static let caption2Bold = SwiftUI.Font.system(size: 10, weight: .bold)
+        static let caption2Medium = SwiftUI.Font.system(.caption2).weight(.medium)
+        static let caption2Bold = SwiftUI.Font.system(.caption2).weight(.bold)
     }
 }
 
@@ -303,24 +231,19 @@ extension View {
     }
 }
 
-// MARK: - 明暗解析
+// MARK: - Press feedback
 
-/// 明暗两套值的解析器。应用主 token 在 `Theme`；此处
-/// 为保持影响面在 paywall 目录内，这里不公开它而是自带一份等价的。
-private func resolve(
-    light: (CGFloat, CGFloat, CGFloat),
-    dark: (CGFloat, CGFloat, CGFloat),
-    lightOpacity: CGFloat = 1,
-    darkOpacity: CGFloat = 1
-) -> Color {
-    #if canImport(UIKit)
-    return Color(uiColor: UIColor { traits in
-        let isDark = traits.userInterfaceStyle == .dark
-        let rgb = isDark ? dark : light
-        let alpha = isDark ? darkOpacity : lightOpacity
-        return UIColor(red: rgb.0, green: rgb.1, blue: rgb.2, alpha: alpha)
-    })
-    #else
-    return Color(red: light.0, green: light.1, blue: light.2).opacity(lightOpacity)
-    #endif
+/// 付费页统一的按压反馈：按下即缩小，约 140ms 收敛。
+/// 只改变 transform/opacity，不触发布局。
+struct PaywallPressStyle: ButtonStyle {
+    var scale: CGFloat = 0.97
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !reduceMotion ? scale : 1)
+            .opacity(configuration.isPressed ? 0.94 : 1)
+            .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
+    }
 }

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import StoreKit
+import UIKit
 
 // MARK: - PaywallView
 
@@ -15,6 +16,9 @@ struct PaywallView: View {
 
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var subscriptionManager = SubscriptionManager.shared
+
+    /// 字标基准 24pt（title2 的 XL 档），继续跟随 Dynamic Type。
+    @ScaledMetric(relativeTo: .title2) private var brandFontSize: CGFloat = 24
 
     @State private var selectedPlanType: PaywallPlanType = .yearly
     @State private var localErrorMessage: String?
@@ -95,7 +99,7 @@ private extension PaywallView {
                 Text("Pro")
                 Text("!").italic()
             }
-            .font(PaywallDS.Font.brand)
+            .font(.system(size: brandFontSize, weight: .bold))
             .tracking(-0.6)
             .foregroundStyle(PaywallDS.Color.textPrimary)
             .accessibilityElement(children: .ignore)
@@ -119,7 +123,7 @@ private extension PaywallView {
                 .frame(width: Theme.sizeTap, height: Theme.sizeTap)
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PaywallPressStyle(scale: 0.92))
         .accessibilityLabel(Text(L10n.string("Close")))
         .accessibilityIdentifier("paywall-close-button")
         .accessibilitySortPriority(2)
@@ -135,7 +139,7 @@ private extension PaywallView {
 
                 if shouldHidePurchaseUI == false {
                     Text(L10n.string("Choose your plan"))
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(.subheadline).weight(.semibold))
                         .tracking(-0.1)
                         .foregroundStyle(PaywallDS.Color.textPrimary.opacity(0.72))
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -174,11 +178,27 @@ private extension PaywallView {
     @ViewBuilder
     var footer: some View {
         if shouldHidePurchaseUI == false {
-            PaywallFooter(cta: footerCTA, errorMessage: displayErrorMessage)
-                .background(alignment: .bottom) {
-                    bottomScrim
-                }
+            PaywallFooter(
+                cta: footerCTA,
+                errorMessage: displayErrorMessage,
+                subline: footerSubline
+            )
+            .background(alignment: .bottom) {
+                bottomScrim
+            }
         }
+    }
+
+    /// CTA 正下方的续订说明：试用态带试用结束后的年费，
+    /// 订阅态说明自动续订，买断说明一次付费。全部复用已本地化的文案。
+    var footerSubline: String? {
+        guard let type = selectedPlan?.type else {
+            return nil
+        }
+
+        let isTrialEligible = subscriptionManager.isStoreReady && subscriptionManager.isTrialEligible
+        return pricing.ctaSubline(for: type, isTrialEligible: isTrialEligible)
+            ?? pricing.planNoteText(for: type, isTrialEligible: isTrialEligible)
     }
 
     /// 玻璃卡下方那条底部安全区不能裸奔：滚动内容会从卡片下缘一路露到屏幕底部。
@@ -350,9 +370,13 @@ private extension PaywallView {
         Task {
             let success = await subscriptionManager.purchase(targetType)
             guard success else {
+                if subscriptionManager.errorMessage != nil {
+                    UINotificationFeedbackGenerator().notificationOccurred(.error)
+                }
                 return
             }
 
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
             dismiss()
         }
     }
@@ -369,9 +393,11 @@ private extension PaywallView {
 
             guard subscriptionManager.isPro else {
                 localErrorMessage = L10n.string("No purchases found to restore")
+                UINotificationFeedbackGenerator().notificationOccurred(.error)
                 return
             }
 
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
             dismiss()
         }
     }

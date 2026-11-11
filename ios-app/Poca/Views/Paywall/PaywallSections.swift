@@ -11,17 +11,17 @@ import UIKit
 
 // MARK: - Benefit Carousel
 
-/// 五张权益轮播，画面按 `carousel-slides.html` 的 700×680 版复刻：
-/// 五张照片扇形、20→200 滑杆、专项分类圆、相纸板、四张分享卡。
-/// 整张画布等比缩进 340pt 的卡片，文案随画布一起缩放。
+/// 五张权益轮播，画布 700×525（4:3），对应 5 条 Pro 权益：
+/// 无限清理、随机 200、相似组/专项分类、照片墙历史、分享卡样式。
+/// 整张画布等比缩进卡片，文案随画布一起缩放。
+///
+/// 不做自动播放：权益是用户正在读的内容，默认静止。
 struct PaywallBenefitCarousel: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var index = 0
-    @State private var isDragging = false
 
     private let slides = PaywallBenefitSlide.all
-    private static let autoPlayInterval: Duration = .seconds(4.8)
     private static let designSize = CGSize(width: 700, height: 525)
 
     var body: some View {
@@ -33,9 +33,6 @@ struct PaywallBenefitCarousel: View {
             .overlay(alignment: .bottom) {
                 pageDots
                     .padding(.bottom, 1)
-            }
-            .task(id: AutoPlayKey(index: index, isDragging: isDragging)) {
-                await autoAdvance()
             }
     }
 }
@@ -52,14 +49,15 @@ private extension PaywallBenefitCarousel {
             )
 
             ZStack {
-                ForEach(Array(slides.enumerated()), id: \.offset) { offset, slide in
-                    PaywallReviewSlide(slide: slide)
-                        .frame(width: Self.designSize.width, height: Self.designSize.height)
-                        .scaleEffect(scale, anchor: .bottom)
-                        .frame(width: proxy.size.width, height: proxy.size.height, alignment: .bottom)
-                        .opacity(offset == index ? 1 : 0)
-                        .allowsHitTesting(false)
-                }
+                // 只实例化当前这张：五张画布各含 5–7 张图和多层模糊/阴影，
+                // 同时铺出来会让首帧和内存无谓地重。
+                PaywallReviewSlide(slide: slides[index])
+                    .id(index)
+                    .transition(.opacity)
+                    .frame(width: Self.designSize.width, height: Self.designSize.height)
+                    .scaleEffect(scale, anchor: .bottom)
+                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .bottom)
+                    .allowsHitTesting(false)
             }
         }
         .background(Color.black)
@@ -71,7 +69,7 @@ private extension PaywallBenefitCarousel {
         .shadow(color: Color.black.opacity(0.5), radius: 28, y: 24)
         .contentShape(RoundedRectangle(cornerRadius: PaywallDS.Radius.carousel, style: .continuous))
         .simultaneousGesture(dragGesture)
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.38), value: index)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.28), value: index)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(slides[index].title))
         .accessibilityValue(Text("\(index + 1) / \(slides.count) · \(slides[index].subtitle)"))
@@ -93,24 +91,13 @@ private extension PaywallBenefitCarousel {
 
 private extension PaywallBenefitCarousel {
 
-    struct AutoPlayKey: Hashable {
-        let index: Int
-        let isDragging: Bool
-    }
-
     var dragGesture: some Gesture {
         DragGesture(minimumDistance: 12)
-            .onChanged { _ in
-                if isDragging == false {
-                    isDragging = true
-                }
-            }
             .onEnded { value in
                 let dx = value.translation.width
                 if abs(dx) > 42 {
                     go(to: index + (dx < 0 ? 1 : -1))
                 }
-                isDragging = false
             }
     }
 
@@ -119,29 +106,7 @@ private extension PaywallBenefitCarousel {
         guard count > 0 else { return }
         let next = ((target % count) + count) % count
         guard next != index else { return }
-
-        if reduceMotion {
-            index = next
-        } else {
-            withAnimation(.easeInOut(duration: 0.38)) {
-                index = next
-            }
-        }
-    }
-
-    func autoAdvance() async {
-        guard reduceMotion == false,
-              isDragging == false,
-              UIAccessibility.isVoiceOverRunning == false else {
-            return
-        }
-
-        try? await Task.sleep(for: Self.autoPlayInterval)
-        guard Task.isCancelled == false,
-              UIAccessibility.isVoiceOverRunning == false else {
-            return
-        }
-        go(to: index + 1)
+        index = next
     }
 
     var pageDots: some View {
@@ -152,7 +117,8 @@ private extension PaywallBenefitCarousel {
                     .frame(width: 6, height: 6)
             }
         }
-        .frame(height: 28)
+        // 视觉圆点仍是 6pt，但命中区给到 44pt。
+        .frame(height: 44)
         .contentShape(Rectangle())
         .overlay {
             GeometryReader { proxy in
@@ -202,13 +168,13 @@ private struct PaywallReviewSlide: View {
         case .fan:
             PaywallFanVisual(images: slide.images)
         case .slider:
-            PaywallSliderVisual()
+            PaywallRoundVisual(images: slide.images)
         case .categories:
-            PaywallCategoryVisual()
+            PaywallCategoryVisual(images: slide.images)
         case .board:
-            PaywallBoardVisual(images: slide.images)
+            PaywallFilmStripVisual(images: slide.images)
         case .share:
-            PaywallShareFanVisual(images: slide.images)
+            PaywallShareLineupVisual(images: slide.images)
         }
     }
 
@@ -246,65 +212,73 @@ private struct PaywallReviewSlide: View {
 
 // MARK: - 01 · Photo Fan
 
+/// 9 张照片的深扇形：中间最大最清晰，向两侧逐级缩小、变暗、虚化。
+/// 比 5 张更能表达“无限量”，同时保留一个明确的视觉中心。
 private struct PaywallFanVisual: View {
 
     let images: [String]
+
+    private struct Spec {
+        let angle: Double
+        let width: CGFloat
+        let opacity: Double
+        let blur: CGFloat
+        let saturation: Double
+    }
+
+    private static let specs: [Spec] = [
+        Spec(angle: -28, width: 185, opacity: 0.16, blur: 2.4, saturation: 0.60),
+        Spec(angle: -21, width: 205, opacity: 0.32, blur: 1.6, saturation: 0.72),
+        Spec(angle: -14, width: 225, opacity: 0.55, blur: 0.9, saturation: 0.85),
+        Spec(angle: -7, width: 245, opacity: 0.78, blur: 0.35, saturation: 0.94),
+        Spec(angle: 0, width: 260, opacity: 1.0, blur: 0, saturation: 1.0),
+        Spec(angle: 7, width: 245, opacity: 0.78, blur: 0.35, saturation: 0.94),
+        Spec(angle: 14, width: 225, opacity: 0.55, blur: 0.9, saturation: 0.85),
+        Spec(angle: 21, width: 205, opacity: 0.32, blur: 1.6, saturation: 0.72),
+        Spec(angle: 28, width: 185, opacity: 0.16, blur: 2.4, saturation: 0.60)
+    ]
+
+    /// 从外到内绘制，中心最后压在最上层。
+    private static let drawOrder = [0, 8, 1, 7, 2, 6, 3, 5, 4]
 
     var body: some View {
         ZStack {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [PaywallDS.Color.accent.opacity(0.07), .clear],
+                        colors: [PaywallDS.Color.accent.opacity(0.10), .clear],
                         center: .center,
                         startRadius: 0,
-                        endRadius: 130
+                        endRadius: 210
                     )
                 )
-                .frame(width: 260, height: 260)
-                .position(x: 350, y: 178)
-                .blur(radius: 8)
+                .frame(width: 420, height: 420)
+                .position(x: 350, y: 190)
+                .blur(radius: 14)
 
-            if images.count >= 5 {
-                framedPhoto(images[0], width: 160, height: 220, radius: 22)
-                    .saturation(0.72)
-                    .opacity(0.38)
-                    .blur(radius: 1.4)
-                    .rotationEffect(.degrees(-13))
-                    .shadow(color: .black.opacity(0.62), radius: 32, y: 30)
-                    .position(x: 92, y: 212)
-
-                framedPhoto(images[1], width: 215, height: 285, radius: 22)
-                    .saturation(0.88)
-                    .opacity(0.72)
-                    .blur(radius: 0.4)
-                    .rotationEffect(.degrees(-7))
-                    .shadow(color: .black.opacity(0.62), radius: 32, y: 30)
-                    .position(x: 193.5, y: 212.5)
-
-                framedPhoto(images[2], width: 260, height: 340, radius: 22)
-                    .shadow(color: .black.opacity(0.62), radius: 32, y: 30)
-                    .shadow(color: .black.opacity(0.4), radius: 10, y: 8)
-                    .position(x: 350, y: 196)
-
-                framedPhoto(images[3], width: 215, height: 285, radius: 22)
-                    .saturation(0.88)
-                    .opacity(0.72)
-                    .blur(radius: 0.4)
-                    .rotationEffect(.degrees(7))
-                    .shadow(color: .black.opacity(0.62), radius: 32, y: 30)
-                    .position(x: 506.5, y: 212.5)
-
-                framedPhoto(images[4], width: 160, height: 220, radius: 22)
-                    .saturation(0.72)
-                    .opacity(0.38)
-                    .blur(radius: 1.4)
-                    .rotationEffect(.degrees(13))
-                    .shadow(color: .black.opacity(0.62), radius: 32, y: 30)
-                    .position(x: 608, y: 212)
+            ForEach(Self.drawOrder, id: \.self) { index in
+                card(at: index)
             }
         }
         .frame(width: 700, height: 525)
+    }
+
+    private func card(at index: Int) -> some View {
+        let spec = Self.specs[index]
+        let radians = spec.angle * .pi / 180
+        let centerX = 350 + CGFloat(sin(radians)) * 280
+        let centerY = 470 - CGFloat(cos(radians)) * 280
+        let height = spec.width * 1.307
+        let name = images.isEmpty ? "" : images[index % images.count]
+
+        return framedPhoto(name, width: spec.width, height: height, radius: 22)
+            .saturation(spec.saturation)
+            .opacity(spec.opacity)
+            .blur(radius: spec.blur)
+            .shadow(color: .black.opacity(0.62), radius: 32, y: 30)
+            .rotationEffect(.degrees(spec.angle))
+            .position(x: centerX, y: centerY)
+            .zIndex(Double(10 - abs(index - 4)))
     }
 
     private func framedPhoto(
@@ -321,323 +295,281 @@ private struct PaywallFanVisual: View {
     }
 }
 
-// MARK: - 02 · 20 → 200 Slider
+// MARK: - 02 · Round Contact Sheet
 
-private struct PaywallSliderVisual: View {
-
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack(alignment: .center) {
-                tick("20")
-                Spacer(minLength: 0)
-                tick("50")
-                Spacer(minLength: 0)
-                tick("100")
-                Spacer(minLength: 0)
-                selectedTick
-            }
-            .padding(.horizontal, 84)
-            .padding(.top, 112)
-
-            ZStack(alignment: .trailing) {
-                Capsule()
-                    .fill(Color.white.opacity(0.08))
-                    .frame(height: 8)
-
-                Capsule()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                PaywallDS.Color.accent.opacity(0.22),
-                                PaywallDS.Color.accent
-                            ],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .frame(height: 8)
-
-                Circle()
-                    .fill(PaywallDS.Color.accent)
-                    .frame(width: 44, height: 44)
-                    .overlay(Circle().stroke(Color.white.opacity(0.5), lineWidth: 1))
-                    .shadow(color: PaywallDS.Color.accent.opacity(0.5), radius: 21)
-                    .offset(x: 22)
-            }
-            .frame(height: 44)
-            .padding(.horizontal, 84)
-            .padding(.top, 76)
-
-            HStack {
-                Text(L10n.string("Free 20"))
-                Spacer(minLength: 0)
-                Text(L10n.string("Pro 200"))
-            }
-            .font(.system(size: 20))
-            .foregroundStyle(Color.white.opacity(0.36))
-            .padding(.horizontal, 84)
-            .padding(.top, 26)
-        }
-        .frame(width: 700, height: 525, alignment: .top)
-    }
-
-    private func tick(_ value: String) -> some View {
-        Text(value)
-            .font(.system(size: 34, weight: .bold))
-            .tracking(-1)
-            .foregroundStyle(Color.white.opacity(0.3))
-            .monospacedDigit()
-    }
-
-    private var selectedTick: some View {
-        Text("200")
-            .font(.system(size: 38, weight: .bold))
-            .tracking(-1.1)
-            .monospacedDigit()
-            .foregroundStyle(PaywallDS.Color.onAccent)
-            .padding(.horizontal, 28)
-            .padding(.vertical, 14)
-            .background(
-                Capsule().fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 248 / 255, green: 203 / 255, blue: 109 / 255),
-                            PaywallDS.Color.accentDeep
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-            )
-            .overlay(Capsule().stroke(Color.white.opacity(0.55), lineWidth: 1))
-            .shadow(color: PaywallDS.Color.accent.opacity(0.3), radius: 22)
-    }
-}
-
-// MARK: - 03 · Category Circles
-
-private struct PaywallCategoryVisual: View {
-
-    var body: some View {
-        VStack(spacing: 58) {
-            HStack(spacing: 24) {
-                item(icon: "square.on.square", label: "Similar category", highlighted: true)
-                item(icon: "viewfinder", label: "Screenshots category")
-                item(icon: "play.rectangle", label: "Videos category")
-                item(icon: "livephoto", label: "Live Photos category")
-                item(icon: "square.stack", label: "Bursts category")
-            }
-
-            pill
-        }
-        .frame(width: 700, height: 500)
-        .offset(y: -38)
-    }
-
-    private func item(
-        icon: String,
-        label: String,
-        highlighted: Bool = false
-    ) -> some View {
-        VStack(spacing: 15) {
-            ZStack {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                Color(red: 94 / 255, green: 96 / 255, blue: 104 / 255).opacity(0.55),
-                                Color(red: 28 / 255, green: 30 / 255, blue: 36 / 255).opacity(0.9)
-                            ],
-                            center: UnitPoint(x: 0.3, y: 0.25),
-                            startRadius: 0,
-                            endRadius: 96
-                        )
-                    )
-
-                Circle()
-                    .stroke(
-                        highlighted
-                            ? PaywallDS.Color.accent.opacity(0.55)
-                            : Color.white.opacity(0.18),
-                        lineWidth: 1
-                    )
-
-                Image(systemName: icon)
-                    .font(.system(size: 40, weight: .light))
-                    .foregroundStyle(.white)
-            }
-            .frame(width: 96, height: 96)
-            .shadow(
-                color: highlighted
-                    ? PaywallDS.Color.accent.opacity(0.22)
-                    : Color.black.opacity(0.35),
-                radius: highlighted ? 18 : 13,
-                y: 12
-            )
-
-            Text(L10n.key(label))
-                .font(.system(size: 18))
-                .foregroundStyle(Color.white.opacity(0.52))
-                .fixedSize()
-        }
-    }
-
-    private var pill: some View {
-        HStack(spacing: 10) {
-            Circle()
-                .fill(PaywallDS.Color.accent)
-                .frame(width: 6, height: 6)
-
-            HStack(spacing: 4) {
-                Text("Pro")
-                    .fontWeight(.semibold)
-                    .foregroundStyle(PaywallDS.Color.accent)
-
-                Text(L10n.string("unlocks every category"))
-                    .foregroundStyle(Color.white.opacity(0.62))
-            }
-            .font(.system(size: 22))
-        }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 13)
-        .background(Capsule().fill(Color.white.opacity(0.06)))
-        .overlay(Capsule().stroke(Color.white.opacity(0.14), lineWidth: 1))
-    }
-}
-
-// MARK: - 04 · Polaroid Board
-
-private struct PaywallBoardVisual: View {
+/// 一轮最多 200 张：把照片做成接触印样，数字直接压在图面上。
+/// 这一页只讲 Pro 的结果，不再出现免费额度刻度。
+private struct PaywallRoundVisual: View {
 
     let images: [String]
 
-    private struct Layout {
-        let x: CGFloat
-        let y: CGFloat
-        let width: CGFloat
-        let height: CGFloat
-        let angle: Double
-    }
-
-    private static let layouts: [Layout] = [
-        Layout(x: 36, y: 60, width: 148, height: 184, angle: -6),
-        Layout(x: 172, y: 44, width: 158, height: 196, angle: 3),
-        Layout(x: 330, y: 70, width: 144, height: 180, angle: -3),
-        Layout(x: 430, y: 52, width: 156, height: 194, angle: 5),
-        Layout(x: 78, y: 240, width: 148, height: 184, angle: 4),
-        Layout(x: 228, y: 228, width: 158, height: 196, angle: -5),
-        Layout(x: 392, y: 244, width: 144, height: 180, angle: 2)
-    ]
+    private static let columns = 8
+    private static let rows = 4
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            boardBackground
+        ZStack {
+            sheet
 
-            ForEach(Array(images.prefix(Self.layouts.count).enumerated()), id: \.offset) { offset, name in
-                polaroid(name, layout: Self.layouts[offset], index: offset)
+            VStack(spacing: 10) {
+                Text("PHOTOS / ROUND")
+                    .font(.system(size: 15, weight: .semibold))
+                    .tracking(4)
+                    .foregroundStyle(Color.white.opacity(0.55))
+
+                Text("200")
+                    .font(.system(size: 184, weight: .bold))
+                    .tracking(-10)
+                    .monospacedDigit()
+                    .foregroundStyle(PaywallDS.Color.accent)
+                    .shadow(color: .black.opacity(0.55), radius: 30, y: 18)
             }
+            .offset(y: -58)
         }
-        .frame(width: 600, height: 424)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.white.opacity(0.09), lineWidth: 1)
-        )
-        .overlay(alignment: .topLeading) {
-            Text("2026")
-                .font(.system(size: 22, weight: .bold))
-                .tracking(-0.4)
-                .foregroundStyle(Color(red: 244 / 255, green: 244 / 255, blue: 246 / 255))
-                .padding(.top, 18)
-                .padding(.leading, 24)
-        }
-        .shadow(color: .black.opacity(0.55), radius: 30, y: 24)
-        .scaleEffect(0.84)
-        .position(x: 350, y: 186)
+        .frame(width: 700, height: 525)
     }
 
-    private var boardBackground: some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    Color(red: 29 / 255, green: 26 / 255, blue: 22 / 255),
-                    Color(red: 14 / 255, green: 13 / 255, blue: 11 / 255)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+    private var sheet: some View {
+        let cellCount = Self.columns * Self.rows
+        return ZStack {
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .fill(Color(red: 17 / 255, green: 16 / 255, blue: 14 / 255))
+
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.fixed(66), spacing: 6), count: Self.columns),
+                spacing: 6
+            ) {
+                ForEach(0..<cellCount, id: \.self) { index in
+                    cell(at: index)
+                }
+            }
+            .frame(width: 570, height: 282)
 
             RadialGradient(
-                colors: [PaywallDS.Color.accent.opacity(0.09), .clear],
-                center: UnitPoint(x: 0.18, y: 0),
-                startRadius: 0,
-                endRadius: 300
+                colors: [
+                    Color.black.opacity(0.88),
+                    Color.black.opacity(0.72),
+                    Color.black.opacity(0.25),
+                    Color.clear
+                ],
+                center: .center,
+                startRadius: 30,
+                endRadius: 280
             )
+            .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
         }
-    }
-
-    private func polaroid(_ name: String, layout: Layout, index: Int) -> some View {
-        ZStack(alignment: .top) {
-            RoundedRectangle(cornerRadius: 3, style: .continuous)
-                .fill(Color(red: 243 / 255, green: 238 / 255, blue: 226 / 255))
-                .shadow(color: .black.opacity(0.42), radius: 15, y: 16)
-
-            photo(
-                name,
-                width: layout.width - 16,
-                height: layout.height - 32,
-                radius: 1
-            )
-            .padding(.top, 8)
-
-            clip(index: index)
-                .offset(y: -7)
-        }
-        .frame(width: layout.width, height: layout.height)
-        .rotationEffect(.degrees(layout.angle))
-        .position(
-            x: layout.x + layout.width / 2,
-            y: layout.y + layout.height / 2
+        .frame(width: 600, height: 330)
+        .overlay(
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
+        .rotationEffect(.degrees(-2))
+        .position(x: 350, y: 177)
+        .shadow(color: .black.opacity(0.6), radius: 34, y: 24)
     }
 
-    private func clip(index: Int) -> some View {
-        let colors: [Color]
-        switch index % 3 {
-        case 0:
-            colors = [
-                Color(red: 216 / 255, green: 185 / 255, blue: 138 / 255),
-                Color(red: 168 / 255, green: 135 / 255, blue: 92 / 255)
-            ]
-        case 1:
-            colors = [
-                Color(red: 201 / 255, green: 166 / 255, blue: 120 / 255),
-                Color(red: 150 / 255, green: 118 / 255, blue: 76 / 255)
-            ]
-        default:
-            colors = [
-                Color(red: 224 / 255, green: 195 / 255, blue: 154 / 255),
-                Color(red: 179 / 255, green: 146 / 255, blue: 95 / 255)
-            ]
-        }
-
-        return RoundedRectangle(cornerRadius: 2, style: .continuous)
-            .fill(LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom))
-            .frame(width: 18, height: 13)
-            .overlay {
-                Rectangle()
-                    .fill(Color(red: 60 / 255, green: 40 / 255, blue: 20 / 255).opacity(0.35))
-                    .frame(width: 14, height: 0.5)
-                    .offset(y: 1)
-            }
-            .rotationEffect(.degrees(-3))
-            .shadow(color: .black.opacity(0.35), radius: 1.5, y: 1)
+    private func cell(at index: Int) -> some View {
+        let name = images.isEmpty ? "" : images[(index * 5 + 3) % images.count]
+        return photo(name, width: 66, height: 66, radius: 5)
     }
 }
 
-// MARK: - 05 · Share Card Fan
+// MARK: - 03 · Category Stacks
 
-private struct PaywallShareFanVisual: View {
+/// 五组照片堆，每组三张；首组用琥珀描边点亮。
+/// 照片本身就是分类的证据，图标只做角标。
+private struct PaywallCategoryVisual: View {
+
+    let images: [String]
+
+    private struct Category {
+        let icon: String
+        let label: String
+        let imageIndex: Int
+        let highlighted: Bool
+    }
+
+    private static let categories: [Category] = [
+        Category(icon: "square.on.square", label: "Similar category", imageIndex: 0, highlighted: true),
+        Category(icon: "viewfinder", label: "Screenshots category", imageIndex: 1, highlighted: false),
+        Category(icon: "play.rectangle", label: "Videos category", imageIndex: 2, highlighted: false),
+        Category(icon: "livephoto", label: "Live Photos category", imageIndex: 3, highlighted: false),
+        Category(icon: "square.stack", label: "Bursts category", imageIndex: 4, highlighted: false)
+    ]
+
+    private static let positions: [CGFloat] = [80, 225, 370, 515, 660]
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [PaywallDS.Color.accent.opacity(0.14), .clear],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 130
+                    )
+                )
+                .frame(width: 260, height: 260)
+                .position(x: 80, y: 170)
+                .blur(radius: 18)
+
+            ForEach(Self.categories.indices, id: \.self) { index in
+                stack(category: Self.categories[index], index: index)
+            }
+        }
+        .frame(width: 700, height: 525)
+    }
+
+    private func stack(category: Category, index: Int) -> some View {
+        VStack(spacing: 14) {
+            ZStack {
+                photo(imageName(offset: 2, from: category.imageIndex), width: 110, height: 150, radius: 10)
+                    .saturation(0.72)
+                    .opacity(0.5)
+                    .rotationEffect(.degrees(-9))
+                    .offset(x: -13, y: 7)
+                    .shadow(color: .black.opacity(0.4), radius: 12, y: 10)
+
+                photo(imageName(offset: 1, from: category.imageIndex), width: 110, height: 150, radius: 10)
+                    .saturation(0.85)
+                    .opacity(0.78)
+                    .rotationEffect(.degrees(-2))
+                    .offset(x: -6, y: 3)
+                    .shadow(color: .black.opacity(0.5), radius: 12, y: 10)
+
+                photo(imageName(offset: 0, from: category.imageIndex), width: 110, height: 150, radius: 10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(
+                                category.highlighted
+                                    ? PaywallDS.Color.accent.opacity(0.95)
+                                    : Color.white.opacity(0.08),
+                                lineWidth: category.highlighted ? 1.5 : 1
+                            )
+                    )
+                    .shadow(
+                        color: category.highlighted
+                            ? PaywallDS.Color.accent.opacity(0.22)
+                            : Color.black.opacity(0.55),
+                        radius: category.highlighted ? 22 : 14,
+                        y: 12
+                    )
+                    .overlay(alignment: .topTrailing) {
+                        badge(category.icon)
+                            .offset(x: 7, y: -7)
+                    }
+            }
+            .frame(width: 120, height: 160)
+
+            Text(L10n.key(category.label))
+                .font(.system(size: 15))
+                .foregroundStyle(category.highlighted ? PaywallDS.Color.accent : Color.white.opacity(0.52))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(width: 130)
+        }
+        .position(x: Self.positions[index], y: 180)
+    }
+
+    private func imageName(offset: Int, from base: Int) -> String {
+        guard images.isEmpty == false else { return "" }
+        return images[(base + offset) % images.count]
+    }
+
+    private func badge(_ icon: String) -> some View {
+        ZStack {
+            Circle()
+                .fill(Color(red: 15 / 255, green: 14 / 255, blue: 12 / 255).opacity(0.9))
+            Circle()
+                .stroke(Color.white.opacity(0.22), lineWidth: 1)
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.white)
+        }
+        .frame(width: 24, height: 24)
+    }
+}
+
+// MARK: - 04 · Film Strip
+
+/// 35mm 胶片条：8 格照片按月份成对排列，两端溢出画布，暗示还有更多历史。
+private struct PaywallFilmStripVisual: View {
+
+    let images: [String]
+
+    private static let months = ["MAY", "JUN", "JUL", "AUG"]
+
+    var body: some View {
+        ZStack {
+            strip
+        }
+        .frame(width: 700, height: 525)
+        .overlay(alignment: .topLeading) {
+            Text("2026")
+                .font(.system(size: 18, weight: .bold))
+                .tracking(-0.3)
+                .foregroundStyle(PaywallDS.Color.accent)
+                .padding(.top, 26)
+                .padding(.leading, 44)
+        }
+    }
+
+    private var strip: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color(red: 20 / 255, green: 17 / 255, blue: 16 / 255))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+
+            sprockets(isTop: true)
+            sprockets(isTop: false)
+            frames
+            monthLabels
+        }
+        .frame(width: 880, height: 224)
+        .rotationEffect(.degrees(-3))
+        .position(x: 400, y: 174)
+        .shadow(color: .black.opacity(0.65), radius: 32, y: 26)
+    }
+
+    private var frames: some View {
+        ForEach(0..<8, id: \.self) { index in
+            photo(imageName(at: index), width: 78, height: 104, radius: 3)
+                .offset(x: 86 + CGFloat(index) * 90, y: 62)
+        }
+    }
+
+    private var monthLabels: some View {
+        ForEach(Self.months.indices, id: \.self) { index in
+            Text(Self.months[index])
+                .font(.system(size: 14, weight: .semibold))
+                .tracking(2)
+                .foregroundStyle(Color.white.opacity(0.62))
+                .offset(x: 86 + CGFloat(index) * 180, y: 34)
+        }
+    }
+
+    private func sprockets(isTop: Bool) -> some View {
+        ForEach(0..<43, id: \.self) { index in
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .fill(Color.white.opacity(0.14))
+                .frame(width: 16, height: 10)
+                .offset(x: CGFloat(8 + index * 20), y: isTop ? 6 : 208)
+        }
+    }
+
+    private func imageName(at index: Int) -> String {
+        guard images.isEmpty == false else { return "" }
+        return images[index % images.count]
+    }
+}
+
+// MARK: - 05 · Share Card Lineup
+
+/// 四种分享样式并排：每张卡都完整可见，不再靠重度重叠和虚化制造层次。
+private struct PaywallShareLineupVisual: View {
 
     let images: [String]
 
@@ -647,9 +579,24 @@ private struct PaywallShareFanVisual: View {
     var body: some View {
         ZStack {
             originalCard
+                .scaleEffect(0.86)
+                .rotationEffect(.degrees(-6))
+                .position(x: 105, y: 200)
+
             minimalFrameCard
+                .scaleEffect(0.86)
+                .rotationEffect(.degrees(-2))
+                .position(x: 268, y: 185)
+
             ticketStubCard
+                .scaleEffect(0.86)
+                .rotationEffect(.degrees(2))
+                .position(x: 438, y: 200)
+
             pocaColorCard
+                .scaleEffect(0.82)
+                .rotationEffect(.degrees(6))
+                .position(x: 605, y: 185)
         }
         .frame(width: 700, height: 525)
     }
@@ -874,34 +821,35 @@ private struct PaywallBenefitSlide {
     let visual: Visual
     let images: [String]
 
+    /// 5 条 Pro 权益，结果导向：不写免费上限，只保留「最多 200 张」一个数字。
     static let all: [PaywallBenefitSlide] = [
         PaywallBenefitSlide(
             title: L10n.string("Unlimited cleanup"),
-            subtitle: L10n.string("Free clears 100 photos a day. Pro has no limit."),
+            subtitle: L10n.string("Clean as much as you want. No daily limit."),
             visual: .fan,
-            images: ["PaywallKyoto", "PaywallCove", "PaywallPlane", "PaywallBeach", "PaywallRoad"]
+            images: ["PaywallPlane", "PaywallKyoto", "PaywallCove", "PaywallBeach", "PaywallRoad"]
         ),
         PaywallBenefitSlide(
-            title: L10n.string("Random Review"),
-            subtitle: L10n.string("200 per round, up from 20."),
+            title: L10n.string("Bigger review rounds"),
+            subtitle: L10n.string("Choose up to 200 photos per round."),
             visual: .slider,
             images: []
         ),
         PaywallBenefitSlide(
-            title: L10n.string("Special categories"),
-            subtitle: L10n.string("Screenshots, videos, Live Photos and more — all unlocked with Pro."),
+            title: L10n.string("All similar groups"),
+            subtitle: L10n.string("Every duplicate group and every special category."),
             visual: .categories,
             images: []
         ),
         PaywallBenefitSlide(
-            title: L10n.string("Photo wall & history"),
-            subtitle: L10n.string("Revisit every photo left from each cleanup."),
+            title: L10n.string("Your photo history"),
+            subtitle: L10n.string("Revisit every photo you kept, month by month."),
             visual: .board,
-            images: ["PaywallPlane", "PaywallBeach", "PaywallKyoto", "PaywallCove", "PaywallRoad", "PaywallPool", "PaywallFood"]
+            images: ["PaywallPlane", "PaywallBeach", "PaywallCatGray", "PaywallLake", "PaywallCove", "PaywallRoad", "PaywallFood"]
         ),
         PaywallBenefitSlide(
-            title: L10n.string("Share card styles"),
-            subtitle: L10n.string("Original and Minimal Frame are free. Two more unlock."),
+            title: L10n.string("Every share style"),
+            subtitle: L10n.string("Make every card unmistakably yours."),
             visual: .share,
             images: ["PaywallShareBarcelona", "PaywallShareWindow"]
         )
@@ -941,7 +889,7 @@ struct PaywallPlanSection: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
+                HStack(alignment: .top, spacing: 10) {
                     ForEach(plans) { plan in
                         planCard(plan)
                             .id(plan.type)
@@ -976,80 +924,111 @@ struct PaywallPlanSection: View {
         return Button {
             select(plan.type)
         } label: {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .center, spacing: 8) {
-                    Text(plan.name)
-                        .font(PaywallDS.Font.skuName)
-                        .tracking(0.05)
-                        .foregroundStyle(isSelected ? Color.white : Color.white.opacity(0.58))
-                        .lineLimit(1)
-
-                    Spacer(minLength: 0)
-
-                    if let badge = badgeText(for: plan.type) {
-                        Text(badge)
-                            .font(PaywallDS.Font.badge)
-                            .tracking(0.2)
-                            .foregroundStyle(PaywallDS.Color.recommendedBadgeText)
-                            .lineLimit(1)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(
-                                Capsule().fill(
-                                    LinearGradient(
-                                        colors: [PaywallDS.Color.accent, PaywallDS.Color.accentDeep],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                            )
-                    }
-                }
-
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text(display.priceText)
-                        .font(PaywallDS.Font.skuPrice)
-                        .tracking(-1.35)
-                        .monospacedDigit()
-                        .foregroundStyle(Color.white)
-
-                    if plan.type != .lifetime {
-                        Text(plan.priceCaption)
-                            .font(PaywallDS.Font.skuUnit)
-                            .foregroundStyle(Color.white.opacity(0.55))
-                    }
-                }
-                .padding(.top, 9)
-
-                Text(trialText)
-                    .font(PaywallDS.Font.skuTrial)
-                    .foregroundStyle(isSelected ? Color.white.opacity(0.6) : Color.white.opacity(0.46))
-                    .lineLimit(1)
-                    .padding(.top, 7)
-
-                Spacer(minLength: 8)
-
-                Text(noteText)
-                    .font(PaywallDS.Font.skuNote)
-                    .foregroundStyle(isSelected ? Color.white.opacity(0.48) : Color.white.opacity(0.42))
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
-            }
-            .padding(14)
-            .frame(width: 240, height: 148, alignment: .topLeading)
-            .background(cardBackground(isSelected: isSelected))
-            .overlay(cardBorder(isSelected: isSelected))
-            .shadow(
-                color: isSelected ? PaywallDS.Color.planCardShadow : .clear,
-                radius: 24,
-                y: 10
+            planCardLabel(
+                plan: plan,
+                isSelected: isSelected,
+                display: display,
+                trialText: trialText,
+                noteText: noteText
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PaywallPressStyle())
         .accessibilityLabel(Text(plan.name))
         .accessibilityValue(Text("\(display.priceText), \(trialText)"))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityIdentifier("paywall-plan-\(plan.type.accessibilitySlug)")
+    }
+
+    private func planCardLabel(
+        plan: PaywallPlan,
+        isSelected: Bool,
+        display: PlanDisplayPricing,
+        trialText: String,
+        noteText: String
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            planNameRow(plan: plan, isSelected: isSelected)
+
+            planPriceRow(plan: plan, display: display)
+                .padding(.top, 9)
+
+            Text(trialText)
+                .font(PaywallDS.Font.skuTrial)
+                .foregroundStyle(isSelected ? Color.white.opacity(0.6) : Color.white.opacity(0.46))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .padding(.top, 7)
+
+            Spacer(minLength: 8)
+
+            Text(noteText)
+                .font(PaywallDS.Font.skuNote)
+                .foregroundStyle(isSelected ? Color.white.opacity(0.48) : Color.white.opacity(0.42))
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+        }
+        .padding(14)
+        // 默认字号下仍是 148pt 的等高卡；Dynamic Type 放大时允许向下生长，不截断。
+        .frame(width: 240, alignment: .topLeading)
+        .frame(minHeight: 148, alignment: .topLeading)
+        .background(cardBackground(isSelected: isSelected))
+        .overlay(cardBorder(isSelected: isSelected))
+        .shadow(
+            color: isSelected ? PaywallDS.Color.planCardShadow : .clear,
+            radius: 24,
+            y: 10
+        )
+    }
+
+    private func planNameRow(plan: PaywallPlan, isSelected: Bool) -> some View {
+        HStack(alignment: .center, spacing: 8) {
+            Text(plan.name)
+                .font(PaywallDS.Font.skuName)
+                .tracking(0.05)
+                .foregroundStyle(isSelected ? Color.white : Color.white.opacity(0.58))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+
+            Spacer(minLength: 0)
+
+            if let badge = badgeText(for: plan.type) {
+                Text(badge)
+                    .font(PaywallDS.Font.badge)
+                    .tracking(0.2)
+                    .foregroundStyle(PaywallDS.Color.recommendedBadgeText)
+                    .lineLimit(1)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule().fill(
+                            LinearGradient(
+                                colors: [PaywallDS.Color.accent, PaywallDS.Color.accentDeep],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                    )
+            }
+        }
+    }
+
+    private func planPriceRow(plan: PaywallPlan, display: PlanDisplayPricing) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 3) {
+            Text(display.priceText)
+                .font(PaywallDS.Font.skuPrice)
+                .tracking(-1.35)
+                .monospacedDigit()
+                .foregroundStyle(Color.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+
+            if plan.type != .lifetime {
+                Text(plan.priceCaption)
+                    .font(PaywallDS.Font.skuUnit)
+                    .foregroundStyle(Color.white.opacity(0.55))
+                    .lineLimit(1)
+            }
+        }
     }
 
     /// 年订卡右上角的「早鸟价」胶囊。月订 / 买断不挂徽章。
@@ -1171,11 +1150,21 @@ struct PaywallFooter: View {
 
     let cta: CTA?
     let errorMessage: String?
+    /// 续订 / 试用后价格说明。放在 CTA 正下方，保证购买前能看到。
+    let subline: String?
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             if let cta {
                 purchaseButton(cta)
+            }
+
+            if let subline {
+                Text(subline)
+                    .font(PaywallDS.Font.trust)
+                    .foregroundStyle(PaywallDS.Color.textSecondary.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             if let errorMessage {
@@ -1185,8 +1174,6 @@ struct PaywallFooter: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
-
-            trustRow
         }
         .padding(
             EdgeInsets(
@@ -1223,7 +1210,7 @@ struct PaywallFooter: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
+            .frame(minHeight: 56)
             .background(
                 RoundedRectangle(cornerRadius: PaywallDS.Radius.chip, style: .continuous)
                     .fill(PaywallDS.Color.ctaButtonFill)
@@ -1234,23 +1221,11 @@ struct PaywallFooter: View {
             )
             .shadow(color: PaywallDS.Color.ctaButtonShadow, radius: 16, y: 6)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PaywallPressStyle())
         .opacity(cta.isEnabled ? 1 : 0.5)
         .disabled(cta.isEnabled == false)
         .accessibilityLabel(Text(cta.title))
         .accessibilityIdentifier("paywall-unlock-cta")
-    }
-
-    private var trustRow: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "lock")
-                .font(.system(size: 11, weight: .semibold))
-                .accessibilityHidden(true)
-
-            Text(L10n.string("Apple Pay · Cancel anytime"))
-                .font(PaywallDS.Font.trust)
-        }
-        .foregroundStyle(PaywallDS.Color.textSecondary.opacity(0.8))
     }
 }
 

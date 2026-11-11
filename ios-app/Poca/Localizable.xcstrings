@@ -4656,10 +4656,8 @@
         }
       }
     },
-    "200" : {
-
-    },
     "200 per round, up from 20." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -7133,10 +7131,28 @@
     },
     "All similar groups" : {
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كل المجموعات المتشابهة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle ähnlichen Gruppen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "All similar groups"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての類似グループ"
           }
         },
         "zh-Hans" : {
@@ -8151,6 +8167,7 @@
       }
     },
     "Apple Pay · Cancel anytime" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -9143,6 +9160,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "適合聊天備份和低重要性影片，空間優先。"
+          }
+        }
+      }
+    },
+    "Bigger review rounds" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "جولات مراجعة أكبر"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Größere Sortierrunden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bigger review rounds"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "整理できる枚数をアップ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更大的随机轮次"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更大的隨機輪次"
           }
         }
       }
@@ -11515,6 +11572,46 @@
         }
       }
     },
+    "Choose up to 200 photos per round." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختر حتى 200 صورة في كل جولة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle bis zu 200 Fotos pro Runde."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose up to 200 photos per round."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1回につき最大200枚まで選べます。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每轮最多可选 200 张照片。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每輪最多可選 200 張照片。"
+          }
+        }
+      }
+    },
     "Choose year" : {
       "localizations" : {
         "ar" : {
@@ -11608,6 +11705,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "陶土"
+          }
+        }
+      }
+    },
+    "Clean as much as you want. No daily limit." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "نظّف بقدر ما تريد. بلا حد يومي."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Räume auf, so viel du willst. Kein Tageslimit."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean as much as you want. No daily limit."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "毎日の上限なし。好きなだけ整理できます。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "想清理多少就清理多少，没有每日上限。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "想清理多少就清理多少，沒有每日上限。"
           }
         }
       }
@@ -19893,6 +20030,46 @@
         }
       }
     },
+    "Every duplicate group and every special category." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كل مجموعة مكررة وكل فئة خاصة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Duplikatgruppe und jede Spezialkategorie."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every duplicate group and every special category."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての重複グループと、すべての専用カテゴリ。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每一组重复照片，以及全部专项分类。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每一組重複照片，以及全部專項分類。"
+          }
+        }
+      }
+    },
     "Every photo has been reviewed." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -19930,6 +20107,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每張照片都看過了。"
+          }
+        }
+      }
+    },
+    "Every share style" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كل أنماط المشاركة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeder Kartenstil"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every share style"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのシェアスタイル"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部分享样式"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部分享樣式"
           }
         }
       }
@@ -21009,6 +21226,7 @@
       }
     },
     "Free 20" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -21090,6 +21308,7 @@
       }
     },
     "Free clears 100 photos a day. Pro has no limit." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -26614,6 +26833,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "更明顯降低位元率，適合只想騰出空間的影片。"
+          }
+        }
+      }
+    },
+    "Make every card unmistakably yours." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اجعل كل بطاقة تحمل طابعك."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mach jede Karte unverwechselbar zu deiner."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make every card unmistakably yours."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "どのカードも、あなたらしさを。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "让每张分享卡都带上你的印记。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓每張分享卡都帶上你的印記。"
           }
         }
       }
@@ -33552,6 +33811,7 @@
       }
     },
     "Original and Minimal Frame are free. Two more unlock." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -35694,6 +35954,7 @@
       }
     },
     "Photo wall & history" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -38353,6 +38614,7 @@
       }
     },
     "Pro 200" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -41873,6 +42135,7 @@
       }
     },
     "Revisit every photo left from each cleanup." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -41908,6 +42171,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "完整回顧每一次整理留下的照片。"
+          }
+        }
+      }
+    },
+    "Revisit every photo you kept, month by month." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عُد إلى كل صورة أبقيت عليها، شهراً بشهر."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sieh dir Monat für Monat jedes Foto an, das du behalten hast."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisit every photo you kept, month by month."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "残した写真を月ごとに振り返れます。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月回看你留下的每一张照片。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按月回看你留下的每一張照片。"
           }
         }
       }
@@ -42894,6 +43197,7 @@
       }
     },
     "Screenshots, videos, Live Photos and more — all unlocked with Pro." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -43873,6 +44177,7 @@
       }
     },
     "Share card styles" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -45379,6 +45684,7 @@
       }
     },
     "Special categories" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -58129,6 +58435,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "您已經瀏覽完所有照片"
+          }
+        }
+      }
+    },
+    "Your photo history" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سجل صورك"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Fotohistorie"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your photo history"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたの写真履歴"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的照片历史"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的照片歷史"
           }
         }
       }
